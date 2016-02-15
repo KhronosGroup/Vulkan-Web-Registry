@@ -35,7 +35,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
     <li> <a href="#styleguide"/> <b>Vulkan API Style Guide</b> </a> </li>
     <li> <a href="#refguide"/> <b>Vulkan API Reference Guide</b> </a> </li>
-    <li> <a href="#refpages"/> <b>Vulkan Reference Pages</b> </a> </li>
+    <li> <a href="#refpages"/> <b>Vulkan API Reference Pages</b> </a> </li>
     <li> <a href="#headers"/> <b>Vulkan Header Files</b> </a> </li>
     <li> <a href="#apiregistry"/> <b>Vulkan API Registry</b> </a> </li>
     <li> <a href="#repo-docs"/> <b>Vulkan API and Extension Specification Repository</b> </a> </li>
@@ -45,7 +45,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="apispecs"/> <b>Vulkan API Specifications</b> </h2>
+<h2> <a name="apispecs"></a> <b>Vulkan API Specifications</b> </h2>
 
 <p> We currently publish the Vulkan API Specification in PDF and HTML
     (single-page) forms. There are two different specifications
@@ -63,7 +63,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="dataformat"/> <b>Khronos Data Format Specification</b> </h2>
+<h2> <a name="dataformat"></a> <b>Khronos Data Format Specification</b> </h2>
 
 <p> The <a href="https://www.khronos.org/registry/dataformat/"> Data
     Format Specification</a> (version 1.1) defines compressed texture
@@ -71,7 +71,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     incorporated into the Vulkan API Specification by reference. </p>
 
 
-<h2> <a name="styleguide"/> <b>Vulkan API Style Guide</b> </h2>
+<h2> <a name="styleguide"></a> <b>Vulkan API Style Guide</b> </h2>
 
 <p> The <a href="specs/1.0/core/styleguide.html">API Style Guide</a>
     defines conventions and best practices used in writing the API
@@ -80,14 +80,14 @@ include_once("../../assets/static_pages/khr_page_top.php");
     and follow its recommendations. </p>
 
 
-<h2> <a name="refguide"/> <b>Vulkan API Reference Guide</b> </h2>
+<h2> <a name="refguide"></a> <b>Vulkan API Reference Guide</b> </h2>
 
 <p> The <a href="specs/1.0/refguide/refguide.pdf">API Reference
     Guide</a> is a compact document summarizing the Vulkan API commands,
     structures, and enumerants. </p>
 
 
-<h2> <a name="refpages"/> <b>Vulkan Reference Pages</b> </h2>
+<h2> <a name="refpages"></a> <b>Vulkan API Reference Pages</b> </h2>
 
 <p> The Vulkan API Reference Pages describe how to use individual core
     API and extension commands. The goal is to define all commands and
@@ -105,7 +105,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="repo-docs"/> <b>Vulkan API and Extension Specification Repository</b> </h2>
+<h2> <a name="repo-docs"></a> <b>Vulkan API and Extension Specification Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Docs">
     Vulkan-Docs</a> repository contains the Asciidoc source for the
@@ -114,19 +114,19 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Registered branches include: </p>
 
 <ul>
-    <li> <a href="tree/1.0">			       Vulkan 1.0		core API branch  </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_surface">	       VK_KHR_surface		extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_swapchain">	       VK_KHR_swapchain		extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_display">	       VK_KHR_display		extension branch </a> </li>
+    <li> <a href="tree/1.0">                           Vulkan 1.0               core API branch  </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_surface">            VK_KHR_surface           extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_swapchain">          VK_KHR_swapchain         extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_display">            VK_KHR_display           extension branch </a> </li>
     <li> <a href="tree/1.0-VK_KHR_display_swapchain">  VK_KHR_display_swapchain extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_xlib_surface">       VK_KHR_xlib_surface	extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_xcb_surface">        VK_KHR_xcb_surface	extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_wayland_surface">    VK_KHR_wayland_surface	extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface	extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface	extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface	extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_xlib_surface">       VK_KHR_xlib_surface      extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_xcb_surface">        VK_KHR_xcb_surface       extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_wayland_surface">    VK_KHR_wayland_surface   extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface       extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface   extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface     extension branch </a> </li>
     <li> <a href="tree/1.0-VK_ANDROID_native_buffer">  VK_ANDROID_native_buffer extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report	extension branch </a> </li>
+    <li> <a href="tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
 </ul>
 
 <p> Currently, this repository also contains the header files, API
@@ -135,7 +135,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     </p>
 
 
-<h2> <a name="headers"/> <b>Vulkan Header Files</b> </h2>
+<h2> <a name="headers"></a> <b>Vulkan Header Files</b> </h2>
 
 <p> For most developers, the header files provided with a loader and/or
     driver package, such as the one defined in the <a
@@ -154,7 +154,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     headers from the specifications</i>. </p>
 
 
-<h2> <a name="apiregistry"/> <b>Vulkan API Registry</b> </h2>
+<h2> <a name="apiregistry"></a> <b>Vulkan API Registry</b> </h2>
 
 <p> Vulkan defines an API Registry for the core API and extensions,
     formally defining command prototypes, structures, enumerants, and
@@ -172,7 +172,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     generate the various outputs. </p>
 
 
-<h2> <a name="repo-cts"/> <b>Vulkan Conformance Test Suite Repository</b> </h2>
+<h2> <a name="repo-cts"></a> <b>Vulkan Conformance Test Suite Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-CTS">
     Vulkan-CTS</a> repository contains the source code for the Vulkan
@@ -181,7 +181,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     order to use the Vulkan trademark for your implementation. </p>
 
 
-<h2> <a name="repo-loader"/> <b>Vulkan Loader and Validation Layers Repository</b> </h2>
+<h2> <a name="repo-loader"></a> <b>Vulkan Loader and Validation Layers Repository</b> </h2>
 
 <p> The <a
     href="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers">
@@ -189,11 +189,11 @@ include_once("../../assets/static_pages/khr_page_top.php");
     implementing a loader for hardware drivers, and a variety of
     validation layers which may be enabled during development. This code
     is also available in packages published at
-	*** <i> TBD: link to release loader/layer packages </i> ***
+        *** <i> TBD: link to release loader/layer packages </i> ***
     </p>
 
 
-<h2> <a name="repo-samples"/> <b>Vulkan Sample Code Repository</b> </h2>
+<h2> <a name="repo-samples"></a> <b>Vulkan Sample Code Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Samples">
     Vulkan-Samples</a> repository contains sample code showing use of
