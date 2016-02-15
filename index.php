@@ -82,9 +82,13 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h2> <a name="refguide"></a> <b>Vulkan API Reference Guide</b> </h2>
 
-<p> The <a href="specs/1.0/refguide/refguide.pdf">API Reference
+<p> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">API Reference
     Guide</a> is a compact document summarizing the Vulkan API commands,
     structures, and enumerants. </p>
+
+<p> The <a href="specs/1.0/refguide/refguide/VulkanQuickRef.zip"> InDesign
+    sources for the reference guide</a> are also available, formatted as a
+    .zip file. </p>
 
 
 <h2> <a name="refpages"></a> <b>Vulkan API Reference Pages</b> </h2>
