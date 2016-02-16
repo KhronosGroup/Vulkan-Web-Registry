@@ -26,26 +26,30 @@ include_once("../../assets/static_pages/khr_page_top.php");
     There are a variety of compilers and other tools for generating
     SPIR-V code. We encourage developers to explore related Vulkan
     material starting at the top-level <a
-    href="https://www.khronos.org/vulkan/">Vulkan landing page</a>. </p>
+    href="https://www.khronos.org/vulkan/">Vulkan landing page</a>.
+    There is also an OpenGL Shading Language extension
+    defined
+
+    </p>
 
 <p> Index to the Vulkan registry page content: </p>
 
 <ul>
-    <li> <a href="#apispecs"/> <b>Vulkan API Specifications</b> </a> </li>
+    <li> <a href="#apispecs"/> <b>API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
-    <li> <a href="#styleguide"/> <b>Vulkan API Style Guide</b> </a> </li>
-    <li> <a href="#refguide"/> <b>Vulkan API Reference Guide</b> </a> </li>
-    <li> <a href="#refpages"/> <b>Vulkan API Reference Pages</b> </a> </li>
-    <li> <a href="#headers"/> <b>Vulkan Header Files</b> </a> </li>
-    <li> <a href="#apiregistry"/> <b>Vulkan API Registry</b> </a> </li>
-    <li> <a href="#repo-docs"/> <b>Vulkan API and Extension Specification Repository</b> </a> </li>
-    <li> <a href="#repo-cts"/> <b>Vulkan Conformance Test Suite Repository</b> </a> </li>
-    <li> <a href="#repo-loader"/> <b>Vulkan Loader and Validation Layers Repository</b> </a> </li>
-    <li> <a href="#repo-samples"/> <b>Vulkan Sample Code Repository</b> </a> </li>
+    <li> <a href="#styleguide"/> <b>API Style Guide</b> </a> </li>
+    <li> <a href="#refguide"/> <b>API Reference Guide</b> </a> </li>
+    <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
+    <li> <a href="#headers"/> <b>Header Files</b> </a> </li>
+    <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
+    <li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a> </li>
+    <li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
+    <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
+    <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
 </ul>
 
 
-<h2> <a name="apispecs"></a> <b>Vulkan API Specifications</b> </h2>
+<h2> <a name="apispecs"></a> <b>API Specifications</b> </h2>
 
 <p> We currently publish the Vulkan API Specification in PDF and HTML
     (single-page) forms. There are two different specifications
@@ -71,7 +75,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     incorporated into the Vulkan API Specification by reference. </p>
 
 
-<h2> <a name="styleguide"></a> <b>Vulkan API Style Guide</b> </h2>
+<h2> <a name="styleguide"></a> <b>API Style Guide</b> </h2>
 
 <p> The <a href="specs/1.0/core/styleguide.html">API Style Guide</a>
     defines conventions and best practices used in writing the API
@@ -80,7 +84,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     and follow its recommendations. </p>
 
 
-<h2> <a name="refguide"></a> <b>Vulkan API Reference Guide</b> </h2>
+<h2> <a name="refguide"></a> <b>API Reference Guide</b> </h2>
 
 <p> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">API Reference
     Guide</a> is a compact document summarizing the Vulkan API commands,
@@ -91,7 +95,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     .zip file. </p>
 
 
-<h2> <a name="refpages"></a> <b>Vulkan API Reference Pages</b> </h2>
+<h2> <a name="refpages"></a> <b>API Reference Pages</b> </h2>
 
 <p> The Vulkan API Reference Pages describe how to use individual core
     API and extension commands. The goal is to define all commands and
@@ -109,7 +113,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="repo-docs"></a> <b>Vulkan API and Extension Specification Repository</b> </h2>
+<h2> <a name="repo-docs"></a> <b>API and Extension Specification Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Docs">
     Vulkan-Docs</a> repository contains the Asciidoc source for the
@@ -133,13 +137,20 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
 </ul>
 
-<p> Currently, this repository also contains the header files, API
-    Registry, and reference page sources. We hope to soon refactor the
-    repositories to separate these documents from the specifications.
-    </p>
+<p> The Vulkan-Docs repository also contains the <a
+    href="specs/misc/GL_KHR_vulkan_glsl.txt">GL_KHR_vulkan_glsl</a>
+    extension to the OpenGL Shading Language. The purpose of this extension
+    is to be used with an offline GLSL compiler generating SPIR-V code for
+    use with Vulkan; therefore it does not appear in the OpenGL Extension
+    Registry at this time. The master copy of the extension specification is
+    located under <b>doc/specs/misc/</b> in the Vulkan-Docs repository.
+
+<p> Currently, Vulkan-Docs also contains the header files, API Registry, and
+    reference page sources. We hope to soon refactor the repositories to
+    separate these documents from the specifications. </p>
 
 
-<h2> <a name="headers"></a> <b>Vulkan Header Files</b> </h2>
+<h2> <a name="headers"></a> <b>Header Files</b> </h2>
 
 <p> For most developers, the header files provided with a loader and/or
     driver package, such as the one defined in the <a
@@ -155,10 +166,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <b>src/spec/</b>. </p>
 
 <p> <i>Note: we hope to soon refactor the repositories to separate the
-    headers from the specifications</i>. </p>
+    headers and reference pages from the specifications</i>. </p>
 
 
-<h2> <a name="apiregistry"></a> <b>Vulkan API Registry</b> </h2>
+<h2> <a name="apiregistry"></a> <b>API Registry</b> </h2>
 
 <p> Vulkan defines an API Registry for the core API and extensions,
     formally defining command prototypes, structures, enumerants, and
@@ -176,7 +187,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     generate the various outputs. </p>
 
 
-<h2> <a name="repo-cts"></a> <b>Vulkan Conformance Test Suite Repository</b> </h2>
+<h2> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-CTS">
     Vulkan-CTS</a> repository contains the source code for the Vulkan
@@ -185,7 +196,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     order to use the Vulkan trademark for your implementation. </p>
 
 
-<h2> <a name="repo-loader"></a> <b>Vulkan Loader and Validation Layers Repository</b> </h2>
+<h2> <a name="repo-loader"></a> <b>Loader and Validation Layers Repository</b> </h2>
 
 <p> The <a
     href="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers">
@@ -197,7 +208,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     </p>
 
 
-<h2> <a name="repo-samples"></a> <b>Vulkan Sample Code Repository</b> </h2>
+<h2> <a name="repo-samples"></a> <b>Sample Code Repository</b> </h2>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Samples">
     Vulkan-Samples</a> repository contains sample code showing use of
