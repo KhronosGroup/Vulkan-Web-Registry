@@ -141,7 +141,6 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface       extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface   extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface     extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_ANDROID_native_buffer">  VK_ANDROID_native_buffer extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
 </ul>
 
