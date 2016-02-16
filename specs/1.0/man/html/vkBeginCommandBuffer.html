@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkBeginCommandBuffer</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkBeginCommandBuffer — Start recording a command buffer</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">VkResult vkBeginCommandBuffer(
+    VkCommandBuffer                             commandBuffer,
+    const VkCommandBufferBeginInfo*             pBeginInfo);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+<em class="parameter"><code>commandBuffer</code></em>
+</span></dt><dd>
+    A handle to the command buffer that is to be recorded.
+</dd><dt><span class="term">
+<em class="parameter"><code>pBeginInfo</code></em>
+</span></dt><dd>
+    A pointer to an instance of <span class="type"><a class="ulink" href="VkCommandBufferBeginInfo.html" target="_top">VkCommandBufferBeginInfo</a></span> containing information about the command buffer.
+</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkBeginCommandBuffer</code></strong></span> begins recording the command buffer whose handle is
+specified in <em class="parameter"><code>commandBuffer</code></em>. <em class="parameter"><code>pBeginInfo</code></em> is a pointer to an instance of the <span class="type"><a class="ulink" href="VkCommandBufferBeginInfo.html" target="_top">VkCommandBufferBeginInfo</a></span>
+structure whose definition is:</p><pre class="programlisting">typedef struct VkCommandBufferBeginInfo {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkCommandBufferUsageFlags                flags;
+    const VkCommandBufferInheritanceInfo*    pInheritanceInfo;
+} VkCommandBufferBeginInfo;</pre><p>The <em class="parameter"><code>sType</code></em> member of <span class="type"><a class="ulink" href="VkCommandBufferBeginInfo.html" target="_top">VkCommandBufferBeginInfo</a></span> should be set to
+<span class="type">VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO</span> and the <em class="parameter"><code>pNext</code></em> member of the structure
+is reserved for extensions and should be set to <code class="code">NULL</code> if none are in use.</p><p>The <em class="parameter"><code>flags</code></em> member of <em class="parameter"><code>pBeginInfo</code></em> may be used to indicate the type of workload
+expected to be placed in the command buffer, which may allow implementations
+to optimize command buffer contents more appropriately. The available flags for use
+in this member are:</p><pre class="programlisting">typedef enum VkCommandBufferUsageFlagBits {
+    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT = 0x00000001,
+    VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT = 0x00000002,
+    VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT = 0x00000004,
+} VkCommandBufferUsageFlagBits;</pre><p>If the <em class="parameter"><code>flags</code></em> member contains <span class="type">VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</span>,
+then the command buffer may only be submitted to a queue for execution once,
+after which time it must be reset or destroyed. If this flag is not included,
+then it is legal to submit the command buffer many times.</p><p>If the <em class="parameter"><code>flags</code></em> member contains <span class="type">VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</span>
+then the command buffer must be a secondary command buffer (see <code class="code"><a class="ulink" href="vkAllocateCommandBuffers.html" target="_top">vkAllocateCommandBuffers</a></code>
+for more information) and is considered to be entirely contained inside a renderpass
+that is begun in the calling primary command buffer. In such a case, the <em class="parameter"><code>renderPass</code></em>,
+<em class="parameter"><code>subpass</code></em> and <em class="parameter"><code>framebuffer</code></em> members refer to the renderpass, subpass and framebuffer
+that will be active when the command buffer is referenced with a call to <code class="code"><a class="ulink" href="vkCmdExecuteCommands.html" target="_top">vkCmdExecuteCommands</a></code>.</p><p>If <span class="type">VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</span> is not set, then the <em class="parameter"><code>renderPass</code></em>,
+<em class="parameter"><code>subpass</code></em> and <em class="parameter"><code>framebuffer</code></em> members are ignored. If the command buffer is a primary
+command buffer, then new renderpasses may be initiated by calls to <code class="code"><a class="ulink" href="vkCmdBeginRenderPass.html" target="_top">vkCmdBeginRenderPass</a></code>.
+If the command buffer is a secondary command buffer, then it may not contain commands that
+are legal only inside a renderpass, and may not be called from a primary command buffer
+while a renderpass is active.</p><p>If the <em class="parameter"><code>flags</code></em> member contains <span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span>,
+then multiple submissions of the command buffer may be in flight simultaneously.</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+A primary command buffer is considered to be in flight from the time it is submitted
+to a queue by a call to <code class="code"><a class="ulink" href="vkQueueSubmit.html" target="_top">vkQueueSubmit</a></code> until the time it is retired (signaling
+the fence passed to the call to <code class="code"><a class="ulink" href="vkQueueSubmit.html" target="_top">vkQueueSubmit</a></code>).
+</li><li class="listitem">
+A secondary command buffer is considered to be in flight from a reference to it
+it is made from a primary command buffer using a call to <code class="code"><a class="ulink" href="vkCmdExecuteCommands.html" target="_top">vkCmdExecuteCommands</a></code>
+until that primary command buffer is retired.
+</li></ul></div><p>If <span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> is not set,
+then only one invocation of the command buffer may be in flight at any time.</p><p>It should be noted that for primary command buffers,
+<span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> implies possible multiple submission
+of the command buffer, suggesting that <span class="type">VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</span>
+should be clear. Secondary command buffers may be referenced at most once from
+a primary command buffer (even the same primary command buffer) unless
+<span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> is set.</p><p>The <em class="parameter"><code>renderPass</code></em> and <em class="parameter"><code>framebuffer</code></em> members must be <span class="type">VK_NULL_HANDLE</span>
+for primary command buffers. For secondary command buffers, they must refer to
+the render pass and framebuffer that will be active when the secondary command
+buffer is called.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be a valid <span class="type">VkCommandBuffer</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>pBeginInfo</code></em> <span class="normative">must</span> be a pointer to a valid <span class="type">VkCommandBufferBeginInfo</span> structure
+</li><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must not</span> be in the recording state
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> was allocated from a <span class="type">VkCommandPool</span> which did not have the <span class="type">VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</span> flag set, <em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be in the initial state.
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> is a secondary command buffer, the <em class="parameter"><code>pInheritanceInfo</code></em> member of <em class="parameter"><code>pBeginInfo</code></em> <span class="normative">must</span> be a valid <span class="type">VkCommandBufferInheritanceInfo</span> structure
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> is a secondary command buffer and either the <em class="parameter"><code>occlusionQueryEnable</code></em> member of the <em class="parameter"><code>pInheritanceInfo</code></em> member of <em class="parameter"><code>pBeginInfo</code></em> is <span class="type">VK_FALSE</span>, or the precise occlusion queries feature is not enabled, the <em class="parameter"><code>queryFlags</code></em> member of the <em class="parameter"><code>pInheritanceInfo</code></em> member <em class="parameter"><code>pBeginInfo</code></em> <span class="normative">must not</span> contain <span class="type">VK_QUERY_CONTROL_PRECISE_BIT</span>
+</li></ul></div></div><div class="refsect1"><a id="_host_synchronization"></a><h2>Host Synchronization</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+Host access to <em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be externally synchronized
+</li></ul></div></div><div class="refsect1"><a id="_return_codes"></a><h2>Return Codes</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+On success, this command returns
+</span></dt><dd><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<span class="type">VK_SUCCESS</span>
+</li></ul></div></dd><dt><span class="term">
+On failure, this command returns
+</span></dt><dd><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<span class="type">VK_ERROR_OUT_OF_HOST_MEMORY</span>
+</li><li class="listitem">
+<span class="type">VK_ERROR_OUT_OF_DEVICE_MEMORY</span>
+</li></ul></div></dd></dl></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="ulink" href="vkAllocateCommandBuffers.html" target="_top">vkAllocateCommandBuffers</a></code>, <code class="code"><a class="ulink" href="vkFreeCommandBuffers.html" target="_top">vkFreeCommandBuffers</a></code>, <code class="code"><a class="ulink" href="vkEndCommandBuffer.html" target="_top">vkEndCommandBuffer</a></code>, <code class="code"><a class="ulink" href="vkResetCommandBuffer.html" target="_top">vkResetCommandBuffer</a></code></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
+the terms and conditions set forth in the Open Publication License, v 1.0, 8
+June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>

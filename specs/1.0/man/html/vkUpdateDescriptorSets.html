@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkUpdateDescriptorSets</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkUpdateDescriptorSets — Update the contents of a descriptor set object.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">void vkUpdateDescriptorSets(
+    VkDevice                                    device,
+    uint32_t                                    descriptorWriteCount,
+    const VkWriteDescriptorSet*                 pDescriptorWrites,
+    uint32_t                                    descriptorCopyCount,
+    const VkCopyDescriptorSet*                  pDescriptorCopies);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+<em class="parameter"><code>device</code></em>
+</span></dt><dd>
+    A handle to the device on which to update descriptor sets.
+</dd><dt><span class="term">
+<em class="parameter"><code>descriptorWriteCount</code></em>
+</span></dt><dd>
+    Number of descriptor set write requests.
+</dd><dt><span class="term">
+<em class="parameter"><code>pDescriptorWrites</code></em>
+</span></dt><dd>
+    Pointer to an array of <em class="parameter"><code>descriptorWriteCount</code></em> number of
+    <span class="type"><a class="ulink" href="VkWriteDescriptorSet.html" target="_top">VkWriteDescriptorSet</a></span> structures each specifying the parameters of
+    a descriptor write request to a descriptor set.
+</dd><dt><span class="term">
+<em class="parameter"><code>descriptorCopyCount</code></em>
+</span></dt><dd>
+    Number of descriptor set copy requests.
+</dd><dt><span class="term">
+<em class="parameter"><code>pDescriptorCopies</code></em>
+</span></dt><dd>
+    Pointer to an array of <em class="parameter"><code>descriptorCopyCount</code></em> number of
+    <span class="type"><a class="ulink" href="VkCopyDescriptorSet.html" target="_top">VkCopyDescriptorSet</a></span> structures each specifying the parameters of a
+    descriptor copy request between two descriptor sets.
+</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkUpdateDescriptorSets</code></strong></span> allows performing one or more descriptor set
+update operations.</p><p>There are two types of descriptor set update operations: descriptor write and descriptor copy requests.</p><p>Descriptor write requests allow writing descriptor data coming from buffer view, image view, and sampler objects
+to a range of descriptors within a destination descriptor set. Each descriptor write request is described
+by an instance of the <span class="type">VkWriteDescriptorSet</span> structure. The definition of this structure is:</p><pre class="programlisting">typedef struct VkWriteDescriptorSet {
+    VkStructureType                  sType;
+    const void*                      pNext;
+    VkDescriptorSet                  dstSet;
+    uint32_t                         dstBinding;
+    uint32_t                         dstArrayElement;
+    uint32_t                         descriptorCount;
+    VkDescriptorType                 descriptorType;
+    const VkDescriptorImageInfo*     pImageInfo;
+    const VkDescriptorBufferInfo*    pBufferInfo;
+    const VkBufferView*              pTexelBufferView;
+} VkWriteDescriptorSet;</pre><p>Additionally, the structure contains a pointer to an array of <em class="parameter"><code>descriptorCount</code></em>
+data structures that specify the buffer view, image view, and/or sampler
+objects from where the descriptor data is sourced. The information about each
+of the descriptor updates is stored in up to three arrays, <em class="parameter"><code>pTexelBufferInfo</code></em>,
+which is an array of stext:VkBufferView handles, and <em class="parameter"><code>pImageInfo</code></em> and
+<em class="parameter"><code>pBufferInfo</code></em>, which are arrays of <span class="type"><a class="ulink" href="VkDescriptorImageInfo.html" target="_top">VkDescriptorImageInfo</a></span> and
+<span class="type"><a class="ulink" href="VkDescriptorBufferInfo.html" target="_top">VkDescriptorBufferInfo</a></span> structures, respectively. The definitions of these
+structures are as follows:</p><pre class="programlisting">typedef struct VkDescriptorImageInfo {
+    VkSampler        sampler;
+    VkImageView      imageView;
+    VkImageLayout    imageLayout;
+} VkDescriptorImageInfo;</pre><pre class="programlisting">typedef struct VkDescriptorBufferInfo {
+    VkBuffer        buffer;
+    VkDeviceSize    offset;
+    VkDeviceSize    range;
+} VkDescriptorBufferInfo;</pre><p>Which of the <em class="parameter"><code>pImageInfo</code></em>, <em class="parameter"><code>pBufferInfo</code></em> and <em class="parameter"><code>pTexelBufferView</code></em> arrays is used
+is determined from the value of <em class="parameter"><code>descriptorType</code></em>, as follows:</p><p>If descriptorType is <span class="type">VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER</span>, <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_BUFFER</span>,
+<span class="type">VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</span>, or <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</span>,
+then the entries in <em class="parameter"><code>pBufferInfo</code></em> are used to update the descriptors and <em class="parameter"><code>pImageInfo</code></em> and
+<em class="parameter"><code>pTexelBufferInfo</code></em> parameters are ignored. For each entry of <em class="parameter"><code>pBufferInfo</code></em>, <em class="parameter"><code>buffer</code></em>
+specifies the handle of the buffer to bind to the descriptor set, and <em class="parameter"><code>offset</code></em> and <em class="parameter"><code>range</code></em>
+specify the starting offset and size of the range of the buffer to bind, respectively, in bytes.</p><p>For <span class="type">VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</span> and <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</span>
+descriptor types, <em class="parameter"><code>offset</code></em> is the base offset from which the dynamic offset is applied and <em class="parameter"><code>range</code></em>
+is the static size used for all dynamic offsets.</p><p>If <em class="parameter"><code>descriptorType</code></em> is <span class="type">VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER</span> or
+<span class="type">VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER</span>, then the <em class="parameter"><code>pTexelBufferView</code></em> array are used to
+update the descriptors, and the <em class="parameter"><code>pImageInfo</code></em> and <em class="parameter"><code>pBufferInfo</code></em> parameters are ignored.</p><p>If <em class="parameter"><code>descriptorType</code></em> is <span class="type">VK_DESCRIPTOR_TYPE_SAMPLER</span>, <span class="type">VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</span>,
+<span class="type">VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</span>, <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</span>, or
+<span class="type">VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</span>, the members in <em class="parameter"><code>pImageInfo</code></em> array are used to update the
+descriptors and the <em class="parameter"><code>pBufferInfo</code></em> and <em class="parameter"><code>pTexelBufferInfo</code></em> members are ignored.</p><p>Within each element of the <em class="parameter"><code>pImageInfo</code></em> array, the <em class="parameter"><code>sampler</code></em> member is a handle to the
+sampler to bind and is used for descriptor types <span class="type">VK_DESCRIPTOR_TYPE_SAMPLER</span> and
+<span class="type">VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</span>. The <em class="parameter"><code>imageView</code></em> is the image view handle
+used for descriptor updates of type <span class="type">VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</span>, <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</span>,
+<span class="type">VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</span>, and <span class="type">VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</span>.
+The <em class="parameter"><code>imageLayout</code></em> member specifies the layout of the image and is used with descriptor types
+<span class="type">VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</span>, <span class="type">VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</span>,
+<span class="type">VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</span>, and <span class="type">VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</span>.</p><p>A single descriptor write request may only update a continuous range of descriptors of the same type
+though that range may cross binding boundaries. See <span class="type"><a class="ulink" href="VkWriteDescriptorSet.html" target="_top">VkWriteDescriptorSet</a></span> for more information.</p><p>Descriptor copy requests allow copying a range of descriptors between a source and destination descriptor set.
+Each descriptor copy request is described by an instance of the <span class="type">VkCopyDescriptorSet</span> structure, the definition
+of which is:</p><pre class="programlisting">typedef struct VkCopyDescriptorSet {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkDescriptorSet    srcSet;
+    uint32_t           srcBinding;
+    uint32_t           srcArrayElement;
+    VkDescriptorSet    dstSet;
+    uint32_t           dstBinding;
+    uint32_t           dstArrayElement;
+    uint32_t           descriptorCount;
+} VkCopyDescriptorSet;</pre><p>This structure specifies the source and destination descriptor sets of the
+copy operation in the <em class="parameter"><code>srcSet</code></em> and <em class="parameter"><code>dstSet</code></em> members, respectively.
+The <em class="parameter"><code>srcBinding</code></em> and <em class="parameter"><code>srcArrayElement</code></em> members of the structure
+specify the first entry in the source descriptor set that should be copied;
+the <em class="parameter"><code>dstBinding</code></em> and <em class="parameter"><code>dstArrayElement</code></em> members specify the first
+entry in the destination descriptor set where the source descriptors should
+be copied to, while the <em class="parameter"><code>descriptorCount</code></em> member specifies the number of
+descriptors to copy. A single descriptor copy request may only copy between
+two continuous ranges of descriptors of the same type though both the source
+and desintation ranges may cross binding boundaries. See
+<span class="type"><a class="ulink" href="VkCopyDescriptorSet.html" target="_top">VkCopyDescriptorSet</a></span> for more information.</p><p>Attempting to update the contents of a descriptor set that is used by any command buffer that is pending
+execution may result in undefined behavior.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>device</code></em> <span class="normative">must</span> be a valid <span class="type">VkDevice</span> handle
+</li><li class="listitem">
+If <em class="parameter"><code>descriptorWriteCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pDescriptorWrites</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>descriptorWriteCount</code></em> valid <span class="type">VkWriteDescriptorSet</span> structures
+</li><li class="listitem">
+If <em class="parameter"><code>descriptorCopyCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pDescriptorCopies</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>descriptorCopyCount</code></em> valid <span class="type">VkCopyDescriptorSet</span> structures
+</li></ul></div></div><div class="refsect1"><a id="_host_synchronization"></a><h2>Host Synchronization</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+Host access to <em class="parameter"><code>pDescriptorWrites</code></em>[].dstSet <span class="normative">must</span> be externally synchronized
+</li><li class="listitem">
+Host access to <em class="parameter"><code>pDescriptorCopies</code></em>[].dstSet <span class="normative">must</span> be externally synchronized
+</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><span class="type"><a class="ulink" href="VkWriteDescriptorSet.html" target="_top">VkWriteDescriptorSet</a></span>, <span class="type"><a class="ulink" href="VkCopyDescriptorSet.html" target="_top">VkCopyDescriptorSet</a></span>, <span class="type"><a class="ulink" href="VkDescriptorBufferInfo.html" target="_top">VkDescriptorBufferInfo</a></span>, <span class="type"><a class="ulink" href="VkDescriptorImageInfo.html" target="_top">VkDescriptorImageInfo</a></span></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
+the terms and conditions set forth in the Open Publication License, v 1.0, 8
+June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>

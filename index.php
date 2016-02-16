@@ -64,11 +64,11 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <ul>
 <li> <b>Vulkan 1.0 Core API</b>
-     <a href="specs/1.0/core/xhtml/vkspec.html">(HTML)</a>
-     <a href="specs/1.0/core/pdf/vkspec.pdf">(PDF)</a> </li>
+     <a href="specs/1.0/xhtml/vkspec.html">(HTML)</a>
+     <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a> </li>
 <li> <b>Vulkan 1.0 Core API + WSI Extensions</b>
-     <a href="specs/1.0/wsi/xhtml/vkspec.html">(HTML)</a>
-     <a href="specs/1.0/wsi/pdf/vkspec.pdf">(PDF)</a> </li>
+     <a href="specs/1.0-wsi_extensions/xhtml/vkspec.html">(HTML)</a>
+     <a href="specs/1.0-wsi_extensions/pdf/vkspec.pdf">(PDF)</a> </li>
 </ul>
 
 
@@ -82,7 +82,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h2> <a name="styleguide"></a> <b>API Style Guide</b> </h2>
 
-<p> The <a href="specs/1.0/core/styleguide.html">API Style Guide</a>
+<p> The <a href="specs/1.0/styleguide.html">API Style Guide</a>
     defines conventions and best practices used in writing the API
     Specification. Authors wishing to write Vulkan extension
     specifications should familiarize themselves with the style guide
@@ -111,9 +111,9 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <ul>
 <li> <b>Vulkan 1.0 Reference Pages</b>
-     <a href="specs/1.0/core/apispec.pdf">(PDF, single file)</a>
-     <a href="specs/1.0/core/apispec.html">(HTML, single file)</a>
-     <a href="specs/1.0/core/man/html/">(HTML, one file per reference page)</a>
+     <a href="specs/1.0/apispec.pdf">(PDF, single file)</a>
+     <a href="specs/1.0/apispec.html">(HTML, single file)</a>
+     <a href="specs/1.0/man/html/">(HTML, one file per reference page)</a>
      </li>
 </ul>
 
@@ -130,19 +130,19 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Registered branches include: </p>
 
 <ul>
-    <li> <a href="tree/1.0">                           Vulkan 1.0               core API branch  </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_surface">            VK_KHR_surface           extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_swapchain">          VK_KHR_swapchain         extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_display">            VK_KHR_display           extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_display_swapchain">  VK_KHR_display_swapchain extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_xlib_surface">       VK_KHR_xlib_surface      extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_xcb_surface">        VK_KHR_xcb_surface       extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_wayland_surface">    VK_KHR_wayland_surface   extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface       extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface   extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface     extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_ANDROID_native_buffer">  VK_ANDROID_native_buffer extension branch </a> </li>
-    <li> <a href="tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0">                           Vulkan 1.0               core API branch  </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_surface">            VK_KHR_surface           extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_swapchain">          VK_KHR_swapchain         extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display">            VK_KHR_display           extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display_swapchain">  VK_KHR_display_swapchain extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xlib_surface">       VK_KHR_xlib_surface      extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xcb_surface">        VK_KHR_xcb_surface       extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_wayland_surface">    VK_KHR_wayland_surface   extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface       extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface   extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface     extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_ANDROID_native_buffer">  VK_ANDROID_native_buffer extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
 </ul>
 
 <p> The Vulkan-Docs repository also contains the <a

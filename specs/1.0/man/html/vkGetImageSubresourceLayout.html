@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkGetImageSubresourceLayout</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkGetImageSubresourceLayout — Retrieve information about an image subresource.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">void vkGetImageSubresourceLayout(
+    VkDevice                                    device,
+    VkImage                                     image,
+    const VkImageSubresource*                   pSubresource,
+    VkSubresourceLayout*                        pLayout);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+<em class="parameter"><code>device</code></em>
+</span></dt><dd>
+    A handle to the device that owns the image.
+</dd><dt><span class="term">
+<em class="parameter"><code>image</code></em>
+</span></dt><dd>
+    A handle to the image about which to retrieve information.
+</dd><dt><span class="term">
+<em class="parameter"><code>pSubresource</code></em>
+</span></dt><dd>
+    A pointer to a structure describing the subresource.
+</dd><dt><span class="term">
+<em class="parameter"><code>pLayout</code></em>
+</span></dt><dd>
+    A pointer to a structure that will receive information about the subresource.
+</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkGetImageSubresourceLayout</code></strong></span> returns information about the memory layout of a subresource of an image.
+<em class="parameter"><code>device</code></em> is a handle to the device that owns <em class="parameter"><code>image</code></em>, which is the image about which to retrieve
+information. A description of the subresource is passsed to the command through an instance of the <span class="type"><a class="ulink" href="VkImageSubresource.html" target="_top">VkImageSubresource</a></span>
+structure, the address of which is passed in <em class="parameter"><code>pSubresource</code></em>. The definition of <span class="type"><a class="ulink" href="VkImageSubresource.html" target="_top">VkImageSubresource</a></span> is:</p><pre class="programlisting">typedef struct VkImageSubresource {
+    VkImageAspectFlags    aspectMask;
+    uint32_t              mipLevel;
+    uint32_t              arrayLayer;
+} VkImageSubresource;</pre><p>Within the <em class="parameter"><code>pSubresource</code></em> structure, <em class="parameter"><code>aspectMask</code></em> is a bitfield describing the aspect of the image and
+is made up of a single member of the <span class="type"><a class="ulink" href="VkImageAspectFlagBits.html" target="_top">VkImageAspectFlagBits</a></span> enumeration, the definition of which is:</p><pre class="programlisting">typedef enum VkImageAspectFlagBits {
+    VK_IMAGE_ASPECT_COLOR_BIT = 0x00000001,
+    VK_IMAGE_ASPECT_DEPTH_BIT = 0x00000002,
+    VK_IMAGE_ASPECT_STENCIL_BIT = 0x00000004,
+    VK_IMAGE_ASPECT_METADATA_BIT = 0x00000008,
+} VkImageAspectFlagBits;</pre><p>The <span class="type">VK_IMAGE_ASPECT_COLOR_BIT</span> aspect is valid only for image formats that are usable as color. The
+<span class="type">VK_IMAGE_ASPECT_DEPTH_BIT</span> aspect is valid for formats containing depth information and the
+<span class="type">VK_IMAGE_ASPECT_STENCIL_BIT</span> aspect is valid only for formats containing stencil information. Note
+that some formats contain both depth and stencil information, and
+in this case, <em class="parameter"><code>aspectMask</code></em> is is used to select which to query. It is not legal to include more than
+one member of <span class="type"><a class="ulink" href="VkImageAspectFlagBits.html" target="_top">VkImageAspectFlagBits</a></span> in <em class="parameter"><code>aspectMask</code></em>. Some formats also include metadata
+which may be implementation dependent but is queryable by specifying <span class="type">VK_IMAGE_ASPECT_METADATA_BIT</span>.</p><p>For resources that have mipmaps or are multiple array layers, the <em class="parameter"><code>mipLevel</code></em> and <em class="parameter"><code>arrayLayer</code></em> members describe
+the mipmap level and array layer, respectively. For resources that do not have mipmaps or are not layered,
+<em class="parameter"><code>mipLevel</code></em> and <em class="parameter"><code>arrayLayer</code></em>, respectively, should be set to zero.</p><p>Information about the selected sub-resource is returned to the caller in the instance of the <span class="type"><a class="ulink" href="VkSubresourceLayout.html" target="_top">VkSubresourceLayout</a></span>
+structure pointed to by <em class="parameter"><code>pLayout</code></em>. The definition of <span class="type"><a class="ulink" href="VkSubresourceLayout.html" target="_top">VkSubresourceLayout</a></span> is:</p><pre class="programlisting">typedef struct VkSubresourceLayout {
+    VkDeviceSize    offset;
+    VkDeviceSize    size;
+    VkDeviceSize    rowPitch;
+    VkDeviceSize    arrayPitch;
+    VkDeviceSize    depthPitch;
+} VkSubresourceLayout;</pre><p>The <em class="parameter"><code>offset</code></em> member of the <em class="parameter"><code>pLayout</code></em> structure is filled with the relative offset of the start of the sub-resource
+from the start of the parent resource’s memory binding. The <em class="parameter"><code>size</code></em> member is the size of the sub-resource in
+memory. The <em class="parameter"><code>rowPitch</code></em> specifies the distance in memory of the start of each texel row of the sub-resource
+from the start of the previous row. The <em class="parameter"><code>depthPitch</code></em> specififes the distance in memory of the start of each
+slice of the sub-resource relative to the start of the previous slice. For one-dimensional resources, <em class="parameter"><code>rowPitch</code></em>
+is zero, and for one- and two-dimensional resources, <em class="parameter"><code>depthPitch</code></em> is zero. All four parameters are specified
+in bytes.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>device</code></em> <span class="normative">must</span> be a valid <span class="type">VkDevice</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>image</code></em> <span class="normative">must</span> be a valid <span class="type">VkImage</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>pSubresource</code></em> <span class="normative">must</span> be a pointer to a valid <span class="type">VkImageSubresource</span> structure
+</li><li class="listitem">
+<em class="parameter"><code>pLayout</code></em> <span class="normative">must</span> be a pointer to a <span class="type">VkSubresourceLayout</span> structure
+</li><li class="listitem">
+<em class="parameter"><code>image</code></em> <span class="normative">must</span> have been created, allocated or retrieved from <em class="parameter"><code>device</code></em>
+</li><li class="listitem">
+Each of <em class="parameter"><code>device</code></em> and <em class="parameter"><code>image</code></em> <span class="normative">must</span> have been created, allocated or retrieved from the same <span class="type">VkPhysicalDevice</span>
+</li><li class="listitem">
+<em class="parameter"><code>image</code></em> <span class="normative">must</span> have been created with <em class="parameter"><code>tiling</code></em> equal to <span class="type">VK_IMAGE_TILING_LINEAR</span>
+</li><li class="listitem">
+The <em class="parameter"><code>aspectMask</code></em> member of <em class="parameter"><code>pSubresource</code></em> <span class="normative">must</span> only have a single bit set
+</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="ulink" href="vkGetPhysicalDeviceImageFormatProperties.html" target="_top">vkGetPhysicalDeviceImageFormatProperties</a></code></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
+the terms and conditions set forth in the Open Publication License, v 1.0, 8
+June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkCmdExecuteCommands</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkCmdExecuteCommands — Execute a secondary command buffer from a primary command buffer.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">void vkCmdExecuteCommands(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    commandBufferCount,
+    const VkCommandBuffer*                      pCommandBuffers);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+<em class="parameter"><code>commandBuffer</code></em>
+</span></dt><dd>
+    The primary command buffer from which to call the secondary command buffers.
+</dd><dt><span class="term">
+<em class="parameter"><code>commandBuffersCount</code></em>
+</span></dt><dd>
+       Length of the pCommandBuffers array.
+</dd><dt><span class="term">
+<em class="parameter"><code>pCommandBuffers</code></em>
+</span></dt><dd>
+    An array of secondary command buffer handles.
+</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> executes the contents of the secondary command buffers,
+in the order they appear in the <em class="parameter"><code>pCommandBuffers</code></em> array.</p><p>If any of the secondary command buffers contains commands that may only be
+executed inside a renderpass, then they may only be executed between calls
+to <code class="code"><a class="ulink" href="vkCmdBeginRenderPass.html" target="_top">vkCmdBeginRenderPass</a></code> and <code class="code"><a class="ulink" href="vkCmdEndRenderPass.html" target="_top">vkCmdEndRenderPass</a></code> and the active
+renderpass must have a <span class="type"><a class="ulink" href="VkSubpassContents.html" target="_top">VkSubpassContents</a></span> property of
+<span class="type">VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</span>. The <em class="parameter"><code>commandBuffer</code></em>
+argument must be a primary command buffer. The renderpass and
+framebuffer provided when beginning the secondary command buffer must
+match the <span class="type">VkRenderPass</span> and <span class="type">VkFramebuffer</span> provided to
+<span class="strong"><strong><code class="code">vkCmdBeginRenderPass</code></strong></span>.</p><p>If a secondary command buffer was not recorded with the
+<span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> usage, then only a single
+call to the secondary command buffer may exist in any primary command buffer
+at one time. If this usage bit is clear, then the secondary command buffer
+may be called multiple times from the same or multiple primary command buffers.</p><p>A secondary command buffer must be finished recording, via
+<span class="strong"><strong><code class="code">vkEndCommandBuffer</code></strong></span>, before it can be referenced in a call to
+<span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span>. It must not be reset or destroyed before primary
+command buffers referencing it have completed executing.</p><p>A secondary command buffer can safely be passed to multiple
+<span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> (affecting different primary command buffers)
+simultaneously, only if it was recorded with the
+<span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> flag.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be a valid <span class="type">VkCommandBuffer</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>commandBufferCount</code></em> valid <span class="type">VkCommandBuffer</span> handles
+</li><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be in the recording state
+</li><li class="listitem">
+The <span class="type">VkCommandPool</span> that <em class="parameter"><code>commandBuffer</code></em> was allocated from <span class="normative">must</span> support transfer, graphics or compute operations
+</li><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be a primary <span class="type">VkCommandBuffer</span>
+</li><li class="listitem">
+The value of <em class="parameter"><code>commandBufferCount</code></em> <span class="normative">must</span> be greater than <code class="literal">0</code>
+</li><li class="listitem">
+Each of <em class="parameter"><code>commandBuffer</code></em> and the elements of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been created, allocated or retrieved from the same <span class="type">VkDevice</span>
+</li><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> have been created with a <em class="parameter"><code>level</code></em> value of VK_COMMAND_BUFFER_LEVEL_PRIMARY
+</li><li class="listitem">
+Any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been created with a <em class="parameter"><code>level</code></em> value of VK_COMMAND_BUFFER_LEVEL_SECONDARY
+</li><li class="listitem">
+Any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must not</span> be already pending execution in <em class="parameter"><code>commandBuffer</code></em>, or appear twice in <em class="parameter"><code>pCommandBuffers</code></em>, unless it was created with the <span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> flag
+</li><li class="listitem">
+Any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must not</span> be already pending execution in any other <span class="type">VkCommandBuffer</span>, unless it was created with the <span class="type">VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</span> flag
+</li><li class="listitem">
+Any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> be in the executable state
+</li><li class="listitem">
+If <span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> is being called within a render pass instance, that render pass instance <span class="normative">must</span> have been begun with the <em class="parameter"><code>contents</code></em> parameter of <span class="strong"><strong><code class="code">vkCmdBeginRenderPass</code></strong></span> set to <span class="type">VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</span>
+</li><li class="listitem">
+If <span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> is being called within a render pass instance, any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with the <span class="type">VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</span>
+</li><li class="listitem">
+If <span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> is being called within a render pass instance, any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with the <em class="parameter"><code>subpass</code></em> member of the <em class="parameter"><code>inheritanceInfo</code></em> structure set to the index of the subpass which the given command buffer will be executed in
+</li><li class="listitem">
+If <span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> is being called within a render pass instance, any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with a render pass that is compatible with the current render pass - see <a class="xref" href="#">???</a>
+</li><li class="listitem">
+If <span class="strong"><strong><code class="code">vkCmdExecuteCommands</code></strong></span> is being called within a render pass instance, and any given element of <em class="parameter"><code>pCommandBuffers</code></em> was recorded with the <em class="parameter"><code>framebuffer</code></em> member of the <span class="type">VkCommandBufferInheritanceInfo</span> structure not equal to <span class="type">VK_NULL_HANDLE</span>, that <span class="type">VkFramebuffer</span> <span class="normative">must</span> be compatible with the <span class="type">VkFramebuffer</span> used in the current render pass instance
+</li><li class="listitem">
+If the <a class="link" href="#">inherited queries</a> feature is not enabled, <em class="parameter"><code>commandBuffer</code></em> <span class="normative">must not</span> have any queries <a class="link" href="#">active</a>
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> has a <span class="type">VK_QUERY_TYPE_OCCLUSION</span> query <a class="link" href="#">active</a>, then each element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with <span class="type">VkCommandBufferBeginInfo</span>::<em class="parameter"><code>occlusionQueryEnable</code></em> set to <span class="type">VK_TRUE</span>
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> has a <span class="type">VK_QUERY_TYPE_OCCLUSION</span> query <a class="link" href="#">active</a>, then each element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with <span class="type">VkCommandBufferBeginInfo</span>::<em class="parameter"><code>queryFlags</code></em> having all bits set that are set for the query
+</li><li class="listitem">
+If <em class="parameter"><code>commandBuffer</code></em> has a <span class="type">VK_QUERY_TYPE_PIPELINE_STATISTICS</span> query <a class="link" href="#">active</a>, then each element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must</span> have been recorded with <span class="type">VkCommandBufferBeginInfo</span>::<em class="parameter"><code>pipelineStatistics</code></em> having all bits set that are set in the <span class="type">VkQueryPool</span> the query uses
+</li><li class="listitem">
+Any given element of <em class="parameter"><code>pCommandBuffers</code></em> <span class="normative">must not</span> begin any query types that are <a class="link" href="#">active</a> in <em class="parameter"><code>commandBuffer</code></em>
+</li></ul></div></div><div class="refsect1"><a id="_host_synchronization"></a><h2>Host Synchronization</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+Host access to <em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be externally synchronized
+</li></ul></div></div><div class="refsect1"><a id="_command_properties"></a><h2>Command Properties</h2><div class="informaltable"><table cellpadding="4px" style="border-collapse: collapse;border-top: 3px solid #527bbd; border-bottom: 3px solid #527bbd; border-left: 3px solid #527bbd; border-right: 3px solid #527bbd; " width="100%"><colgroup><col class="col_1" /><col class="col_2" /><col class="col_3" /></colgroup><thead><tr><th style="border-right: 1px solid #527bbd; border-bottom: 1px solid #527bbd; " align="left" valign="top">Command Buffer Levels</th><th style="border-right: 1px solid #527bbd; border-bottom: 1px solid #527bbd; " align="left" valign="top">Render Pass Scope</th><th style="border-bottom: 1px solid #527bbd; " align="left" valign="top">Supported Queue Types</th></tr></thead><tbody><tr><td style="border-right: 1px solid #527bbd; " align="left" valign="top"><p>Primary</p></td><td style="border-right: 1px solid #527bbd; " align="left" valign="top"><p>Both</p></td><td style="" align="left" valign="top"><p>TRANSFER
+GRAPHICS
+COMPUTE</p></td></tr></tbody></table></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="ulink" href="vkAllocateCommandBuffers.html" target="_top">vkAllocateCommandBuffers</a></code>, <code class="code"><a class="ulink" href="vkFreeCommandBuffers.html" target="_top">vkFreeCommandBuffers</a></code>, <code class="code"><a class="ulink" href="vkCmdBeginRenderPass.html" target="_top">vkCmdBeginRenderPass</a></code>, <code class="code"><a class="ulink" href="vkCmdEndRenderPass.html" target="_top">vkCmdEndRenderPass</a></code></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
+the terms and conditions set forth in the Open Publication License, v 1.0, 8
+June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkCmdBlitImage</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkCmdBlitImage — copies regions of an image, potentially performing format conversion, arbitrary scaling, and filtering (but does not allow MSAA resolve).</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">void vkCmdBlitImage(
+    VkCommandBuffer                             commandBuffer,
+    VkImage                                     srcImage,
+    VkImageLayout                               srcImageLayout,
+    VkImage                                     dstImage,
+    VkImageLayout                               dstImageLayout,
+    uint32_t                                    regionCount,
+    const VkImageBlit*                          pRegions,
+    VkFilter                                    filter);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+<em class="parameter"><code>commandBuffer</code></em>
+</span></dt><dd>
+    The command buffer into which the command is to be placed.
+</dd><dt><span class="term">
+<em class="parameter"><code>srcImage</code></em>
+</span></dt><dd>
+    The image that is the source of the blit operation.
+</dd><dt><span class="term">
+<em class="parameter"><code>srcImageLayout</code></em>
+</span></dt><dd>
+    The layout of the source image at the time of the blit.
+</dd><dt><span class="term">
+<em class="parameter"><code>dstImage</code></em>
+</span></dt><dd>
+    The image into which image data is to be copied.
+</dd><dt><span class="term">
+<em class="parameter"><code>dstImageLayout</code></em>
+</span></dt><dd>
+    The layout of the destination image at the time of the blit.
+</dd><dt><span class="term">
+<em class="parameter"><code>regionCount</code></em>
+</span></dt><dd>
+    The number of regions to blit.
+</dd><dt><span class="term">
+<em class="parameter"><code>pRegions</code></em>
+</span></dt><dd>
+    An array of image regions to blit.
+</dd><dt><span class="term">
+<em class="parameter"><code>filter</code></em>
+</span></dt><dd>
+    Filtering operation to perform on the image while performing the blit.
+</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkCmdBlitImage</code></strong></span> copies regions of a source image into a destination image, potentially performing
+format conversion, arbitrary scaling, and filtering (but does not allow MSAA resolve).
+The source and destination images are specified in <em class="parameter"><code>srcImage</code></em> and <em class="parameter"><code>dstImage</code></em>,
+respectively. The layout of the source and destination images must be provided
+in <em class="parameter"><code>srcImageLayout</code></em> and <em class="parameter"><code>dstImageLayout</code></em>, respectively.
+The <em class="parameter"><code>srcImageLayout</code></em> must be either <span class="type">VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</span>
+or <span class="type">VK_IMAGE_LAYOUT_GENERAL</span>. The <em class="parameter"><code>dstImageLayout</code></em> must be either
+<span class="type">VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</span> or <span class="type">VK_IMAGE_LAYOUT_GENERAL</span>.</p><p>The <em class="parameter"><code>srcImage</code></em> must support the <span class="type"><a class="ulink" href="VkFormatFeatureFlags.html" target="_top">VkFormatFeatureFlags</a></span> bit
+<span class="type">VK_FORMAT_FEATURE_BLIT_SRC_BIT</span> and the <em class="parameter"><code>dstImage</code></em> must support
+the <span class="type"><a class="ulink" href="VkFormatFeatureFlags.html" target="_top">VkFormatFeatureFlags</a></span> bit <span class="type">VK_FORMAT_FEATURE_BLIT_DST_BIT</span>.
+<em class="parameter"><code>srcImage</code></em> and <em class="parameter"><code>dstImage</code></em> may reference the same image but results are
+undefined if source and destination regions overlap. <em class="parameter"><code>srcImage</code></em> or
+<em class="parameter"><code>dstImage</code></em> may not refer to multi-sampled images. Use <span class="strong"><strong><code class="code">vkCmdResolveImage</code></strong></span>
+to resolve multi-sampled images.</p><p><em class="parameter"><code>pRegions</code></em> is a pointer to an array of <em class="parameter"><code>regionCount</code></em> <span class="type"><a class="ulink" href="VkImageBlit.html" target="_top">VkImageBlit</a></span>
+structures, the definition of each is:</p><pre class="programlisting">typedef struct VkImageBlit {
+    VkImageSubresourceLayers    srcSubresource;
+    VkOffset3D                  srcOffsets[2];
+    VkImageSubresourceLayers    dstSubresource;
+    VkOffset3D                  dstOffsets[2];
+} VkImageBlit;</pre><p>The <em class="parameter"><code>srcSubresource</code></em> and <em class="parameter"><code>dstSubresource</code></em> members of <span class="type"><a class="ulink" href="VkImageBlit.html" target="_top">VkImageBlit</a></span>
+specify the source and destination sub-resources, respectively. Each is
+a instance of the <span class="type"><a class="ulink" href="VkImageSubresourceLayers.html" target="_top">VkImageSubresourceLayers</a></span> structure, the definition of
+which is:</p><pre class="programlisting">typedef struct VkImageSubresourceLayers {
+    VkImageAspectFlags    aspectMask;
+    uint32_t              mipLevel;
+    uint32_t              baseArrayLayer;
+    uint32_t              layerCount;
+} VkImageSubresourceLayers;</pre><p>The <em class="parameter"><code>srcOffset</code></em>[0] and <em class="parameter"><code>srcOffset</code></em>[1] members of <span class="type"><a class="ulink" href="VkImageBlit.html" target="_top">VkImageBlit</a></span>
+define the region of the source image to copy from, and the <em class="parameter"><code>dstOffset</code></em>[0]
+and <em class="parameter"><code>dstOffset</code></em>[1] members define the region of the destination image to
+copy to. The offset members are instances of the <span class="type"><a class="ulink" href="VkOffset3D.html" target="_top">VkOffset3D</a></span> structure. The
+definition of <span class="type"><a class="ulink" href="VkOffset3D.html" target="_top">VkOffset3D</a></span> is:</p><pre class="programlisting">typedef struct VkOffset3D {
+    int32_t    x;
+    int32_t    y;
+    int32_t    z;
+} VkOffset3D;</pre><p>The size of the two regions need not match. If they are different, then
+the <em class="parameter"><code>filter</code></em> parameter determines the filtering mode used to expand or
+shrink the source region to fit the destination region. This is a member of
+the <span class="type"><a class="ulink" href="VkFilter.html" target="_top">VkFilter</a></span> enumeration, the definition of which is:</p><pre class="programlisting">typedef enum VkFilter {
+    VK_FILTER_NEAREST = 0,
+    VK_FILTER_LINEAR = 1,
+} VkFilter;</pre><p>If the format of <em class="parameter"><code>srcImage</code></em> is an integer-based format then <em class="parameter"><code>filter</code></em>
+must be <span class="type">VK_FILTER_NEAREST</span>.</p><p>Pixels are copied from the regions bound by srcOffset[0], srcOffset[1] to the
+region bound by destOffset[0], destOffset[1], scaling the result if the regions
+are different sizes.</p><p><span class="strong"><strong><code class="code">vkCmdBlitImage</code></strong></span> does not perform any implicit barriers. Therefore, if any
+region in the array of <em class="parameter"><code>pRegions</code></em> a references updates from a prior
+region, then results are undefined.</p><p>This command may not be used within a renderpass.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be a valid <span class="type">VkCommandBuffer</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>srcImage</code></em> <span class="normative">must</span> be a valid <span class="type">VkImage</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>srcImageLayout</code></em> <span class="normative">must</span> be a valid <span class="type"><a class="ulink" href="VkImageLayout.html" target="_top">VkImageLayout</a></span> value
+</li><li class="listitem">
+<em class="parameter"><code>dstImage</code></em> <span class="normative">must</span> be a valid <span class="type">VkImage</span> handle
+</li><li class="listitem">
+<em class="parameter"><code>dstImageLayout</code></em> <span class="normative">must</span> be a valid <span class="type"><a class="ulink" href="VkImageLayout.html" target="_top">VkImageLayout</a></span> value
+</li><li class="listitem">
+<em class="parameter"><code>pRegions</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>regionCount</code></em> valid <span class="type">VkImageBlit</span> structures
+</li><li class="listitem">
+<em class="parameter"><code>filter</code></em> <span class="normative">must</span> be a valid <span class="type"><a class="ulink" href="VkFilter.html" target="_top">VkFilter</a></span> value
+</li><li class="listitem">
+<em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be in the recording state
+</li><li class="listitem">
+The <span class="type">VkCommandPool</span> that <em class="parameter"><code>commandBuffer</code></em> was allocated from <span class="normative">must</span> support graphics operations
+</li><li class="listitem">
+This command <span class="normative">must</span> only be called outside of a render pass instance
+</li><li class="listitem">
+The value of <em class="parameter"><code>regionCount</code></em> <span class="normative">must</span> be greater than <code class="literal">0</code>
+</li><li class="listitem">
+Each of <em class="parameter"><code>commandBuffer</code></em>, <em class="parameter"><code>srcImage</code></em> and <em class="parameter"><code>dstImage</code></em> <span class="normative">must</span> have been created, allocated or retrieved from the same <span class="type">VkDevice</span>
+</li><li class="listitem">
+The source region specified by a given element of <em class="parameter"><code>pRegions</code></em> <span class="normative">must</span> be a region that is contained within <em class="parameter"><code>srcImage</code></em>
+</li><li class="listitem">
+The destination region specified by a given element of <em class="parameter"><code>pRegions</code></em> <span class="normative">must</span> be a region that is contained within <em class="parameter"><code>dstImage</code></em>
+</li><li class="listitem">
+The union of all source regions, and the union of all destination regions, specified by the elements of <em class="parameter"><code>pRegions</code></em>, <span class="normative">must not</span> overlap in memory
+</li><li class="listitem">
+<em class="parameter"><code>srcImage</code></em> <span class="normative">must</span> use a format that supports <span class="type">VK_FORMAT_FEATURE_BLIT_SRC_BIT</span>, which is indicated by <span class="type">VkFormatProperties</span>::<em class="parameter"><code>linearTilingFeatures</code></em> (for linear tiled images) or <span class="type">VkFormatProperties</span>::<em class="parameter"><code>optimalTilingFeatures</code></em> (for optimally tiled images) - as returned by <span class="strong"><strong><code class="code">vkGetPhysicalDeviceFormatProperties</code></strong></span>
+</li><li class="listitem">
+<em class="parameter"><code>srcImage</code></em> <span class="normative">must</span> have been created with <em class="parameter"><code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code></em> usage flag
+</li><li class="listitem">
+<em class="parameter"><code>srcImageLayout</code></em> <span class="normative">must</span> specify the layout of the subresources of <em class="parameter"><code>srcImage</code></em> specified in <em class="parameter"><code>pRegions</code></em> at the time this command is executed on a <span class="type">VkDevice</span>
+</li><li class="listitem">
+<em class="parameter"><code>srcImageLayout</code></em> <span class="normative">must</span> be either of VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL
+</li><li class="listitem">
+<em class="parameter"><code>dstImage</code></em> <span class="normative">must</span> use a format that supports <span class="type">VK_FORMAT_FEATURE_BLIT_DST_BIT</span>, which is indicated by <span class="type">VkFormatProperties</span>::<em class="parameter"><code>linearTilingFeatures</code></em> (for linear tiled images) or <span class="type">VkFormatProperties</span>::<em class="parameter"><code>optimalTilingFeatures</code></em> (for optimally tiled images) - as returned by <span class="strong"><strong><code class="code">vkGetPhysicalDeviceFormatProperties</code></strong></span>
+</li><li class="listitem">
+<em class="parameter"><code>dstImage</code></em> <span class="normative">must</span> have been created with <em class="parameter"><code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code></em> usage flag
+</li><li class="listitem">
+<em class="parameter"><code>dstImageLayout</code></em> <span class="normative">must</span> specify the layout of the subresources of <em class="parameter"><code>dstImage</code></em> specified in <em class="parameter"><code>pRegions</code></em> at the time this command is executed on a <span class="type">VkDevice</span>
+</li><li class="listitem">
+<em class="parameter"><code>dstImageLayout</code></em> <span class="normative">must</span> be either of VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL or VK_IMAGE_LAYOUT_GENERAL
+</li><li class="listitem">
+The sample count of <em class="parameter"><code>srcImage</code></em> and <em class="parameter"><code>dstImage</code></em> <span class="normative">must</span> both be equal to <span class="type">VK_SAMPLE_COUNT_1_BIT</span>
+</li><li class="listitem">
+If either of <em class="parameter"><code>srcImage</code></em> or <em class="parameter"><code>dstImage</code></em> was created with a signed integer <span class="type"><a class="ulink" href="VkFormat.html" target="_top">VkFormat</a></span>, the other <span class="normative">must</span> also have been created with a signed integer <span class="type"><a class="ulink" href="VkFormat.html" target="_top">VkFormat</a></span>
+</li><li class="listitem">
+If either of <em class="parameter"><code>srcImage</code></em> or <em class="parameter"><code>dstImage</code></em> was created with an unsigned integer <span class="type"><a class="ulink" href="VkFormat.html" target="_top">VkFormat</a></span>, the other <span class="normative">must</span> also have been created with an unsigned integer <span class="type"><a class="ulink" href="VkFormat.html" target="_top">VkFormat</a></span>
+</li><li class="listitem">
+If either of <em class="parameter"><code>srcImage</code></em> or <em class="parameter"><code>dstImage</code></em> was created with a depth/stencil format, the other <span class="normative">must</span> have exactly the same format
+</li><li class="listitem">
+If <em class="parameter"><code>srcImage</code></em> was created with a depth/stencil format, <em class="parameter"><code>filter</code></em> <span class="normative">must</span> be <span class="type">VK_FILTER_NEAREST</span>
+</li></ul></div></div><div class="refsect1"><a id="_host_synchronization"></a><h2>Host Synchronization</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+Host access to <em class="parameter"><code>commandBuffer</code></em> <span class="normative">must</span> be externally synchronized
+</li></ul></div></div><div class="refsect1"><a id="_command_properties"></a><h2>Command Properties</h2><div class="informaltable"><table cellpadding="4px" style="border-collapse: collapse;border-top: 3px solid #527bbd; border-bottom: 3px solid #527bbd; border-left: 3px solid #527bbd; border-right: 3px solid #527bbd; " width="100%"><colgroup><col class="col_1" /><col class="col_2" /><col class="col_3" /></colgroup><thead><tr><th style="border-right: 1px solid #527bbd; border-bottom: 1px solid #527bbd; " align="left" valign="top">Command Buffer Levels</th><th style="border-right: 1px solid #527bbd; border-bottom: 1px solid #527bbd; " align="left" valign="top">Render Pass Scope</th><th style="border-bottom: 1px solid #527bbd; " align="left" valign="top">Supported Queue Types</th></tr></thead><tbody><tr><td style="border-right: 1px solid #527bbd; " align="left" valign="top"><p>Primary
+Secondary</p></td><td style="border-right: 1px solid #527bbd; " align="left" valign="top"><p>Outside</p></td><td style="" align="left" valign="top"><p>GRAPHICS</p></td></tr></tbody></table></div></div><div class="refsect1"><a id="_notes"></a><h2>Notes</h2><p>Although <span class="strong"><strong><code class="code">vkCmdBlitImage</code></strong></span> does not generate errors or return a value, enabled
+validation layers may detect possible error conditions or potentially undefined
+behavior and report this via some other means.</p></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="ulink" href="vkCmdResolveImage.html" target="_top">vkCmdResolveImage</a></code>, <code class="code"><a class="ulink" href="vkCmdCopyImage.html" target="_top">vkCmdCopyImage</a></code></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
+the terms and conditions set forth in the Open Publication License, v 1.0, 8
+June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
