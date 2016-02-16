@@ -38,7 +38,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#apispecs"/> <b>API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
     <li> <a href="#styleguide"/> <b>API Style Guide</b> </a> </li>
-    <li> <a href="#refguide"/> <b>API Reference Guide</b> </a> </li>
+    <li> <a href="#refguide"/> <b>API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
     <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
         <ul>
@@ -89,15 +89,15 @@ include_once("../../assets/static_pages/khr_page_top.php");
     and follow its recommendations. </p>
 
 
-<h2> <a name="refguide"></a> <b>API Reference Guide</b> </h2>
+<h2> <a name="refguide"></a> <b>API Quick Reference</b> </h2>
 
-<p> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">API Reference
-    Guide</a> is a compact document summarizing the Vulkan API commands,
+<p> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">API Quick
+    Reference</a> is a compact document summarizing the Vulkan API commands,
     structures, and enumerants. </p>
 
-<p> The <a href="specs/1.0/refguide/VulkanQuickRef.zip"> InDesign
-    sources for the reference guide</a> are also available, formatted as a
-    .zip file. </p>
+<p> The <a href="specs/1.0/refguide/VulkanQuickRef.zip"> InDesign sources
+    for the reference guide</a> are also available, formatted as a
+    <b>.zip</b> file. </p>
 
 
 <h2> <a name="refpages"></a> <b>API Reference Pages</b> </h2>
