@@ -40,12 +40,17 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#styleguide"/> <b>API Style Guide</b> </a> </li>
     <li> <a href="#refguide"/> <b>API Reference Guide</b> </a> </li>
     <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
-    <li> <a href="#headers"/> <b>Header Files</b> </a> </li>
-    <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
-    <li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a> </li>
-    <li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
-    <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
-    <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
+    <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
+        <ul>
+        <li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a>
+            <ul>
+            <li> <a href="#headers"/> <b>Header Files</b> </a> </li>
+            <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
+            </ul> </li>
+        <li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
+        <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
+        <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
+        </ul> </li>
 </ul>
 
 
@@ -113,7 +118,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="repo-docs"></a> <b>API and Extension Specification Repository</b> </h2>
+<h2> <a name="repos"></a> <b> Vulkan Github Repositories </b> </h2>
+
+
+<h3> <a name="repo-docs"></a> <b>API and Extension Specification Repository</b> </h3>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Docs">
     Vulkan-Docs</a> repository contains the Asciidoc source for the
@@ -150,7 +158,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     separate these documents from the specifications. </p>
 
 
-<h2> <a name="headers"></a> <b>Header Files</b> </h2>
+<h4> <a name="headers"></a> <b>Header Files</b> </h4>
 
 <p> For most developers, the header files provided with a loader and/or
     driver package, such as the one defined in the <a
@@ -169,7 +177,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     headers and reference pages from the specifications</i>. </p>
 
 
-<h2> <a name="apiregistry"></a> <b>API Registry</b> </h2>
+<h4> <a name="apiregistry"></a> <b>API Registry</b> </h4>
 
 <p> Vulkan defines an API Registry for the core API and extensions,
     formally defining command prototypes, structures, enumerants, and
@@ -187,7 +195,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     generate the various outputs. </p>
 
 
-<h2> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h2>
+<h3> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h3>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-CTS">
     Vulkan-CTS</a> repository contains the source code for the Vulkan
@@ -196,19 +204,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
     order to use the Vulkan trademark for your implementation. </p>
 
 
-<h2> <a name="repo-loader"></a> <b>Loader and Validation Layers Repository</b> </h2>
+<h3> <a name="repo-loader"></a> <b>Loader and Validation Layers Repository</b> </h3>
 
 <p> The <a
     href="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers">
     Vulkan-LoaderAndValidationLayers</a> repository contains source code
-    implementing a loader for hardware drivers, and a variety of
-    validation layers which may be enabled during development. This code
-    is also available in packages published at
-        *** <i> TBD: link to release loader/layer packages </i> ***
-    </p>
+    implementing a loader for hardware drivers, and a variety of validation
+    layers which may be enabled during development. This code is also
+    available as part of prebuilt packages in the <a
+    href="https://vulkan.lunarg.com/"> LunarG Vulkan SDK</a>. </p>
 
 
-<h2> <a name="repo-samples"></a> <b>Sample Code Repository</b> </h2>
+<h3> <a name="repo-samples"></a> <b>Sample Code Repository</b> </h3>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Samples">
     Vulkan-Samples</a> repository contains sample code showing use of
