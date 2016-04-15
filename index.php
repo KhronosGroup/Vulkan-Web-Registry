@@ -14,9 +14,9 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <p> The Vulkan registry contains formatted specifications of the core
     Vulkan API, header files, API reference pages, the reference card,
-    and related documentation. It also links to Github repositories
-    where the sources for these documents can be found, as well as
-    Github branches containing Khronos and vendor extension
+    and related documentation. The registry also links to Github
+    repositories where the sources for these documents can be found, as
+    well as Github branches containing Khronos and vendor extension
     specifications. </p>
 
 <p> Graphics and compute shaders for Vulkan are defined using an
@@ -27,10 +27,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
     SPIR-V code. We encourage developers to explore related Vulkan
     material starting at the top-level <a
     href="https://www.khronos.org/vulkan/">Vulkan landing page</a>.
-    There is also an OpenGL Shading Language extension
-    defined
-
-    </p>
+    There is also a link below to an OpenGL Shading Language extension
+    allowing use of SPIR-V shaders. </p>
 
 <p> Index to the Vulkan registry page content: </p>
 
@@ -41,16 +39,16 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#refguide"/> <b>API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
     <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
-        <ul>
-        <li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a>
-            <ul>
-            <li> <a href="#headers"/> <b>Header Files</b> </a> </li>
-            <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
-            </ul> </li>
-        <li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
-        <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
-        <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
-        </ul> </li>
+	<ul>
+	<li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a>
+	    <ul>
+	    <li> <a href="#headers"/> <b>Header Files</b> </a> </li>
+	    <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
+	    </ul> </li>
+	<li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
+	<li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
+	<li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
+	</ul> </li>
 </ul>
 
 
@@ -130,18 +128,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Registered branches include: </p>
 
 <ul>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0">                           Vulkan 1.0               core API branch  </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_surface">            VK_KHR_surface           extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_swapchain">          VK_KHR_swapchain         extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display">            VK_KHR_display           extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0">			   Vulkan 1.0		    core API branch  </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_surface">		   VK_KHR_surface	    extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_swapchain">	   VK_KHR_swapchain	    extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display">		   VK_KHR_display	    extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display_swapchain">  VK_KHR_display_swapchain extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xlib_surface">       VK_KHR_xlib_surface      extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xcb_surface">        VK_KHR_xcb_surface       extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xlib_surface">	   VK_KHR_xlib_surface	    extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xcb_surface">	   VK_KHR_xcb_surface	    extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_wayland_surface">    VK_KHR_wayland_surface   extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_mir_surface">        VK_KHR_mir_surface       extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_mir_surface">	   VK_KHR_mir_surface	    extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_android_surface">    VK_KHR_android_surface   extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_win32_surface">      VK_KHR_win32_surface     extension branch </a> </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_report">       VK_EXT_debug_report      extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_win32_surface">	   VK_KHR_win32_surface     extension branch </a> </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_report">	   VK_EXT_debug_report	    extension branch </a> </li>
 </ul>
 
 <p> The Vulkan-Docs repository also contains the <a
