@@ -143,9 +143,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_NV_glsl_shader">          VK_NV_glsl_shader          </a> extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_IMG_filter_cubic">        VK_IMG_filter_cubic        </a> extension branch </a> </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_marker">        VK_EXT_debug_marker        </a> extension branch </a> </li>
-        <!--
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> extension branch </a> </li>
-        -->
 </ul>
 
 <p> The Vulkan-Docs repository also contains the <a
