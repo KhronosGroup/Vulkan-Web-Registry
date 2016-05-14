@@ -192,9 +192,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <p> The Registry is in an XML file called <b>vk.xml</b> and currently
     located in the <a href="#repo-docs"> Vulkan-Docs</a> repository
     under <b>src/spec</b>. This directory also includes a formal Relax
-    NG XML schema, documentation of the schema, and scripts used to
-    generate the various outputs. </p>
+    NG XML schema and scripts used to generate the various outputs. </p>
 
+<p> <a href="specs/1.0/readme.pdf"> Documentation of the XML schema</a> is
+    available. </p>
 
 <h3> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h3>
 
