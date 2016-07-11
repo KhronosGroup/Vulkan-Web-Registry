@@ -1,12 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSystemAllocationScope</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSystemAllocationScope — Stub page (not yet written)</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">typedef enum VkSystemAllocationScope {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSystemAllocationScope</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSystemAllocationScope — allocation scope</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><p><a id="memory-host-allocation-scope"></a>Each allocation has a <span class="emphasis"><em>scope</em></span> which defines its lifetime and which object it
+is associated with. The scope is provided in the <em class="parameter"><code>allocationScope</code></em>
+parameter passed to callbacks defined in <code class="code"><a class="link" href="#">VkAllocationCallbacks</a></code>.
+Possible values for this parameter are defined by
+<code class="code"><a class="link" href="#">VkSystemAllocationScope</a></code>:</p><pre class="programlisting">typedef enum VkSystemAllocationScope {
     VK_SYSTEM_ALLOCATION_SCOPE_COMMAND = 0,
     VK_SYSTEM_ALLOCATION_SCOPE_OBJECT = 1,
     VK_SYSTEM_ALLOCATION_SCOPE_CACHE = 2,
     VK_SYSTEM_ALLOCATION_SCOPE_DEVICE = 3,
     VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE = 4,
-} VkSystemAllocationScope;</pre><p>This is a stub page. Content has not been filled in yet. Khronos is
-aware of the problem and working on it as time allows; please do not
-file Github issues bringing the missing content to our attention.</p></div><div class="refsect1"><a id="_constants"></a><h2>Constants</h2></div><div class="refsect1"><a id="_description"></a><h2>Description</h2></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
-the terms and conditions set forth in the Open Publication License, v 1.0, 8
-June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
+} VkSystemAllocationScope;</pre></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_COMMAND</code> - The allocation is scoped to
+    the duration of the Vulkan command.
+</li><li class="listitem">
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_OBJECT</code> - The allocation is scoped to
+    the lifetime of the Vulkan object that is being created or used.
+</li><li class="listitem">
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_CACHE</code> - The allocation is scoped to the
+    lifetime of a <code class="code">VkPipelineCache</code> object.
+</li><li class="listitem">
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_DEVICE</code> - The allocation is scoped to
+    the lifetime of the Vulkan device.
+</li><li class="listitem">
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE</code> - The allocation is scoped to
+    the lifetime of the Vulkan instance.
+</li></ul></div><p>Most Vulkan commands operate on a single object, or there is a sole
+object that is being created or manipulated. When an allocation uses a scope
+of <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_OBJECT</code> or
+<code class="code">VK_SYSTEM_ALLOCATION_SCOPE_CACHE</code>, the allocation is scoped to the
+object being created or manipulated.</p><p>When an implementation requires host memory, it will make callbacks to the
+application using the most specific allocator and scope available:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+If an allocation is scoped to the duration of a command, the allocator
+    will use the <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_COMMAND</code> scope. The most
+    specific allocator available is used: if the object being created or
+    manipulated has an allocator, that object’s allocator will be used, else
+    if the parent <code class="code">VkDevice</code> has an allocator it will be used, else if
+    the parent <code class="code">VkInstance</code> has an allocator it will be used. Else,
+</li><li class="listitem">
+If an allocation is associated with an object of type
+    <code class="code">VkPipelineCache</code>, the allocator will use the
+    <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_CACHE</code> scope. The most specific
+    allocator available is used (pipeline cache, else device, else
+    instance). Else,
+</li><li class="listitem">
+If an allocation is scoped to the lifetime of an object, that object is
+    being created or manipulated by the command, and that object’s type is
+    not <code class="code">VkDevice</code> or <code class="code">VkInstance</code>, the allocator will use a scope
+    of <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_OBJECT</code>. The most specific allocator
+    available is used (object, else device, else instance). Else,
+</li><li class="listitem">
+If an allocation is scoped to the lifetime of a device, the allocator
+    will use scope of <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_DEVICE</code>. The most
+    specific allocator available is used (device, else instance). Else,
+</li><li class="listitem">
+If the allocation is scoped to the lifetime of an instance and the
+    instance has an allocator, its allocator will be used with a scope of
+    <code class="code">VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE</code>.
+</li><li class="listitem">
+Otherwise an implementation will allocate memory through an alternative
+    mechanism that is unspecified.
+</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="link" href="#">VkAllocationCallbacks</a></code></p></div><div class="refsect1"><a id="_document_notes"></a><h2>Document Notes</h2><p>For more information, see the Vulkan Specification at URL</p><p><a class="ulink" href="https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSystemAllocationScope" target="_top">https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSystemAllocationScope</a></p><p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright (c) 2014-2016 Khronos Group. This work is licensed under a
+<a class="ulink" href="http://creativecommons.org/licenses/by/4.0/" target="_top">Creative Commons
+Attribution 4.0 International License</a>.</p></div></div></body></html>

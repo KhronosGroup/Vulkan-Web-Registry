@@ -1,25 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkDescriptorPoolCreateInfo</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkDescriptorPoolCreateInfo — Stub page (not yet written)</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">typedef struct VkDescriptorPoolCreateInfo {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkDescriptorPoolCreateInfo</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkDescriptorPoolCreateInfo — Structure specifying parameters of a newly created descriptor pool</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><p>Additional information about the pool is passed in an instance of the
+<code class="code">VkDescriptorPoolCreateInfo</code> structure:</p><pre class="programlisting">typedef struct VkDescriptorPoolCreateInfo {
     VkStructureType                sType;
     const void*                    pNext;
     VkDescriptorPoolCreateFlags    flags;
     uint32_t                       maxSets;
     uint32_t                       poolSizeCount;
     const VkDescriptorPoolSize*    pPoolSizes;
-} VkDescriptorPoolCreateInfo;</pre><p>This is a stub page. Content has not been filled in yet. Khronos is
-aware of the problem and working on it as time allows; please do not
-file Github issues bringing the missing content to our attention.</p></div><div class="refsect1"><a id="_fields"></a><h2>Fields</h2></div><div class="refsect1"><a id="_description"></a><h2>Description</h2></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-<em class="parameter"><code>sType</code></em> <span class="normative">must</span> be <span class="type">VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO</span>
+} VkDescriptorPoolCreateInfo;</pre></div><div class="refsect1"><a id="_members"></a><h2>Members</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>sType</code></em> is the type of this structure.
+</li><li class="listitem">
+<em class="parameter"><code>pNext</code></em> is <code class="literal">NULL</code> or a pointer to an extension-specific structure.
+</li><li class="listitem"><p class="simpara">
+<em class="parameter"><code>flags</code></em> specifies certain supported operations on the pool.
+    Bits which <span class="normative">can</span> be set include:
+</p><pre class="programlisting">typedef enum VkDescriptorPoolCreateFlagBits {
+    VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT = 0x00000001,
+} VkDescriptorPoolCreateFlagBits;</pre><p class="simpara">If <em class="parameter"><code>flags</code></em> includes
+<code class="code">VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT</code>, then descriptor
+sets <span class="normative">can</span> return their individual allocations to the pool, i.e. all of
+<span class="strong"><strong><code class="code">vkAllocateDescriptorSets</code></strong></span>, <span class="strong"><strong><code class="code">vkFreeDescriptorSets</code></strong></span>, and
+<span class="strong"><strong><code class="code">vkResetDescriptorPool</code></strong></span> are allowed. Otherwise, descriptor sets
+allocated from the pool <span class="normative">must not</span> be individually freed back to the pool,
+i.e. only <span class="strong"><strong><code class="code">vkAllocateDescriptorSets</code></strong></span> and <span class="strong"><strong><code class="code">vkResetDescriptorPool</code></strong></span> are
+allowed.</p></li><li class="listitem">
+<em class="parameter"><code>maxSets</code></em> is the maximum number of descriptor sets that <span class="normative">can</span>
+    be allocated from the pool.
+</li><li class="listitem">
+<em class="parameter"><code>poolSizeCount</code></em> is the number of elements in <em class="parameter"><code>pPoolSizes</code></em>.
+</li><li class="listitem">
+<em class="parameter"><code>pPoolSizes</code></em> is a pointer to an array of <code class="code">VkDescriptorPoolSize</code>
+    structures, each containing a descriptor type and number of descriptors
+    of that type to be allocated in the pool.
+</li></ul></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p>If multiple <code class="code">VkDescriptorPoolSize</code> structures appear in the
+<em class="parameter"><code>pPoolSizes</code></em> array then the pool will be created with enough storage
+for the total number of descriptors of each type.</p><p>Fragmentation of a descriptor pool is possible and <span class="normative">may</span> lead to descriptor
+set allocation failures. A failure due to fragmentation is defined as
+failing a descriptor set allocation despite the sum of all outstanding
+descriptor set allocations from the pool plus the requested allocation
+requiring no more than the total number of descriptors requested at pool
+creation. Implementations provide certain guarantees of when fragmentation
+<span class="normative">must not</span> cause allocation failure, as described below.</p><p>If a descriptor pool has not had any descriptor sets freed since it was
+created or most recently reset then fragmentation <span class="normative">must not</span> cause an
+allocation failure (note that this is always the case for a pool created
+without the <code class="code">VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT</code> bit
+set). Additionally, if all sets allocated from the pool since it was created
+or most recently reset use the same number of descriptors (of each type) and
+the requested allocation also uses that same number of descriptors (of each
+type), then fragmentation <span class="normative">must not</span> cause an allocation failure.</p><p>If an allocation failure occurs due to fragmentation, an application <span class="normative">can</span>
+create an additional descriptor pool to perform further descriptor set
+allocations.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>sType</code></em> <span class="normative">must</span> be <code class="code">VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO</code>
 </li><li class="listitem">
 <em class="parameter"><code>pNext</code></em> <span class="normative">must</span> be <code class="literal">NULL</code>
 </li><li class="listitem">
-<em class="parameter"><code>flags</code></em> <span class="normative">must</span> be a valid combination of <span class="type"><a class="ulink" href="VkDescriptorPoolCreateFlagBits.html" target="_top">VkDescriptorPoolCreateFlagBits</a></span> values
+<em class="parameter"><code>flags</code></em> <span class="normative">must</span> be a valid combination of <code class="code"><a class="link" href="#">VkDescriptorPoolCreateFlagBits</a></code> values
 </li><li class="listitem">
-<em class="parameter"><code>pPoolSizes</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>poolSizeCount</code></em> valid <span class="type">VkDescriptorPoolSize</span> structures
+<em class="parameter"><code>pPoolSizes</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>poolSizeCount</code></em> valid <code class="code">VkDescriptorPoolSize</code> structures
 </li><li class="listitem">
 <em class="parameter"><code>poolSizeCount</code></em> <span class="normative">must</span> be greater than <code class="literal">0</code>
 </li><li class="listitem">
 <em class="parameter"><code>maxSets</code></em> <span class="normative">must</span> be greater than <code class="literal">0</code>
-</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
-the terms and conditions set forth in the Open Publication License, v 1.0, 8
-June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
+</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="link" href="#">VkDescriptorPoolCreateFlags</a></code>, <code class="code"><a class="link" href="#">VkDescriptorPoolSize</a></code>, <code class="code"><a class="link" href="#">VkStructureType</a></code>, <code class="code"><a class="link" href="#">vkCreateDescriptorPool</a></code></p></div><div class="refsect1"><a id="_document_notes"></a><h2>Document Notes</h2><p>For more information, see the Vulkan Specification at URL</p><p><a class="ulink" href="https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkDescriptorPoolCreateInfo" target="_top">https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkDescriptorPoolCreateInfo</a></p><p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright (c) 2014-2016 Khronos Group. This work is licensed under a
+<a class="ulink" href="http://creativecommons.org/licenses/by/4.0/" target="_top">Creative Commons
+Attribution 4.0 International License</a>.</p></div></div></body></html>

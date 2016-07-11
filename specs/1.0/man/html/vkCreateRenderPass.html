@@ -1,148 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkCreateRenderPass</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkCreateRenderPass — Create a new render pass object.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">VkResult vkCreateRenderPass(
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>vkCreateRenderPass</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>vkCreateRenderPass — Create a new render pass object.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><p>To create a render pass, call:</p><pre class="programlisting">VkResult vkCreateRenderPass(
     VkDevice                                    device,
     const VkRenderPassCreateInfo*               pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
-    VkRenderPass*                               pRenderPass);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
-<em class="parameter"><code>device</code></em>
-</span></dt><dd>
-    The device with which to create the render pass object.
-</dd><dt><span class="term">
-<em class="parameter"><code>pCreateInfo</code></em>
-</span></dt><dd>
-    A pointer to a structure containing information to be placed in the object.
-</dd><dt><span class="term">
-<em class="parameter"><code>pRenderPass</code></em>
-</span></dt><dd>
-    A pointer to a variable which will receive the handle to the new object.
-</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p><span class="strong"><strong><code class="code">vkCreateRenderPass</code></strong></span> creates a new render pass object using the information contained in
-<em class="parameter"><code>pCreateInfo</code></em> and the device specified in <em class="parameter"><code>device</code></em>. Upon success, a handle to
-the new render pass object is deposited in the variable pointed to by <em class="parameter"><code>pRenderPass</code></em>,
-<em class="parameter"><code>pCreateInfo</code></em> should point to an instance of the <span class="type"><a class="ulink" href="VkRenderPassCreateInfo.html" target="_top">VkRenderPassCreateInfo</a></span> structure,
-the definition of which is:</p><pre class="programlisting">typedef struct VkRenderPassCreateInfo {
-    VkStructureType                   sType;
-    const void*                       pNext;
-    VkRenderPassCreateFlags           flags;
-    uint32_t                          attachmentCount;
-    const VkAttachmentDescription*    pAttachments;
-    uint32_t                          subpassCount;
-    const VkSubpassDescription*       pSubpasses;
-    uint32_t                          dependencyCount;
-    const VkSubpassDependency*        pDependencies;
-} VkRenderPassCreateInfo;</pre><p>A render pass is a sequence of subpasses, each of which reads from some framebuffer
-attachments and writes to others as color and depth/stencil. The subpasses all render
-to the same dimensions, and fragments for pixel (x,y,layer) in one subpass only read
-framebuffer contents written by earlier subpasses at that same (x,y,layer) location.
-It is quite common for a render pass to only contain a single subpass.</p><p>Dependencies between subpasses describe ordering restrictions between them. Without
-dependencies, implementations may reorder or overlap execution of two subpasses.</p><div class="refsect2"><a id="_attachments"></a><h3>Attachments</h3><p>The attachments used in the render pass are described by a <span class="type"><a class="ulink" href="VkAttachmentDescription.html" target="_top">VkAttachmentDescription</a></span>
-structure, defined as:</p><pre class="programlisting">typedef struct VkAttachmentDescription {
-    VkAttachmentDescriptionFlags    flags;
-    VkFormat                        format;
-    VkSampleCountFlagBits           samples;
-    VkAttachmentLoadOp              loadOp;
-    VkAttachmentStoreOp             storeOp;
-    VkAttachmentLoadOp              stencilLoadOp;
-    VkAttachmentStoreOp             stencilStoreOp;
-    VkImageLayout                   initialLayout;
-    VkImageLayout                   finalLayout;
-} VkAttachmentDescription;</pre><p>The <em class="parameter"><code>format</code></em> and <em class="parameter"><code>samples</code></em> members are respectively the format and the
-number of samples of the image that will be used for the attachment.</p><p>The <em class="parameter"><code>loadOp</code></em> defines how the contents of the attachment within the render
-area will be treated at the beginning of the render pass. A load op of
-<span class="type">VK_ATTACHMENT_LOAD_OP_LOAD</span> means the contents within the render area will
-be preserved; <span class="type">VK_ATTACHMENT_LOAD_OP_CLEAR</span> means the contents within the
-render area will be cleared to a uniform value;
-<span class="type">VK_ATTACHMENT_LOAD_OP_DONT_CARE</span> means the application intends to overwrite
-all samples in the render area without reading the initial contents, so their
-initial contents are unimportant. If the attachment format has both depth and
-stencil components, <em class="parameter"><code>loadOp</code></em> applies only to the depth data, while
-<em class="parameter"><code>stencilLoadOp</code></em> defines how the stencil data is handled. <em class="parameter"><code>stencilLoadOp</code></em>
-is ignored for other formats.</p><p>The <em class="parameter"><code>storeOp</code></em> defines whether data rendered to the attachment is committed to memory
-at the end of the render pass. <span class="type">VK_ATTACHMENT_STORE_OP_STORE</span> means the data is committed
-to memory and will be available for reading after the render pass completes.
-<span class="type">VK_ATTACHMENT_STORE_OP_DONT_CARE</span> means the data is not needed after rendering, and may
-be discarded; the contents of the attachment will be undefined inside the render area.
-If the attachment format has both depth and stencil components, <em class="parameter"><code>storeOp</code></em> applies only
-to the depth data, while <em class="parameter"><code>stencilStoreOp</code></em> defines how the stencil data is
-handled. <em class="parameter"><code>stencilStoreOp</code></em> is ignored for other formats.</p><p><em class="parameter"><code>initialLayout</code></em> is the layout the attachment image will be in when the render
-pass begins.</p><p><em class="parameter"><code>finalLayout</code></em> is the layout the attachment image will be transitioned to when
-the render pass ends.</p></div><div class="refsect2"><a id="_subpasses"></a><h3>Subpasses</h3><p>Subpasses of a render pass are described by a <span class="type"><a class="ulink" href="VkSubpassDescription.html" target="_top">VkSubpassDescription</a></span> structure,
-defined as:</p><pre class="programlisting">typedef struct VkSubpassDescription {
-    VkSubpassDescriptionFlags       flags;
-    VkPipelineBindPoint             pipelineBindPoint;
-    uint32_t                        inputAttachmentCount;
-    const VkAttachmentReference*    pInputAttachments;
-    uint32_t                        colorAttachmentCount;
-    const VkAttachmentReference*    pColorAttachments;
-    const VkAttachmentReference*    pResolveAttachments;
-    const VkAttachmentReference*    pDepthStencilAttachment;
-    uint32_t                        preserveAttachmentCount;
-    const uint32_t*                 pPreserveAttachments;
-} VkSubpassDescription;</pre><p>The <em class="parameter"><code>pipelineBindPoint</code></em> indicates whether this is a compute or graphics subpass.
-Only graphics subpasses are currently allowed.</p><p>The <em class="parameter"><code>flags</code></em> member is currently unused and must be zero.</p><p><em class="parameter"><code>pInputAttachments</code></em> lists which of the render pass’s attachments will be
-read in the shader in the subpass, and what layout the attachment images
-should be transitioned to before the subpass. <em class="parameter"><code>inputAttachmentCount</code></em>
-indicates the number of input attachments. Input attachments must also be
-bound to the pipeline with a descriptor set.</p><p><em class="parameter"><code>pColorAttachments</code></em> lists which of the render pass’s attachments will be
-used as color attachments in the subpass, and what layout the attachment
-images should be transitioned to before the subpass.
-<em class="parameter"><code>colorAttachmentCount</code></em> indicates the number of color attachments.</p><p>Each entry in <em class="parameter"><code>pResolveAttachments</code></em> corresponds to an entry in
-<em class="parameter"><code>pColorAttachments</code></em>; either <em class="parameter"><code>pResolveAttachments</code></em> must be NULL or it
-must have <em class="parameter"><code>colorAttachmentCount</code></em> entries. If <em class="parameter"><code>pResolveAttachments</code></em>
-is not NULL, each of its elements corresponds to a color attachment (the
-element in <em class="parameter"><code>pColorAttachments</code></em> at the same index). At the end of each
-subpass, the subpass’s color attachments will be resolved to the
-corresponding resolve attachments, unless the resolve attachment index is
-<span class="type">VK_ATTACHMENT_UNUSED</span>.</p><p>The <em class="parameter"><code>depthStencilAttachment</code></em> indicates which attachment will be used for
-depth/stencil data and the layout it should be transitioned to before the
-subpass. If no depth/stencil attachment is used in the
-subpass, the attachment index must be <span class="type">VK_ATTACHMENT_UNUSED</span>.</p><p>The <em class="parameter"><code>pPreserveAttachments</code></em> are the attachments that aren’t used by a
-subpass, but whose contents must be preserved throughout the subpass. If the
-contents of an attachment are produced in one subpass and consumed in a
-later subpass, the attachment must be preserved in any subpasses on
-dependency chains from the producer to consumer.
-<em class="parameter"><code>preserveAttachmentCount</code></em> indicates the number of preserved attachments.</p><p>If a subpass uses an attachment as both an input attachment and either a color
-attachment or a depth/stencil attachment, all pipelines used in the subpass must
-disable writes to any components of the attachment format that are used as input.</p></div><div class="refsect2"><a id="_dependencies"></a><h3>Dependencies</h3><p>Dependencies describe a pipeline barrier that must occur between two subpasses,
-usually because the destination subpass reads attachment contents written by the
-source subpass. Dependencies are described by <span class="type">VkSubpassDependency</span>
-structures, defined as:</p><pre class="programlisting">typedef struct VkSubpassDependency {
-    uint32_t                srcSubpass;
-    uint32_t                dstSubpass;
-    VkPipelineStageFlags    srcStageMask;
-    VkPipelineStageFlags    dstStageMask;
-    VkAccessFlags           srcAccessMask;
-    VkAccessFlags           dstAccessMask;
-    VkDependencyFlags       dependencyFlags;
-} VkSubpassDependency;</pre><p>The <em class="parameter"><code>srcSubpass</code></em> and <em class="parameter"><code>dstSubpass</code></em> are producer and consumer subpasses,
-respectively. <em class="parameter"><code>srcSubpass</code></em> must be less than or equal to <em class="parameter"><code>dstSubpass</code></em>,
-so that the order of subpass descriptions is always a valid execution ordering,
-and so the dependency graph cannot have cycles.</p><p>The <em class="parameter"><code>srcStageMask</code></em>, <em class="parameter"><code>dstStageMask</code></em>, <em class="parameter"><code>outputMask</code></em>, <em class="parameter"><code>inputMask</code></em>,
-and <em class="parameter"><code>byRegion</code></em> describe the barrier, and have the same meaning as the
-VkCmdPipelineBarrier parameters and <span class="type"><a class="ulink" href="VkMemoryBarrier.html" target="_top">VkMemoryBarrier</a></span> members with the same
-names.</p><p>If <em class="parameter"><code>byRegion</code></em> is <span class="type">VK_TRUE</span>, it describes a per-region (x,y,layer)
-dependency, that is for each region, the <em class="parameter"><code>srcStageMask</code></em> stages must have
-finished in <em class="parameter"><code>srcSubpass</code></em> before any <em class="parameter"><code>dstStageMask</code></em> stage starts in
-<em class="parameter"><code>dstSubpass</code></em> for the same region. If <em class="parameter"><code>byRegion</code></em> is <span class="type">VK_FALSE</span>, it
-describes a global dependency, that is the <em class="parameter"><code>srcStageMask</code></em> stages must have
-finished for all regions in <em class="parameter"><code>srcSubpass</code></em> before any <em class="parameter"><code>dstStageMask</code></em>
-stage starts in <em class="parameter"><code>dstSubpass</code></em> for any region.</p></div></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-<em class="parameter"><code>device</code></em> <span class="normative">must</span> be a valid <span class="type">VkDevice</span> handle
+    VkRenderPass*                               pRenderPass);</pre></div><div class="refsect1"><a id="_parameters"></a><h2>Parameters</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>device</code></em> is the logical device that creates the render pass.
 </li><li class="listitem">
-<em class="parameter"><code>pCreateInfo</code></em> <span class="normative">must</span> be a pointer to a valid <span class="type">VkRenderPassCreateInfo</span> structure
+<em class="parameter"><code>pCreateInfo</code></em> is a pointer to an instance of the
+    <code class="code"><a class="link" href="#">VkRenderPassCreateInfo</a></code> structure that describes the parameters of
+    the render pass.
 </li><li class="listitem">
-If <em class="parameter"><code>pAllocator</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pAllocator</code></em> <span class="normative">must</span> be a pointer to a valid <span class="type">VkAllocationCallbacks</span> structure
+<em class="parameter"><code>pAllocator</code></em> controls host memory allocation as described in the
+    <a class="link" href="#">Memory Allocation</a> chapter.
 </li><li class="listitem">
-<em class="parameter"><code>pRenderPass</code></em> <span class="normative">must</span> be a pointer to a <span class="type">VkRenderPass</span> handle
+<em class="parameter"><code>pRenderPass</code></em> points to a <code class="code">VkRenderPass</code> handle in which the
+    resulting render pass object is returned.
+</li></ul></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>device</code></em> <span class="normative">must</span> be a valid <code class="code">VkDevice</code> handle
+</li><li class="listitem">
+<em class="parameter"><code>pCreateInfo</code></em> <span class="normative">must</span> be a pointer to a valid <code class="code">VkRenderPassCreateInfo</code> structure
+</li><li class="listitem">
+If <em class="parameter"><code>pAllocator</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pAllocator</code></em> <span class="normative">must</span> be a pointer to a valid <code class="code">VkAllocationCallbacks</code> structure
+</li><li class="listitem">
+<em class="parameter"><code>pRenderPass</code></em> <span class="normative">must</span> be a pointer to a <code class="code">VkRenderPass</code> handle
 </li></ul></div></div><div class="refsect1"><a id="_return_codes"></a><h2>Return Codes</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
 On success, this command returns
 </span></dt><dd><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-<span class="type">VK_SUCCESS</span>
+<code class="code">VK_SUCCESS</code>
 </li></ul></div></dd><dt><span class="term">
 On failure, this command returns
 </span></dt><dd><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-<span class="type">VK_ERROR_OUT_OF_HOST_MEMORY</span>
+<code class="code">VK_ERROR_OUT_OF_HOST_MEMORY</code>
 </li><li class="listitem">
-<span class="type">VK_ERROR_OUT_OF_DEVICE_MEMORY</span>
-</li></ul></div></dd></dl></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="ulink" href="vkCmdBeginRenderPass.html" target="_top">vkCmdBeginRenderPass</a></code>, <code class="code"><a class="ulink" href="vkCmdEndRenderPass.html" target="_top">vkCmdEndRenderPass</a></code></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
-the terms and conditions set forth in the Open Publication License, v 1.0, 8
-June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
+<code class="code">VK_ERROR_OUT_OF_DEVICE_MEMORY</code>
+</li></ul></div></dd></dl></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="link" href="#">VkAllocationCallbacks</a></code>, <code class="code"><a class="link" href="#">VkDevice</a></code>, <code class="code"><a class="link" href="#">VkRenderPass</a></code>, <code class="code"><a class="link" href="#">VkRenderPassCreateInfo</a></code></p></div><div class="refsect1"><a id="_document_notes"></a><h2>Document Notes</h2><p>For more information, see the Vulkan Specification at URL</p><p><a class="ulink" href="https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateRenderPass" target="_top">https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#vkCreateRenderPass</a></p><p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright (c) 2014-2016 Khronos Group. This work is licensed under a
+<a class="ulink" href="http://creativecommons.org/licenses/by/4.0/" target="_top">Creative Commons
+Attribution 4.0 International License</a>.</p></div></div></body></html>

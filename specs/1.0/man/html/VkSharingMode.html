@@ -1,38 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSharingMode</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSharingMode — Specifies the mode of resource sharing.</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">typedef enum VkSharingMode {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSharingMode</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSharingMode — Buffer and image sharing modes</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><p>Buffer and image objects are created with a <span class="emphasis"><em>sharing mode</em></span> controlling how
+they <span class="normative">can</span> be accessed from queues. The supported sharing modes are:</p><pre class="programlisting">typedef enum VkSharingMode {
     VK_SHARING_MODE_EXCLUSIVE = 0,
     VK_SHARING_MODE_CONCURRENT = 1,
-} VkSharingMode;</pre></div><div class="refsect1"><a id="_constants"></a><h2>Constants</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">
-<span class="type">VK_SHARING_MODE_EXCLUSIVE</span>
-</span></dt><dd>
-    Objects created using this sharing mode can only be accessed by queues
-    of the same queue family at any given time.
-</dd><dt><span class="term">
-<span class="type">VK_SHARING_MODE_CONCURRENT</span>
-</span></dt><dd>
-    Objects created using this sharing mode can be accessed by queues from
-    different queue families simultaneously.
-</dd></dl></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p>The constants of this enumeration are used to specify the intended resource
-sharing mode used by a buffer or image object.</p><p>Buffers and images created using <span class="type">VK_SHARING_MODE_EXCLUSIVE</span> can only
-be accessed by queues of the same queue family at any given time. Before
-being able to access the object using a queue from a different queue family
-the application has to transfer exclusive ownership of the object between
-the source and destination queue families. In order to do that the
-application has to perform the following operations:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">
-Release exclusive ownership from the source queue family to the destination queue family.
+} VkSharingMode;</pre></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<code class="code">VK_SHARING_MODE_EXCLUSIVE</code> specifies that access to any range or
+    image subresource of the object will be exclusive to a single queue
+    family at a time.
 </li><li class="listitem">
-Use semaphores to ensure proper execution control for the ownership transfer.
+<code class="code">VK_SHARING_MODE_CONCURRENT</code> specifies that concurrent access to any
+    range or image subresource of the object from multiple queue families is
+    supported.
+</li></ul></div><div class="note" style="margin-left: 0; margin-right: 10%;"><table border="0" summary="Note: Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/icons/note.png" /></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><code class="code">VK_SHARING_MODE_CONCURRENT</code> <span class="normative">may</span> result in lower performance access to
+the buffer or image than <code class="code">VK_SHARING_MODE_EXCLUSIVE</code>.</p></td></tr></table></div><p>Ranges of buffers and image subresources of image objects created using
+<code class="code">VK_SHARING_MODE_EXCLUSIVE</code> <span class="normative">must</span> only be accessed by queues in the same
+queue family at any given time. In order for a different queue family to be
+able to interpret the memory contents of a range or image subresource, the
+application <span class="normative">must</span> transfer exclusive ownership of the range or image
+subresource between the source and destination queue families with the
+following sequence of operations:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">
+Release exclusive ownership from the source queue family to the
+   destination queue family.
 </li><li class="listitem">
-Acquire exclusive ownership for the destination queue family from the source queue family.
-</li></ol></div><p>To release exclusive ownership the application should execute an image
-memory barrier (see <span class="type"><a class="ulink" href="VkImageMemoryBarrier.html" target="_top">VkImageMemoryBarrier</a></span>) on a queue from the source
-queue family where it must set the <em class="parameter"><code>srcQueueFamilyIndex</code></em> parameter of
-the barrier to the source queue family’s index, and the
-<em class="parameter"><code>dstQueueFamilyIndex</code></em> parameter of the barrier to the destination queue
-family’s index.</p><p>To acquire exclusive ownership the application should execute the same image
-memory barrier on a queue from the destination queue family.</p><p>Buffers and images created using <span class="type">VK_SHARING_MODE_CONCURRENT</span> can be
-simultaneously accessed by queues from different queue families. Accesses of
-buffers and images created using this sharing mode may have lower performance
-characteristics.</p></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><span class="type"><a class="ulink" href="VkImageCreateInfo.html" target="_top">VkImageCreateInfo</a></span>, <span class="type"><a class="ulink" href="VkBufferCreateInfo.html" target="_top">VkBufferCreateInfo</a></span></p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
-the terms and conditions set forth in the Open Publication License, v 1.0, 8
-June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
+Use semaphores to ensure proper execution control for the ownership
+   transfer.
+</li><li class="listitem">
+Acquire exclusive ownership for the destination queue family from the
+   source queue family.
+</li></ol></div><p>To release exclusive ownership of a range of a buffer or image subresource
+of an image object, the application <span class="normative">must</span> execute a buffer or image memory
+barrier, respectively (see <code class="code"><a class="link" href="#">VkBufferMemoryBarrier</a></code> and
+<code class="code"><a class="link" href="#">VkImageMemoryBarrier</a></code>) on a queue from the source queue family. The
+<em class="parameter"><code>srcQueueFamilyIndex</code></em> parameter of the barrier <span class="normative">must</span> be set to the
+source queue family index, and the <em class="parameter"><code>dstQueueFamilyIndex</code></em> parameter to
+the destination queue family index.</p><p>To acquire exclusive ownership, the application <span class="normative">must</span> execute the same
+buffer or image memory barrier on a queue from the destination queue family.</p><p>Upon creation, resources using <code class="code">VK_SHARING_MODE_EXCLUSIVE</code> are not owned
+by any queue family. A buffer or image memory barrier is not required to
+acquire ownership when no queue family owns the resource - it is implicitly
+acquired upon first use within a queue. However, images still require a
+<a class="link" href="#">layout transition</a> from
+<code class="code">VK_IMAGE_LAYOUT_UNDEFINED</code> or <code class="code">VK_IMAGE_LAYOUT_PREINITIALIZED</code>
+before being used on the first queue. This layout transition <span class="normative">can</span> either be
+accomplished by an image memory barrier or by use in a render pass instance.</p><p>Once a queue family has used a range or image subresource of an
+<code class="code">VK_SHARING_MODE_EXCLUSIVE</code> resource, its contents are undefined to
+other queue families unless ownership is transferred. The contents <span class="normative">may</span> also
+become undefined for other reasons, e.g. as a result of writes to an image
+subresource that aliases the same memory. A queue family <span class="normative">can</span> take ownership
+of a range or image subresource without an ownership transfer in the same
+way as for a resource that was just created, however doing so means any
+contents written by other queue families or via incompatible aliases are
+undefined.</p></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="link" href="#">VkBufferCreateInfo</a></code>, <code class="code"><a class="link" href="#">VkImageCreateInfo</a></code></p></div><div class="refsect1"><a id="_document_notes"></a><h2>Document Notes</h2><p>For more information, see the Vulkan Specification at URL</p><p><a class="ulink" href="https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSharingMode" target="_top">https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSharingMode</a></p><p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright (c) 2014-2016 Khronos Group. This work is licensed under a
+<a class="ulink" href="http://creativecommons.org/licenses/by/4.0/" target="_top">Creative Commons
+Attribution 4.0 International License</a>.</p></div></div></body></html>

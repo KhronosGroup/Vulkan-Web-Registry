@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSubpassDescription</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSubpassDescription — Stub page (not yet written)</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><pre class="programlisting">typedef struct VkSubpassDescription {
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>VkSubpassDescription</title><link rel="stylesheet" type="text/css" href="vkman.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="refentry" lang="en"><a id="id-1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>VkSubpassDescription — Structure specifying a subpass description</p></div><div class="refsect1"><a id="_c_specification"></a><h2>C Specification</h2><p>The <code class="code">VkSubpassDescription</code> structure is defined as:</p><pre class="programlisting">typedef struct VkSubpassDescription {
     VkSubpassDescriptionFlags       flags;
     VkPipelineBindPoint             pipelineBindPoint;
     uint32_t                        inputAttachmentCount;
@@ -10,46 +10,112 @@
     const VkAttachmentReference*    pDepthStencilAttachment;
     uint32_t                        preserveAttachmentCount;
     const uint32_t*                 pPreserveAttachments;
-} VkSubpassDescription;</pre><p>This is a stub page. Content has not been filled in yet. Khronos is
-aware of the problem and working on it as time allows; please do not
-file Github issues bringing the missing content to our attention.</p></div><div class="refsect1"><a id="_fields"></a><h2>Fields</h2></div><div class="refsect1"><a id="_description"></a><h2>Description</h2></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+} VkSubpassDescription;</pre></div><div class="refsect1"><a id="_members"></a><h2>Members</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<em class="parameter"><code>flags</code></em> is reserved for future use.
+</li><li class="listitem">
+<em class="parameter"><code>pipelineBindPoint</code></em> is a <code class="code"><a class="link" href="#">VkPipelineBindPoint</a></code> value specifying
+    whether this is a compute or graphics subpass. Currently, only graphics
+    subpasses are supported.
+</li><li class="listitem">
+<em class="parameter"><code>inputAttachmentCount</code></em> is the number of input attachments.
+</li><li class="listitem">
+<em class="parameter"><code>pInputAttachments</code></em> is an array of <code class="code"><a class="link" href="#">VkAttachmentReference</a></code>
+    structures (defined below) that lists which of the render pass’s
+    attachments <span class="normative">can</span> be read in the shader during the subpass, and what
+    layout the attachment images will be in during the subpass. Each element
+    of the array corresponds to an input attachment unit number in the
+    shader, i.e. if the shader declares an input variable
+    <code class="literal">layout(input_attachment_index=X, set=Y, binding=Z)</code> then it uses the
+    attachment provided in <em class="parameter"><code>pInputAttachments</code></em>[X]. Input attachments
+    <span class="normative">must</span> also be bound to the pipeline with a descriptor set, with the
+    input attachment descriptor written in the location (set=Y, binding=Z).
+</li><li class="listitem">
+<em class="parameter"><code>colorAttachmentCount</code></em> is the number of color attachments.
+</li><li class="listitem">
+<em class="parameter"><code>pColorAttachments</code></em> is an array of <em class="parameter"><code>colorAttachmentCount</code></em>
+    <code class="code"><a class="link" href="#">VkAttachmentReference</a></code> structures that lists which of the render
+    pass’s attachments will be used as color attachments in the subpass, and
+    what layout the attachment images will be in during the subpass. Each
+    element of the array corresponds to a fragment shader output location,
+    i.e. if the shader declared an output variable <code class="literal">layout(location=X)</code> then
+    it uses the attachment provided in <em class="parameter"><code>pColorAttachments</code></em>[X].
+</li><li class="listitem">
+<em class="parameter"><code>pResolveAttachments</code></em> is <code class="literal">NULL</code> or a pointer to an array of
+    <code class="code"><a class="link" href="#">VkAttachmentReference</a></code> structures. If <em class="parameter"><code>pResolveAttachments</code></em> is
+    not <code class="literal">NULL</code>, each of its elements corresponds to a color attachment (the
+    element in <em class="parameter"><code>pColorAttachments</code></em> at the same index). At the end of
+    each subpass, the subpass’s color attachments are resolved to
+    corresponding resolve attachments, unless the resolve attachment index
+    is <code class="code">VK_ATTACHMENT_UNUSED</code> or <em class="parameter"><code>pResolveAttachments</code></em> is <code class="literal">NULL</code>. If
+    the first use of an attachment in a render pass is as a resolve
+    attachment, then the <em class="parameter"><code>loadOp</code></em> is effectively ignored as the resolve
+    is guaranteed to overwrite all pixels in the render area.
+</li><li class="listitem">
+<em class="parameter"><code>pDepthStencilAttachment</code></em> is a pointer to a
+    <code class="code"><a class="link" href="#">VkAttachmentReference</a></code> specifying which attachment will be used for
+    depth/stencil data and the layout it will be in during the subpass.
+    Setting the attachment index to <code class="code">VK_ATTACHMENT_UNUSED</code> or leaving
+    this pointer as <code class="literal">NULL</code> indicates that no depth/stencil attachment will
+    be used in the subpass.
+</li><li class="listitem">
+<em class="parameter"><code>preserveAttachmentCount</code></em> is the number of preserved attachments.
+</li><li class="listitem">
+<em class="parameter"><code>pPreserveAttachments</code></em> is an array of <em class="parameter"><code>preserveAttachmentCount</code></em>
+    render pass attachment indices describing the attachments that
+    are not used by a subpass, but whose contents <span class="normative">must</span> be preserved
+    throughout the subpass.
+</li></ul></div></div><div class="refsect1"><a id="_description"></a><h2>Description</h2><p>The contents of an attachment within the render area become undefined at
+the start of a subpass S if all of the following conditions are true:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+The attachment is used as a color, depth/stencil, or resolve attachment
+    in any subpass in the render pass.
+</li><li class="listitem">
+There is a subpass S1 that uses or preserves the attachment, and a
+    subpass dependency from S1 to S.
+</li><li class="listitem">
+The attachment is not used or preserved in subpass S.
+</li></ul></div><p>Once the contents of an attachment become undefined in subpass S, they
+remain undefined for subpasses in subpass dependency chains starting with
+subpass S until they are written again. However, they remain valid for
+subpasses in other subpass dependency chains starting with subpass S1 if
+those subpasses use or preserve the attachment.</p></div><div class="refsect1"><a id="_valid_usage"></a><h2>Valid Usage</h2><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
 <em class="parameter"><code>flags</code></em> <span class="normative">must</span> be <code class="literal">0</code>
 </li><li class="listitem">
-<em class="parameter"><code>pipelineBindPoint</code></em> <span class="normative">must</span> be a valid <span class="type"><a class="ulink" href="VkPipelineBindPoint.html" target="_top">VkPipelineBindPoint</a></span> value
+<em class="parameter"><code>pipelineBindPoint</code></em> <span class="normative">must</span> be a valid <code class="code"><a class="link" href="#">VkPipelineBindPoint</a></code> value
 </li><li class="listitem">
-If <em class="parameter"><code>inputAttachmentCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pInputAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>inputAttachmentCount</code></em> valid <span class="type">VkAttachmentReference</span> structures
+If <em class="parameter"><code>inputAttachmentCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pInputAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>inputAttachmentCount</code></em> valid <code class="code">VkAttachmentReference</code> structures
 </li><li class="listitem">
-If <em class="parameter"><code>colorAttachmentCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pColorAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>colorAttachmentCount</code></em> valid <span class="type">VkAttachmentReference</span> structures
+If <em class="parameter"><code>colorAttachmentCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pColorAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>colorAttachmentCount</code></em> valid <code class="code">VkAttachmentReference</code> structures
 </li><li class="listitem">
-If <em class="parameter"><code>colorAttachmentCount</code></em> is not <code class="literal">0</code>, and <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>colorAttachmentCount</code></em> valid <span class="type">VkAttachmentReference</span> structures
+If <em class="parameter"><code>colorAttachmentCount</code></em> is not <code class="literal">0</code>, and <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>colorAttachmentCount</code></em> valid <code class="code">VkAttachmentReference</code> structures
 </li><li class="listitem">
-If <em class="parameter"><code>pDepthStencilAttachment</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pDepthStencilAttachment</code></em> <span class="normative">must</span> be a pointer to a valid <span class="type">VkAttachmentReference</span> structure
+If <em class="parameter"><code>pDepthStencilAttachment</code></em> is not <code class="literal">NULL</code>, <em class="parameter"><code>pDepthStencilAttachment</code></em> <span class="normative">must</span> be a pointer to a valid <code class="code">VkAttachmentReference</code> structure
 </li><li class="listitem">
 If <em class="parameter"><code>preserveAttachmentCount</code></em> is not <code class="literal">0</code>, <em class="parameter"><code>pPreserveAttachments</code></em> <span class="normative">must</span> be a pointer to an array of <em class="parameter"><code>preserveAttachmentCount</code></em> <code class="code">uint32_t</code> values
 </li><li class="listitem">
-<em class="parameter"><code>pipelineBindPoint</code></em> <span class="normative">must</span> be <span class="type">VK_PIPELINE_BIND_POINT_GRAPHICS</span>
+<em class="parameter"><code>pipelineBindPoint</code></em> <span class="normative">must</span> be <code class="code">VK_PIPELINE_BIND_POINT_GRAPHICS</code>
 </li><li class="listitem">
-<em class="parameter"><code>colorCount</code></em> <span class="normative">must</span> be less than or equal to <span class="type">VkPhysicalDeviceLimits</span>::<em class="parameter"><code>maxColorAttachments</code></em>
+<em class="parameter"><code>colorCount</code></em> <span class="normative">must</span> be less than or equal to <code class="code">VkPhysicalDeviceLimits</code>::<em class="parameter"><code>maxColorAttachments</code></em>
 </li><li class="listitem">
-If the first use of an attachment in this render pass is as an input attachment, and the attachment is not also used as a color or depth/stencil attachment in the same subpass, then <em class="parameter"><code>loadOp</code></em> <span class="normative">must not</span> be <span class="type">VK_ATTACHMENT_LOAD_OP_CLEAR</span>
+If the first use of an attachment in this render pass is as an input attachment, and the attachment is not also used as a color or depth/stencil attachment in the same subpass, then <em class="parameter"><code>loadOp</code></em> <span class="normative">must not</span> be <code class="code">VK_ATTACHMENT_LOAD_OP_CLEAR</code>
 </li><li class="listitem">
-If <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, for each resolve attachment that does not have the value <span class="type">VK_ATTACHMENT_UNUSED</span>, the corresponding color attachment <span class="normative">must not</span> have the value <span class="type">VK_ATTACHMENT_UNUSED</span>
+If <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, for each resolve attachment that does not have the value <code class="code">VK_ATTACHMENT_UNUSED</code>, the corresponding color attachment <span class="normative">must not</span> have the value <code class="code">VK_ATTACHMENT_UNUSED</code>
 </li><li class="listitem">
-If <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, the sample count of each element of <em class="parameter"><code>pColorAttachments</code></em> <span class="normative">must</span> be anything other than <span class="type">VK_SAMPLE_COUNT_1_BIT</span>
+If <em class="parameter"><code>pResolveAttachments</code></em> is not <code class="literal">NULL</code>, the sample count of each element of <em class="parameter"><code>pColorAttachments</code></em> <span class="normative">must</span> be anything other than <code class="code">VK_SAMPLE_COUNT_1_BIT</code>
 </li><li class="listitem">
-Any given element of <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> have a sample count of <span class="type">VK_SAMPLE_COUNT_1_BIT</span>
+Any given element of <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> have a sample count of <code class="code">VK_SAMPLE_COUNT_1_BIT</code>
 </li><li class="listitem">
-Any given element of <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> have the same <span class="type"><a class="ulink" href="VkFormat.html" target="_top">VkFormat</a></span> as its corresponding color attachment
+Any given element of <em class="parameter"><code>pResolveAttachments</code></em> <span class="normative">must</span> have the same <code class="code"><a class="link" href="#">VkFormat</a></code> as its corresponding color attachment
 </li><li class="listitem">
-All attachments in <em class="parameter"><code>pColorAttachments</code></em> and <em class="parameter"><code>pDepthStencilAttachment</code></em> that are not <span class="type">VK_ATTACHMENT_UNUSED</span> <span class="normative">must</span> have the same sample count
+All attachments in <em class="parameter"><code>pColorAttachments</code></em> and <em class="parameter"><code>pDepthStencilAttachment</code></em> that are not <code class="code">VK_ATTACHMENT_UNUSED</code> <span class="normative">must</span> have the same sample count
 </li><li class="listitem">
-If any input attachments are <span class="type">VK_ATTACHMENT_UNUSED</span>, then any pipelines bound during the subpass <span class="normative">must not</span> accesss those input attachments from the fragment shader
+If any input attachments are <code class="code">VK_ATTACHMENT_UNUSED</code>, then any pipelines bound during the subpass <span class="normative">must not</span> accesss those input attachments from the fragment shader
 </li><li class="listitem">
-The <em class="parameter"><code>attachment</code></em> member of any element of <em class="parameter"><code>pPreserveAttachments</code></em> <span class="normative">must not</span> be <span class="type">VK_ATTACHMENT_UNUSED</span>
+The <em class="parameter"><code>attachment</code></em> member of any element of <em class="parameter"><code>pPreserveAttachments</code></em> <span class="normative">must not</span> be <code class="code">VK_ATTACHMENT_UNUSED</code>
 </li><li class="listitem">
 Any given element of <em class="parameter"><code>pPreserveAttachments</code></em> <span class="normative">must not</span> also be an element of any other member of the subpass description
 </li><li class="listitem">
 If any attachment is used as both an input attachment and a color or depth/stencil attachment, then each use <span class="normative">must</span> use the same <em class="parameter"><code>layout</code></em>
-</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright © 2014-2016 Khronos Group. This material may be distributed subject to
-the terms and conditions set forth in the Open Publication License, v 1.0, 8
-June 1999. <a class="ulink" href="http://opencontent.org/openpub/" target="_top">http://opencontent.org/openpub/</a>.</p></div></div></body></html>
+</li></ul></div></div><div class="refsect1"><a id="_see_also"></a><h2>See Also</h2><p><code class="code"><a class="link" href="#">VkAttachmentReference</a></code>, <code class="code"><a class="link" href="#">VkPipelineBindPoint</a></code>, <code class="code"><a class="link" href="#">VkRenderPassCreateInfo</a></code>, <code class="code"><a class="link" href="#">VkSubpassDescriptionFlags</a></code></p></div><div class="refsect1"><a id="_document_notes"></a><h2>Document Notes</h2><p>For more information, see the Vulkan Specification at URL</p><p><a class="ulink" href="https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSubpassDescription" target="_top">https://www.khronos.org/registry/vulkan/specs/1.0/xhtml/vkspec.html#VkSubpassDescription</a></p><p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p></div><div class="refsect1"><a id="_copyright"></a><h2>Copyright</h2><p>Copyright (c) 2014-2016 Khronos Group. This work is licensed under a
+<a class="ulink" href="http://creativecommons.org/licenses/by/4.0/" target="_top">Creative Commons
+Attribution 4.0 International License</a>.</p></div></div></body></html>
