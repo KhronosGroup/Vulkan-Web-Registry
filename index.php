@@ -7,10 +7,10 @@ $static_breadcrumb = array(
 include_once("../../assets/static_pages/khr_page_top.php");
 ?>
 
-<h1 class="pagetitle">Khronos Vulkan Registry</h1>
+<h1 class="pagetitle">Khronos Vulkan&trade; Registry</h1>
 <div id="mainformat">
 
-<h1 style="text-align:center"> Khronos Vulkan Registry </h1>
+<h1 style="text-align:center"> Khronos Vulkan&trade; Registry </h1>
 
 <p> The Vulkan registry contains formatted specifications of the core
     Vulkan API, header files, API reference pages, the reference card,
