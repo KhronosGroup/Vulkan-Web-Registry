@@ -577,9 +577,9 @@ asciidoc.install();
 <body class="book">
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
-<span id="revnumber">version 1.0.21,</span>
-<span id="revdate">Fri Jul 15 20:04:43 PDT 2016</span>
-<br><span id="revremark">from git branch: 1.0 commit: f4c4113d070c0c9b55b4482055be054dd6466c96</span>
+<span id="revnumber">version 1.0.22,</span>
+<span id="revdate">Sat Jul 23 03:43:13 PDT 2016</span>
+<br><span id="revremark">from git branch: 1.0 commit: 1ca0ea1ef0ed61ee2e2e818f9616a30e9fc70483</span>
 </div>
 <div id="content">
 <div class="sect1">
@@ -638,7 +638,7 @@ Attribution 4.0 International License</a>.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_vulkan_commands">3. Vulkan Commands</h2>
+<h2 id="protos">3. Vulkan Commands</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkallocatecommandbuffers_3">3.1. vkAllocateCommandBuffers(3)</h3>
@@ -830,6 +830,31 @@ descriptors or descriptors of resources that have been destroyed, and executing
 a draw or dispatch with such a descriptor set bound does not cause undefined
 behavior. This means applications need not populate unused entries with dummy
 descriptors.</p></div>
+<div class="paragraph"><p>If an allocation fails due to fragmentation, an indeterminate error is
+returned with an unspecified error code. Any returned error other than
+<code>VK_ERROR_FRAGMENTED_POOL</code> does not imply its usual meaning:
+applications <span role="normative">should</span> assume that the allocation failed due to fragmentation,
+and create a new descriptor pool.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>Applications should check for a negative return value when allocating new
+descriptor sets, assume that any error effectively means
+<code>VK_ERROR_FRAGMENTED_POOL</code>, and try to create a new descriptor pool.
+If <code>VK_ERROR_FRAGMENTED_POOL</code> is the actual return value, it adds
+certainty to that decision.</p></div>
+<div class="paragraph"><p>The reason for this is that <code>VK_ERROR_FRAGMENTED_POOL</code> was only added in
+a later revision of the 1.0 specification, and so drivers <span role="normative">may</span> return other
+errors if they were written against earlier revisions.
+To ensure full compatibility with earlier patch revisions, these other
+errors are allowed.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -891,6 +916,11 @@ Host access to <code>pAllocateInfo</code>&#8594;descriptorPool <span role="norma
 <li>
 <p>
 <code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_ERROR_FRAGMENTED_POOL</code>
 </p>
 </li>
 </ul></div>
@@ -1294,17 +1324,12 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
+<code>buffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
 <p>
-<code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code>, <code>buffer</code> and <code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>memory</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -1488,17 +1513,12 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
+<code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
 <p>
-<code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code>, <code>image</code> and <code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>memory</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -1690,12 +1710,12 @@ considered active for those secondary command buffers.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -2146,7 +2166,7 @@ If <code>dynamicOffsetCount</code> is not <span class="monospaced">0</span>, <co
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -2156,7 +2176,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>layout</code> and the elements of <code>pDescriptorSets</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>layout</code>, and the elements of <code>pDescriptorSets</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -2331,7 +2351,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>buffer</code>, and <code>commandBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -2503,12 +2523,12 @@ pipeline state.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>pipeline</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>pipeline</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -2694,7 +2714,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and the elements of <code>pBuffers</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and the elements of <code>pBuffers</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -3057,7 +3077,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcImage</code> and <code>dstImage</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstImage</code>, and <code>srcImage</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -3496,7 +3516,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -3511,7 +3531,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -3720,7 +3740,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -3894,7 +3914,7 @@ the copy regions overlap in memory.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -3909,7 +3929,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcBuffer</code> and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstBuffer</code>, and <code>srcBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -4110,7 +4130,7 @@ source buffer to the specified region of the destination image.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -4125,7 +4145,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcBuffer</code> and <code>dstImage</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstImage</code>, and <code>srcBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -4395,7 +4415,7 @@ images, but both images <span role="normative">must</span> have the same number 
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -4410,7 +4430,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcImage</code> and <code>dstImage</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstImage</code>, and <code>srcImage</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -4626,7 +4646,7 @@ source image to the specified region of the destination buffer.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -4641,7 +4661,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcImage</code> and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstBuffer</code>, and <code>srcImage</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -4892,7 +4912,7 @@ and its writes to buffer memory <span role="normative">must</span> be synchroniz
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -4902,7 +4922,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>queryPool</code> and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -5276,7 +5296,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>buffer</code>, and <code>commandBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -5939,7 +5959,7 @@ This command <span role="normative">must</span> only be called inside of a rende
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>buffer</code>, and <code>commandBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -6192,7 +6212,7 @@ This command <span role="normative">must</span> only be called inside of a rende
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>buffer</code>, and <code>commandBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -6425,12 +6445,12 @@ of the query.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -6696,7 +6716,7 @@ buffers were recorded with
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -6711,7 +6731,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and the elements of <code>pCommandBuffers</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and the elements of <code>pCommandBuffers</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -6932,7 +6952,7 @@ the buffer to be compatible with <code>vkCmdFillBuffer</code>.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -6942,7 +6962,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -7350,7 +7370,7 @@ If <code>imageMemoryBarrierCount</code> is not <span class="monospaced">0</span>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -7375,7 +7395,59 @@ If the <a href="#features-features-tessellationShader">tessellation shaders</a> 
 </li>
 <li>
 <p>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the render pass <span role="normative">must</span> declare at least one self-dependency from the current subpass to itself - see <a href="#synchronization-pipeline-barriers-subpass-self-dependencies">Subpass Self-dependency</a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the render pass <span role="normative">must</span> have been created with a <code>VkSubpassDependency</code> instance in <code>pDependencies</code> that expresses a dependency from the current subpass to itself. Additionally:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>srcStageMask</code> <span role="normative">must</span> contain a subset of the bit values in the <code>srcStageMask</code> member of that instance of <code>VkSubpassDependency</code>
+</p>
+</li>
+<li>
+<p>
+<code>dstStageMask</code> <span role="normative">must</span> contain a subset of the bit values in the <code>dstStageMask</code> member of that instance of <code>VkSubpassDependency</code>
+</p>
+</li>
+<li>
+<p>
+The <code>srcAccessMask</code> of any element of <code>pMemoryBarriers</code> or <code>pImageMemoryBarriers</code> <span role="normative">must</span> contain a subset of the bit values the <code>srcAccessMask</code> member of that instance of <code>VkSubpassDependency</code>
+</p>
+</li>
+<li>
+<p>
+The <code>dstAccessMask</code> of any element of <code>pMemoryBarriers</code> or <code>pImageMemoryBarriers</code> <span role="normative">must</span> contain a subset of the bit values the <code>dstAccessMask</code> member of that instance of <code>VkSubpassDependency</code>
+</p>
+</li>
+<li>
+<p>
+<code>dependencyFlags</code> <span role="normative">must</span> be equal to the <code>dependencyFlags</code> member of that instance of <code>VkSubpassDependency</code>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, <code>bufferMemoryBarrierCount</code> <span role="normative">must</span> be <span class="monospaced">0</span>
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the <code>image</code> member of any element of <code>pImageMemoryBarriers</code> <span role="normative">must</span> be equal to one of the elements of <code>pAttachments</code> that the current <code>framebuffer</code> was created with, that is also referred to by one of the elements of the <code>pColorAttachments</code>, <code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code> members of the <code>VkSubpassDescription</code> instance that the current subpass was created with
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the <code>oldLayout</code> and <code>newLayout</code> members of any element of <code>pImageMemoryBarriers</code> <span role="normative">must</span> be equal to the <code>layout</code> member of an element of the <code>pColorAttachments</code>, <code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code> members of the <code>VkSubpassDescription</code> instance that the current subpass was created with, that refers to the same <code>image</code>
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the <code>oldLayout</code> and <code>newLayout</code> members of an element of <code>pImageMemoryBarriers</code> <span role="normative">must</span> be equal
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of any element of <code>pImageMemoryBarriers</code> <span role="normative">must</span> be <code>VK_QUEUE_FAMILY_IGNORED</code>
 </p>
 </li>
 </ul></div>
@@ -7537,7 +7609,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -7547,7 +7619,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>layout</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>layout</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -7706,7 +7778,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -7716,7 +7788,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>event</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -7863,7 +7935,7 @@ $firstQuery,firstQuery+queryCount-1$ to unavailable.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -7873,7 +7945,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -8084,7 +8156,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code>, <code>srcImage</code> and <code>dstImage</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>commandBuffer</code>, <code>dstImage</code>, and <code>srcImage</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -8744,7 +8816,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -8754,7 +8826,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>event</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -9825,7 +9897,7 @@ buffer to be compatible with <code>vkCmdUpdateBuffer</code>.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support transfer, graphics, or compute operations
 </p>
 </li>
 <li>
@@ -9840,7 +9912,7 @@ This command <span role="normative">must</span> only be called outside of a rend
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>dstBuffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -10117,7 +10189,7 @@ If <code>imageMemoryBarrierCount</code> is not <span class="monospaced">0</span>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
@@ -10127,7 +10199,7 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and the elements of <code>pEvents</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and the elements of <code>pEvents</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -10320,12 +10392,12 @@ of a render pass instance.</p></div>
 </li>
 <li>
 <p>
-The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics or compute operations
+The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <span role="normative">must</span> support graphics, or compute operations
 </p>
 </li>
 <li>
 <p>
-Each of <code>commandBuffer</code> and <code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>commandBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -10887,12 +10959,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipelineCache</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -11861,12 +11928,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipelineCache</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -13335,12 +13397,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>buffer</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>buffer</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>buffer</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -13450,12 +13507,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>bufferView</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>bufferView</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>bufferView</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -13568,12 +13620,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>commandPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>commandPool</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>commandPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -13686,12 +13733,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>descriptorPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>descriptorPool</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>descriptorPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -13802,12 +13844,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>descriptorSetLayout</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>descriptorSetLayout</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>descriptorSetLayout</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14025,12 +14062,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>event</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>event</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>event</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14140,12 +14172,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>fence</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>fence</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>fence</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14255,12 +14282,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>framebuffer</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>framebuffer</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>framebuffer</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14370,12 +14392,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>image</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>image</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>image</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14485,12 +14502,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>imageView</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>imageView</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>imageView</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14694,12 +14706,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>pipeline</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipeline</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>pipeline</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14810,12 +14817,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipelineCache</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>pipelineCache</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -14920,12 +14922,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>pipelineLayout</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipelineLayout</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>pipelineLayout</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15030,12 +15027,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>queryPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>queryPool</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>queryPool</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15145,12 +15137,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>renderPass</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>renderPass</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>renderPass</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15260,12 +15247,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>sampler</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>sampler</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>sampler</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15375,12 +15357,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>semaphore</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>semaphore</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>semaphore</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15492,12 +15469,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>shaderModule</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>shaderModule</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>shaderModule</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -15895,6 +15867,11 @@ If <code>pLayerName</code> is not <span class="monospaced">NULL</span>, it <span
 <code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code>
 </p>
 </li>
+<li>
+<p>
+<code>VK_ERROR_LAYER_NOT_PRESENT</code>
+</p>
+</li>
 </ul></div>
 </dd>
 </dl></div>
@@ -16164,6 +16141,11 @@ If <code>pLayerName</code> is not <span class="monospaced">NULL</span>, it <span
 <li>
 <p>
 <code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code>
+</p>
+</li>
+<li>
+<p>
+ename: VK_ERROR_LAYER_NOT_PRESENT
 </p>
 </li>
 </ul></div>
@@ -16633,17 +16615,12 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>commandPool</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
+<code>commandPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
 <p>
-Each element of <code>pCommandBuffers</code> that is a valid handle <span role="normative">must</span> have been created, allocated or retrieved from <code>commandPool</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code>, <code>commandPool</code> and the elements of <code>pCommandBuffers</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+Each element of <code>pCommandBuffers</code> that is a valid handle <span role="normative">must</span> have been created, allocated, or retrieved from <code>commandPool</code>
 </p>
 </li>
 <li>
@@ -16763,17 +16740,12 @@ in <code>pDescriptorSets</code> are invalid.</p></div>
 </li>
 <li>
 <p>
-<code>descriptorPool</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
+<code>descriptorPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
 <p>
-Each element of <code>pDescriptorSets</code> that is a valid handle <span role="normative">must</span> have been created, allocated or retrieved from <code>descriptorPool</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code>, <code>descriptorPool</code> and the elements of <code>pDescriptorSets</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+Each element of <code>pDescriptorSets</code> that is a valid handle <span role="normative">must</span> have been created, allocated, or retrieved from <code>descriptorPool</code>
 </p>
 </li>
 <li>
@@ -16942,12 +16914,7 @@ If <code>pAllocator</code> is not <span class="monospaced">NULL</span>, <code>pA
 </li>
 <li>
 <p>
-If <code>memory</code> is a valid handle, it <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>memory</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+If <code>memory</code> is a valid handle, it <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -17048,12 +17015,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>buffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>buffer</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -17144,12 +17106,7 @@ with.</p></div>
 </li>
 <li>
 <p>
-<code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>memory</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -17445,12 +17402,7 @@ updating it to the same state has no effect.</p></div>
 </li>
 <li>
 <p>
-<code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>event</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -17581,12 +17533,7 @@ which is one of:</p></div>
 </li>
 <li>
 <p>
-<code>fence</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>fence</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>fence</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -17716,12 +17663,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -17848,12 +17790,7 @@ If the value referenced by <code>pSparseMemoryRequirementCount</code> is not <sp
 </li>
 <li>
 <p>
-<code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -17952,12 +17889,7 @@ image.</p></div>
 </li>
 <li>
 <p>
-<code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>image</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>image</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -18293,31 +18225,31 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>format</code> is the image format, corresponding to
-    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>.format.
+    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>::<code>format</code>.
 </p>
 </li>
 <li>
 <p>
 <code>type</code> is the image type, corresponding to
-    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>.imageType.
+    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>::<code>imageType</code>.
 </p>
 </li>
 <li>
 <p>
 <code>tiling</code> is the image tiling, corresponding to
-    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>.tiling.
+    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>::<code>tiling</code>.
 </p>
 </li>
 <li>
 <p>
 <code>usage</code> is the intended usage of the image, corresponding to
-    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>.usage.
+    <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>::<code>usage</code>.
 </p>
 </li>
 <li>
 <p>
 <code>flags</code> is a bitmask describing additional parameters of the image,
-    corresponding to <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>.flags.
+    corresponding to <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code>::<code>flags</code>.
 </p>
 </li>
 <li>
@@ -19017,12 +18949,7 @@ If the value referenced by <code>pDataSize</code> is not <span class="monospaced
 </li>
 <li>
 <p>
-<code>pipelineCache</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>pipelineCache</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>pipelineCache</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -19318,12 +19245,7 @@ e.g. to read the availability status before reading the results.</p></div>
 </li>
 <li>
 <p>
-<code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>queryPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -19518,12 +19440,7 @@ barriers are valid even if their effect extends outside the render area.</p></di
 </li>
 <li>
 <p>
-<code>renderPass</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>renderPass</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>renderPass</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -19790,12 +19707,7 @@ to maintaining memory access ordering.</p></div>
 </li>
 <li>
 <p>
-<code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>memory</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -19981,17 +19893,12 @@ prune duplicate entries.</p></div>
 </li>
 <li>
 <p>
-<code>dstCache</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
+<code>dstCache</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
 <p>
-Each element of <code>pSrcCaches</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code>, <code>dstCache</code> and the elements of <code>pSrcCaches</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+Each element of <code>pSrcCaches</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -20154,7 +20061,7 @@ The <code>queue</code> <span role="normative">must</span> support sparse binding
 </li>
 <li>
 <p>
-Each of <code>queue</code> and <code>fence</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>fence</code>, and <code>queue</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -20391,7 +20298,7 @@ If <code>fence</code> is not <code><a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a><
 </li>
 <li>
 <p>
-Each of <code>queue</code> and <code>fence</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>fence</code>, and <code>queue</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -20864,12 +20771,7 @@ in the initial state.</p></div>
 </li>
 <li>
 <p>
-<code>commandPool</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>commandPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>commandPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -21007,12 +20909,7 @@ pool, and the descriptor sets are implicitly freed.</p></div>
 </li>
 <li>
 <p>
-<code>descriptorPool</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>descriptorPool</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>descriptorPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -21140,12 +21037,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>event</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -21283,12 +21175,7 @@ effect.</p></div>
 </li>
 <li>
 <p>
-Each element of <code>pFences</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and the elements of <code>pFences</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+Each element of <code>pFences</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -21411,12 +21298,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>event</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>event</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -21535,12 +21417,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and <code>memory</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+<code>memory</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 <li>
@@ -21811,12 +21688,7 @@ in <a href="#memory-device-hostaccess">Host Access to Device Memory Objects</a>.
 </li>
 <li>
 <p>
-Each element of <code>pFences</code> <span role="normative">must</span> have been created, allocated or retrieved from <code>device</code>
-</p>
-</li>
-<li>
-<p>
-Each of <code>device</code> and the elements of <code>pFences</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkPhysicalDevice</code>
+Each element of <code>pFences</code> <span role="normative">must</span> have been created, allocated, or retrieved from <code>device</code>
 </p>
 </li>
 </ul></div>
@@ -21883,7 +21755,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_object_handles">4. Object Handles</h2>
+<h2 id="handles">4. Object Handles</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkbuffer_3">4.1. VkBuffer(3)</h3>
@@ -22883,7 +22755,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_structures">5. Structures</h2>
+<h2 id="structs">5. Structures</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkallocationcallbacks_3">5.1. VkAllocationCallbacks(3)</h3>
@@ -23383,6 +23255,11 @@ described in more detail below.</p></div>
 <code>finalLayout</code> <span role="normative">must</span> be a valid <code><a href="#VkImageLayout">VkImageLayout</a></code> value
 </p>
 </li>
+<li>
+<p>
+<code>finalLayout</code> <span role="normative">must not</span> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code>
+</p>
+</li>
 </ul></div>
 </div></div>
 </div>
@@ -23451,6 +23328,11 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>layout</code> <span role="normative">must</span> be a valid <code><a href="#VkImageLayout">VkImageLayout</a></code> value
+</p>
+</li>
+<li>
+<p>
+<code>layout</code> <span role="normative">must not</span> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code>
 </p>
 </li>
 </ul></div>
@@ -23625,7 +23507,7 @@ If <code>signalSemaphoreCount</code> is not <span class="monospaced">0</span>, <
 </li>
 <li>
 <p>
-Each of the elements of <code>pWaitSemaphores</code> and the elements of <code>pSignalSemaphores</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of the elements of <code>pSignalSemaphores</code>, and the elements of <code>pWaitSemaphores</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 </ul></div>
@@ -25331,7 +25213,7 @@ time.</p></div>
 </li>
 <li>
 <p>
-Each of <code>renderPass</code> and <code>framebuffer</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>framebuffer</code>, and <code>renderPass</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -25795,7 +25677,7 @@ described in more detail in
 </li>
 <li>
 <p>
-Each of <code>layout</code> and <code>basePipelineHandle</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>basePipelineHandle</code>, and <code>layout</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -25946,7 +25828,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-Each of <code>srcSet</code> and <code>dstSet</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>dstSet</code>, and <code>srcSet</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -26146,7 +26028,7 @@ described above) are ignored.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
-Each of <code>sampler</code> and <code>imageView</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>imageView</code>, and <code>sampler</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 </ul></div>
@@ -26482,7 +26364,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-Each of <code>descriptorPool</code> and the elements of <code>pSetLayouts</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>descriptorPool</code>, and the elements of <code>pSetLayouts</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -27810,10 +27692,24 @@ are supported by buffers or buffer views created with the queried
 <dd>
 <p>
     Format <span role="normative">can</span> be used as a vertex attribute format
-    (<code>VkVertexInputAttributeDescription</code>.format).
+    (<code>VkVertexInputAttributeDescription</code>::<code>format</code>).
 </p>
 </dd>
 </dl></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>If no format feature flags are supported, then the only possible use would
+be image transfers - which alone are not useful.
+As such, if no format feature flags are supported, the format itself is not
+supported, and images of that format cannot be created.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="paragraph"><p>If <code>format</code> is a block-compression format, then buffers <span role="normative">must not</span> support
 any features for the format.</p></div>
 </div>
@@ -27963,7 +27859,7 @@ If <code>attachmentCount</code> is not <span class="monospaced">0</span>, <code>
 </li>
 <li>
 <p>
-Each of <code>renderPass</code> and the elements of <code>pAttachments</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>renderPass</code>, and the elements of <code>pAttachments</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -28322,7 +28218,7 @@ If <code>pDynamicState</code> is not <span class="monospaced">NULL</span>, <code
 </li>
 <li>
 <p>
-Each of <code>layout</code>, <code>renderPass</code> and <code>basePipelineHandle</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of <code>basePipelineHandle</code>, <code>layout</code>, and <code>renderPass</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -29153,17 +29049,17 @@ The <code>width</code>, <code>height</code>, and <code>depth</code> members of <
 </li>
 <li>
 <p>
-If <code>imageType</code> is <code>VK_IMAGE_TYPE_1D</code>, <code>extent.width</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension1D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure) - whichever is higher
+If <code>imageType</code> is <code>VK_IMAGE_TYPE_1D</code>, <code>extent.width</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension1D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure) - whichever is higher
 </p>
 </li>
 <li>
 <p>
-If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code> and <code>flags</code> does not contain <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code>, <code>extent.width</code> and <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension2D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure) - whichever is higher
+If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code> and <code>flags</code> does not contain <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code>, <code>extent.width</code> and <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension2D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure) - whichever is higher
 </p>
 </li>
 <li>
 <p>
-If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code> and <code>flags</code> contains <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code>, <code>extent.width</code> and <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimensionCube</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure) - whichever is higher
+If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code> and <code>flags</code> contains <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code>, <code>extent.width</code> and <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimensionCube</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure) - whichever is higher
 </p>
 </li>
 <li>
@@ -29173,7 +29069,7 @@ If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code> and <code>flags</code
 </li>
 <li>
 <p>
-If <code>imageType</code> is <code>VK_IMAGE_TYPE_3D</code>, <code>extent.width</code>, <code>extent.height</code> and <code>extent.depth</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension3D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height/depth (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure) - whichever is higher
+If <code>imageType</code> is <code>VK_IMAGE_TYPE_3D</code>, <code>extent.width</code>, <code>extent.height</code> and <code>extent.depth</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension3D</code>, or <code>VkImageFormatProperties</code>::<code>maxExtent.width</code>/height/depth (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure) - whichever is higher
 </p>
 </li>
 <li>
@@ -29193,27 +29089,32 @@ If <code>imageType</code> is <code>VK_IMAGE_TYPE_2D</code>, <code>extent.depth</
 </li>
 <li>
 <p>
-If any of <code>extent.width</code>, <code>extent.height</code> or <code>extent.depth</code> are greater than the equivalently named members of <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension3D</code>, <code>mipLevels</code> <span role="normative">must</span> be less than or equal to <code>VkImageFormatProperties</code>::<code>maxMipLevels</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure)
+If any of <code>extent.width</code>, <code>extent.height</code>, or <code>extent.depth</code> are greater than the equivalently named members of <code>VkPhysicalDeviceLimits</code>::<code>maxImageDimension3D</code>, <code>mipLevels</code> <span role="normative">must</span> be less than or equal to <code>VkImageFormatProperties</code>::<code>maxMipLevels</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure)
 </p>
 </li>
 <li>
 <p>
-<code>arrayLayers</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageArrayLayers</code>, or <code>VkImageFormatProperties</code>::<code>maxArrayLayers</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure) - whichever is higher
+<code>arrayLayers</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxImageArrayLayers</code>, or <code>VkImageFormatProperties</code>::<code>maxArrayLayers</code> (as returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure) - whichever is higher
 </p>
 </li>
 <li>
 <p>
-If <code>usage</code> includes <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> or <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code>, <code>extent.width</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxFramebufferWidth</code>
+If <code>samples</code> is not <code>VK_SAMPLE_COUNT_1_BIT</code>, <code>imageType</code> <span role="normative">must</span> be <code>VK_IMAGE_TYPE_2D</code>, <code>tiling</code> <span role="normative">must</span> be <code>VK_IMAGE_TILING_OPTIMAL</code>, and <code>mipLevels</code> <span role="normative">must</span> be equal to <span class="monospaced">1</span>
 </p>
 </li>
 <li>
 <p>
-If <code>usage</code> includes <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> or <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code>, <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxFramebufferHeight</code>
+If <code>usage</code> includes <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code>, or <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code>, <code>extent.width</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxFramebufferWidth</code>
 </p>
 </li>
 <li>
 <p>
-<code>samples</code> <span role="normative">must</span> be a bit value that is set in <code>VkImageFormatProperties</code>::<code>sampleCounts</code> returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code> and <code>flags</code> equal to those in this structure
+If <code>usage</code> includes <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code>, or <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code>, <code>extent.height</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxFramebufferHeight</code>
+</p>
+</li>
+<li>
+<p>
+<code>samples</code> <span role="normative">must</span> be a bit value that is set in <code>VkImageFormatProperties</code>::<code>sampleCounts</code> returned by <code>vkGetPhysicalDeviceImageFormatProperties</code> with <code>format</code>, <code>type</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> equal to those in this structure
 </p>
 </li>
 <li>
@@ -29273,6 +29174,11 @@ If the <a href="#features-features-sparseResidency16Samples">sparse residency fo
 </li>
 <li>
 <p>
+If <code>tiling</code> is <code>VK_IMAGE_TILING_LINEAR</code>, <code>format</code> <span role="normative">must</span> be a format that has at least one supported feature bit present in the value of <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
+</p>
+</li>
+<li>
+<p>
 If <code>tiling</code> is <code>VK_IMAGE_TILING_LINEAR</code>, and <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (as returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>) does not include <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code>, <code>usage</code> <span role="normative">must not</span> contain <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>
 </p>
 </li>
@@ -29289,6 +29195,11 @@ If <code>tiling</code> is <code>VK_IMAGE_TILING_LINEAR</code>, and <code>VkForma
 <li>
 <p>
 If <code>tiling</code> is <code>VK_IMAGE_TILING_LINEAR</code>, and <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (as returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>) does not include <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>usage</code> <span role="normative">must not</span> contain <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If <code>tiling</code> is <code>VK_IMAGE_TILING_OPTIMAL</code>, <code>format</code> <span role="normative">must</span> be a format that has at least one supported feature bit present in the value of <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
@@ -30408,42 +30319,52 @@ If the <a href="#features-features-textureCompressionBC">BC texture compression<
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for sampled images, as specified by the <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code>, <code>format</code> <span role="normative">must</span> be format that has at least one supported feature bit present in the value of <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_STORAGE_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for storage images, as specified by the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for sampled images, as specified by the <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for color attachments, as specified by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_STORAGE_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for storage images, as specified by the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for depth/stencil attachments, as specified by the <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for color attachments, as specified by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for sampled images, as specified by the <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_LINEAR</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for depth/stencil attachments, as specified by the <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_STORAGE_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for storage images, as specified by the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code>, <code>format</code> <span role="normative">must</span> be format that has at least one supported feature bit present in the value of <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for color attachments, as specified by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for sampled images, as specified by the <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
 <p>
-If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for depth/stencil attachments, as specified by the <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_STORAGE_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for storage images, as specified by the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
+</p>
+</li>
+<li>
+<p>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for color attachments, as specified by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
+</p>
+</li>
+<li>
+<p>
+If <code>image</code> was created with <code>VK_IMAGE_TILING_OPTIMAL</code> and <code>usage</code> containing <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>, <code>format</code> <span role="normative">must</span> be supported for depth/stencil attachments, as specified by the <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code> flag in <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code> with the same value of <code>format</code>
 </p>
 </li>
 <li>
@@ -32325,8 +32246,9 @@ check for the supported properties of individual formats.</p></div>
     <code>shaderTessellationAndGeometryPointSize</code> indicates whether the
     <code>PointSize</code> built-in decoration is available in the tessellation
     control, tessellation evaluation, and geometry shader stages. If this
-    feature is not enabled, the <code>PointSize</code> built-in decoration is not
-    available in these shader stages and all points written from a
+    feature is not enabled, members decorated with the <code>PointSize</code>
+    built-in decoration <span role="normative">must not</span> be read from or written to
+    and all points written from a
     tessellation or geometry shader will have a size of 1.0. This also
     indicates whether shader modules <span role="normative">can</span> declare the
     <code>TessellationPointSize</code> capability for tessellation control and
@@ -32448,8 +32370,9 @@ check for the supported properties of individual formats.</p></div>
 <p>
 <a id="features-features-shaderClipDistance"></a> <code>shaderClipDistance</code>
     indicates whether clip distances are supported in shader code. If this
-    feature is not enabled, the <code>ClipDistance</code> built-in decoration
-    <span role="normative">must not</span> be used in shader modules. This also indicates whether shader
+    feature is not enabled, any members decorated with the <code>ClipDistance</code>
+    built-in decoration <span role="normative">must not</span> be read from or written to in shader modules.
+    This also indicates whether shader
     modules <span role="normative">can</span> declare the <code>ClipDistance</code> capability.
 </p>
 </li>
@@ -32457,8 +32380,9 @@ check for the supported properties of individual formats.</p></div>
 <p>
 <a id="features-features-shaderCullDistance"></a> <code>shaderCullDistance</code>
     indicates whether cull distances are supported in shader code. If this
-    feature is not enabled, the <code>CullDistance</code> built-in decoration
-    <span role="normative">must not</span> be used in shader modules. This also indicates whether shader
+    feature is not enabled, any members decorated with the <code>CullDistance</code>
+    built-in decoration <span role="normative">must not</span> be read from or written to in shader modules.
+    This also indicates whether shader
     modules <span role="normative">can</span> declare the <code>CullDistance</code> capability.
 </p>
 </li>
@@ -36801,7 +36725,9 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>pClearValues</code> is an array of <code><a href="#VkClearValue">VkClearValue</a></code> structures that
     contains clear values for each attachment, if the attachment uses a
-    <code>loadOp</code> value of <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>. The array is
+    <code>loadOp</code> value of <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code> or if the
+    attachment has a depth/stencil format and uses a <code>stencilLoadOp</code>
+    value of <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>. The array is
     indexed by attachment number. Only elements corresponding to cleared
     attachments are used. Other elements of <code>pClearValues</code> are ignored.
 </p>
@@ -36863,12 +36789,12 @@ If <code>clearValueCount</code> is not <span class="monospaced">0</span>, <code>
 </li>
 <li>
 <p>
-Each of <code>renderPass</code> and <code>framebuffer</code> <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>framebuffer</code>, and <code>renderPass</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
 <p>
-<code>clearValueCount</code> <span role="normative">must</span> be greater than or equal to the number of attachments in <code>renderPass</code> that specify a <code>loadOp</code> of <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>
+<code>clearValueCount</code> <span role="normative">must</span> be greater than the largest attachment index in <code>renderPass</code> that specifies a <code>loadOp</code> (or <code>stencilLoadOp</code>, if the attachment has a depth/stencil format) of <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>
 </p>
 </li>
 </ul></div>
@@ -38980,7 +38906,7 @@ If <code>signalSemaphoreCount</code> is not <span class="monospaced">0</span>, <
 </li>
 <li>
 <p>
-Each of the elements of <code>pWaitSemaphores</code>, the elements of <code>pCommandBuffers</code> and the elements of <code>pSignalSemaphores</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Each of the elements of <code>pCommandBuffers</code>, the elements of <code>pSignalSemaphores</code>, and the elements of <code>pWaitSemaphores</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -39245,6 +39171,16 @@ If the <a href="#features-features-tessellationShader">tessellation shaders</a> 
 <code>srcSubpass</code> and <code>dstSubpass</code> <span role="normative">must not</span> both be equal to <code>VK_SUBPASS_EXTERNAL</code>
 </p>
 </li>
+<li>
+<p>
+If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, <code>srcStageMask</code> and <code>dstStageMask</code> <span role="normative">must</span> only contain one of <code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>, <code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code>, <code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code>, <code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>, <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code>, <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code>, <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>, or <code>VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, the highest bit value included in <code>srcStageMask</code> <span role="normative">must</span> be less than or equal to the lowest bit value in <code>dstStageMask</code>
+</p>
+</li>
 </ul></div>
 </div></div>
 </div>
@@ -39315,7 +39251,7 @@ http://www.gnu.org/software/src-highlite -->
 <code>pInputAttachments</code> is an array of <code><a href="#VkAttachmentReference">VkAttachmentReference</a></code>
     structures (defined below) that lists which of the render pass&#8217;s
     attachments <span role="normative">can</span> be read in the shader during the subpass, and what
-    layout the attachment images will be in during the subpass. Each element
+    layout each attachment will be in during the subpass. Each element
     of the array corresponds to an input attachment unit number in the
     shader, i.e. if the shader declares an input variable
     <span class="monospaced">layout(input_attachment_index=X, set=Y, binding=Z)</span> then it uses the
@@ -39334,7 +39270,7 @@ http://www.gnu.org/software/src-highlite -->
 <code>pColorAttachments</code> is an array of <code>colorAttachmentCount</code>
     <code><a href="#VkAttachmentReference">VkAttachmentReference</a></code> structures that lists which of the render
     pass&#8217;s attachments will be used as color attachments in the subpass, and
-    what layout the attachment images will be in during the subpass. Each
+    what layout each attachment will be in during the subpass. Each
     element of the array corresponds to a fragment shader output location,
     i.e. if the shader declared an output variable <span class="monospaced">layout(location=X)</span> then
     it uses the attachment provided in <code>pColorAttachments</code>[X].
@@ -39342,8 +39278,10 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>pResolveAttachments</code> is <span class="monospaced">NULL</span> or a pointer to an array of
-    <code><a href="#VkAttachmentReference">VkAttachmentReference</a></code> structures. If <code>pResolveAttachments</code> is
+<code>pResolveAttachments</code> is <span class="monospaced">NULL</span> or an array of <code>colorAttachmentCount</code>
+    <code><a href="#VkAttachmentReference">VkAttachmentReference</a></code> structures that lists which of the render pass&#8217;s
+    attachments are resolved to at the end of the subpass, and what layout
+    each attachment will be in during the resolve. If <code>pResolveAttachments</code> is
     not <span class="monospaced">NULL</span>, each of its elements corresponds to a color attachment (the
     element in <code>pColorAttachments</code> at the same index). At the end of
     each subpass, the subpass&#8217;s color attachments are resolved to
@@ -40119,7 +40057,7 @@ immutable samplers or <span role="normative">must</span> all not use immutable s
 </li>
 <li>
 <p>
-Each of <code>dstSet</code> and the elements of <code>pTexelBufferView</code> that are valid handles <span role="normative">must</span> have been created, allocated or retrieved from the same <code>VkDevice</code>
+Both of <code>dstSet</code>, and the elements of <code>pTexelBufferView</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
 <li>
@@ -40139,7 +40077,7 @@ The sum of <code>dstArrayElement</code> and <code>descriptorCount</code> <span r
 </li>
 <li>
 <p>
-If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code> or <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, <code>pImageInfo</code> <span role="normative">must</span> be a pointer to an array of <code>descriptorCount</code> valid <code>VkDescriptorImageInfo</code> structures
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, or <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, <code>pImageInfo</code> <span role="normative">must</span> be a pointer to an array of <code>descriptorCount</code> valid <code>VkDescriptorImageInfo</code> structures
 </p>
 </li>
 <li>
@@ -40149,7 +40087,7 @@ If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER<
 </li>
 <li>
 <p>
-If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER</code>, <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</code> or <code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</code>, <code>pBufferInfo</code> <span role="normative">must</span> be a pointer to an array of <code>descriptorCount</code> valid <code>VkDescriptorBufferInfo</code> structures
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER</code>, <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</code>, or <code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</code>, <code>pBufferInfo</code> <span role="normative">must</span> be a pointer to an array of <code>descriptorCount</code> valid <code>VkDescriptorBufferInfo</code> structures
 </p>
 </li>
 <li>
@@ -40159,7 +40097,7 @@ If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code> or <co
 </li>
 <li>
 <p>
-If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code> or <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, the <code>imageView</code> and <code>imageLayout</code> members of any given element of <code>pImageInfo</code> <span role="normative">must</span> be a valid <code>VkImageView</code> and <code><a href="#VkImageLayout">VkImageLayout</a></code>, respectively
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>, <code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, <code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, or <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, the <code>imageView</code> and <code>imageLayout</code> members of any given element of <code>pImageInfo</code> <span role="normative">must</span> be a valid <code>VkImageView</code> and <code><a href="#VkImageLayout">VkImageLayout</a></code>, respectively
 </p>
 </li>
 <li>
@@ -40226,7 +40164,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_enumerations">6. Enumerations</h2>
+<h2 id="enums">6. Enumerations</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkaccessflagbits_3">6.1. VkAccessFlagBits(3)</h3>
@@ -44399,7 +44337,8 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>VK_IMAGE_LAYOUT_UNDEFINED</code>: Supports no device access. This layout
-    <span role="normative">must</span> only be used as an <code>initialLayout</code> or as the <code>oldLayout</code>
+    <span role="normative">must</span> only be used as the <code>initialLayout</code> member of
+    <code>VkImageCreateInfo</code> or <code>VkAttachmentDescription</code>, or as the <code>oldLayout</code>
     in an image transition. When transitioning out of this layout, the
     contents of the memory are not guaranteed to be preserved.
 </p>
@@ -44407,7 +44346,8 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code>: Supports no device access. This
-    layout <span role="normative">must</span> only be used as an <code>initialLayout</code> or as the
+    layout <span role="normative">must</span> only be used as the <code>initialLayout</code> member of
+    <code>VkImageCreateInfo</code> or <code>VkAttachmentDescription</code>, or as the
     <code>oldLayout</code> in an image transition. When transitioning out of this
     layout, the contents of the memory are preserved. This
     layout is intended to be used as the initial layout for an image whose
@@ -46134,6 +46074,7 @@ http://www.gnu.org/software/src-highlite -->
     VK_ERROR_INCOMPATIBLE_DRIVER <span style="color: #990000">=</span> <span style="color: #990000">-</span><span style="color: #993399">9</span><span style="color: #990000">,</span>
     VK_ERROR_TOO_MANY_OBJECTS <span style="color: #990000">=</span> <span style="color: #990000">-</span><span style="color: #993399">10</span><span style="color: #990000">,</span>
     VK_ERROR_FORMAT_NOT_SUPPORTED <span style="color: #990000">=</span> <span style="color: #990000">-</span><span style="color: #993399">11</span><span style="color: #990000">,</span>
+    VK_ERROR_FRAGMENTED_POOL <span style="color: #990000">=</span> <span style="color: #990000">-</span><span style="color: #993399">12</span><span style="color: #990000">,</span>
 <span style="color: #FF0000">}</span> VkResult<span style="color: #990000">;</span></tt></pre></div></div>
 </div>
 <div class="sect3">
@@ -46244,6 +46185,13 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>
     A requested format is not supported on this device.
+</p>
+</li>
+<li>
+<p>
+<code>VK_ERROR_FRAGMENTED_POOL</code>
+    A requested pool allocation has failed due to fragmentation of the
+    pool&#8217;s memory.
 </p>
 </li>
 </ul></div>
@@ -46901,7 +46849,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_331">6.62.2. C Specification</h4>
-<div class="paragraph"><p>Vulkan structures containing <code><a href="#VkStructureType">VkStructureType</a></code>::<code>sType</code> members
+<div class="paragraph"><p>Vulkan structures containing <code>sType</code> members
 <span role="normative">must</span> have a value of <code>sType</code> matching the type of the structure, as
 described more fully in <a href="#fundamentals-validusage-sType">Valid Usage for Structure Types</a>. Structure types supported by the Vulkan API include:</p></div>
 <div class="listingblock">
@@ -47223,7 +47171,7 @@ Fixes and changes should be made to the generator scripts,not directly.</p></div
 </div>
 </div>
 <div class="sect1">
-<h2 id="_flags">7. Flags</h2>
+<h2 id="flags">7. Flags</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkaccessflags_3">7.1. VkAccessFlags(3)</h3>
@@ -49374,7 +49322,7 @@ Fixes and changes should be made to the generator scripts,not directly.</p></div
 </div>
 </div>
 <div class="sect1">
-<h2 id="_function_pointer_types">8. Function Pointer Types</h2>
+<h2 id="funcpointers">8. Function Pointer Types</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_pfn_vkallocationfunction_3">8.1. PFN_vkAllocationFunction(3)</h3>
@@ -49405,7 +49353,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>pUserData</code> is the value specified for
-    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>.pUserData in the allocator specified by the
+    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>::<code>pUserData</code> in the allocator specified by the
     application.
 </p>
 </li>
@@ -49505,7 +49453,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>pUserData</code> is the value specified for
-    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>.pUserData in the allocator specified by the
+    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>::<code>pUserData</code> in the allocator specified by the
     application.
 </p>
 </li>
@@ -49565,7 +49513,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>pUserData</code> is the value specified for
-    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>.pUserData in the allocator specified by the
+    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>::<code>pUserData</code> in the allocator specified by the
     application.
 </p>
 </li>
@@ -49634,7 +49582,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>pUserData</code> is the value specified for
-    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>.pUserData in the allocator specified by the
+    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>::<code>pUserData</code> in the allocator specified by the
     application.
 </p>
 </li>
@@ -49703,7 +49651,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>pUserData</code> is the value specified for
-    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>.pUserData in the allocator specified by the
+    <code><a href="#VkAllocationCallbacks">VkAllocationCallbacks</a></code>::<code>pUserData</code> in the allocator specified by the
     application.
 </p>
 </li>
@@ -49811,7 +49759,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_vulkan_scalar_types">9. Vulkan Scalar types</h2>
+<h2 id="basetypes">9. Vulkan Scalar types</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vkbool32_3">9.1. VkBool32(3)</h3>
@@ -49965,7 +49913,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_c_macro_definitions">10. C Macro Definitions</h2>
+<h2 id="defines">10. C Macro Definitions</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_vk_api_version_3">10.1. VK_API_VERSION(3)</h3>
@@ -50105,7 +50053,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>
-<span style="font-weight: bold"><span style="color: #000080">#if</span></span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__LP64__<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>_WIN64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__x86_64__<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>_M_X64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__ia64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span> <span style="color: #990000">(</span>_M_IA64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__aarch64__<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__powerpc64__<span style="color: #990000">)</span>
+<span style="font-weight: bold"><span style="color: #000080">#if</span></span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__LP64__<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>_WIN64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__x86_64__<span style="color: #990000">)</span> <span style="color: #990000">&amp;&amp;</span> <span style="color: #990000">!</span><span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__ILP32__<span style="color: #990000">)</span> <span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>_M_X64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__ia64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span> <span style="color: #990000">(</span>_M_IA64<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__aarch64__<span style="color: #990000">)</span> <span style="color: #990000">||</span> <span style="font-weight: bold"><span style="color: #000000">defined</span></span><span style="color: #990000">(</span>__powerpc64__<span style="color: #990000">)</span>
 <span style="font-weight: bold"><span style="color: #000080">        #define</span></span> <span style="font-weight: bold"><span style="color: #000000">VK_DEFINE_NON_DISPATCHABLE_HANDLE</span></span><span style="color: #990000">(</span>object<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">struct</span></span> <span style="color: #008080">object</span>##<span style="color: #008080">_T</span> <span style="color: #990000">*</span>object<span style="color: #990000">;</span>
 <span style="font-weight: bold"><span style="color: #000080">#else</span></span>
 <span style="font-weight: bold"><span style="color: #000080">        #define</span></span> <span style="font-weight: bold"><span style="color: #000000">VK_DEFINE_NON_DISPATCHABLE_HANDLE</span></span><span style="color: #990000">(</span>object<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="color: #008080">uint64_t</span> object<span style="color: #990000">;</span>
@@ -50157,7 +50105,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-style: italic"><span style="color: #9A1900">// Version of this file</span></span>
-<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">21</span>
+<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">22</span>
 </tt></pre></div></div>
 </div>
 <div class="sect3">
@@ -50385,9 +50333,9 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.21<br>
+Version 1.0.22<br>
 Last updated
- 2016-07-15 20:04:59 PDT
+ 2016-07-23 03:43:17 PDT
 </div>
 </div>
 </body>

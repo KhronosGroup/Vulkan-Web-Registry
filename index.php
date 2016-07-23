@@ -206,8 +206,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
     under <b>src/spec</b>. This directory also includes a formal Relax
     NG XML schema and scripts used to generate the various outputs. </p>
 
-<p> <a href="specs/1.0/readme.pdf"> Documentation of the XML schema</a> is
-    available. </p>
+<p> <a href="specs/1.0/registry.html"> Documentation of the XML schema</a>
+    is available. </p>
 
 <h3> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h3>
 
