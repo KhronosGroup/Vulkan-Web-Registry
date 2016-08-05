@@ -607,19 +607,71 @@ following features:</p></div>
 <li>
 <p>
 <a id="features-features-robustBufferAccess"></a> <code>robustBufferAccess</code>
-    indicates that out of bounds accesses to buffers via shader operations
-    are well-defined.
+    indicates that accesses to buffers are bounds-checked against the range of
+    the buffer descriptor (as determined by
+    <code>VkDescriptorBufferInfo</code>::<code>range</code>,
+    <code>VkBufferViewCreateInfo</code>::<code>range</code>, or the size of the buffer). Out
+    of bounds accesses <span role="normative">must not</span> cause application termination, and the effects
+    of shader loads, stores, and atomics <span role="normative">must</span> conform to an
+    implementation-dependent behavior as described below.
 </p>
 <div class="ulist"><ul>
 <li>
 <p>
-When enabled, out-of-bounds buffer reads will return any of the
-     following values:
+A buffer access is considered to be out of bounds if any of the following
+     are true:
 </p>
 <div class="ulist"><ul>
 <li>
 <p>
-Values from anywhere within the buffer object.
+The pointer was formed by <code>OpImageTexelPointer</code> and the coordinate is
+      less than zero or greater than or equal to the number of whole elements
+      in the bound range.
+</p>
+</li>
+<li>
+<p>
+The pointer was not formed by <code>OpImageTexelPointer</code> and the object
+      pointed to is not wholly contained within the bound range.
+</p>
+<div class="openblock">
+<div class="content">
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>If a SPIR-V <code>OpLoad</code> instruction loads a structure and the tail end of the
+structure is out of bounds, then all members of the structure are considered
+out of bounds even if the members at the end are not statically used.</p></div>
+</td>
+</tr></table>
+</div>
+</div></div>
+</li>
+<li>
+<p>
+If any buffer access in a given SPIR-V block is determined to be
+      out of bounds, then any other access of the same type (load, store, or
+      atomic) in the same SPIR-V block that accesses an address less
+      than 16 bytes away from the out of bounds address <span role="normative">may</span> also be
+      considered out of bounds.
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+Out-of-bounds buffer loads will return any of the following values:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Values from anywhere within the memory range(s) bound to the buffer
+      (possibly including bytes of memory past the end of the buffer, up to
+      the end of the bound range).
 </p>
 </li>
 <li>
@@ -646,14 +698,58 @@ Zero values, or (0,0,0,x) vectors for vector reads where x is a valid
 </li>
 <li>
 <p>
-When enabled, out-of-bounds writes <span role="normative">may</span> modify values within the buffer
-     object or be ignored.
+Out-of-bounds writes <span role="normative">may</span> modify values within the memory range(s) bound
+     to the buffer, but <span role="normative">must not</span> modify any other memory.
 </p>
 </li>
 <li>
 <p>
-If not enabled, out of bounds accesses <span role="normative">may</span> cause undefined behaviour
-     up-to and including process termination.
+Out-of-bounds atomics <span role="normative">may</span> modify values within the memory range(s) bound
+     to the buffer, but <span role="normative">must not</span> modify any other memory, and return an
+     undefined value.
+</p>
+</li>
+<li>
+<p>
+Vertex input attributes are considered out of bounds if the address of the
+     attribute plus the size of the attribute is greater than the size of the
+     bound buffer. Further, if any vertex input attribute using a specific
+     vertex input binding is out of bounds, then all vertex input attributes
+     using that vertex input binding for that vertex shader invocation are
+     considered out of bounds.
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+If a vertex input attribute is out of bounds, it will be assigned one
+      of the following values:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Values from anywhere within the memory range(s) bound to the buffer,
+     converted according to the format of the attribute.
+</p>
+</li>
+<li>
+<p>
+Zero values, format converted according to the format of the attribute.
+</p>
+</li>
+<li>
+<p>
+Zero values, or (0,0,0,x) vectors, as described above.
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+If <code>robustBufferAccess</code> is not enabled, out of bounds accesses <span role="normative">may</span>
+     corrupt any memory within the process and cause undefined behaviour up
+     to and including application termination.
 </p>
 </li>
 </ul></div>
@@ -1597,7 +1693,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-07-23 03:43:17 PDT
+ 2016-08-05 05:22:12 PDT
 </div>
 </div>
 </body>

@@ -577,9 +577,9 @@ asciidoc.install();
 <body class="book">
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
-<span id="revnumber">version 1.0.22,</span>
-<span id="revdate">Sat Jul 23 03:43:13 PDT 2016</span>
-<br><span id="revremark">from git branch: 1.0 commit: 1ca0ea1ef0ed61ee2e2e818f9616a30e9fc70483</span>
+<span id="revnumber">version 1.0.23,</span>
+<span id="revdate">Fri Aug 5 05:24:27 PDT 2016</span>
+<br><span id="revremark">from git branch: 1.0 commit: 7f7686d7f2b7c6d780354ca544386476a04c17c4</span>
 </div>
 <div id="content">
 <div class="sect1">
@@ -2187,6 +2187,11 @@ Any given element of <code>pDescriptorSets</code> <span role="normative">must</s
 <li>
 <p>
 <code>dynamicOffsetCount</code> <span role="normative">must</span> be equal to the total number of dynamic descriptors in <code>pDescriptorSets</code>
+</p>
+</li>
+<li>
+<p>
+The sum of <code>firstSet</code> and <code>descriptorSetCount</code> <span role="normative">must</span> be less than or equal to <code>VkPipelineLayoutCreateInfo</code>::<code>setLayoutCount</code> provided when <code>layout</code> was created
 </p>
 </li>
 <li>
@@ -6761,6 +6766,11 @@ Any given element of <code>pCommandBuffers</code> <span role="normative">must</s
 </li>
 <li>
 <p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been allocated from a <code>VkCommandPool</code> that was created for the same queue family as the <code>VkCommandPool</code> from which <code>commandBuffer</code> was allocated
+</p>
+</li>
+<li>
+<p>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, that render pass instance <span role="normative">must</span> have been begun with the <code>contents</code> parameter of <code>vkCmdBeginRenderPass</code> set to <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code>
 </p>
 </li>
@@ -10769,7 +10779,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>pCommandPool</code> points to an <code>VkCommandPool</code> handle in which the
+<code>pCommandPool</code> points to a <code>VkCommandPool</code> handle in which the
     created pool is returned.
 </p>
 </li>
@@ -17160,44 +17170,74 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_parameters_105">3.105.3. Parameters</h4>
-<div class="ulist"><ul>
-<li>
-<p>
-<code>device</code> is the logical device that provides the function pointer.
-</p>
-</li>
-<li>
-<p>
-<code>pName</code> is the name of any Vulkan command whose first parameter
-    is one of
-</p>
-<div class="ulist"><ul>
-<li>
-<p>
-<code>VkDevice</code>
-</p>
-</li>
-<li>
-<p>
-<code>VkQueue</code>
-</p>
-</li>
-<li>
-<p>
-<code>VkCommandBuffer</code>
-</p>
-</li>
-</ul></div>
-</li>
-</ul></div>
+<div class="paragraph"><p>The table below defines the various use cases for <code>vkGetDeviceProcAddr</code>
+and expected return value for each case.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_description_105">3.105.4. Description</h4>
 <div class="paragraph"><p>The returned function pointer is of type <code><a href="#PFN_vkVoidFunction">PFN_vkVoidFunction</a></code>, and must
 be cast to the type of the command being queried.</p></div>
-<div class="paragraph"><p>If <code>pName</code> is not the name of one of these Vulkan commands, and is
-not the name of an extension command belonging to an extension enabled for
-<code>device</code>, then <code>vkGetDeviceProcAddr</code> will return <span class="monospaced">NULL</span>.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+margin-left:auto; margin-right:auto;
+width:80%;
+">
+<caption class="title">Table 1. vkGetDeviceProcAddr behavior</caption>
+<col style="width:33%;">
+<col style="width:33%;">
+<col style="width:33%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" > <code>device</code> </th>
+<th class="tableblock halign-left valign-top" > <code>pName</code> </th>
+<th class="tableblock halign-left valign-top" > return value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">invalid device</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">device</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">device</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">core Vulkan command<sup>1</sup></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">device</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">enabled device extension commands for <code>device</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">device</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">* (any <code>pName</code> not covered above)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+</tr>
+</tbody>
+</table>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+1
+</dt>
+<dd>
+<p>
+<code>pName</code> is the name of any Vulkan command whose first parameter
+    is <code>VkDevice</code> or any of its dispatchable children (e.g. <code>VkQueue</code>,
+    <code>vkCommandBuffer</code>).
+</p>
+</dd>
+</dl></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -17217,7 +17257,7 @@ not the name of an extension command belonging to an extension enabled for
 </div>
 <div class="sect3">
 <h4 id="_see_also_105">3.105.5. See Also</h4>
-<div class="paragraph"><p><code><a href="#VkDevice">VkDevice</a></code></p></div>
+<div class="paragraph"><p><code><a href="#PFN_vkVoidFunction">PFN_vkVoidFunction</a></code>, <code><a href="#VkDevice">VkDevice</a></code></p></div>
 </div>
 <div class="sect3">
 <h4 id="_document_notes_105">3.105.6. Document Notes</h4>
@@ -17946,7 +17986,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>instance</code> is the instance that the function pointer will be
-    compatible with.
+    compatible with, or <span class="monospaced">NULL</span> for commands not dependent on any instance.
 </p>
 </li>
 <li>
@@ -17965,35 +18005,100 @@ load it dynamically and look up the symbol using platform-specific APIs.
 Loaders are encouraged to export function symbols for all other core
 Vulkan commands as well; if this is done, then applications that use only
 the core Vulkan commands have no need to use <code>vkGetInstanceProcAddr</code>.</p></div>
-<div class="paragraph"><p>Function pointers to commands that do not operate on a specific instance <span role="normative">can</span>
-be obtained by using this command with <code>instance</code> equal to <span class="monospaced">NULL</span>. The
-following commands <span role="normative">can</span> be accessed this way:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-<code><a href="#vkEnumerateInstanceExtensionProperties">vkEnumerateInstanceExtensionProperties</a></code>
-</p>
-</li>
-<li>
-<p>
-<code><a href="#vkEnumerateInstanceLayerProperties">vkEnumerateInstanceLayerProperties</a></code>
-</p>
-</li>
-<li>
-<p>
-<code><a href="#vkCreateInstance">vkCreateInstance</a></code>
-</p>
-</li>
-</ul></div>
+<div class="paragraph"><p>The table below defines the various use cases for <code>vkGetInstanceProcAddr</code>
+and expected return value ("fp" is function pointer) for each case.</p></div>
 <div class="paragraph"><p>The returned function pointer is of type <code><a href="#PFN_vkVoidFunction">PFN_vkVoidFunction</a></code>, and must
 be cast to the type of the command being queried.</p></div>
-<div class="paragraph"><p>If <code>instance</code> is a valid <code>VkInstance</code>, function pointers to any
-commands that operate on <code>instance</code> or a child of <code>instance</code> <span role="normative">can</span> be
-obtained. The returned function pointer <span role="normative">must</span> only be called with a
-dispatchable object (the first parameter) that is a child of <code>instance</code>.</p></div>
-<div class="paragraph"><p>If <code>pName</code> is not the name of a core Vulkan command, or is an
-extension command for any extension not supported by any available layer or
-implementation, then <code>vkGetInstanceProcAddr</code> will return <span class="monospaced">NULL</span>.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+margin-left:auto; margin-right:auto;
+width:80%;
+">
+<caption class="title">Table 2. vkGetInstanceProcAddr behavior</caption>
+<col style="width:33%;">
+<col style="width:33%;">
+<col style="width:33%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" > <code>instance</code> </th>
+<th class="tableblock halign-left valign-top" > <code>pName</code> </th>
+<th class="tableblock halign-left valign-top" > return value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">invalid instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="#vkEnumerateInstanceExtensionProperties">vkEnumerateInstanceExtensionProperties</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="#vkEnumerateInstanceLayerProperties">vkEnumerateInstanceLayerProperties</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="#vkCreateInstance">vkCreateInstance</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">* (any <code>pName</code> not covered above)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">core Vulkan command</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">enabled instance extension commands for <code>instance</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">available device extension commands for <code>instance</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1,2</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">* (any <code>pName</code> not covered above)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+</tr>
+</tbody>
+</table>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+1
+</dt>
+<dd>
+<p>
+The returned function pointer <span role="normative">must</span> only be called with a dispatchable object
+(the first parameter) that is a child of <code>instance</code>.
+    e.g. <code>VkInstance</code>, <code>VkPhysicalDevice</code>, <code>VkDevice</code>, <code>VkQueue</code>, or
+    <code>VkCommandBuffer</code>.
+</p>
+</dd>
+<dt class="hdlist1">
+2
+</dt>
+<dd>
+<p>
+available extension is an extension function supported by any of the loader, ICD or layer.
+</p>
+</dd>
+</dl></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -18006,16 +18111,6 @@ If <code>instance</code> is not <span class="monospaced">NULL</span>, <code>inst
 <li>
 <p>
 <code>pName</code> <span role="normative">must</span> be a null-terminated string
-</p>
-</li>
-<li>
-<p>
-If <code>instance</code> is <span class="monospaced">NULL</span>, <code>pName</code> <span role="normative">must</span> be "vkEnumerateInstanceExtensionProperties", "vkEnumerateInstanceLayerProperties", or "vkCreateInstance"
-</p>
-</li>
-<li>
-<p>
-If <code>instance</code> is not <span class="monospaced">NULL</span>, <code>pName</code> <span role="normative">must not</span> be "vkEnumerateInstanceExtensionProperties", "vkEnumerateInstanceLayerProperties", or "vkCreateInstance"
 </p>
 </li>
 </ul></div>
@@ -18852,7 +18947,7 @@ data is incompatible with the device, the initial bytes written to
 style="
 width:85%;
 ">
-<caption class="title">Table 1. Layout for pipeline cache header version VK_PIPELINE_CACHE_HEADER_VERSION_ONE</caption>
+<caption class="title">Table 3. Layout for pipeline cache header version VK_PIPELINE_CACHE_HEADER_VERSION_ONE</caption>
 <col style="width:8%;">
 <col style="width:21%;">
 <col style="width:71%;">
@@ -23034,6 +23129,25 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
+<code>flags</code> is a bitmask describing additional properties of the
+    attachment. Bits which <span role="normative">can</span> be set include:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<a id="VkAttachmentDescriptionFlagBits"></a>
+<div class="title"></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.7
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkAttachmentDescriptionFlagBits <span style="color: #FF0000">{</span>
+    VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
+<span style="color: #FF0000">}</span> VkAttachmentDescriptionFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
+</div></div>
+</li>
+<li>
+<p>
 <code>format</code> is a <code><a href="#VkFormat">VkFormat</a></code> value specifying the format of the
     image that will be used for the attachment.
 </p>
@@ -23157,25 +23271,6 @@ http://www.gnu.org/software/src-highlite -->
     instance, an attachment <span role="normative">can</span> use a different layout in each subpass, if
     desired.
 </p>
-</li>
-<li>
-<p>
-<code>flags</code> is a bitmask describing additional properties of the
-    attachment. Bits which <span role="normative">can</span> be set include:
-</p>
-<div class="openblock">
-<div class="content">
-<div class="listingblock">
-<a id="VkAttachmentDescriptionFlagBits"></a>
-<div class="title"></div>
-<div class="content"><!-- Generator: GNU source-highlight 3.1.7
-by Lorenzo Bettini
-http://www.lorenzobettini.it
-http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkAttachmentDescriptionFlagBits <span style="color: #FF0000">{</span>
-    VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
-<span style="color: #FF0000">}</span> VkAttachmentDescriptionFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
-</div></div>
 </li>
 </ul></div>
 </div>
@@ -23936,7 +24031,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>imageSubresource</code> is an <code><a href="#VkImageSubresourceLayers">VkImageSubresourceLayers</a></code> used to
+<code>imageSubresource</code> is a <code><a href="#VkImageSubresourceLayers">VkImageSubresourceLayers</a></code> used to
     specify the specific image subresources of the image used for the source
     or destination image data.
 </p>
@@ -25501,7 +25596,7 @@ identity mapping on that component. That is:</p></div>
 style="
 width:100%;
 ">
-<caption class="title">Table 2. Component Mappings Equivalent To <code>VK_COMPONENT_SWIZZLE_IDENTITY</code></caption>
+<caption class="title">Table 4. Component Mappings Equivalent To <code>VK_COMPONENT_SWIZZLE_IDENTITY</code></caption>
 <col style="width:50%;">
 <col style="width:50%;">
 <thead>
@@ -26428,7 +26523,7 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>descriptorType</code> is an <code><a href="#VkDescriptorType">VkDescriptorType</a></code> specifying which type
+<code>descriptorType</code> is a <code><a href="#VkDescriptorType">VkDescriptorType</a></code> specifying which type
     of resource descriptors are used for this binding.
 </p>
 </li>
@@ -30107,7 +30202,8 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>subresourceRange</code> selects the set of mipmap levels and array layers
+<code>subresourceRange</code> is a <code><a href="#VkImageSubresourceRange">VkImageSubresourceRange</a></code>
+    selecting the set of mipmap levels and array layers
     to be accessible to the view.
 </p>
 </li>
@@ -30123,7 +30219,7 @@ defined in the <a href="#features-formats-compatibility-classes">Format Compatib
 style="
 width:100%;
 ">
-<caption class="title">Table 3. Image and image view parameter compatibility requirements</caption>
+<caption class="title">Table 5. Image and image view parameter compatibility requirements</caption>
 <col style="width:20%;">
 <col style="width:35%;">
 <col style="width:45%;">
@@ -30137,117 +30233,118 @@ width:100%;
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">1D, 0, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_1D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_1D</code><br>
 width &gt;= 1<br>
 height = 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples = 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_1D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_1D</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers = 1</p></td>
+layerCount = 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">1D, 1, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_1D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_1D</code><br>
 width &gt;= 1<br>
 height = 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples = 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_1D_ARRAY<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_1D_ARRAY</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers &gt;= 1</p></td>
+layerCount &gt;= 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">2D, 0, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height &gt;= 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples = 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_2D</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers = 1</p></td>
+layerCount = 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">2D, 1, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height &gt;= 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples = 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_2D_ARRAY<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_2D_ARRAY</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers &gt;= 1</p></td>
+layerCount &gt;= 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">2D, 0, 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height &gt;= 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples &gt; 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_2D</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers = 1</p></td>
+layerCount = 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">2D, 1, 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height &gt;= 1<br>
 depth = 1<br>
 arrayLayers &gt;= 1<br>
 samples &gt; 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_2D_ARRAY<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_2D_ARRAY</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers &gt;= 1</p></td>
+layerCount &gt;= 1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">CUBE, 0, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height = width<br>
 depth = 1<br>
 arrayLayers &gt;= 6<br>
 samples = 1<br>
 flags include <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_CUBE<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_CUBE</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers = 6</p></td>
+layerCount = 6</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">CUBE, 1, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_2D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_2D</code><br>
 width &gt;= 1<br>
 height = width<br>
 depth = 1<br>
-arrayLayers &gt;= 6×N<br>
+N &gt;= 1<br>
+arrayLayers &gt;= $6 \times N$<br>
 samples = 1<br>
 flags include <code>VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_CUBE_ARRAY<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_CUBE_ARRAY</code><br>
 baseArrayLayer &gt;= 0<br>
-arrayLayers = 6×N</p></td>
+N &gt;= 1<br>
+layerCount = $6 \times N$</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top" ><p class="tableblock header">3D, 0, 0</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = IMAGE_TYPE_3D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">imageType = <code>VK_IMAGE_TYPE_3D</code><br>
 width &gt;= 1<br>
 height &gt;= 1<br>
 depth &gt;= 1<br>
 arrayLayers = 1<br>
 samples = 1</p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = VIEW_TYPE_3D<br>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">viewType = <code>VK_VIEW_TYPE_3D</code><br>
 baseArrayLayer = 0<br>
-arrayLayers = 1</p></td>
+layerCount = 1</p></td>
 </tr>
 </tbody>
 </table>
-<div class="paragraph"><p>The <code>subresourceRange</code> member is of type <code><a href="#VkImageSubresourceRange">VkImageSubresourceRange</a></code>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -30384,7 +30481,7 @@ If <code>image</code> was not created with the <code>VK_IMAGE_CREATE_MUTABLE_FOR
 </li>
 <li>
 <p>
-<code>subResourceRange</code> and <code>viewType</code> <span role="normative">must</span> be compatible with the image, as described in the <a href="#resources-image-views-compatibility">table below</a>
+<code>subResourceRange</code> and <code>viewType</code> <span role="normative">must</span> be compatible with the image, as described in the <a href="#resources-image-views-compatibility">compatibility table</a>
 </p>
 </li>
 </ul></div>
@@ -31067,7 +31164,7 @@ style="
 margin-left:auto; margin-right:auto;
 width:100%;
 ">
-<caption class="title">Table 4. Supported access flags</caption>
+<caption class="title">Table 6. Supported access flags</caption>
 <col style="width:67%;">
 <col style="width:33%;">
 <thead>
@@ -31613,19 +31710,71 @@ following features:</p></div>
 <li>
 <p>
 <a id="features-features-robustBufferAccess"></a> <code>robustBufferAccess</code>
-    indicates that out of bounds accesses to buffers via shader operations
-    are well-defined.
+    indicates that accesses to buffers are bounds-checked against the range of
+    the buffer descriptor (as determined by
+    <code>VkDescriptorBufferInfo</code>::<code>range</code>,
+    <code>VkBufferViewCreateInfo</code>::<code>range</code>, or the size of the buffer). Out
+    of bounds accesses <span role="normative">must not</span> cause application termination, and the effects
+    of shader loads, stores, and atomics <span role="normative">must</span> conform to an
+    implementation-dependent behavior as described below.
 </p>
 <div class="ulist"><ul>
 <li>
 <p>
-When enabled, out-of-bounds buffer reads will return any of the
-     following values:
+A buffer access is considered to be out of bounds if any of the following
+     are true:
 </p>
 <div class="ulist"><ul>
 <li>
 <p>
-Values from anywhere within the buffer object.
+The pointer was formed by <code>OpImageTexelPointer</code> and the coordinate is
+      less than zero or greater than or equal to the number of whole elements
+      in the bound range.
+</p>
+</li>
+<li>
+<p>
+The pointer was not formed by <code>OpImageTexelPointer</code> and the object
+      pointed to is not wholly contained within the bound range.
+</p>
+<div class="openblock">
+<div class="content">
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>If a SPIR-V <code>OpLoad</code> instruction loads a structure and the tail end of the
+structure is out of bounds, then all members of the structure are considered
+out of bounds even if the members at the end are not statically used.</p></div>
+</td>
+</tr></table>
+</div>
+</div></div>
+</li>
+<li>
+<p>
+If any buffer access in a given SPIR-V block is determined to be
+      out of bounds, then any other access of the same type (load, store, or
+      atomic) in the same SPIR-V block that accesses an address less
+      than 16 bytes away from the out of bounds address <span role="normative">may</span> also be
+      considered out of bounds.
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+Out-of-bounds buffer loads will return any of the following values:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Values from anywhere within the memory range(s) bound to the buffer
+      (possibly including bytes of memory past the end of the buffer, up to
+      the end of the bound range).
 </p>
 </li>
 <li>
@@ -31652,14 +31801,58 @@ Zero values, or (0,0,0,x) vectors for vector reads where x is a valid
 </li>
 <li>
 <p>
-When enabled, out-of-bounds writes <span role="normative">may</span> modify values within the buffer
-     object or be ignored.
+Out-of-bounds writes <span role="normative">may</span> modify values within the memory range(s) bound
+     to the buffer, but <span role="normative">must not</span> modify any other memory.
 </p>
 </li>
 <li>
 <p>
-If not enabled, out of bounds accesses <span role="normative">may</span> cause undefined behaviour
-     up-to and including process termination.
+Out-of-bounds atomics <span role="normative">may</span> modify values within the memory range(s) bound
+     to the buffer, but <span role="normative">must not</span> modify any other memory, and return an
+     undefined value.
+</p>
+</li>
+<li>
+<p>
+Vertex input attributes are considered out of bounds if the address of the
+     attribute plus the size of the attribute is greater than the size of the
+     bound buffer. Further, if any vertex input attribute using a specific
+     vertex input binding is out of bounds, then all vertex input attributes
+     using that vertex input binding for that vertex shader invocation are
+     considered out of bounds.
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+If a vertex input attribute is out of bounds, it will be assigned one
+      of the following values:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+Values from anywhere within the memory range(s) bound to the buffer,
+     converted according to the format of the attribute.
+</p>
+</li>
+<li>
+<p>
+Zero values, format converted according to the format of the attribute.
+</p>
+</li>
+<li>
+<p>
+Zero values, or (0,0,0,x) vectors, as described above.
+</p>
+</li>
+</ul></div>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+If <code>robustBufferAccess</code> is not enabled, out of bounds accesses <span role="normative">may</span>
+     corrupt any memory within the process and cause undefined behaviour up
+     to and including application termination.
 </p>
 </li>
 </ul></div>
@@ -35001,6 +35194,12 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
+<code>topology</code> is a <code><a href="#VkPrimitiveTopology">VkPrimitiveTopology</a></code> defining the primitive
+    topology, as described below.
+</p>
+</li>
+<li>
+<p>
 <code>primitiveRestartEnable</code> controls whether a special vertex index
     value is treated as restarting the assembly of primitives. This enable
     only applies to indexed draws (<code><a href="#vkCmdDrawIndexed">vkCmdDrawIndexed</a></code> and
@@ -35009,12 +35208,6 @@ http://www.gnu.org/software/src-highlite -->
     <code>vkCmdBindIndexBuffer</code> is equal to <code>VK_INDEX_TYPE_UINT32</code>, or
     0xFFFF when <code>indexType</code> is equal to <code>VK_INDEX_TYPE_UINT16</code>.
     Primitive restart is not allowed for &#8220;list&#8221; topologies.
-</p>
-</li>
-<li>
-<p>
-<code>topology</code> is a <code><a href="#VkPrimitiveTopology">VkPrimitiveTopology</a></code> defining the primitive
-    topology, as described below.
 </p>
 </li>
 </ul></div>
@@ -40446,7 +40639,7 @@ style="
 margin-left:auto; margin-right:auto;
 width:100%;
 ">
-<caption class="title">Table 5. Blend Factors</caption>
+<caption class="title">Table 7. Blend Factors</caption>
 <col style="width:59%;">
 <col style="width:28%;">
 <col style="width:13%;">
@@ -40637,7 +40830,7 @@ style="
 margin-left:auto; margin-right:auto;
 width:100%;
 ">
-<caption class="title">Table 6. Blend Operations</caption>
+<caption class="title">Table 8. Blend Operations</caption>
 <col style="width:45%;">
 <col style="width:30%;">
 <col style="width:25%;">
@@ -44878,7 +45071,7 @@ style="
 margin-left:auto; margin-right:auto;
 width:75%;
 ">
-<caption class="title">Table 7. Logical Operations</caption>
+<caption class="title">Table 9. Logical Operations</caption>
 <col style="width:50%;">
 <col style="width:50%;">
 <thead>
@@ -49724,9 +49917,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_398">8.6.2. C Specification</h4>
-<div class="paragraph"><p>The function pointer type returned from the <code><a href="#vkGetInstanceProcAddr">vkGetInstanceProcAddr</a></code> and
-<code><a href="#vkGetDeviceProcAddr">vkGetDeviceProcAddr</a></code> is a dummy type not corresponding to any actual
-Vulkan function:</p></div>
+<div class="paragraph"><p>The definition of <code><a href="#PFN_vkVoidFunction">PFN_vkVoidFunction</a></code> is:</p></div>
 <div class="listingblock">
 <a id="PFN_vkVoidFunction"></a>
 <div class="title"></div>
@@ -50105,7 +50296,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-style: italic"><span style="color: #9A1900">// Version of this file</span></span>
-<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">22</span>
+<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">23</span>
 </tt></pre></div></div>
 </div>
 <div class="sect3">
@@ -50333,9 +50524,9 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.22<br>
+Version 1.0.23<br>
 Last updated
- 2016-07-23 03:43:17 PDT
+ 2016-08-05 05:24:27 PDT
 </div>
 </div>
 </body>

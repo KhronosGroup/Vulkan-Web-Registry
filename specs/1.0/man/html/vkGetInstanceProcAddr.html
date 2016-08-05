@@ -548,7 +548,7 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>instance</code> is the instance that the function pointer will be
-    compatible with.
+    compatible with, or <span class="monospaced">NULL</span> for commands not dependent on any instance.
 </p>
 </li>
 <li>
@@ -569,35 +569,100 @@ load it dynamically and look up the symbol using platform-specific APIs.
 Loaders are encouraged to export function symbols for all other core
 Vulkan commands as well; if this is done, then applications that use only
 the core Vulkan commands have no need to use <code>vkGetInstanceProcAddr</code>.</p></div>
-<div class="paragraph"><p>Function pointers to commands that do not operate on a specific instance <span role="normative">can</span>
-be obtained by using this command with <code>instance</code> equal to <span class="monospaced">NULL</span>. The
-following commands <span role="normative">can</span> be accessed this way:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-<code><a href="vkEnumerateInstanceExtensionProperties.html">vkEnumerateInstanceExtensionProperties</a></code>
-</p>
-</li>
-<li>
-<p>
-<code><a href="vkEnumerateInstanceLayerProperties.html">vkEnumerateInstanceLayerProperties</a></code>
-</p>
-</li>
-<li>
-<p>
-<code><a href="vkCreateInstance.html">vkCreateInstance</a></code>
-</p>
-</li>
-</ul></div>
+<div class="paragraph"><p>The table below defines the various use cases for <code>vkGetInstanceProcAddr</code>
+and expected return value ("fp" is function pointer) for each case.</p></div>
 <div class="paragraph"><p>The returned function pointer is of type <code><a href="PFN_vkVoidFunction.html">PFN_vkVoidFunction</a></code>, and must
 be cast to the type of the command being queried.</p></div>
-<div class="paragraph"><p>If <code>instance</code> is a valid <code>VkInstance</code>, function pointers to any
-commands that operate on <code>instance</code> or a child of <code>instance</code> <span role="normative">can</span> be
-obtained. The returned function pointer <span role="normative">must</span> only be called with a
-dispatchable object (the first parameter) that is a child of <code>instance</code>.</p></div>
-<div class="paragraph"><p>If <code>pName</code> is not the name of a core Vulkan command, or is an
-extension command for any extension not supported by any available layer or
-implementation, then <code>vkGetInstanceProcAddr</code> will return <span class="monospaced">NULL</span>.</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+margin-left:auto; margin-right:auto;
+width:80%;
+">
+<caption class="title">Table 1. vkGetInstanceProcAddr behavior</caption>
+<col style="width:33%;">
+<col style="width:33%;">
+<col style="width:33%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" > <code>instance</code> </th>
+<th class="tableblock halign-left valign-top" > <code>pName</code> </th>
+<th class="tableblock halign-left valign-top" > return value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">invalid instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">*</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">undefined</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="vkEnumerateInstanceExtensionProperties.html">vkEnumerateInstanceExtensionProperties</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="vkEnumerateInstanceLayerProperties.html">vkEnumerateInstanceLayerProperties</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code><a href="vkCreateInstance.html">vkCreateInstance</a></code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">* (any <code>pName</code> not covered above)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">core Vulkan command</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">enabled instance extension commands for <code>instance</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">available device extension commands for <code>instance</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">fp<sup>1,2</sup></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">instance</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">* (any <code>pName</code> not covered above)</p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">NULL</p></td>
+</tr>
+</tbody>
+</table>
+<div class="dlist"><dl>
+<dt class="hdlist1">
+1
+</dt>
+<dd>
+<p>
+The returned function pointer <span role="normative">must</span> only be called with a dispatchable object
+(the first parameter) that is a child of <code>instance</code>.
+    e.g. <code>VkInstance</code>, <code>VkPhysicalDevice</code>, <code>VkDevice</code>, <code>VkQueue</code>, or
+    <code>VkCommandBuffer</code>.
+</p>
+</dd>
+<dt class="hdlist1">
+2
+</dt>
+<dd>
+<p>
+available extension is an extension function supported by any of the loader, ICD or layer.
+</p>
+</dd>
+</dl></div>
 </div>
 </div>
 <div class="sect1">
@@ -612,16 +677,6 @@ If <code>instance</code> is not <span class="monospaced">NULL</span>, <code>inst
 <li>
 <p>
 <code>pName</code> <span role="normative">must</span> be a null-terminated string
-</p>
-</li>
-<li>
-<p>
-If <code>instance</code> is <span class="monospaced">NULL</span>, <code>pName</code> <span role="normative">must</span> be "vkEnumerateInstanceExtensionProperties", "vkEnumerateInstanceLayerProperties", or "vkCreateInstance"
-</p>
-</li>
-<li>
-<p>
-If <code>instance</code> is not <span class="monospaced">NULL</span>, <code>pName</code> <span role="normative">must not</span> be "vkEnumerateInstanceExtensionProperties", "vkEnumerateInstanceLayerProperties", or "vkCreateInstance"
 </p>
 </li>
 </ul></div>
@@ -655,7 +710,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-07-23 03:43:17 PDT
+ 2016-08-05 05:22:12 PDT
 </div>
 </div>
 </body>
