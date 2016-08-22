@@ -35,7 +35,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
     <li> <a href="#apispecs"/> <b>API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
-    <li> <a href="#styleguide"/> <b>API Style Guide</b> </a> </li>
+    <li> <a href="#styleguide"/> <b>Vulkan Procedures and Conventions</b>
+         </a> (formerly the ``API Style Guide'') </li>
     <li> <a href="#refguide"/> <b>API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
     <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
@@ -78,7 +79,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     incorporated into the Vulkan API Specification by reference. </p>
 
 
-<h2> <a name="styleguide"></a> <b>API Style Guide</b> </h2>
+<h2> <a name="styleguide"></a> <b>Vulkan Procedures and Conventions</b> </h2>
 
 <p> The <a href="specs/1.0/styleguide.html">Vulkan Documentation: Procedures
     and Conventions</a> document (formerly the ``API Style Guide'') defines
