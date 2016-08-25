@@ -157,6 +157,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> extension branch </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> extension branch </li>
     <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> extension branch </li>
+    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> extension branch </li>
+
 </ul>
 
 <p> The Vulkan-Docs repository also contains the <a
