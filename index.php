@@ -131,34 +131,52 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <h3> <a name="repo-docs"></a> <b>API and Extension Specification Repository</b> </h3>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Docs">
-    Vulkan-Docs</a> repository contains the Asciidoc source for the
-    Vulkan core API specification, and for registered Vulkan API
-    extensions. Each extension exists on a separate git branch.
-    Registered branches include: </p>
+    Vulkan-Docs</a> repository contains the Asciidoc source for the Vulkan
+    core API specification, and for registered Vulkan API extensions. </p>
+
+<p> As of version 1.0.25 of the Specification (August 26, 2016), extensions
+    are all documented in the <a
+    href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0">1.0</a> git
+    branch, and specifications can be built with or without different
+    combinations of extensions by appropriate invocation of the Makefile.
+    This is a major difference from earlier versions of the Specification,
+    where each extension existed on its own git branch. The branches still
+    exist for historical purposes, but are not linked from the registry.
+    </p>
+
+<p> Registered and published extensions include: </p>
 
 <ul>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0"> Vulkan 1.0 </a> core API branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_surface"> VK_KHR_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_swapchain"> VK_KHR_swapchain </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display"> VK_KHR_display </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_display_swapchain"> VK_KHR_display_swapchain </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xlib_surface"> VK_KHR_xlib_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_xcb_surface"> VK_KHR_xcb_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_mir_surface"> VK_KHR_mir_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_android_surface"> VK_KHR_android_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_KHR_win32_surface"> VK_KHR_win32_surface </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_report"> VK_EXT_debug_report </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_NV_glsl_shader"> VK_NV_glsl_shader </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_EXT_debug_marker"> VK_EXT_debug_marker </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_shader_trinary_minmax"> VK_AMD_shader_trinary_minmax </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> extension branch </li>
-    <li> <a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0-VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> extension branch </li>
-
+    <li> <b> Khronos-approved Extensions </b> </li>
+    <li> VK_KHR_android_surface </li>
+    <li> VK_KHR_display </li>
+    <li> VK_KHR_display_swapchain </li>
+    <li> VK_KHR_mir_surface </li>
+    <li> VK_KHR_surface </li>
+    <li> VK_KHR_swapchain </li>
+    <li> VK_KHR_wayland_surface </li>
+    <li> VK_KHR_win32_surface </li>
+    <li> VK_KHR_xcb_surface </li>
+    <li> VK_KHR_xlib_surface </li>
+    <li> <b> Multivendor Extensions </b> </li>
+    <li> VK_EXT_debug_marker </li>
+    <li> VK_EXT_debug_report </li>
+    <li> <b> AMD Vendor Extensions </b> </li>
+    <li> VK_AMD_draw_indirect_count </li>
+    <li> VK_AMD_gcn_shader </li>
+    <li> VK_AMD_rasterization_order </li>
+    <li> VK_AMD_shader_explicit_vertex_parameter </li>
+    <li> VK_AMD_shader_trinary_minmax </li>
+    <li> <b> Imagination Vendor Extensions </b> </li>
+    <li> VK_IMG_filter_cubic </li>
+    <li> VK_IMG_format_pvrtc (<i>Registered, but not currently documented</i>) </li>
+    <li> <b> NVIDIA Vendor Extensions </b> </li>
+    <li> VK_NV_dedicated_allocation </li>
+    <li> VK_NV_external_memory </li>
+    <li> VK_NV_external_memory_capabilities </li>
+    <li> VK_NV_external_memory_win32 </li>
+    <li> VK_NV_glsl_shader </li>
+    <li> VK_NV_win32_keyed_mutex </li>
 </ul>
 
 <p> The Vulkan-Docs repository also contains the <a

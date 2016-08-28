@@ -776,8 +776,8 @@ asciidoc.install(3);
 <div id="header">
 <h1>Vulkan Documentation and Extensions: Procedures and Conventions</h1>
 <span id="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.0.24,</span>
-<span id="revdate">Fri Aug 12 04:33:19 PDT 2016</span>
+<span id="revnumber">version 1.0.25,</span>
+<span id="revdate">Sun, 28 Aug 2016 10:29:31 +0000</span>
 <br><span id="revremark">from git branch: 1.0 commit: 2dd2b3579b64905edafdef1018ba1b39a8474e7a</span>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
@@ -1615,11 +1615,31 @@ As a preprocessor symbol in the <span class="monospaced">vulkan.h</span> header 
 </li>
 <li>
 <p>
-As part of the name of Github repository branches containing
-    specifications for an extension.
+To control building the Vulkan Specification from asciidoc source
+    containing many extension, by explicitly enabling inclusion of one or
+    more extensions.
 </p>
 </li>
 </ul></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>In version 1.0.24 and earlier versions of the Vulkan Specification,
+extensions were maintained in separate git branches from the core
+Specification source. This proved to be unwieldy and difficult to maintain
+as the core was repeatedly updated, and as of version 1.0.25, we have moved
+to a &#8220;single-branch&#8221; model in which most extensions can optionally be
+included or not from a single set of source documents.</p></div>
+<div class="paragraph"><p>It is possible that some vendors will choose to continue maintaining their
+extension branches, and the existing extension branches will not be removed
+from Github.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="paragraph"><p>There is a rigid syntax for these names:</p></div>
 <div class="ulist"><ul>
 <li>
@@ -1908,10 +1928,38 @@ Develop and test the extension using the registered extension number.
 <li>
 <p>
 Publish the extension to Khronos using the previously registered
-    extension number, by creating a branch of the repository with
-    appropriate changes relative to the core Vulkan API branch.
+    extension number, by submitting merge requests to the <span class="monospaced">1.0</span> branch
+    defining the changes specific to the extension. Changes to both the
+    specification source, and to <span class="monospaced">vk.xml</span> will be needed.
 </p>
 <div class="ulist"><ul>
+<li>
+<p>
+Extension changes to the specification source must be protected by
+     asciidoc conditionals as described in the
+     <a href="#extensions-documenting">Documenting Extensions</a> section.
+</p>
+</li>
+<li>
+<p>
+Changes to <span class="monospaced">vk.xml</span> must define the extension interfaces in the
+     <span class="monospaced">&lt;extension&gt;</span> block, and must also change the <span class="monospaced">supported</span> attribute
+     value of the <span class="monospaced">&lt;extension&gt;</span> to <span class="monospaced">supported="vulkan"</span>.
+</p>
+</li>
+<li>
+<p>
+When publishing an extension, mark it as enabled by proposing a merge
+     to the <span class="monospaced">1.0</span> branch changing the <span class="monospaced">supported</span> attribute value of the
+     <span class="monospaced">&lt;extension&gt;</span> to <span class="monospaced">supported="vulkan"</span>. This should be completely
+     automated and under the control of the publishers, to allow them to
+     align publication on Khronos with product releases. However, complete
+     automation might be difficult, since steps such as regenerating and
+     validating <span class="monospaced">vulkan.h</span> are involved. Once the merge is accepted and the
+     corresponding updated header with the new extension interface is
+     committed to the <span class="monospaced">1.0</span> branch, publication is complete.
+</p>
+</li>
 <li>
 <p>
 Publishing on the <a href="#KhronosGroup/Vulkan-Docs">Khronos public github      repository</a> is preferred whenever possible. Khronos members may
@@ -1919,81 +1967,32 @@ Publishing on the <a href="#KhronosGroup/Vulkan-Docs">Khronos public github     
      branches will eventually be mirrored to github.
 </p>
 </li>
+<li>
+<p>
+Once the merge request defining an extension has been accepted into the
+     <span class="monospaced">1.0</span> branch, publication is complete - although it may not be visible
+     on Github until the next regular core Specification update is pushed
+     out.
+</p>
+</li>
 </ul></div>
 </li>
 <li>
 <p>
-Mark the extension as enabled, by proposing a merge to the <span class="monospaced">1.0</span> branch
-    changing the <span class="monospaced">supported</span> attribute value of the <span class="monospaced">&lt;extension&gt;</span> to
-    <span class="monospaced">supported="vulkan"</span>. This should be completely automated and under the
-    control of the publishers, to allow them to align publication on Khronos
-    with product releases. However, complete automation might be difficult,
-    since steps such as regenerating and validating <span class="monospaced">vulkan.h</span> are involved.
-    Once the merge is accepted and the corresponding updated header with the
-    new extension interface is committed to the <span class="monospaced">1.0</span> branch, publication
-    is complete.
+It is still possible to publish a separate branch of the repository with
+    appropriate changes relative to the core Vulkan API branch instead, but
+    this approach is deprecated and discouraged. If this is done, all
+    changes to <span class="monospaced">vk.xml</span> must still be made in the <span class="monospaced">1.0</span> branch.
 </p>
 </li>
 </ul></div>
-<div class="paragraph"><p>The automated process does not exist yet, and would require significant
-investment in infrastructure to support the process on the Khronos servers.</p></div>
 </div>
 <div class="sect2">
-<h3 id="_documenting_extensions">3.9. Documenting Extensions</h3>
+<h3 id="extensions-documenting">3.9. Documenting Extensions</h3>
 <div class="paragraph"><p>Extensions are documented as modifications to the Vulkan specification.
-These modifications will be on Git branches that are named with the
-following syntax: <span class="monospaced">&lt;major.minor core spec version&gt;-&lt;extension_name&gt;</span></p></div>
-<div class="paragraph"><p>For example, the VK_KHR_surface extension will be documented relative to
-version 1.0 of the <a href="#Vulkan API Specification">[Vulkan API Specification]</a>. As such, the branch name
-will be: <span class="monospaced">1.0-VK_KHR_surface</span> in the Github <span class="monospaced"><a href="#KhronosGroup/Vulkan-Docs">[KhronosGroup/Vulkan-Docs]</a></span>
-project.</p></div>
-<div class="paragraph"><p>If the extension modifies an existing section of the Vulkan specification,
-those modifications are made in-place. Since the changes are on a branch,
-the core-only specification can be easily produced. A specification with an
-extension is created by merging in the extension&#8217;s branch contents.</p></div>
-<div class="paragraph"><p>Extensions should be merged according to their registered extension number.
-If two extensions both modify the same portion of the specification, the
-higher-numbered extension should take care to deal with any conflicts.</p></div>
-<div class="paragraph"><p>The WSI extensions were used to help prototype what should be done for
-extensions. This includes the following:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-All extensions should add an appendix to the Vulkan specification. This
-    should be modeled after what was done for the <span class="monospaced">VK_KHR_surface</span>
-    extension (in the <span class="monospaced">1.0-VK_KHR_surface</span> Github branch), which contains
-    some high-level information about the extension (as well as code
-    examples, and revision history) in the <span class="monospaced">appendices/vk_khr_surface.txt</span>
-    file.
-</p>
-</li>
-<li>
-<p>
-Each extension&#8217;s appendix file is included by adding an <span class="monospaced">include</span>
-    statement to the <span class="monospaced">doc/specs/vulkan/vkspec.txt</span> file. Since most
-    extensions will all put their <span class="monospaced">include</span> line at the same place in this
-    file, they should add this statement on the <span class="monospaced">1.0</span> branch, even though
-    the file will not actually exist on the <span class="monospaced">1.0</span> branch. This helps avoid
-    merge conflicts when multiple extensions' branches are merged in order
-    to create the &#8220;full&#8221; branch specification.
-</p>
-</li>
-<li>
-<p>
-If there are any other places where 2 or more extensions will extend the
-    Vulkan specification, it is best to put that content in a file, and
-    use an <span class="monospaced">include</span> statement to put that content into the spec. Again,
-    this <span class="monospaced">include</span> line should be put on the <span class="monospaced">1.0</span> branch in order to
-    avoid merge conflicts.
-</p>
-</li>
-<li>
-<p>
-If an extension is more of an addition to the Vulkan specification,
-    the extension should add a chapter to the Vulkan specification.
-</p>
-</li>
-</ul></div>
+Changes specific to an extension are protected by asciidoc conditionals. The
+changes are only visible in generated documentation when the Specification
+is built with an asciidoc attribute of that name defined.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -2001,17 +2000,115 @@ If an extension is more of an addition to the Vulkan specification,
 </td>
 <td class="content">
 <div class="title">Note</div>
-<div class="paragraph"><p>As of June 2016, we have found that the &#8220;extension branch&#8221; model poses
-some challenges. It works fine for individual extensions, but trying to
-merge extensions into combined branches, such as the <span class="monospaced">1.0-wsi_extensions</span>
-branch containing all Khronos WSI family extensions, invariably produces a
-number of merge conflicts which must be manually resolved. We are likely to
-continue using the extension branch model, and hope to simplify the merge
-process over time, but authors should be aware that it is not as completely
-transparent as we had hoped initially.</p></div>
+<div class="paragraph"><p>This is referred to as the &#8220;single-branch&#8221; model, in contrast to the
+earlier model where each extension lived in a separate branch from the <span class="monospaced">1.0</span>
+core Specification source.</p></div>
 </td>
 </tr></table>
 </div>
+<div class="paragraph"><p>For example, the <span class="monospaced">VK_KHR_surface</span> extension is now documented in the <span class="monospaced">1.0</span>
+branch of the Github <span class="monospaced"><a href="#KhronosGroup/Vulkan-Docs">[KhronosGroup/Vulkan-Docs]</a></span> project. However,
+specifications generated from this branch will only include the extension
+when the Makefile is invoked appropriately.</p></div>
+<div class="paragraph"><p>Most language defining extensions can be localized either into a small
+number of asciidoc include files which are conditionally included in the
+core specification chapters and appendices, or into parts of <span class="monospaced">vk.xml</span>
+defining the extension interfaces.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>We do not yet fully document an example of including an extension in the
+single-branch model. Instead, authors should refer to the <span class="monospaced">1.0</span> branch and
+search for the names of existing extensions, such as <span class="monospaced">VK_KHR_surface</span>, as
+examples. Some aspects of the changes for this example extension are
+described below.</p></div>
+</td>
+</tr></table>
+</div>
+<div class="paragraph"><p>The WSI extensions were used to help prototype what changes need to be made
+for extensions, which include (but may not be limited to) the following:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+All extensions should add an appendix to the Vulkan specification. This
+    can be modeled after what was done for the <span class="monospaced">VK_KHR_surface</span> extension in
+    <span class="monospaced">doc/specs/vulkan/appendices/VK_KHR_surface/wsi.txt</span>, which contains
+    metainformation about the extension (as well as code examples, and
+    revision history). This example is complicated because <span class="monospaced">VK_KHR_surface</span>
+    is a base extension on which many window system-specific extensions are
+    layered.
+</p>
+</li>
+<li>
+<p>
+Each extension&#8217;s appendix file is included by adding an <span class="monospaced">include</span>
+    statement to the <span class="monospaced">doc/specs/vulkan/vkspec.txt</span> file. The <span class="monospaced">include</span>
+    statement must be protected by appropriate asciidoc conditionals. For
+    example:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content monospaced">
+<pre>ifdef::VK_KHR_surface[]
+include::appendices/VK_KHR_surface/wsi.txt[]
+endif::VK_KHR_surface[]</pre>
+</div></div>
+</div></div>
+</li>
+<li>
+<p>
+If an extension is more of an addition to the Vulkan specification, the
+    extension should add a chapter to the Vulkan specification. For example,
+    in the case of the <span class="monospaced">VK_KHR_surface</span> example a new chapter is added in
+    <span class="monospaced">vkspec.txt</span> by including at the end of the core Specification chapters:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content monospaced">
+<pre>ifdef::VK_KHR_surface[]
+include::chapters/VK_KHR_surface/wsi.txt[]
+endif::VK_KHR_surface[]</pre>
+</div></div>
+</div></div>
+</li>
+<li>
+<p>
+In every other place where the extension modifies the core
+    Specification, modify the core files and protect the modifications with
+    the same asciidoc conditionals. For example, <span class="monospaced">VK_KHR_surface</span> adds new
+    error codes to Vulkan. These are added to <span class="monospaced">chapters/fundamentals.txt</span> in
+    the &#8220;Return Codes&#8221; section as follows:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content monospaced">
+<pre>... list of existing error codes
+ifdef::VK_KHR_surface[]
+include::VK_KHR_surface/VkResultErrorDescriptions_surface.txt[]
+endif::VK_KHR_surface[]</pre>
+</div></div>
+</div></div>
+</li>
+<li>
+<p>
+For vendor extensions, changes made to existing core Specification
+    source files and to <span class="monospaced">vk.xml</span> all fall under the Contributor License
+    Agreement. Vendors may use their own copyright on new files they add to
+    the <span class="monospaced">1.0</span> branch, although that copyright must be compatible with the
+    Specification copyright.
+</p>
+</li>
+</ul></div>
 </div>
 <div class="sect2">
 <h3 id="_assigning_extension_token_values">3.10. Assigning Extension Token Values</h3>
@@ -2127,20 +2224,6 @@ types, reservations must be approved by the listed contact of the
 extension. Bits are not reserved, and must not be used in a published
 implementation or specification until the reservation is merged into
 <a href="#extensions-api-registry"><span class="monospaced">vk.xml</span></a> by the registry maintainer.</p></div>
-<div class="admonitionblock">
-<table><tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph"><p>In reality the approving authority for EXT and vendor extension bitmask
-additions will probably be the owner of the github branch containing the
-specification of that extension; however, until the github process is fully
-defined and locked down, it is safest to refer to the listed contact.</p></div>
-</td>
-</tr></table>
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -2150,8 +2233,8 @@ all extensions must define two additional tokens.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
-VK_EXTNAME_SPEC_VERSION is an integer constant which is the revision of
-    the extension named <span class="monospaced">VK_extname</span> (EXTNAME is all upper-case, while
+<span class="monospaced">VK_EXTNAME_SPEC_VERSION</span> is an integer constant which is the revision of
+    the extension named <span class="monospaced">VK_extname</span> (<span class="monospaced">EXTNAME</span> is all upper-case, while
     extname is the capitalization of the actual extension name) in
     <span class="monospaced">vulkan.h</span>. This value begins at 1 with the initial version of an
     extension specification, and is incremented when significant changes
@@ -2165,7 +2248,7 @@ VK_EXTNAME_SPEC_VERSION is an integer constant which is the revision of
 </li>
 <li>
 <p>
-VK_EXTNAME_EXTENSION_NAME is a string constant which is the name of the
+<span class="monospaced">VK_EXTNAME_EXTENSION_NAME</span> is a string constant which is the name of the
     extension.
 </p>
 </li>
@@ -2215,8 +2298,8 @@ Vulkan ABI.</p></div>
 <div class="paragraph"><p>An extension can be considered platform specific, in which case its
 interfaces in <span class="monospaced">vulkan.h</span> are protected by #ifdefs. This is orthogonal to
 whether an extension command is considered to be part of the Vulkan ABI.</p></div>
-<div class="paragraph"><p>The initial set of WSI extension commands (i.e. for VK_KHR_surface,
-VK_KHR_swapchain, and VK_KHR_*_surface) are considered to be part of the
+<div class="paragraph"><p>The initial set of WSI extension commands (i.e. for <span class="monospaced">VK_KHR_surface</span>,
+<span class="monospaced">VK_KHR_swapchain</span>, and <span class="monospaced">VK_KHR_*_surface</span>) are considered to be part of the
 Vulkan ABI. Function prototypes for these WSI commands are included in
 the <span class="monospaced">vulkan.h</span> provided by Khronos, though the platform-specific portions of
 <span class="monospaced">vulkan.h</span> are protected by #ifdefs.</p></div>
@@ -3139,6 +3222,18 @@ to write &#8220;For non-stereoscopic-3D applications, this value is 1.&#8221;</p
 conventions. For example:</p></div>
 <div class="paragraph"><p><strong>Correct:</strong> color, signaled.</p></div>
 <div class="paragraph"><p><strong>Incorrect:</strong> colour, signalled.</p></div>
+<div class="paragraph"><p>The following words are exceptions to this convention, usually for
+historical reasons:</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:100%;
+">
+<caption class="title">Table 6. Spelling Exceptions</caption>
+<col style="width:20%;">
+<col style="width:80%;">
+<tbody>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -3152,6 +3247,12 @@ here are based on the <a href="#Vulkan API Specification">[Vulkan API Specificat
 compelling need.</p></div>
 <div class="paragraph"><p>Normative parts of the <a href="#Vulkan API Specification">[Vulkan API Specification]</a> should describe <em>what</em> something does,
 rather than <em>how</em> or <em>why</em> an application would want to use it.</p></div>
+<div class="paragraph"><p>When explicitly allowed by the Specification, the reserved value <code>NULL</code> <span role="normative">may</span>
+be used for Vulkan dispatchable objects, pointer parameters and members,
+and the reserved value <code>VK_NULL_HANDLE</code> <span role="normative">may</span> be used for
+Vulkan non-dispatchable object handle parameters and members.
+Otherwise, pointers and handles <span role="normative">must</span>
+refer to valid memory and valid Vulkan objects, respectively.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -3771,6 +3872,13 @@ New param/enum macros
 <div class="ulist"><ul>
 <li>
 <p>
+August 23, 2016 - Modify description of specifying extensions in the
+  <a href="#extensions">Layers and Extensions</a> chapter to refer to the new
+  single-branch model for extensions (internal issue 397).
+</p>
+</li>
+<li>
+<p>
 July 26, 2016 - Add section describing <a href="#writing-refpages">markup for   automatic reference page extraction</a>.
 </p>
 </li>
@@ -3882,9 +3990,9 @@ December 10, 2015 - Initial release for feedback.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.24<br>
+Version 1.0.25<br>
 Last updated
- 2016-08-05 05:21:19 PDT
+ 2016-08-28 03:25:24 PDT
 </div>
 </div>
 </body>
