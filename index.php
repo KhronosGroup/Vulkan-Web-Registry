@@ -65,9 +65,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <li> <b>Vulkan 1.0 Core API</b>
      <a href="specs/1.0/xhtml/vkspec.html">(HTML)</a>
      <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a> </li>
-<li> <b>Vulkan 1.0 Core API + WSI Extensions</b>
+<li> <b>Vulkan 1.0 Core API + Khronos KHR Extensions</b>
      <a href="specs/1.0-wsi_extensions/xhtml/vkspec.html">(HTML)</a>
      <a href="specs/1.0-wsi_extensions/pdf/vkspec.pdf">(PDF)</a> </li>
+<li> <b>Vulkan 1.0 Core API + all published Extensions</b>
+     <a href="specs/1.0-extensions/xhtml/vkspec.html">(HTML)</a>
+     <a href="specs/1.0-extensions/pdf/vkspec.pdf">(PDF)</a> </li>
 </ul>
 
 
