@@ -164,9 +164,11 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <b> Multivendor Extensions </b> </li>
     <li> VK_EXT_debug_marker </li>
     <li> VK_EXT_debug_report </li>
+    <li> VK_EXT_validation_flags </li>
     <li> <b> AMD Vendor Extensions </b> </li>
     <li> VK_AMD_draw_indirect_count </li>
     <li> VK_AMD_gcn_shader </li>
+    <li> VK_AMD_negative_viewport_height </li>
     <li> VK_AMD_rasterization_order </li>
     <li> VK_AMD_shader_explicit_vertex_parameter </li>
     <li> VK_AMD_shader_trinary_minmax </li>
