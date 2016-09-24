@@ -172,6 +172,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <b> AMD Vendor Extensions </b> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_draw_indirect_count">              VK_AMD_draw_indirect_count </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_gcn_shader">                       VK_AMD_gcn_shader </a> </li>
+    <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_gpu_shader_half_float">            VK_AMD_gpu_shader_half_float </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_negative_viewport_height">         VK_AMD_negative_viewport_height </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_rasterization_order">              VK_AMD_rasterization_order </a> </li>
     <!-- <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_shader_ballot">                    VK_AMD_shader_ballot </a> </li> -->

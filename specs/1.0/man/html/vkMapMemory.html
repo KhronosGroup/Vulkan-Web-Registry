@@ -579,8 +579,8 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>ppData</code> points to a pointer in which is returned a host-accessible
-    pointer to the beginning of the mapped range. This pointer minus
-    <code>offset</code> <span role="normative">must</span> be aligned to at least
+    pointer to the beginning of the mapped range.
+    This pointer minus <code>offset</code> <span role="normative">must</span> be aligned to at least
     <code>VkPhysicalDeviceLimits</code>::<code>minMemoryMapAlignment</code>.
 </p>
 </li>
@@ -592,22 +592,40 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sectionbody">
 <div class="paragraph"><p>It is an application error to call <code>vkMapMemory</code> on a memory object that
 is already mapped.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p><code>vkMapMemory</code> will fail if the implementation is unable to allocate
+an appropriately sized contiguous virtual address range, e.g. due to
+virtual address space fragmentation or platform limits.
+In such cases, <code>vkMapMemory</code> <span role="normative">must</span> return VK_ERROR_MEMORY_MAP_FAILED.
+The application <span role="normative">can</span> improve the likelihood of success by reducing the
+size of the mapped range and/or removing unneeded mappings using
+<code>VkUnmapMemory</code>.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="paragraph" id="memory-device-hostaccess-hazards"><p><code>vkMapMemory</code> does not check whether the device memory is currently in
-use before returning the host-accessible pointer. The application
-<span role="normative">must</span> guarantee that any previously submitted command that writes to this
-range has completed before the host reads from or writes to that
-range, and that any previously submitted command that reads from that
+use before returning the host-accessible pointer.
+The application <span role="normative">must</span> guarantee that any previously submitted command that
+writes to this range has completed before the host reads from or writes to
+that range, and that any previously submitted command that reads from that
 range has completed before the host writes to that region (see
-<a href="#synchronization-fences-devicewrites">here</a>
-for details on fulfilling such a guarantee). If the device memory was
-allocated without the <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> set,
-these guarantees <span role="normative">must</span> be made for an extended range: the application
-<span role="normative">must</span> round down the start of the range to the nearest multiple of
+<a href="#synchronization-fences-devicewrites">here</a> for details on fulfilling such
+a guarantee).
+If the device memory was allocated without the
+<code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> set, these guarantees <span role="normative">must</span> be
+made for an extended range: the application <span role="normative">must</span> round down the start of
+the range to the nearest multiple of
 <code>VkPhysicalDeviceLimits</code>::<code>nonCoherentAtomSize</code>, and round the end
 of the range up to the nearest multiple of
 <code>VkPhysicalDeviceLimits</code>::<code>nonCoherentAtomSize</code>.</p></div>
-<div class="paragraph"><p>While a range of device memory is mapped for host access, the application
-is responsible for synchronizing both device and host access to that memory
+<div class="paragraph"><p>While a range of device memory is mapped for host access, the application is
+responsible for synchronizing both device and host access to that memory
 range.</p></div>
 <div class="admonitionblock">
 <table><tr>
@@ -763,7 +781,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-16 22:11:47 PDT
+ 2016-09-24 01:34:45 PDT
 </div>
 </div>
 </body>
