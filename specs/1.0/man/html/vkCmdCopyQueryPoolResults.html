@@ -627,9 +627,9 @@ numerical results for that query.
 This is guaranteed to reflect the most recent use of the query on the same
 queue, assuming that the query is not being simultaneously used by other
 queues.
-If the query does not become available in a finite amount of time (e.g.
-due to not issuing a query since the last reset), a
-<code>VK_ERROR_DEVICE_LOST</code> error <span role="normative">may</span> occur.</p></div>
+If the query does not become available in a finite amount of time (e.g. due
+to not issuing a query since the last reset), a <code>VK_ERROR_DEVICE_LOST</code>
+error <span role="normative">may</span> occur.</p></div>
 <div class="paragraph"><p>Similarly, if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set and
 <code>VK_QUERY_RESULT_WAIT_BIT</code> is not set, the availability is guaranteed to
 reflect the most recent use of the query on the same queue, assuming that
@@ -646,11 +646,64 @@ value between zero and the final result value is written for that query.</p></di
 and its writes to buffer memory <span role="normative">must</span> be synchronized using
 <code>VK_PIPELINE_STAGE_TRANSFER_BIT</code> and <code>VK_ACCESS_TRANSFER_WRITE_BIT</code>
 before using the results.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>dstOffset</code> <span role="normative">must</span> be less than the size of <code>dstBuffer</code>
+</p>
+</li>
+<li>
+<p>
+<code>firstQuery</code> <span role="normative">must</span> be less than the number of queries in
+    <code>queryPool</code>
+</p>
+</li>
+<li>
+<p>
+The sum of <code>firstQuery</code> and <code>queryCount</code> <span role="normative">must</span> be less than or
+    equal to the number of queries in <code>queryPool</code>
+</p>
+</li>
+<li>
+<p>
+If <code>VK_QUERY_RESULT_64_BIT</code> is not set in <code>flags</code> then
+    <code>dstOffset</code> and <code>stride</code> <span role="normative">must</span> be multiples of <span class="monospaced">4</span>
+</p>
+</li>
+<li>
+<p>
+If <code>VK_QUERY_RESULT_64_BIT</code> is set in <code>flags</code> then
+    <code>dstOffset</code> and <code>stride</code> <span role="normative">must</span> be multiples of <span class="monospaced">8</span>
+</p>
+</li>
+<li>
+<p>
+<code>dstBuffer</code> <span role="normative">must</span> have enough storage, from <code>dstOffset</code>, to
+    contain the result of each query, as described
+    <a href="#queries-operation-memorylayout">here</a>
+</p>
+</li>
+<li>
+<p>
+<code>dstBuffer</code> <span role="normative">must</span> have been created with
+    <code>VK_BUFFER_USAGE_TRANSFER_DST_BIT</code> usage flag
+</p>
+</li>
+<li>
+<p>
+If the <code>queryType</code> used to create <code>queryPool</code> was
+    <code>VK_QUERY_TYPE_TIMESTAMP</code>, <code>flags</code> <span role="normative">must</span> not contain
+    <code>VK_QUERY_RESULT_PARTIAL_BIT</code>
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -692,52 +745,11 @@ This command <span role="normative">must</span> only be called outside of a rend
 Each of <code>commandBuffer</code>, <code>dstBuffer</code>, and <code>queryPool</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
-<li>
-<p>
-<code>dstOffset</code> <span role="normative">must</span> be less than the size of <code>dstBuffer</code>
-</p>
-</li>
-<li>
-<p>
-<code>firstQuery</code> <span role="normative">must</span> be less than the number of queries in <code>queryPool</code>
-</p>
-</li>
-<li>
-<p>
-The sum of <code>firstQuery</code> and <code>queryCount</code> <span role="normative">must</span> be less than or equal to the number of queries in <code>queryPool</code>
-</p>
-</li>
-<li>
-<p>
-If <code>VK_QUERY_RESULT_64_BIT</code> is not set in <code>flags</code> then <code>dstOffset</code> and <code>stride</code> <span role="normative">must</span> be multiples of <span class="monospaced">4</span>
-</p>
-</li>
-<li>
-<p>
-If <code>VK_QUERY_RESULT_64_BIT</code> is set in <code>flags</code> then <code>dstOffset</code> and <code>stride</code> <span role="normative">must</span> be multiples of <span class="monospaced">8</span>
-</p>
-</li>
-<li>
-<p>
-<code>dstBuffer</code> <span role="normative">must</span> have enough storage, from <code>dstOffset</code>, to contain the result of each query, as described <a href="#queries-operation-memorylayout">here</a>
-</p>
-</li>
-<li>
-<p>
-<code>dstBuffer</code> <span role="normative">must</span> have been created with <code>VK_BUFFER_USAGE_TRANSFER_DST_BIT</code> usage flag
-</p>
-</li>
-<li>
-<p>
-If the <code>queryType</code> used to create <code>queryPool</code> was <code>VK_QUERY_TYPE_TIMESTAMP</code>, <code>flags</code> <span role="normative">must</span> not contain <code>VK_QUERY_RESULT_PARTIAL_BIT</code>
-</p>
-</li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_host_synchronization">Host Synchronization</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -745,11 +757,10 @@ Host access to <code>commandBuffer</code> <span role="normative">must</span> be 
 </p>
 </li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_command_properties">Command Properties</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all"
 style="
 width:100%;
@@ -774,6 +785,7 @@ COMPUTE</p></td>
 </tr>
 </tbody>
 </table>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -804,7 +816,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>

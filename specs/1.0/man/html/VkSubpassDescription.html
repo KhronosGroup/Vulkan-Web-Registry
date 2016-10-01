@@ -576,8 +576,7 @@ http://www.gnu.org/software/src-highlite -->
     attachments <span role="normative">can</span> be read in the shader during the subpass, and what
     layout each attachment will be in during the subpass.
     Each element of the array corresponds to an input attachment unit number
-    in the shader, i.e.
-    if the shader declares an input variable
+    in the shader, i.e. if the shader declares an input variable
     <span class="monospaced">layout(input_attachment_index=X, set=Y, binding=Z)</span> then it uses the
     attachment provided in <code>pInputAttachments</code>[X].
     Input attachments <span role="normative">must</span> also be bound to the pipeline with a descriptor
@@ -597,9 +596,9 @@ http://www.gnu.org/software/src-highlite -->
     pass&#8217;s attachments will be used as color attachments in the subpass, and
     what layout each attachment will be in during the subpass.
     Each element of the array corresponds to a fragment shader output
-    location, i.e.
-    if the shader declared an output variable <span class="monospaced">layout(location=X)</span> then it
-    uses the attachment provided in <code>pColorAttachments</code>[X].
+    location, i.e. if the shader declared an output variable
+    <span class="monospaced">layout(location=X)</span> then it uses the attachment provided in
+    <code>pColorAttachments</code>[X].
 </p>
 </li>
 <li>
@@ -676,11 +675,93 @@ remain undefined for subpasses in subpass dependency chains starting with
 subpass S until they are written again.
 However, they remain valid for subpasses in other subpass dependency chains
 starting with subpass S1 if those subpasses use or preserve the attachment.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>pipelineBindPoint</code> <span role="normative">must</span> be <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code>
+</p>
+</li>
+<li>
+<p>
+<code>colorAttachmentCount</code> <span role="normative">must</span> be less than or equal to
+    <code>VkPhysicalDeviceLimits</code>::<code>maxColorAttachments</code>
+</p>
+</li>
+<li>
+<p>
+If the first use of an attachment in this render pass is as an input
+    attachment, and the attachment is not also used as a color or
+    depth/stencil attachment in the same subpass, then <code>loadOp</code> <span role="normative">must</span>
+    not be <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pResolveAttachments</code> is not <span class="monospaced">NULL</span>, for each resolve attachment
+    that does not have the value <code>VK_ATTACHMENT_UNUSED</code>, the
+    corresponding color attachment <span role="normative">must</span> not have the value
+    <code>VK_ATTACHMENT_UNUSED</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pResolveAttachments</code> is not <span class="monospaced">NULL</span>, the sample count of each
+    element of <code>pColorAttachments</code> <span role="normative">must</span> be anything other than
+    <code>VK_SAMPLE_COUNT_1_BIT</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pResolveAttachments</code> <span role="normative">must</span> have a sample count
+    of <code>VK_SAMPLE_COUNT_1_BIT</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pResolveAttachments</code> <span role="normative">must</span> have the same
+    <code><a href="VkFormat.html">VkFormat</a></code> as its corresponding color attachment
+</p>
+</li>
+<li>
+<p>
+All attachments in <code>pColorAttachments</code> and
+    <code>pDepthStencilAttachment</code> that are not <code>VK_ATTACHMENT_UNUSED</code>
+    <span role="normative">must</span> have the same sample count
+</p>
+</li>
+<li>
+<p>
+If any input attachments are <code>VK_ATTACHMENT_UNUSED</code>, then any
+    pipelines bound during the subpass <span role="normative">must</span> not access those input
+    attachments from the fragment shader
+</p>
+</li>
+<li>
+<p>
+The <code>attachment</code> member of any element of <code>pPreserveAttachments</code>
+    <span role="normative">must</span> not be <code>VK_ATTACHMENT_UNUSED</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pPreserveAttachments</code> <span role="normative">must</span> not also be an
+    element of any other member of the subpass description
+</p>
+</li>
+<li>
+<p>
+If any attachment is used as both an input attachment and a color or
+    depth/stencil attachment, then each use <span role="normative">must</span> use the same <code>layout</code>
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -717,67 +798,8 @@ If <code>pDepthStencilAttachment</code> is not <span class="monospaced">NULL</sp
 If <code>preserveAttachmentCount</code> is not <span class="monospaced">0</span>, <code>pPreserveAttachments</code> <span role="normative">must</span> be a pointer to an array of <code>preserveAttachmentCount</code> <code><a href="uint32_t.html">uint32_t</a></code> values
 </p>
 </li>
-<li>
-<p>
-<code>pipelineBindPoint</code> <span role="normative">must</span> be <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code>
-</p>
-</li>
-<li>
-<p>
-<code>colorAttachmentCount</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxColorAttachments</code>
-</p>
-</li>
-<li>
-<p>
-If the first use of an attachment in this render pass is as an input attachment, and the attachment is not also used as a color or depth/stencil attachment in the same subpass, then <code>loadOp</code> <span role="normative">must</span> not be <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pResolveAttachments</code> is not <span class="monospaced">NULL</span>, for each resolve attachment that does not have the value <code>VK_ATTACHMENT_UNUSED</code>, the corresponding color attachment <span role="normative">must</span> not have the value <code>VK_ATTACHMENT_UNUSED</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pResolveAttachments</code> is not <span class="monospaced">NULL</span>, the sample count of each element of <code>pColorAttachments</code> <span role="normative">must</span> be anything other than <code>VK_SAMPLE_COUNT_1_BIT</code>
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pResolveAttachments</code> <span role="normative">must</span> have a sample count of <code>VK_SAMPLE_COUNT_1_BIT</code>
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pResolveAttachments</code> <span role="normative">must</span> have the same <code><a href="VkFormat.html">VkFormat</a></code> as its corresponding color attachment
-</p>
-</li>
-<li>
-<p>
-All attachments in <code>pColorAttachments</code> and <code>pDepthStencilAttachment</code> that are not <code>VK_ATTACHMENT_UNUSED</code> <span role="normative">must</span> have the same sample count
-</p>
-</li>
-<li>
-<p>
-If any input attachments are <code>VK_ATTACHMENT_UNUSED</code>, then any pipelines bound during the subpass <span role="normative">must</span> not access those input attachments from the fragment shader
-</p>
-</li>
-<li>
-<p>
-The <code>attachment</code> member of any element of <code>pPreserveAttachments</code> <span role="normative">must</span> not be <code>VK_ATTACHMENT_UNUSED</code>
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pPreserveAttachments</code> <span role="normative">must</span> not also be an element of any other member of the subpass description
-</p>
-</li>
-<li>
-<p>
-If any attachment is used as both an input attachment and a color or depth/stencil attachment, then each use <span role="normative">must</span> use the same <code>layout</code>
-</p>
-</li>
 </ul></div>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -808,7 +830,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>

@@ -816,8 +816,7 @@ directly correspond to <code>GL_NEAREST</code> and <code>GL_LINEAR</code> magnif
 filters.
 <code>minFilter</code> and <code>mipmapMode</code> combine to correspond to the similarly
 named OpenGL minification filter of <code>GL_minFilter_MIPMAP_mipmapMode</code>
-(e.g.
-<code>minFilter</code> of <code>VK_FILTER_LINEAR</code> and <code>mipmapMode</code> of
+(e.g. <code>minFilter</code> of <code>VK_FILTER_LINEAR</code> and <code>mipmapMode</code> of
 <code>VK_SAMPLER_MIPMAP_MODE_NEAREST</code> correspond to
 <code>GL_LINEAR_MIPMAP_NEAREST</code>).</p></div>
 <div class="paragraph"><p>There are no Vulkan filter modes that directly correspond to OpenGL
@@ -829,9 +828,9 @@ emulated using <code>VK_SAMPLER_MIPMAP_MODE_NEAREST</code>, <code>minLod</code> 
 <a href="#textures-texel-filtering">magnification</a> to always be performed, and the
 <code>magFilter</code> to always be used.
 This is valid, just not an exact match for OpenGL behavior.
-Clamping the maximum LOD to 0.25 allows the $\lambda$ value to
-be non-zero and minification to be performed, while still always rounding
-down to the base level.
+Clamping the maximum LOD to 0.25 allows the <span class="eq">&#x03bb;</span> value to be
+non-zero and minification to be performed, while still always rounding down
+to the base level.
 If the <code>minFilter</code> and <code>magFilter</code> are equal, then using a
 <code>maxLod</code> of zero also works.</p></div>
 </td>
@@ -852,8 +851,8 @@ http://www.gnu.org/software/src-highlite -->
     VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE <span style="color: #990000">=</span> <span style="color: #993399">4</span><span style="color: #990000">,</span>
 <span style="color: #FF0000">}</span> VkSamplerAddressMode<span style="color: #990000">;</span></tt></pre></div></div>
 <div class="paragraph"><p>These values control the behavior of sampling with coordinates outside the
-range $[0,1]$ for the respective u, v, or w coordinate as
-defined in the <a href="#textures-wrapping-operation">Wrapping Operation</a> section.</p></div>
+range <span class="eq">[0,1]</span> for the respective u, v, or w coordinate as defined in the
+<a href="#textures-wrapping-operation">Wrapping Operation</a> section.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -898,11 +897,92 @@ return <code>VK_ERROR_TOO_MANY_OBJECTS</code>.</p></div>
 <span role="normative">may</span> return the same handle for sampler state vectors that are identical.
 In such cases, all such objects would only count once against the
 <code>maxSamplerAllocationCount</code> limit.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+The absolute value of <code>mipLodBias</code> <span role="normative">must</span> be less than or equal to
+    <code>VkPhysicalDeviceLimits</code>::<code>maxSamplerLodBias</code>
+</p>
+</li>
+<li>
+<p>
+If the <a href="#features-features-samplerAnisotropy">anisotropic sampling</a>
+    feature is not enabled, <code>anisotropyEnable</code> <span role="normative">must</span> be <code>VK_FALSE</code>
+</p>
+</li>
+<li>
+<p>
+If <code>anisotropyEnable</code> is <code>VK_TRUE</code>, <code>maxAnisotropy</code> <span role="normative">must</span> be
+    between <span class="monospaced">1.0</span> and
+    <code>VkPhysicalDeviceLimits</code>::<code>maxSamplerAnisotropy</code>, inclusive
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>minFilter</code> and
+    <code>magFilter</code> <span role="normative">must</span> be equal
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>mipmapMode</code>
+    <span role="normative">must</span> be <code>VK_SAMPLER_MIPMAP_MODE_NEAREST</code>
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>minLod</code> and
+    <code>maxLod</code> <span role="normative">must</span> be zero
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>addressModeU</code>
+    and <code>addressModeV</code> <span role="normative">must</span> each be either
+    <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE</code> or
+    <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER</code>
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>,
+    <code>anisotropyEnable</code> <span role="normative">must</span> be <code>VK_FALSE</code>
+</p>
+</li>
+<li>
+<p>
+If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>compareEnable</code>
+    <span role="normative">must</span> be <code>VK_FALSE</code>
+</p>
+</li>
+<li>
+<p>
+If any of <code>addressModeU</code>, <code>addressModeV</code> or <code>addressModeW</code>
+    are <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER</code>, <code>borderColor</code>
+    <span role="normative">must</span> be a valid <code><a href="VkBorderColor.html">VkBorderColor</a></code> value
+</p>
+</li>
+<li>
+<p>
+If the <span class="monospaced">VK_KHR_sampler_mirror_clamp_to_edge</span> extension is not enabled,
+    <code>addressModeU</code>, <code>addressModeV</code> and <code>addressModeW</code> <span role="normative">must</span> not
+    be <code>VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE</code>
+</p>
+</li>
+<li>
+<p>
+If <code>compareEnable</code> is <code>VK_TRUE</code>, <code>compareOp</code> <span role="normative">must</span> be a
+    valid <code><a href="VkCompareOp.html">VkCompareOp</a></code> value
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -949,67 +1029,8 @@ In such cases, all such objects would only count once against the
 <code>addressModeW</code> <span role="normative">must</span> be a valid <code><a href="VkSamplerAddressMode.html">VkSamplerAddressMode</a></code> value
 </p>
 </li>
-<li>
-<p>
-The absolute value of <code>mipLodBias</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxSamplerLodBias</code>
-</p>
-</li>
-<li>
-<p>
-If the <a href="#features-features-samplerAnisotropy">anisotropic sampling</a> feature is not enabled, <code>anisotropyEnable</code> <span role="normative">must</span> be <code>VK_FALSE</code>
-</p>
-</li>
-<li>
-<p>
-If <code>anisotropyEnable</code> is <code>VK_TRUE</code>, <code>maxAnisotropy</code> <span role="normative">must</span> be between <span class="monospaced">1.0</span> and <code>VkPhysicalDeviceLimits</code>::<code>maxSamplerAnisotropy</code>, inclusive
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>minFilter</code> and <code>magFilter</code> <span role="normative">must</span> be equal
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>mipmapMode</code> <span role="normative">must</span> be <code>VK_SAMPLER_MIPMAP_MODE_NEAREST</code>
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>minLod</code> and <code>maxLod</code> <span role="normative">must</span> be zero
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>addressModeU</code> and <code>addressModeV</code> <span role="normative">must</span> each be either <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE</code> or <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER</code>
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>anisotropyEnable</code> <span role="normative">must</span> be <code>VK_FALSE</code>
-</p>
-</li>
-<li>
-<p>
-If <code>unnormalizedCoordinates</code> is <code>VK_TRUE</code>, <code>compareEnable</code> <span role="normative">must</span> be <code>VK_FALSE</code>
-</p>
-</li>
-<li>
-<p>
-If any of <code>addressModeU</code>, <code>addressModeV</code> or <code>addressModeW</code> are <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER</code>, <code>borderColor</code> <span role="normative">must</span> be a valid <code><a href="VkBorderColor.html">VkBorderColor</a></code> value
-</p>
-</li>
-<li>
-<p>
-If the <span class="monospaced">VK_KHR_sampler_mirror_clamp_to_edge</span> extension is not enabled, <code>addressModeU</code>, <code>addressModeV</code> and <code>addressModeW</code> <span role="normative">must</span> not be <code>VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE</code>
-</p>
-</li>
-<li>
-<p>
-If <code>compareEnable</code> is <code>VK_TRUE</code>, <code>compareOp</code> <span role="normative">must</span> be a valid <code><a href="VkCompareOp.html">VkCompareOp</a></code> value
-</p>
-</li>
 </ul></div>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -1040,7 +1061,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>

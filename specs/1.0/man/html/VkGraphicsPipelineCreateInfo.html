@@ -740,11 +740,312 @@ See <a href="#pipelines-pipeline-derivatives">Pipeline Derivatives</a> for more
 information.</p></div>
 <div class="paragraph"><p><code>pDynamicState</code> points to a structure of type
 <code>VkPipelineDynamicStateCreateInfo</code>.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
+    flag, and <code>basePipelineIndex</code> is not <span class="monospaced">-1</span>, <code>basePipelineHandle</code>
+    <span role="normative">must</span> be <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>
+</p>
+</li>
+<li>
+<p>
+If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
+    flag, and <code>basePipelineIndex</code> is not <span class="monospaced">-1</span>, it <span role="normative">must</span> be a valid index
+    into the calling command&#8217;s <code>pCreateInfos</code> parameter
+</p>
+</li>
+<li>
+<p>
+If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
+    flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>,
+    <code>basePipelineIndex</code> <span role="normative">must</span> be <span class="monospaced">-1</span>
+</p>
+</li>
+<li>
+<p>
+If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
+    flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>,
+    <code>basePipelineHandle</code> <span role="normative">must</span> be a valid <code>VkPipeline</code> handle
+</p>
+</li>
+<li>
+<p>
+If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
+    flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, it <span role="normative">must</span>
+    be a valid handle to a graphics <code>VkPipeline</code>
+</p>
+</li>
+<li>
+<p>
+The <code>stage</code> member of each element of <code>pStages</code> <span role="normative">must</span> be unique
+</p>
+</li>
+<li>
+<p>
+The <code>stage</code> member of one element of <code>pStages</code> <span role="normative">must</span> be
+    <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+</p>
+</li>
+<li>
+<p>
+The <code>stage</code> member of any given element of <code>pStages</code> <span role="normative">must</span> not
+    be <code>VK_SHADER_STAGE_COMPUTE_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a tessellation control shader stage, it <span role="normative">must</span>
+    include a tessellation evaluation shader stage
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a tessellation evaluation shader stage, it
+    <span role="normative">must</span> include a tessellation control shader stage
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a tessellation control shader stage and a
+    tessellation evaluation shader stage, <code>pTessellationState</code> <span role="normative">must</span> not
+    be <span class="monospaced">NULL</span>
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes tessellation shader stages, the shader code of
+    at least one stage <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction
+    that specifies the type of subdivision in the pipeline
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes tessellation shader stages, and the shader
+    code of both stages contain an <code>OpExecutionMode</code> instruction that
+    specifies the type of subdivision in the pipeline, they <span role="normative">must</span> both
+    specify the same subdivision mode
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes tessellation shader stages, the shader code of
+    at least one stage <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction
+    that specifies the output patch size in the pipeline
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes tessellation shader stages, and the shader
+    code of both contain an <code>OpExecutionMode</code> instruction that specifies
+    the out patch size in the pipeline, they <span role="normative">must</span> both specify the same
+    patch size
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes tessellation shader stages, the <code>topology</code>
+    member of <code>pInputAssembly</code> <span role="normative">must</span> be
+    <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>
+</p>
+</li>
+<li>
+<p>
+If the <code>topology</code> member of <code>pInputAssembly</code> is
+    <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>, <code>pStages</code> <span role="normative">must</span> include
+    tessellation shader stages
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a geometry shader stage, and does not include
+    any tessellation shader stages, its shader code <span role="normative">must</span> contain an
+    <code>OpExecutionMode</code> instruction that specifies an input primitive type
+    that is <a href="#shaders-geometry-execution">compatible</a> with the primitive
+    topology specified in <code>pInputAssembly</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a geometry shader stage, and also includes
+    tessellation shader stages, its shader code <span role="normative">must</span> contain an
+    <code>OpExecutionMode</code> instruction that specifies an input primitive type
+    that is <a href="#shaders-geometry-execution">compatible</a> with the primitive
+    topology that is output by the tessellation stages
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a fragment shader stage and a geometry shader
+    stage, and the fragment shader code reads from an input variable that is
+    decorated with <code>PrimitiveID</code>, then the geometry shader code <span role="normative">must</span>
+    write to a matching output variable, decorated with <code>PrimitiveID</code>, in
+    all execution paths
+</p>
+</li>
+<li>
+<p>
+If <code>pStages</code> includes a fragment shader stage, its shader code <span role="normative">must</span>
+    not read from any input attachment that is defined as
+    <code>VK_ATTACHMENT_UNUSED</code> in <code>subpass</code>
+</p>
+</li>
+<li>
+<p>
+The shader code for the entry points identified by <code>pStages</code>, and
+    the rest of the state identified by this structure <span role="normative">must</span> adhere to the
+    pipeline linking rules described in the <a href="#interfaces">Shader Interfaces</a>
+    chapter
+</p>
+</li>
+<li>
+<p>
+If <code>subpass</code> uses a depth/stencil attachment in <code>renderpass</code>
+    that has a layout of
+    <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the
+    <code>VkAttachmentReference</code> defined by <code>subpass</code>, and
+    <code>pDepthStencilState</code> is not <span class="monospaced">NULL</span>, the <code>depthWriteEnable</code>
+    member of <code>pDepthStencilState</code> <span role="normative">must</span> be <code>VK_FALSE</code>
+</p>
+</li>
+<li>
+<p>
+If <code>subpass</code> uses a depth/stencil attachment in <code>renderpass</code>
+    that has a layout of
+    <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the
+    <code>VkAttachmentReference</code> defined by <code>subpass</code>, and
+    <code>pDepthStencilState</code> is not <span class="monospaced">NULL</span>, the <code>failOp</code>, <code>passOp</code>
+    and <code>depthFailOp</code> members of each of the <code>front</code> and <code>back</code>
+    members of <code>pDepthStencilState</code> <span role="normative">must</span> be <code>VK_STENCIL_OP_KEEP</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pColorBlendState</code> is not <span class="monospaced">NULL</span>, the <code>blendEnable</code> member of
+    each element of the <code>pAttachment</code> member of <code>pColorBlendState</code>
+    <span role="normative">must</span> be <code>VK_FALSE</code> if the <code>format</code> of the attachment referred
+    to in <code>subpass</code> of <code>renderPass</code> does not support color blend
+    operations, as specified by the
+    <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code> flag in
+    <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+    <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+    <code>vkGetPhysicalDeviceFormatProperties</code>
+</p>
+</li>
+<li>
+<p>
+If <code>pColorBlendState</code> is not <span class="monospaced">NULL</span>, The <code>attachmentCount</code>
+    member of <code>pColorBlendState</code> <span role="normative">must</span> be equal to the
+    <code>colorAttachmentCount</code> used to create <code>subpass</code>
+</p>
+</li>
+<li>
+<p>
+If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
+    is <code>VK_DYNAMIC_STATE_VIEWPORT</code>, the <code>pViewports</code> member of
+    <code>pViewportState</code> <span role="normative">must</span> be a pointer to an array of
+    <code>pViewportState</code>::<code>viewportCount</code> <code>VkViewport</code> structures
+</p>
+</li>
+<li>
+<p>
+If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
+    is <code>VK_DYNAMIC_STATE_SCISSOR</code>, the <code>pScissors</code> member of
+    <code>pViewportState</code> <span role="normative">must</span> be a pointer to an array of
+    <code>pViewportState</code>::<code>scissorCount</code> <code>VkRect2D</code> structures
+</p>
+</li>
+<li>
+<p>
+If the wide lines feature is not enabled, and no element of the
+    <code>pDynamicStates</code> member of <code>pDynamicState</code> is
+    <code>VK_DYNAMIC_STATE_LINE_WIDTH</code>, the <code>lineWidth</code> member of
+    <code>pRasterizationState</code> <span role="normative">must</span> be <span class="monospaced">1.0</span>
+</p>
+</li>
+<li>
+<p>
+If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code>
+    is <code>VK_FALSE</code>, <code>pViewportState</code> <span role="normative">must</span> be a pointer to a valid
+    <code>VkPipelineViewportStateCreateInfo</code> structure
+</p>
+</li>
+<li>
+<p>
+If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code>
+    is <code>VK_FALSE</code>, <code>pMultisampleState</code> <span role="normative">must</span> be a pointer to a valid
+    <code>VkPipelineMultisampleStateCreateInfo</code> structure
+</p>
+</li>
+<li>
+<p>
+If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code>
+    is <code>VK_FALSE</code>, and <code>subpass</code> uses a depth/stencil attachment,
+    <code>pDepthStencilState</code> <span role="normative">must</span> be a pointer to a valid
+    <code>VkPipelineDepthStencilStateCreateInfo</code> structure
+</p>
+</li>
+<li>
+<p>
+If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code>
+    is <code>VK_FALSE</code>, and <code>subpass</code> uses color attachments,
+    <code>pColorBlendState</code> <span role="normative">must</span> be a pointer to a valid
+    <code>VkPipelineColorBlendStateCreateInfo</code> structure
+</p>
+</li>
+<li>
+<p>
+If the depth bias clamping feature is not enabled, no element of the
+    <code>pDynamicStates</code> member of <code>pDynamicState</code> is
+    <code>VK_DYNAMIC_STATE_DEPTH_BIAS</code>, and the <code>depthBiasEnable</code> member
+    of <code>pDepthStencil</code> is <code>VK_TRUE</code>, the <code>depthBiasClamp</code> member
+    of <code>pDepthStencil</code> <span role="normative">must</span> be <span class="monospaced">0.0</span>
+</p>
+</li>
+<li>
+<p>
+If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
+    is <code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code>, and the
+    <code>depthBoundsTestEnable</code> member of <code>pDepthStencil</code> is
+    <code>VK_TRUE</code>, the <code>minDepthBounds</code> and <code>maxDepthBounds</code> members
+    of <code>pDepthStencil</code> <span role="normative">must</span> be between <span class="monospaced">0.0</span> and <span class="monospaced">1.0</span>, inclusive
+</p>
+</li>
+<li>
+<p>
+<code>layout</code> <span role="normative">must</span> be
+    <a href="#descriptorsets-pipelinelayout-consistency">consistent</a> with all
+    shaders specified in <code>pStages</code>
+</p>
+</li>
+<li>
+<p>
+If <code>subpass</code> uses color and/or depth/stencil attachments, then the
+    <code>rasterizationSamples</code> member of <code>pMultisampleState</code> <span role="normative">must</span> be
+    the same as the sample count for those subpass attachments
+</p>
+</li>
+<li>
+<p>
+If <code>subpass</code> does not use any color and/or depth/stencil
+    attachments, then the <code>rasterizationSamples</code> member of
+    <code>pMultisampleState</code> <span role="normative">must</span> follow the rules for a
+    <a href="#renderpass-noattachments">zero-attachment subpass</a>
+</p>
+</li>
+<li>
+<p>
+<code>subpass</code> <span role="normative">must</span> be a valid subpass within <code>renderpass</code>
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -806,202 +1107,8 @@ If <code>pDynamicState</code> is not <span class="monospaced">NULL</span>, <code
 Each of <code>basePipelineHandle</code>, <code>layout</code>, and <code>renderPass</code> that are valid handles <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
-<li>
-<p>
-If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> flag, and <code>basePipelineIndex</code> is not <span class="monospaced">-1</span>, <code>basePipelineHandle</code> <span role="normative">must</span> be <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>
-</p>
-</li>
-<li>
-<p>
-If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> flag, and <code>basePipelineIndex</code> is not <span class="monospaced">-1</span>, it <span role="normative">must</span> be a valid index into the calling command&#8217;s <code>pCreateInfos</code> parameter
-</p>
-</li>
-<li>
-<p>
-If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, <code>basePipelineIndex</code> <span role="normative">must</span> be <span class="monospaced">-1</span>
-</p>
-</li>
-<li>
-<p>
-If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, <code>basePipelineHandle</code> <span role="normative">must</span> be a valid <code>VkPipeline</code> handle
-</p>
-</li>
-<li>
-<p>
-If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> flag, and <code>basePipelineHandle</code> is not <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, it <span role="normative">must</span> be a valid handle to a graphics <code>VkPipeline</code>
-</p>
-</li>
-<li>
-<p>
-The <code>stage</code> member of each element of <code>pStages</code> <span role="normative">must</span> be unique
-</p>
-</li>
-<li>
-<p>
-The <code>stage</code> member of one element of <code>pStages</code> <span role="normative">must</span> be <code>VK_SHADER_STAGE_VERTEX_BIT</code>
-</p>
-</li>
-<li>
-<p>
-The <code>stage</code> member of any given element of <code>pStages</code> <span role="normative">must</span> not be <code>VK_SHADER_STAGE_COMPUTE_BIT</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a tessellation control shader stage, it <span role="normative">must</span> include a tessellation evaluation shader stage
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a tessellation evaluation shader stage, it <span role="normative">must</span> include a tessellation control shader stage
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a tessellation control shader stage and a tessellation evaluation shader stage, <code>pTessellationState</code> <span role="normative">must</span> not be <span class="monospaced">NULL</span>
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes tessellation shader stages, the shader code of at least one stage <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction that specifies the type of subdivision in the pipeline
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes tessellation shader stages, and the shader code of both stages contain an <code>OpExecutionMode</code> instruction that specifies the type of subdivision in the pipeline, they <span role="normative">must</span> both specify the same subdivision mode
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes tessellation shader stages, the shader code of at least one stage <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction that specifies the output patch size in the pipeline
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes tessellation shader stages, and the shader code of both contain an <code>OpExecutionMode</code> instruction that specifies the out patch size in the pipeline, they <span role="normative">must</span> both specify the same patch size
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes tessellation shader stages, the <code>topology</code> member of <code>pInputAssembly</code> <span role="normative">must</span> be <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>
-</p>
-</li>
-<li>
-<p>
-If the <code>topology</code> member of <code>pInputAssembly</code> is <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>, <code>pStages</code> <span role="normative">must</span> include tessellation shader stages
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a geometry shader stage, and does not include any tessellation shader stages, its shader code <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction that specifies an input primitive type that is <a href="#shaders-geometry-execution">compatible</a> with the primitive topology specified in <code>pInputAssembly</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a geometry shader stage, and also includes tessellation shader stages, its shader code <span role="normative">must</span> contain an <code>OpExecutionMode</code> instruction that specifies an input primitive type that is <a href="#shaders-geometry-execution">compatible</a> with the primitive topology that is output by the tessellation stages
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a fragment shader stage and a geometry shader stage, and the fragment shader code reads from an input variable that is decorated with <code>PrimitiveID</code>, then the geometry shader code <span role="normative">must</span> write to a matching output variable, decorated with <code>PrimitiveID</code>, in all execution paths
-</p>
-</li>
-<li>
-<p>
-If <code>pStages</code> includes a fragment shader stage, its shader code <span role="normative">must</span> not read from any input attachment that is defined as <code>VK_ATTACHMENT_UNUSED</code> in <code>subpass</code>
-</p>
-</li>
-<li>
-<p>
-The shader code for the entry points identified by <code>pStages</code>, and the rest of the state identified by this structure <span role="normative">must</span> adhere to the pipeline linking rules described in the <a href="#interfaces">Shader Interfaces</a> chapter
-</p>
-</li>
-<li>
-<p>
-If <code>subpass</code> uses a depth/stencil attachment in <code>renderpass</code> that has a layout of <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the <code>VkAttachmentReference</code> defined by <code>subpass</code>, and <code>pDepthStencilState</code> is not <span class="monospaced">NULL</span>, the <code>depthWriteEnable</code> member of <code>pDepthStencilState</code> <span role="normative">must</span> be <code>VK_FALSE</code>
-</p>
-</li>
-<li>
-<p>
-If <code>subpass</code> uses a depth/stencil attachment in <code>renderpass</code> that has a layout of <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the <code>VkAttachmentReference</code> defined by <code>subpass</code>, and <code>pDepthStencilState</code> is not <span class="monospaced">NULL</span>, the <code>failOp</code>, <code>passOp</code> and <code>depthFailOp</code> members of each of the <code>front</code> and <code>back</code> members of <code>pDepthStencilState</code> <span role="normative">must</span> be <code>VK_STENCIL_OP_KEEP</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pColorBlendState</code> is not <span class="monospaced">NULL</span>, the <code>blendEnable</code> member of each element of the <code>pAttachment</code> member of <code>pColorBlendState</code> <span role="normative">must</span> be <code>VK_FALSE</code> if the <code>format</code> of the attachment referred to in <code>subpass</code> of <code>renderPass</code> does not support color blend operations, as specified by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by <code>vkGetPhysicalDeviceFormatProperties</code>
-</p>
-</li>
-<li>
-<p>
-If <code>pColorBlendState</code> is not <span class="monospaced">NULL</span>, The <code>attachmentCount</code> member of <code>pColorBlendState</code> <span role="normative">must</span> be equal to the <code>colorAttachmentCount</code> used to create <code>subpass</code>
-</p>
-</li>
-<li>
-<p>
-If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code> is <code>VK_DYNAMIC_STATE_VIEWPORT</code>, the <code>pViewports</code> member of <code>pViewportState</code> <span role="normative">must</span> be a pointer to an array of <code>pViewportState</code>::<code>viewportCount</code> <code>VkViewport</code> structures
-</p>
-</li>
-<li>
-<p>
-If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code> is <code>VK_DYNAMIC_STATE_SCISSOR</code>, the <code>pScissors</code> member of <code>pViewportState</code> <span role="normative">must</span> be a pointer to an array of <code>pViewportState</code>::<code>scissorCount</code> <code>VkRect2D</code> structures
-</p>
-</li>
-<li>
-<p>
-If the wide lines feature is not enabled, and no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code> is <code>VK_DYNAMIC_STATE_LINE_WIDTH</code>, the <code>lineWidth</code> member of <code>pRasterizationState</code> <span role="normative">must</span> be <span class="monospaced">1.0</span>
-</p>
-</li>
-<li>
-<p>
-If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code> is <code>VK_FALSE</code>, <code>pViewportState</code> <span role="normative">must</span> be a pointer to a valid <code>VkPipelineViewportStateCreateInfo</code> structure
-</p>
-</li>
-<li>
-<p>
-If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code> is <code>VK_FALSE</code>, <code>pMultisampleState</code> <span role="normative">must</span> be a pointer to a valid <code>VkPipelineMultisampleStateCreateInfo</code> structure
-</p>
-</li>
-<li>
-<p>
-If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code> is <code>VK_FALSE</code>, and <code>subpass</code> uses a depth/stencil attachment, <code>pDepthStencilState</code> <span role="normative">must</span> be a pointer to a valid <code>VkPipelineDepthStencilStateCreateInfo</code> structure
-</p>
-</li>
-<li>
-<p>
-If the <code>rasterizerDiscardEnable</code> member of <code>pRasterizationState</code> is <code>VK_FALSE</code>, and <code>subpass</code> uses color attachments, <code>pColorBlendState</code> <span role="normative">must</span> be a pointer to a valid <code>VkPipelineColorBlendStateCreateInfo</code> structure
-</p>
-</li>
-<li>
-<p>
-If the depth bias clamping feature is not enabled, no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code> is <code>VK_DYNAMIC_STATE_DEPTH_BIAS</code>, and the <code>depthBiasEnable</code> member of <code>pDepthStencil</code> is <code>VK_TRUE</code>, the <code>depthBiasClamp</code> member of <code>pDepthStencil</code> <span role="normative">must</span> be <span class="monospaced">0.0</span>
-</p>
-</li>
-<li>
-<p>
-If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code> is <code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code>, and the <code>depthBoundsTestEnable</code> member of <code>pDepthStencil</code> is <code>VK_TRUE</code>, the <code>minDepthBounds</code> and <code>maxDepthBounds</code> members of <code>pDepthStencil</code> <span role="normative">must</span> be between <span class="monospaced">0.0</span> and <span class="monospaced">1.0</span>, inclusive
-</p>
-</li>
-<li>
-<p>
-<code>layout</code> <span role="normative">must</span> be <a href="#descriptorsets-pipelinelayout-consistency">consistent</a> with all shaders specified in <code>pStages</code>
-</p>
-</li>
-<li>
-<p>
-If <code>subpass</code> uses color and/or depth/stencil attachments, then the <code>rasterizationSamples</code> member of <code>pMultisampleState</code> <span role="normative">must</span> be the same as the sample count for those subpass attachments
-</p>
-</li>
-<li>
-<p>
-If <code>subpass</code> does not use any color and/or depth/stencil attachments, then the <code>rasterizationSamples</code> member of <code>pMultisampleState</code> <span role="normative">must</span> follow the rules for a <a href="#renderpass-noattachments">zero-attachment subpass</a>
-</p>
-</li>
-<li>
-<p>
-<code>subpass</code> <span role="normative">must</span> be a valid subpass within <code>renderpass</code>
-</p>
-</li>
 </ul></div>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -1032,7 +1139,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>

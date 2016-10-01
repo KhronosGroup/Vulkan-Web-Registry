@@ -576,11 +576,144 @@ secondary command buffers specified by <code>pCommandBuffers</code> in any other
 primary command buffer become invalidated, unless those secondary command
 buffers were recorded with
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>commandBuffer</code> <span role="normative">must</span> have been allocated with a <code>level</code> of
+    <code>VK_COMMAND_BUFFER_LEVEL_PRIMARY</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been allocated
+    with a <code>level</code> of <code>VK_COMMAND_BUFFER_LEVEL_SECONDARY</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not be already pending
+    execution in <code>commandBuffer</code>, or appear twice in
+    <code>pCommandBuffers</code>, unless it was recorded with the
+    <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not be already pending
+    execution in any other <code>VkCommandBuffer</code>, unless it was recorded
+    with the <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> be in the executable
+    state
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been allocated
+    from a <code>VkCommandPool</code> that was created for the same queue family as
+    the <code>VkCommandPool</code> from which <code>commandBuffer</code> was allocated
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance, that render pass instance <span role="normative">must</span> have been begun with the
+    <code>contents</code> parameter of <code>vkCmdBeginRenderPass</code> set to
+    <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code>
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been
+    recorded with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been
+    recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>subpass</code> set to
+    the index of the subpass which the given command buffer will be executed
+    in
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been
+    recorded with a render pass that is compatible with the current render
+    pass - see <a href="#renderpass-compatibility">[renderpass-compatibility]</a>
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance, and any given element of <code>pCommandBuffers</code> was recorded
+    with <code>VkCommandBufferInheritanceInfo</code>::<code>framebuffer</code> not equal
+    to <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, that <code>VkFramebuffer</code> <span role="normative">must</span> match the
+    <code>VkFramebuffer</code> used in the current render pass instance
+</p>
+</li>
+<li>
+<p>
+If <code>vkCmdExecuteCommands</code> is not being called within a render pass
+    instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not have been
+    recorded with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If the <a href="#features-features-inheritedQueries">inherited queries</a> feature
+    is not enabled, <code>commandBuffer</code> <span role="normative">must</span> not have any queries
+    <a href="#queries-operation-active">active</a>
+</p>
+</li>
+<li>
+<p>
+If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
+    <a href="#queries-operation-active">active</a>, then each element of
+    <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with
+    <code>VkCommandBufferInheritanceInfo</code>::<code>occlusionQueryEnable</code> set to
+    <code>VK_TRUE</code>
+</p>
+</li>
+<li>
+<p>
+If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
+    <a href="#queries-operation-active">active</a>, then each element of
+    <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with
+    <code>VkCommandBufferInheritanceInfo</code>::<code>queryFlags</code> having all bits
+    set that are set for the query
+</p>
+</li>
+<li>
+<p>
+If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_PIPELINE_STATISTICS</code>
+    query <a href="#queries-operation-active">active</a>, then each element of
+    <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with
+    <code>VkCommandBufferInheritanceInfo</code>::<code>pipelineStatistics</code> having
+    all bits set that are set in the <code>VkQueryPool</code> the query uses
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not begin any query
+    types that are <a href="#queries-operation-active">active</a> in
+    <code>commandBuffer</code>
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -617,97 +750,11 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 Both of <code>commandBuffer</code>, and the elements of <code>pCommandBuffers</code> <span role="normative">must</span> have been created, allocated, or retrieved from the same <code>VkDevice</code>
 </p>
 </li>
-<li>
-<p>
-<code>commandBuffer</code> <span role="normative">must</span> have been allocated with a <code>level</code> of <code>VK_COMMAND_BUFFER_LEVEL_PRIMARY</code>
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been allocated with a <code>level</code> of <code>VK_COMMAND_BUFFER_LEVEL_SECONDARY</code>
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not be already pending execution in <code>commandBuffer</code>, or appear twice in <code>pCommandBuffers</code>, unless it was recorded with the <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not be already pending execution in any other <code>VkCommandBuffer</code>, unless it was recorded with the <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> be in the executable state
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been allocated from a <code>VkCommandPool</code> that was created for the same queue family as the <code>VkCommandPool</code> from which <code>commandBuffer</code> was allocated
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, that render pass instance <span role="normative">must</span> have been begun with the <code>contents</code> parameter of <code>vkCmdBeginRenderPass</code> set to <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code>
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>subpass</code> set to the index of the subpass which the given command buffer will be executed in
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with a render pass that is compatible with the current render pass - see <a href="#renderpass-compatibility">[renderpass-compatibility]</a>
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is being called within a render pass instance, and any given element of <code>pCommandBuffers</code> was recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>framebuffer</code> not equal to <code><a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></code>, that <code>VkFramebuffer</code> <span role="normative">must</span> match the <code>VkFramebuffer</code> used in the current render pass instance
-</p>
-</li>
-<li>
-<p>
-If <code>vkCmdExecuteCommands</code> is not being called within a render pass instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not have been recorded with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>
-</p>
-</li>
-<li>
-<p>
-If the <a href="#features-features-inheritedQueries">inherited queries</a> feature is not enabled, <code>commandBuffer</code> <span role="normative">must</span> not have any queries <a href="#queries-operation-active">active</a>
-</p>
-</li>
-<li>
-<p>
-If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query <a href="#queries-operation-active">active</a>, then each element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>occlusionQueryEnable</code> set to <code>VK_TRUE</code>
-</p>
-</li>
-<li>
-<p>
-If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query <a href="#queries-operation-active">active</a>, then each element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>queryFlags</code> having all bits set that are set for the query
-</p>
-</li>
-<li>
-<p>
-If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_PIPELINE_STATISTICS</code> query <a href="#queries-operation-active">active</a>, then each element of <code>pCommandBuffers</code> <span role="normative">must</span> have been recorded with <code>VkCommandBufferInheritanceInfo</code>::<code>pipelineStatistics</code> having all bits set that are set in the <code>VkQueryPool</code> the query uses
-</p>
-</li>
-<li>
-<p>
-Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> not begin any query types that are <a href="#queries-operation-active">active</a> in <code>commandBuffer</code>
-</p>
-</li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_host_synchronization">Host Synchronization</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -715,11 +762,10 @@ Host access to <code>commandBuffer</code> <span role="normative">must</span> be 
 </p>
 </li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_command_properties">Command Properties</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all"
 style="
 width:100%;
@@ -744,6 +790,7 @@ COMPUTE</p></td>
 </tr>
 </tbody>
 </table>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -774,7 +821,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>

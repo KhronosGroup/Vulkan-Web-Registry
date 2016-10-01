@@ -575,13 +575,130 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>When the command is executed, a global workgroup consisting of $x
-\times y \times z$ local workgroups is assembled.</p></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_valid_usage">Valid Usage</h2>
-<div class="sectionbody">
+<div class="paragraph"><p>When the command is executed, a global workgroup consisting of <span class="eq">x
+&#x00d7; y &#x00d7; z</span> local workgroups is assembled.</p></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>x</code> <span role="normative">must</span> be less than or equal to
+    <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[0]
+</p>
+</li>
+<li>
+<p>
+<code>y</code> <span role="normative">must</span> be less than or equal to
+    <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[1]
+</p>
+</li>
+<li>
+<p>
+<code>z</code> <span role="normative">must</span> be less than or equal to
+    <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[2]
+</p>
+</li>
+<li>
+<p>
+For each set <em>n</em> that is statically used by the <code>VkPipeline</code>
+    currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, a descriptor
+    set <span role="normative">must</span> have been bound to <em>n</em> at
+    <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, with a <code>VkPipelineLayout</code> that
+    is compatible for set <em>n</em>, with the <code>VkPipelineLayout</code> used to
+    create the current <code>VkPipeline</code>, as described in
+    <a href="#descriptorsets-compatibility">[descriptorsets-compatibility]</a>
+</p>
+</li>
+<li>
+<p>
+Descriptors in each bound descriptor set, specified via
+    <code>vkCmdBindDescriptorSets</code>, <span role="normative">must</span> be valid if they are statically
+    used by the currently bound <code>VkPipeline</code> object, specified via
+    <code>vkCmdBindPipeline</code>
+</p>
+</li>
+<li>
+<p>
+A valid compute pipeline <span role="normative">must</span> be bound to the current command buffer
+    with <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>
+</p>
+</li>
+<li>
+<p>
+For each push constant that is statically used by the <code>VkPipeline</code>
+    currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, a push constant
+    value <span role="normative">must</span> have been set for <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, with
+    a <code>VkPipelineLayout</code> that is compatible for push constants with the
+    one used to create the current <code>VkPipeline</code>, as described in
+    <a href="#descriptorsets-compatibility">[descriptorsets-compatibility]</a>
+</p>
+</li>
+<li>
+<p>
+If any <code>VkSampler</code> object that is accessed from a shader by the
+    <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>
+    uses unnormalized coordinates, it <span role="normative">must</span> not be used to sample from any
+    <code>VkImage</code> with a <code>VkImageView</code> of the type
+    <code>VK_IMAGE_VIEW_TYPE_3D</code>, <code>VK_IMAGE_VIEW_TYPE_CUBE</code>,
+    <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code>, <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code> or
+    <code>VK_IMAGE_VIEW_TYPE_CUBE_ARRAY</code>, in any shader stage
+</p>
+</li>
+<li>
+<p>
+If any <code>VkSampler</code> object that is accessed from a shader by the
+    <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>
+    uses unnormalized coordinates, it <span role="normative">must</span> not be used with any of the
+    SPIR-V <span class="monospaced">OpImageSample*</span> or <span class="monospaced">OpImageSparseSample*</span> instructions with
+    <code>ImplicitLod</code>, <code>Dref</code> or <code>Proj</code> in their name, in any shader
+    stage
+</p>
+</li>
+<li>
+<p>
+If any <code>VkSampler</code> object that is accessed from a shader by the
+    <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>
+    uses unnormalized coordinates, it <span role="normative">must</span> not be used with any of the
+    SPIR-V <span class="monospaced">OpImageSample*</span> or <span class="monospaced">OpImageSparseSample*</span> instructions that
+    includes a LOD bias or any offset values, in any shader stage
+</p>
+</li>
+<li>
+<p>
+If the <a href="#features-features-robustBufferAccess">robust buffer access</a>
+    feature is not enabled, and any shader stage in the <code>VkPipeline</code>
+    object currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> accesses
+    a uniform buffer, it <span role="normative">must</span> not access values outside of the range of
+    that buffer specified in the currently bound descriptor set
+</p>
+</li>
+<li>
+<p>
+If the <a href="#features-features-robustBufferAccess">robust buffer access</a>
+    feature is not enabled, and any shader stage in the <code>VkPipeline</code>
+    object currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> accesses
+    a storage buffer, it <span role="normative">must</span> not access values outside of the range of
+    that buffer specified in the currently bound descriptor set
+</p>
+</li>
+<li>
+<p>
+Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
+    result of this command <span role="normative">must</span> be of a format which supports linear
+    filtering, as specified by the
+    <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
+    <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
+    image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
+    optimally tiled image) returned by
+    <code>vkGetPhysicalDeviceFormatProperties</code>
+</p>
+</li>
+</ul></div>
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -603,77 +720,11 @@ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated fro
 This command <span role="normative">must</span> only be called outside of a render pass instance
 </p>
 </li>
-<li>
-<p>
-<code>x</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[0]
-</p>
-</li>
-<li>
-<p>
-<code>y</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[1]
-</p>
-</li>
-<li>
-<p>
-<code>z</code> <span role="normative">must</span> be less than or equal to <code>VkPhysicalDeviceLimits</code>::<code>maxComputeWorkGroupCount</code>[2]
-</p>
-</li>
-<li>
-<p>
-For each set <em>n</em> that is statically used by the <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, a descriptor set <span role="normative">must</span> have been bound to <em>n</em> at <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, with a <code>VkPipelineLayout</code> that is compatible for set <em>n</em>, with the <code>VkPipelineLayout</code> used to create the current <code>VkPipeline</code>, as described in <a href="#descriptorsets-compatibility">[descriptorsets-compatibility]</a>
-</p>
-</li>
-<li>
-<p>
-Descriptors in each bound descriptor set, specified via <code>vkCmdBindDescriptorSets</code>, <span role="normative">must</span> be valid if they are statically used by the currently bound <code>VkPipeline</code> object, specified via <code>vkCmdBindPipeline</code>
-</p>
-</li>
-<li>
-<p>
-A valid compute pipeline <span role="normative">must</span> be bound to the current command buffer with <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>
-</p>
-</li>
-<li>
-<p>
-For each push constant that is statically used by the <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, a push constant value <span role="normative">must</span> have been set for <code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, with a <code>VkPipelineLayout</code> that is compatible for push constants with the one used to create the current <code>VkPipeline</code>, as described in <a href="#descriptorsets-compatibility">[descriptorsets-compatibility]</a>
-</p>
-</li>
-<li>
-<p>
-If any <code>VkSampler</code> object that is accessed from a shader by the <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> uses unnormalized coordinates, it <span role="normative">must</span> not be used to sample from any <code>VkImage</code> with a <code>VkImageView</code> of the type <code>VK_IMAGE_VIEW_TYPE_3D</code>, <code>VK_IMAGE_VIEW_TYPE_CUBE</code>, <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code>, <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code> or <code>VK_IMAGE_VIEW_TYPE_CUBE_ARRAY</code>, in any shader stage
-</p>
-</li>
-<li>
-<p>
-If any <code>VkSampler</code> object that is accessed from a shader by the <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> uses unnormalized coordinates, it <span role="normative">must</span> not be used with any of the SPIR-V <span class="monospaced">OpImageSample*</span> or <span class="monospaced">OpImageSparseSample*</span> instructions with <code>ImplicitLod</code>, <code>Dref</code> or <code>Proj</code> in their name, in any shader stage
-</p>
-</li>
-<li>
-<p>
-If any <code>VkSampler</code> object that is accessed from a shader by the <code>VkPipeline</code> currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> uses unnormalized coordinates, it <span role="normative">must</span> not be used with any of the SPIR-V <span class="monospaced">OpImageSample*</span> or <span class="monospaced">OpImageSparseSample*</span> instructions that includes a LOD bias or any offset values, in any shader stage
-</p>
-</li>
-<li>
-<p>
-If the <a href="#features-features-robustBufferAccess">robust buffer access</a> feature is not enabled, and any shader stage in the <code>VkPipeline</code> object currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> accesses a uniform buffer, it <span role="normative">must</span> not access values outside of the range of that buffer specified in the currently bound descriptor set
-</p>
-</li>
-<li>
-<p>
-If the <a href="#features-features-robustBufferAccess">robust buffer access</a> feature is not enabled, and any shader stage in the <code>VkPipeline</code> object currently bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> accesses a storage buffer, it <span role="normative">must</span> not access values outside of the range of that buffer specified in the currently bound descriptor set
-</p>
-</li>
-<li>
-<p>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a result of this command <span role="normative">must</span> be of a format which supports linear filtering, as specified by the <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in <code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an optimally tiled image) returned by <code>vkGetPhysicalDeviceFormatProperties</code>
-</p>
-</li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_host_synchronization">Host Synchronization</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -681,11 +732,10 @@ Host access to <code>commandBuffer</code> <span role="normative">must</span> be 
 </p>
 </li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_command_properties">Command Properties</h2>
-<div class="sectionbody">
+</div></div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all"
 style="
 width:100%;
@@ -709,6 +759,7 @@ Secondary</p></td>
 </tr>
 </tbody>
 </table>
+</div></div>
 </div>
 </div>
 <div class="sect1">
@@ -739,7 +790,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-09-24 01:34:45 PDT
+ 2016-10-01 01:19:40 PDT
 </div>
 </div>
 </body>
