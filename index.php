@@ -177,7 +177,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_gpu_shader_half_float">            VK_AMD_gpu_shader_half_float </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_negative_viewport_height">         VK_AMD_negative_viewport_height </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_rasterization_order">              VK_AMD_rasterization_order </a> </li>
-    <!-- <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_shader_ballot">                    VK_AMD_shader_ballot </a> </li> -->
+    <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_shader_ballot">                    VK_AMD_shader_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
     <li> <a href="specs/1.0-extensions/xhtml/vkspec.html#VK_AMD_shader_trinary_minmax">            VK_AMD_shader_trinary_minmax </a> </li>
     <li> <b> Imagination Vendor Extensions </b> </li>
