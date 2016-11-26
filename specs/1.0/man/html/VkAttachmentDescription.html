@@ -603,8 +603,12 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>VK_ATTACHMENT_LOAD_OP_LOAD</code> means the contents within the render
-     area will be preserved.
+<code>VK_ATTACHMENT_LOAD_OP_LOAD</code> means the previous contents of the
+     image within the render area will be preserved.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code>.
 </p>
 </li>
 <li>
@@ -612,13 +616,21 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code> means the contents within the render
      area will be cleared to a uniform value, which is specified when a
      render pass instance is begun.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 <li>
 <p>
-<code>VK_ATTACHMENT_LOAD_OP_DONT_CARE</code> means the contents within the
-     area need not be preserved; the contents of the attachment will be
-     undefined inside the render area.
+<code>VK_ATTACHMENT_LOAD_OP_DONT_CARE</code> means the previous contents
+     within the area need not be preserved; the contents of the attachment
+     will be undefined inside the render area.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 </ul></div>
@@ -644,12 +656,12 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>VK_ATTACHMENT_STORE_OP_STORE</code> means the contents within the render
-     area are written to memory and will be available for reading after the
-     render pass instance completes once the writes have been synchronized
-     with <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> (for color attachments)
-     or <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> (for
-     depth/stencil attachments).
+<code>VK_ATTACHMENT_STORE_OP_STORE</code> means the contents generated during
+     the render pass and within the render area are written to memory.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 <li>
@@ -657,6 +669,10 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_ATTACHMENT_STORE_OP_DONT_CARE</code> means the contents within the
      render area are not needed after rendering, and <span role="normative">may</span> be discarded; the
      contents of the attachment will be undefined inside the render area.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 </ul></div>
@@ -697,11 +713,31 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>If the attachment uses a color format, then <code>loadOp</code> and <code>storeOp</code>
+<div class="paragraph" id="renderpass-load-store-ops"><p>If the attachment uses a color format, then <code>loadOp</code> and <code>storeOp</code>
 are used, and <code>stencilLoadOp</code> and <code>stencilStoreOp</code> are ignored.
 If the format has depth and/or stencil components, <code>loadOp</code> and
 <code>storeOp</code> apply only to the depth data, while <code>stencilLoadOp</code> and
-<code>stencilStoreOp</code> define how the stencil data is handled.</p></div>
+<code>stencilStoreOp</code> define how the stencil data is handled.
+<code>loadOp</code> and <code>stencilLoadOp</code> define the <em>load operations</em> that
+execute as part of the first subpass that uses the attachment.
+<code>storeOp</code> and <code>stencilStoreOp</code> define the <em>store operations</em> that
+execute as part of the last subpass that uses the attachment.</p></div>
+<div class="paragraph"><p>The load operation for each value in an attachment used by a subpass
+happens-before any command recorded into that subpass reads from that value.
+Load operations for attachments with a depth/stencil format execute in the
+<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> pipeline stage.
+Load operations for attachments with a color format execute in the
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p></div>
+<div class="paragraph"><p>Store operations for each value in an attachment used by a subpass
+happen-after any command recorded into that subpass writes to that value.
+Store operations for attachments with a depth/stencil format execute in the
+<code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stage.
+Store operations for attachments with a color format execute in the
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p></div>
+<div class="paragraph"><p>If an attachment is not used by any subpass, then <code>loadOp</code>,
+<code>storeOp</code>, <code>stencilStoreOp</code>, and <code>stencilLoadOp</code> are ignored,
+and the attachment&#8217;s memory contents will not be modified by execution of a
+render pass instance.</p></div>
 <div class="paragraph" id="renderpass-precision"><p>During a render pass instance, input/color attachments with color formats
 that have a component size of 8, 16, or 32 bits <span role="normative">must</span> be represented in the
 attachment&#8217;s format throughout the instance.
@@ -711,7 +747,7 @@ attachment format, but <span role="normative">must</span> be represented with th
 When such a component is loaded via the <code>loadOp</code>, it will be converted
 into an implementation-dependent format used by the render pass.
 Such components <span role="normative">must</span> be converted from the render pass format, to the
-format of the attachment, before they are stored or resolved at the end of a
+format of the attachment, before they are resolved or stored at the end of a
 render pass instance via <code>storeOp</code>.
 Conversions occur as described in <a href="#fundamentals-numerics">Numeric Representation and Computation</a> and <a href="#fundamentals-fixedconv">Fixed-Point Data Conversions</a>.</p></div>
 <div class="paragraph" id="renderpass-aliasing"><p>If <code>flags</code> includes <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>, then
@@ -815,7 +851,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-11-18 02:38:58 PST
+ 2016-11-26 02:39:37 PST
 </div>
 </div>
 </body>

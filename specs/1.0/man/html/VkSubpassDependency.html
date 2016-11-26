@@ -551,43 +551,40 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>srcSubpass</code> and <code>dstSubpass</code> are the subpass indices of the
-    producer and consumer subpasses, respectively.
-    <code>srcSubpass</code> and <code>dstSubpass</code> <span role="normative">can</span> also have the special value
-    <code>VK_SUBPASS_EXTERNAL</code>.
-    The source subpass <span role="normative">must</span> always be a lower numbered subpass than the
-    destination subpass (excluding external subpasses and
-    <a href="#synchronization-pipeline-barriers-subpass-self-dependencies">self-dependencies</a>), so that the order of subpass descriptions is a
-    valid execution ordering, avoiding cycles in the dependency graph.
+<code>srcSubpass</code> is the subpass index of the first subpass in the
+    dependency, or <code>VK_SUBPASS_EXTERNAL</code>.
 </p>
 </li>
 <li>
 <p>
-<code>srcStageMask</code>, <code>dstStageMask</code>, <code>srcAccessMask</code>,
-    <code>dstAccessMask</code>, and <code>dependencyFlags</code> describe an
-    <a href="#synchronization-execution-and-memory-dependencies">execution and memory     dependency</a> between subpasses.
-    The bits that <span role="normative">can</span> be included in <code>dependencyFlags</code> are:
-</p>
-<div class="openblock">
-<div class="content">
-<div class="listingblock">
-<div class="content"><!-- Generator: GNU source-highlight 3.1.7
-by Lorenzo Bettini
-http://www.lorenzobettini.it
-http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkDependencyFlagBits <span style="color: #FF0000">{</span>
-    VK_DEPENDENCY_BY_REGION_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
-<span style="color: #FF0000">}</span> VkDependencyFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
-</div></div>
-<div class="ulist"><ul>
-<li>
-<p>
-If <code>dependencyFlags</code> contains <code>VK_DEPENDENCY_BY_REGION_BIT</code>,
-     then the dependency is by-region as defined in
-     <a href="#synchronization-execution-and-memory-dependencies">Execution And      Memory Dependencies</a>.
+<code>dstSubpass</code> is the subpass index of the second subpass in the
+    dependency, or <code>VK_SUBPASS_EXTERNAL</code>.
 </p>
 </li>
-</ul></div>
+<li>
+<p>
+<code>srcStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">source stage mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dstStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">destination stage mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>srcAccessMask</code> defines a <a href="#synchronization-access-masks">source     access mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dstAccessMask</code> defines a <a href="#synchronization-access-masks">destination access mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dependencyFlags</code> is a bitmask of <code><a href="VkDependencyFlagBits.html">VkDependencyFlagBits</a></code>.
+</p>
 </li>
 </ul></div>
 </div>
@@ -595,48 +592,47 @@ If <code>dependencyFlags</code> contains <code>VK_DEPENDENCY_BY_REGION_BIT</code
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Each subpass dependency defines an execution and memory dependency between
-two sets of commands, with the second set depending on the first set.
-When <code>srcSubpass</code> does not equal <code>dstSubpass</code> then the first set of
-commands is:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-All commands in the subpass indicated by <code>srcSubpass</code>, if
-    <code>srcSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-<li>
-<p>
-All commands before the render pass instance, if <code>srcSubpass</code> is
-    <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-</ul></div>
-<div class="paragraph"><p>While the corresponding second set of commands is:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-All commands in the subpass indicated by <code>dstSubpass</code>, if
-    <code>dstSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-<li>
-<p>
-All commands after the render pass instance, if <code>dstSubpass</code> is
-    <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-</ul></div>
-<div class="paragraph"><p>When <code>srcSubpass</code> equals <code>dstSubpass</code> then the first set consists of
-commands in the subpass before a call to <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> and the
-second set consists of commands in the subpass following that same call as
-described in the
-<a href="#synchronization-pipeline-barriers-subpass-self-dependencies">Subpass Self-dependency</a> section.</p></div>
-<div class="paragraph"><p>The <code>srcStageMask</code>, <code>dstStageMask</code>, <code>srcAccessMask</code>,
-<code>dstAccessMask</code>, and <code>dependencyFlags</code> parameters of the dependency
-are interpreted the same way as for other dependencies, as described in
-<a href="#synchronization">Synchronization and Cache Control</a>.</p></div>
+<div class="paragraph"><p>If <code>srcSubpass</code> is equal to <code>dstSubpass</code> then the
+<code><a href="VkSubpassDependency.html">VkSubpassDependency</a></code> describes a
+<a href="#synchronization-pipeline-barriers-subpass-self-dependencies">subpass self-dependency</a>, and only constrains the pipeline barriers allowed within
+a subpass instance.
+Otherwise, when a render pass instance which includes a subpass dependency
+is submitted to a queue, it defines a memory dependency between the
+subpasses identified by <code>srcSubpass</code> and <code>dstSubpass</code>.</p></div>
+<div class="paragraph"><p>If <code>srcSubpass</code> is equal to <code>VK_SUBPASS_EXTERNAL</code>, the first
+<a href="#synchronization-dependencies-scopes">synchronization scope</a> includes
+commands submitted to the queue before the render pass instance began.
+Otherwise, the first set of commands includes all commands submitted as part
+of the subpass instance identified by <code>srcSubpass</code> and any load, store
+or multisample resolve operations on attachments used in <code>srcSubpass</code>.
+In either case, the first synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>If <code>dstSubpass</code> is equal to <code>VK_SUBPASS_EXTERNAL</code>, the second
+<a href="#synchronization-dependencies-scopes">synchronization scope</a> includes
+commands submitted after the render pass instance is ended.
+Otherwise, the second set of commands includes all commands submitted as
+part of the subpass instance identified by <code>dstSubpass</code> and any load,
+store or multisample resolve operations on attachments used in
+<code>dstSubpass</code>.
+In either case, the second synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+It is also limited to access types in the <a href="#synchronization-access-masks">source access mask</a> specified by <code>srcAccessMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+It is also limited to access types in the <a href="#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p></div>
+<div class="paragraph"><p>The <a href="#synchronization-dependencies-available-and-visible">availability and visibility operations</a> defined by a subpass dependency affect the execution
+of <a href="#renderpass-layout-transitions">image layout transitions</a> within the
+render pass.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -705,9 +701,11 @@ If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, <code>srcStageMa
 </li>
 <li>
 <p>
-If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, the highest bit value
-    included in <code>srcStageMask</code> <span role="normative">must</span> be less than or equal to the lowest
-    bit value in <code>dstStageMask</code>
+If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, the
+    <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline
+    stage in <code>srcStageMask</code> <span role="normative">must</span> be
+    <a href="#synchronization-pipeline-stages-order">logically earlier</a> than or
+    equal to the <a href="#synchronization-pipeline-stages-order">logically     earliest</a> pipeline stage in <code>dstStageMask</code>
 </p>
 </li>
 </ul></div>
@@ -783,7 +781,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-11-18 02:38:58 PST
+ 2016-11-26 02:39:37 PST
 </div>
 </div>
 </body>

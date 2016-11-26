@@ -596,9 +596,9 @@ asciidoc.install();
 <body class="book">
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
-<span id="revnumber">version 1.0.34,</span>
-<span id="revdate">Fri, 18 Nov 2016 10:38:58 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: 08310a88df8c803ac916102e7a364fff912e3281</span>
+<span id="revnumber">version 1.0.35,</span>
+<span id="revdate">Sat, 26 Nov 2016 10:39:38 +0000</span>
+<br><span id="revremark">from git branch: 1.0 commit: 789549ff080dd8aece944b7c5261eb42f97b55c7</span>
 </div>
 <div id="content">
 <div class="sect1">
@@ -9987,8 +9987,9 @@ If <code>vkCmdExecuteCommands</code> is being called within a render pass
 <p>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
     instance, any given element of <code>pCommandBuffers</code> <span role="normative">must</span> have been
-    recorded with a render pass that is compatible with the current render
-    pass - see <a href="#renderpass-compatibility">[renderpass-compatibility]</a>
+    recorded with <code><a href="#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a></code>::<code>renderPass</code> set
+    to a render pass that is <a href="#renderpass-compatibility">compatible</a> with
+    the current render pass.
 </p>
 </li>
 <li>
@@ -10517,7 +10518,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <h3 id="_vkcmdpipelinebarrier_3">vkCmdPipelineBarrier(3)</h3>
 <div class="sect3">
 <h4 id="_name_33">Name</h4>
-<div class="paragraph"><p>vkCmdPipelineBarrier - Insert a set of execution and memory barriers</p></div>
+<div class="paragraph"><p>vkCmdPipelineBarrier - Insert a memory dependency</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_33">C Specification</h4>
@@ -10552,29 +10553,46 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcStageMask</code> is a bitmask of <code><a href="#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a></code>
-    specifying a set of source pipeline stages (see
-    <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>).
+<code>srcStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">source stage mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>dstStageMask</code> is a bitmask specifying a set of destination pipeline
-    stages.
+<code>dstStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">destination stage mask</a>.
 </p>
-<div class="paragraph"><p>The pipeline barrier specifies an execution dependency such that all work
-performed by the set of pipeline stages included in <code>srcStageMask</code> of
-the first set of commands completes before any work performed by the set of
-pipeline stages included in <code>dstStageMask</code> of the second set of commands
-begins.</p></div>
 </li>
 <li>
 <p>
 <code>dependencyFlags</code> is a bitmask of <code><a href="#VkDependencyFlagBits">VkDependencyFlagBits</a></code>.
-    The execution dependency is by-region if the mask includes
-    <code>VK_DEPENDENCY_BY_REGION_BIT</code>.
+    The bits that <span role="normative">can</span> be included in <code>dependencyFlags</code> are:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<a id="VkDependencyFlagBits"></a>
+<div class="title"></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.7
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkDependencyFlagBits <span style="color: #FF0000">{</span>
+    VK_DEPENDENCY_BY_REGION_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
+<span style="color: #FF0000">}</span> VkDependencyFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
+</div></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>VK_DEPENDENCY_BY_REGION_BIT</code> signifies that dependencies will be
+     <a href="#synchronization-framebuffer-regions">framebuffer-local</a>.
 </p>
 </li>
+</ul></div>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_description_33">Description</h4>
+<div class="ulist"><ul>
 <li>
 <p>
 <code>memoryBarrierCount</code> is the length of the <code>pMemoryBarriers</code>
@@ -10612,22 +10630,55 @@ begins.</p></div>
 </p>
 </li>
 </ul></div>
-</div>
-<div class="sect3">
-<h4 id="_description_33">Description</h4>
-<div class="paragraph"><p>Each element of the <code>pMemoryBarriers</code>, <code>pBufferMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> arrays specifies two halves of a memory
-dependency, as defined above.
-Specifics of each type of memory barrier and the memory access types are
-defined further in <a href="#synchronization-memory-barriers">Memory Barriers</a>.</p></div>
-<div class="paragraph"><p>If <code>vkCmdPipelineBarrier</code> is called outside a render pass instance, then
-the first set of commands is all prior commands submitted to the queue and
-recorded in the command buffer and the second set of commands is all
-subsequent commands recorded in the command buffer and submitted to the
-queue.
-If <code>vkCmdPipelineBarrier</code> is called inside a render pass instance, then
-the first set of commands is all prior commands in the same subpass and the
-second set of commands is all subsequent commands in the same subpass.</p></div>
+<div class="paragraph"><p>When <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> is submitted to a queue, it defines a memory
+dependency between commands that were submitted before it, and those
+submitted after it.</p></div>
+<div class="paragraph"><p>If <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> was recorded outside a render pass instance,
+the first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command submitted to the same queue before it, including
+those in the same command buffer and batch.
+If <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> was recorded inside a render pass instance,
+the first synchronization scope includes only commands submitted before it
+within the same subpass.
+In either case, the first synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>If <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> was recorded outside a render pass instance,
+the second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command submitted to the same queue after it, including those
+in the same command buffer and batch.
+If <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> was recorded inside a render pass instance,
+the second synchronization scope includes only commands submitted after it
+within the same subpass.
+In either case, the second synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+Within that, the first access scope only includes the first access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the first access scope includes no
+accesses.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+Within that, the second access scope only includes the second access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the second access scope includes
+no accesses.</p></div>
+<div class="paragraph"><p>If <code>dependencyFlags</code> includes <code>VK_DEPENDENCY_BY_REGION_BIT</code>, then
+any dependency between <a href="#synchronization-framebuffer-regions">framebuffer-space</a> pipeline stages is
+<a href="#synchronization-framebuffer-regions">framebuffer-local</a> - otherwise it is
+<a href="#synchronization-framebuffer-regions">framebuffer-global</a>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -11116,19 +11167,31 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>event</code> is the event that will be reset.
+<code>event</code> is the event that will be unsignaled.
 </p>
 </li>
 <li>
 <p>
-<code>stageMask</code> specifies the pipeline stage at which the state of
-    <code>event</code> is updated as described below.
+<code>stageMask</code> specifies the <a href="#synchronization-pipeline-stages">source     stage mask</a> used to determine when the <code>event</code> is unsignaled.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_35">Description</h4>
+<div class="paragraph"><p>When <code><a href="#vkCmdResetEvent">vkCmdResetEvent</a></code> is submitted to a queue, it defines an execution
+dependency on commands that were submitted before it, and defines an event
+unsignal operation which resets the event to the unsignaled state.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command previously submitted to the same queue, including
+those in the same command buffer and batch.
+The synchronization scope is limited to operations on the pipeline stages
+determined by the <a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by <code>stageMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes only the event unsignal operation.</p></div>
+<div class="paragraph"><p>If <code>event</code> is already in the unsignaled state when <code><a href="#vkCmdResetEvent">vkCmdResetEvent</a></code>
+is executed on the device, then <code><a href="#vkCmdResetEvent">vkCmdResetEvent</a></code> has no effect, no
+event unsignal operation occurs, and no execution dependency is generated.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -12238,9 +12301,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_41">C Specification</h4>
-<div class="paragraph"><p>The state of an event <span role="normative">can</span> also be updated on the device by commands
-inserted in command buffers.
-To set the state of an event to signaled from a device, call:</p></div>
+<div class="paragraph"><p>To set the state of an event to signaled from a device, call:</p></div>
 <div class="listingblock">
 <a id="vkCmdSetEvent"></a>
 <div class="title"></div>
@@ -12269,14 +12330,26 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>stageMask</code> specifies the pipeline stage at which the state of
-    <code>event</code> is updated as described below.
+<code>stageMask</code> specifies the <a href="#synchronization-pipeline-stages">source     stage mask</a> used to determine when the <code>event</code> is signaled.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_41">Description</h4>
+<div class="paragraph"><p>When <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code> is submitted to a queue, it defines an execution
+dependency on commands that were submitted before it, and defines an event
+signal operation which sets the event to the signaled state.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command previously submitted to the same queue, including
+those in the same command buffer and batch.
+The synchronization scope is limited to operations on the pipeline stages
+determined by the <a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by <code>stageMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes only the event signal operation.</p></div>
+<div class="paragraph"><p>If <code>event</code> is already in the signaled state when <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code> is
+executed on the device, then <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code> has no effect, no event
+signal operation occurs, and no execution dependency is generated.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -13657,75 +13730,107 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcStageMask</code> (see <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>) is the
-    bitwise OR of the pipeline stages used to signal the event object
-    handles in <code>pEvents</code>.
+<code>srcStageMask</code> is the <a href="#synchronization-pipeline-stages">source     stage mask</a>
 </p>
 </li>
 <li>
 <p>
-<code>dstStageMask</code> is the pipeline stages at which the wait will occur.
+<code>dstStageMask</code> is the <a href="#synchronization-pipeline-stages">destination     stage mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>pMemoryBarriers</code> is a pointer to an array of
-    <code>memoryBarrierCount</code> <code>VkMemoryBarrier</code> structures.
+<code>memoryBarrierCount</code> is the length of the <code>pMemoryBarriers</code>
+    array.
+</p>
+</li>
+<li>
+<p>
+<code>pMemoryBarriers</code> is a pointer to an array of <code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>
+    structures.
+</p>
+</li>
+<li>
+<p>
+<code>bufferMemoryBarrierCount</code> is the length of the
+    <code>pBufferMemoryBarriers</code> array.
 </p>
 </li>
 <li>
 <p>
 <code>pBufferMemoryBarriers</code> is a pointer to an array of
-    <code>bufferMemoryBarrierCount</code> <code>VkBufferMemoryBarrier</code> structures.
+    <code><a href="#VkBufferMemoryBarrier">VkBufferMemoryBarrier</a></code> structures.
+</p>
+</li>
+<li>
+<p>
+<code>imageMemoryBarrierCount</code> is the length of the
+    <code>pImageMemoryBarriers</code> array.
 </p>
 </li>
 <li>
 <p>
 <code>pImageMemoryBarriers</code> is a pointer to an array of
-    <code>imageMemoryBarrierCount</code> <code>VkImageMemoryBarrier</code> structures.
-    See <a href="#synchronization-memory-barriers">[synchronization-memory-barriers]</a> for more details about memory
-    barriers.
+    <code><a href="#VkImageMemoryBarrier">VkImageMemoryBarrier</a></code> structures.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_49">Description</h4>
-<div class="paragraph"><p><code>vkCmdWaitEvents</code> waits for events set by either <code>vkSetEvent</code> or
-<code>vkCmdSetEvent</code> to become signaled.
-Logically, it has three phases:</p></div>
-<div class="olist arabic"><ol class="arabic">
-<li>
-<p>
-Wait at the pipeline stages specified by <code>dstStageMask</code> (see
-    <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>) until the <code>eventCount</code>
-    event objects specified by <code>pEvents</code> become signaled.
-    Implementations <span role="normative">may</span> wait for each event object to become signaled in
-    sequence (starting with the first event object in <code>pEvents</code>, and
-    ending with the last), or wait for all of the event objects to become
-    signaled at the same time.
-</p>
-</li>
-<li>
-<p>
-Execute the memory barriers specified by <code>pMemoryBarriers</code>,
-    <code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> (see
-    <a href="#synchronization-memory-barriers">[synchronization-memory-barriers]</a>).
-</p>
-</li>
-<li>
-<p>
-Resume execution of pipeline stages specified by <code>dstStageMask</code>
-</p>
-</li>
-</ol></div>
-<div class="paragraph"><p>Implementations <span role="normative">may</span> not execute commands in a pipelined manner, so
-<code>vkCmdWaitEvents</code> <span role="normative">may</span> not observe the results of a subsequent
-<code>vkCmdSetEvent</code> or <code>vkCmdResetEvent</code> command, even if the stages in
-<code>dstStageMask</code> occur after the stages in <code>srcStageMask</code>.</p></div>
-<div class="paragraph"><p>Commands that update the state of events in different pipeline stages <span role="normative">may</span>
-execute out of order, unless the ordering is enforced by execution
-dependencies.</p></div>
+<div class="paragraph"><p>When <code>vkCmdWaitEvents</code> is submitted to a queue, it defines a memory
+dependency between prior event signal operations, and subsequent commands.</p></div>
+<div class="paragraph"><p>The first synchronization scope only includes event signal operations that
+operate on members of <code>pEvents</code>, and the operations that happened-before
+the event signal operations.
+Event signal operations performed by <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code> that were
+previously submitted to the same queue are included in the first
+synchronization scope, if the <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline stage in their <code>stageMask</code> parameter is
+<a href="#synchronization-pipeline-stages-order">logically earlier</a> than or equal
+to the <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline
+stage in <code>srcStageMask</code>.
+Event signal operations performed by <code><a href="#vkSetEvent">vkSetEvent</a></code> are only included in
+the first synchronization scope if <code>VK_PIPELINE_STAGE_HOST_BIT</code> is
+included in <code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes commands subsequently submitted to the same queue, including those
+in the same command buffer and batch.
+The second synchronization scope is limited to operations on the pipeline
+stages determined by the <a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+Within that, the first access scope only includes the first access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the first access scope includes no
+accesses.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+Within that, the second access scope only includes the second access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the second access scope includes
+no accesses.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p><code><a href="#vkCmdWaitEvents">vkCmdWaitEvents</a></code> is used with <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code> to define a memory
+dependency between two sets of action commands, roughly in the same way as
+pipeline barriers, but split into two commands such that work between the
+two <span role="normative">may</span> execute unhindered.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -13734,8 +13839,10 @@ dependencies.</p></div>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph"><p>Applications <span role="normative">should</span> be careful to avoid race conditions when using events.
-For example, an event <span role="normative">should</span> only be reset if no <code>vkCmdWaitEvents</code>
-command is executing that waits upon that event.</p></div>
+There is no direct ordering guarantee between a <code><a href="#vkCmdResetEvent">vkCmdResetEvent</a></code>
+command and a <code><a href="#vkCmdWaitEvents">vkCmdWaitEvents</a></code> command submitted after it, so some
+other execution dependency <span role="normative">must</span> be included between these commands (e.g. a
+semaphore).</p></div>
 </td>
 </tr></table>
 </div>
@@ -15243,7 +15350,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_59">C Specification</h4>
-<div class="paragraph"><p>To create a new fence object, use the command</p></div>
+<div class="paragraph"><p>To create a fence, call:</p></div>
 <div class="listingblock">
 <a id="vkCreateFence"></a>
 <div class="title"></div>
@@ -15267,8 +15374,9 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>pCreateInfo</code> points to a <code><a href="#VkFenceCreateInfo">VkFenceCreateInfo</a></code> structure
-    specifying the state of the fence object.
+<code>pCreateInfo</code> is a pointer to an instance of the
+    <code>VkFenceCreateInfo</code> structure which contains information about how
+    the fence is to be created.
 </p>
 </li>
 <li>
@@ -16775,7 +16883,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_70">C Specification</h4>
-<div class="paragraph"><p>To create a new semaphore object, use the command</p></div>
+<div class="paragraph"><p>To create a semaphore, call:</p></div>
 <div class="listingblock">
 <a id="vkCreateSemaphore"></a>
 <div class="title"></div>
@@ -16799,8 +16907,9 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>pCreateInfo</code> points to a <code><a href="#VkSemaphoreCreateInfo">VkSemaphoreCreateInfo</a></code> structure
-    specifying the state of the semaphore object.
+<code>pCreateInfo</code> is a pointer to an instance of the
+    <code>VkSemaphoreCreateInfo</code> structure which contains information about
+    how the semaphore is to be created.
 </p>
 </li>
 <li>
@@ -16813,13 +16922,13 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>pSemaphore</code> points to a handle in which the resulting semaphore
     object is returned.
-    The semaphore is created in the unsignaled state.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_70">Description</h4>
+<div class="paragraph"><p>When created, the semaphore is in the unsignaled state.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -17916,8 +18025,8 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>fence</code> <span role="normative">must</span> not be associated with any queue command that has not
-    yet completed execution on that queue
+All <a href="#devsandqueues-submission">queue submission</a> commands that refer
+    to <code>fence</code> <span role="normative">must</span> have completed execution
 </p>
 </li>
 <li>
@@ -19198,8 +19307,8 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>semaphore</code> <span role="normative">must</span> not be associated with any queue command that has
-    not yet completed execution on that queue
+All submitted batches that refer to <code>semaphore</code> <span role="normative">must</span> have completed
+    execution
 </p>
 </li>
 <li>
@@ -20391,6 +20500,19 @@ to non-coherent memory are visible to the device.
 It <span role="normative">must</span> be called after the host writes to non-coherent memory have
 completed and before command buffers that will read or write any of those
 memory locations are submitted to a queue.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>Unmapping non-coherent memory does not implicitly flush the mapped memory,
+and host writes that have not been flushed <span role="normative">may</span> not ever be visible to the
+device.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -21473,7 +21595,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_108">C Specification</h4>
-<div class="paragraph"><p>To query the status of a fence from the host, use the command</p></div>
+<div class="paragraph"><p>To query the status of a fence from the host, call:</p></div>
 <div class="listingblock">
 <a id="vkGetFenceStatus"></a>
 <div class="title"></div>
@@ -21502,20 +21624,35 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_108">Description</h4>
-<div class="paragraph"><p>Upon success, <code>vkGetFenceStatus</code> returns the status of the fence, which
-is one of:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-<code>VK_SUCCESS</code> indicates that the fence is signaled.
-</p>
-</li>
-<li>
-<p>
-<code>VK_NOT_READY</code> indicates that the fence is unsignaled.
-</p>
-</li>
-</ul></div>
+<div class="paragraph"><p>Upon success, <code>vkGetFenceStatus</code> returns the status of the fence object,
+with the following return codes:</p></div>
+<table class="tableblock frame-all grid-all"
+style="
+width:80%;
+">
+<caption class="title">Table 3. Fence Object Status Codes</caption>
+<col style="width:50%;">
+<col style="width:50%;">
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" > Status </th>
+<th class="tableblock halign-left valign-top" > Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_SUCCESS</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">The fence specified by <code>fence</code> is signaled.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_NOT_READY</code></p></td>
+<td class="tableblock halign-left valign-top" ><p class="tableblock">The fence specified by <code>fence</code> is unsignaled.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph"><p>If a <a href="#devsandqueues-submission">queue submission</a> command is pending
+execution, then the value returned by this command <span role="normative">may</span> immediately be out
+of date.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -21982,7 +22119,7 @@ style="
 margin-left:auto; margin-right:auto;
 width:80%;
 ">
-<caption class="title">Table 3. vkGetInstanceProcAddr behavior</caption>
+<caption class="title">Table 4. vkGetInstanceProcAddr behavior</caption>
 <col style="width:33%;">
 <col style="width:33%;">
 <col style="width:33%;">
@@ -22934,7 +23071,7 @@ be a header consisting of the following members:</p></div>
 style="
 width:85%;
 ">
-<caption class="title">Table 4. Layout for pipeline cache header version <code>VK_PIPELINE_CACHE_HEADER_VERSION_ONE</code></caption>
+<caption class="title">Table 5. Layout for pipeline cache header version <code>VK_PIPELINE_CACHE_HEADER_VERSION_ONE</code></caption>
 <col style="width:8%;">
 <col style="width:21%;">
 <col style="width:71%;">
@@ -23612,6 +23749,19 @@ barriers) the device writes have completed, and before the host will read or
 write any of those locations.
 If a range of non-coherent memory is written by the host and then
 invalidated without first being flushed, its contents are undefined.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>Mapping non-coherent memory does not implicitly invalidate the mapped
+memory, and device writes that have not been invalidated <span role="normative">must</span> be made
+visible before the host reads or overwrites them.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -23775,8 +23925,8 @@ The application <span role="normative">must</span> guarantee that any previously
 writes to this range has completed before the host reads from or writes to
 that range, and that any previously submitted command that reads from that
 range has completed before the host writes to that region (see
-<a href="#synchronization-fences-devicewrites">here</a> for details on fulfilling such
-a guarantee).
+<a href="#synchronization-submission-host-writes">here</a> for details on fulfilling
+such a guarantee).
 If the device memory was allocated without the
 <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> set, these guarantees <span role="normative">must</span> be
 made for an extended range: the application <span role="normative">must</span> round down the start of
@@ -24158,7 +24308,9 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sect3">
 <h4 id="_description_126">Description</h4>
 <div class="paragraph"><p><code>vkQueueBindSparse</code> is a <a href="#devsandqueues-submission">queue submission command</a>, with each batch defined by an element of <code>pBindInfo</code> as an
-instance of the <code><a href="#VkBindSparseInfo">VkBindSparseInfo</a></code> structure.</p></div>
+instance of the <code><a href="#VkBindSparseInfo">VkBindSparseInfo</a></code> structure.
+Batches begin execution in the order they appear in <code>pBindInfo</code>, but
+<span role="normative">may</span> complete out of order.</p></div>
 <div class="paragraph"><p>Within a batch, a given range of a resource <span role="normative">must</span> not be bound more than
 once.
 Across batches, if a range is to be bound to one allocation and offset and
@@ -24406,7 +24558,9 @@ possible.</p></div>
 </tr></table>
 </div>
 <div class="paragraph"><p><code>vkQueueSubmit</code> is a <a href="#devsandqueues-submission">queue submission command</a>, with each batch defined by an element of <code>pSubmits</code> as an
-instance of the <code><a href="#VkSubmitInfo">VkSubmitInfo</a></code> structure.</p></div>
+instance of the <code><a href="#VkSubmitInfo">VkSubmitInfo</a></code> structure.
+Batches begin execution in the order they appear in <code>pSubmits</code>, but <span role="normative">may</span>
+complete out of order.</p></div>
 <div class="paragraph"><p>Fence and semaphore operations submitted with <code><a href="#vkQueueSubmit">vkQueueSubmit</a></code> have
 additional ordering constraints compared to other submission commands, with
 dependencies involving previous and subsequent queue operations.
@@ -24429,6 +24583,15 @@ If <code>fence</code> is not <code><a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a><
 If <code>fence</code> is not <code><a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a></code>, <code>fence</code> <span role="normative">must</span> not be
     associated with any other queue command that has not yet completed
     execution on that queue
+</p>
+</li>
+<li>
+<p>
+Any calls to <code><a href="#vkCmdSetEvent">vkCmdSetEvent</a></code>, <code><a href="#vkCmdResetEvent">vkCmdResetEvent</a></code> or
+    <code><a href="#vkCmdWaitEvents">vkCmdWaitEvents</a></code> that have been recorded into any of the command
+    buffer elements of the <code>pCommandBuffers</code> member of any element of
+    <code>pSubmits</code>, <span role="normative">must</span> not reference any <code><a href="#VkEvent">VkEvent</a></code> that is referenced
+    by any of those commands that is pending execution on another queue.
 </p>
 </li>
 </ul></div>
@@ -25191,6 +25354,11 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_132">Description</h4>
+<div class="paragraph"><p>When <code><a href="#vkResetEvent">vkResetEvent</a></code> is executed on the host, it defines an <em>event
+unsignal operation</em> which resets the event to the unsignaled state.</p></div>
+<div class="paragraph"><p>If <code>event</code> is already in the unsignaled state when <code><a href="#vkResetEvent">vkResetEvent</a></code> is
+executed, then <code><a href="#vkResetEvent">vkResetEvent</a></code> has no effect, and no event unsignal
+operation occurs.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -25292,8 +25460,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_133">C Specification</h4>
-<div class="paragraph"><p>To reset the status of one or more fences to the unsignaled state, use the
-command:</p></div>
+<div class="paragraph"><p>To set the state of fences to unsignaled from the host, call:</p></div>
 <div class="listingblock">
 <a id="vkResetFences"></a>
 <div class="title"></div>
@@ -25321,16 +25488,19 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>pFences</code> is a pointer to an array of <code>fenceCount</code> fence handles
-    to reset.
+<code>pFences</code> is a pointer to an array of fence handles to reset.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_133">Description</h4>
-<div class="paragraph"><p>If a fence is already in the unsignaled state, then resetting it has no
-effect.</p></div>
+<div class="paragraph"><p>When <code><a href="#vkResetFences">vkResetFences</a></code> is executed on the host, it defines a <em>fence
+unsignal operation</em> for each fence, which resets the fence to the unsignaled
+state.</p></div>
+<div class="paragraph"><p>If any member of <code>pFences</code> is already in the unsignaled state when
+<code><a href="#vkResetFences">vkResetFences</a></code> is executed, then <code><a href="#vkResetFences">vkResetFences</a></code> has no effect on
+that fence.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -25467,6 +25637,11 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_134">Description</h4>
+<div class="paragraph"><p>When <code><a href="#vkSetEvent">vkSetEvent</a></code> is executed on the host, it defines an <em>event signal
+operation</em> which sets the event to the signaled state.</p></div>
+<div class="paragraph"><p>If <code>event</code> is already in the signaled state when <code><a href="#vkSetEvent">vkSetEvent</a></code> is
+executed, then <code><a href="#vkSetEvent">vkSetEvent</a></code> has no effect, and no event signal operation
+occurs.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -25775,8 +25950,8 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_137">C Specification</h4>
-<div class="paragraph"><p>To cause the host to wait until any one or all of a group of fences is
-signaled, use the command:</p></div>
+<div class="paragraph"><p>To wait for one or more fences to enter the signaled state on the host,
+call:</p></div>
 <div class="listingblock">
 <a id="vkWaitForFences"></a>
 <div class="title"></div>
@@ -25846,22 +26021,6 @@ satisfied, even though no actual wait was performed.</p></div>
 <code>vkWaitForFences</code> returns <code>VK_TIMEOUT</code>.
 If the condition is satisfied before <code>timeout</code> nanoseconds has expired,
 <code>vkWaitForFences</code> returns <code>VK_SUCCESS</code>.</p></div>
-<div class="paragraph" id="synchronization-fences-devicewrites"><p><code>vkWaitForFences</code> defines the second half of a memory dependency with
-the host, for each fence being waited on.
-The memory dependency defined by signaling a fence and waiting on the host
-does not guarantee that the results of memory accesses will be visible to
-the host, or that the memory is available.
-To provide that guarantee, the application <span role="normative">must</span> insert a memory barrier
-between the device writes and the end of the submission that will signal the
-fence, with <code>dstAccessMask</code> having the <code>VK_ACCESS_HOST_READ_BIT</code> bit
-set, with <code>dstStageMask</code> having the <code>VK_PIPELINE_STAGE_HOST_BIT</code> bit
-set, and with the appropriate <code>srcStageMask</code> and <code>srcAccessMask</code>
-members set to guarantee completion of the writes.
-If the memory was allocated without the
-<code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> set, then
-<code>vkInvalidateMappedMemoryRanges</code> <span role="normative">must</span> be called after the fence is
-signaled in order to ensure the writes are visible to the host, as described
-in <a href="#memory-device-hostaccess">Host Access to Device Memory Objects</a>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -26326,15 +26485,16 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_147">C Specification</h4>
-<div class="paragraph"><p>Events represent a fine-grained synchronization primitive that <span role="normative">can</span> be used
-to gauge progress through a sequence of commands executed on a queue by
-Vulkan.
-An event is initially in the unsignaled state.
-It <span role="normative">can</span> be signaled by a device, using commands inserted into the command
-buffer, or by the host.
-It <span role="normative">can</span> also be reset to the unsignaled state by a device or the host.
-The host <span role="normative">can</span> query the state of an event.
-A device <span role="normative">can</span> wait for one or more events to become signaled.</p></div>
+<div class="paragraph"><p>Events are a synchronization primitive that <span role="normative">can</span> be used to insert a
+fine-grained dependency between commands submitted to the same queue, or
+between the host and a queue.
+Events have two states - signaled and unsignaled.
+An application <span role="normative">can</span> signal an event, or unsignal it, on either the host or
+the device.
+A device <span role="normative">can</span> wait for an event to become signaled before executing further
+operations.
+No command exists to wait for an event to become signaled on the host, but
+the current state of an event <span role="normative">can</span> be queried.</p></div>
 <div class="paragraph"><p>Events are represented by <code>VkEvent</code> handles:</p></div>
 <div class="listingblock">
 <a id="VkEvent"></a>
@@ -26370,11 +26530,14 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_148">C Specification</h4>
-<div class="paragraph"><p>Fences <span role="normative">can</span> be used by the host to determine completion of execution of
-<em>queue operations</em>.</p></div>
-<div class="paragraph"><p>A fence&#8217;s status is always either <em>signaled</em> or <em>unsignaled</em>.
-The host <span role="normative">can</span> poll the status of a single fence, or wait for any or all of a
-group of fences to become signaled.</p></div>
+<div class="paragraph"><p>Fences are a synchronization primitive that <span role="normative">can</span> be used to insert a
+dependency from a queue to the host.
+Fences have two states - signaled and unsignaled.
+A fence <span role="normative">can</span> be signaled as part of the execution of a
+<a href="#devsandqueues-submission">queue submission</a> command.
+Fences <span role="normative">can</span> be unsignaled on the host with <code><a href="#vkResetFences">vkResetFences</a></code>.
+Fences <span role="normative">can</span> be waited on by the host with the <code><a href="#vkWaitForFences">vkWaitForFences</a></code> command,
+and the current state <span role="normative">can</span> be queried with <code><a href="#vkGetFenceStatus">vkGetFenceStatus</a></code>.</p></div>
 <div class="paragraph"><p>Fences are represented by <code>VkFence</code> handles:</p></div>
 <div class="listingblock">
 <a id="VkFence"></a>
@@ -26889,9 +27052,14 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_161">C Specification</h4>
-<div class="paragraph"><p>Semaphores are used to coordinate queue operations both within a queue and
-between different queues.
-A semaphore&#8217;s status is always either <em>signaled</em> or <em>unsignaled</em>.</p></div>
+<div class="paragraph"><p>Semaphores are a synchronization primitive that <span role="normative">can</span> be used to insert a
+dependency between batches submitted to queues.
+Semaphores have two states - signaled and unsignaled.
+The state of a semaphore <span role="normative">can</span> be signaled after execution of a batch of
+commands is completed.
+A batch <span role="normative">can</span> wait for a semaphore to become signaled before it begins
+execution, and the semaphore is also unsignaled before the batch begins
+execution.</p></div>
 <div class="paragraph"><p>Semaphores are represented by <code>VkSemaphore</code> handles:</p></div>
 <div class="listingblock">
 <a id="VkSemaphore"></a>
@@ -27309,8 +27477,12 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>VK_ATTACHMENT_LOAD_OP_LOAD</code> means the contents within the render
-     area will be preserved.
+<code>VK_ATTACHMENT_LOAD_OP_LOAD</code> means the previous contents of the
+     image within the render area will be preserved.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code>.
 </p>
 </li>
 <li>
@@ -27318,13 +27490,21 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code> means the contents within the render
      area will be cleared to a uniform value, which is specified when a
      render pass instance is begun.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 <li>
 <p>
-<code>VK_ATTACHMENT_LOAD_OP_DONT_CARE</code> means the contents within the
-     area need not be preserved; the contents of the attachment will be
-     undefined inside the render area.
+<code>VK_ATTACHMENT_LOAD_OP_DONT_CARE</code> means the previous contents
+     within the area need not be preserved; the contents of the attachment
+     will be undefined inside the render area.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 </ul></div>
@@ -27352,12 +27532,12 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>VK_ATTACHMENT_STORE_OP_STORE</code> means the contents within the render
-     area are written to memory and will be available for reading after the
-     render pass instance completes once the writes have been synchronized
-     with <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> (for color attachments)
-     or <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> (for
-     depth/stencil attachments).
+<code>VK_ATTACHMENT_STORE_OP_STORE</code> means the contents generated during
+     the render pass and within the render area are written to memory.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 <li>
@@ -27365,6 +27545,10 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_ATTACHMENT_STORE_OP_DONT_CARE</code> means the contents within the
      render area are not needed after rendering, and <span role="normative">may</span> be discarded; the
      contents of the attachment will be undefined inside the render area.
+     For attachments with a depth/stencil format, this uses the access type
+     <code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code>.
+     For attachments with a color format, this uses the access type
+     <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
 </p>
 </li>
 </ul></div>
@@ -27403,11 +27587,31 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_165">Description</h4>
-<div class="paragraph"><p>If the attachment uses a color format, then <code>loadOp</code> and <code>storeOp</code>
+<div class="paragraph" id="renderpass-load-store-ops"><p>If the attachment uses a color format, then <code>loadOp</code> and <code>storeOp</code>
 are used, and <code>stencilLoadOp</code> and <code>stencilStoreOp</code> are ignored.
 If the format has depth and/or stencil components, <code>loadOp</code> and
 <code>storeOp</code> apply only to the depth data, while <code>stencilLoadOp</code> and
-<code>stencilStoreOp</code> define how the stencil data is handled.</p></div>
+<code>stencilStoreOp</code> define how the stencil data is handled.
+<code>loadOp</code> and <code>stencilLoadOp</code> define the <em>load operations</em> that
+execute as part of the first subpass that uses the attachment.
+<code>storeOp</code> and <code>stencilStoreOp</code> define the <em>store operations</em> that
+execute as part of the last subpass that uses the attachment.</p></div>
+<div class="paragraph"><p>The load operation for each value in an attachment used by a subpass
+happens-before any command recorded into that subpass reads from that value.
+Load operations for attachments with a depth/stencil format execute in the
+<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> pipeline stage.
+Load operations for attachments with a color format execute in the
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p></div>
+<div class="paragraph"><p>Store operations for each value in an attachment used by a subpass
+happen-after any command recorded into that subpass writes to that value.
+Store operations for attachments with a depth/stencil format execute in the
+<code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stage.
+Store operations for attachments with a color format execute in the
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p></div>
+<div class="paragraph"><p>If an attachment is not used by any subpass, then <code>loadOp</code>,
+<code>storeOp</code>, <code>stencilStoreOp</code>, and <code>stencilLoadOp</code> are ignored,
+and the attachment&#8217;s memory contents will not be modified by execution of a
+render pass instance.</p></div>
 <div class="paragraph" id="renderpass-precision"><p>During a render pass instance, input/color attachments with color formats
 that have a component size of 8, 16, or 32 bits <span role="normative">must</span> be represented in the
 attachment&#8217;s format throughout the instance.
@@ -27417,7 +27621,7 @@ attachment format, but <span role="normative">must</span> be represented with th
 When such a component is loaded via the <code>loadOp</code>, it will be converted
 into an implementation-dependent format used by the render pass.
 Such components <span role="normative">must</span> be converted from the render pass format, to the
-format of the attachment, before they are stored or resolved at the end of a
+format of the attachment, before they are resolved or stored at the end of a
 render pass instance via <code>storeOp</code>.
 Conversions occur as described in <a href="#fundamentals-numerics">Numeric Representation and Computation</a> and <a href="#fundamentals-fixedconv">Fixed-Point Data Conversions</a>.</p></div>
 <div class="paragraph" id="renderpass-aliasing"><p>If <code>flags</code> includes <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>, then
@@ -27542,8 +27746,6 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>layout</code> is a <code><a href="#VkImageLayout">VkImageLayout</a></code> value specifying the layout the
     attachment uses during the subpass.
-    The implementation will automatically perform layout transitions as
-    needed between subpasses to make each subpass use the requested layouts.
 </p>
 </li>
 </ul></div>
@@ -27931,7 +28133,7 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>VK_BUFFER_USAGE_TRANSFER_SRC_BIT</code> indicates that the buffer <span role="normative">can</span> be
     used as the source of a <em>transfer command</em> (see the definition of
-    <a href="#synchronization-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>).
+    <a href="#synchronization-pipeline-stages-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>).
 </p>
 </li>
 <li>
@@ -28452,7 +28654,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <h3 id="_vkbuffermemorybarrier_3">VkBufferMemoryBarrier(3)</h3>
 <div class="sect3">
 <h4 id="_name_171">Name</h4>
-<div class="paragraph"><p>VkBufferMemoryBarrier - Structure specifying the parameters of a buffer memory barrier</p></div>
+<div class="paragraph"><p>VkBufferMemoryBarrier - Structure specifying a buffer memory barrier</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_171">C Specification</h4>
@@ -28491,30 +28693,24 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the first set of commands that will participate in the
-    dependency.
+<code>srcAccessMask</code> defines a <a href="#synchronization-access-masks">source     access mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>dstAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the second set of commands that will participate in the
-    dependency.
+<code>dstAccessMask</code> defines a <a href="#synchronization-access-masks">destination access mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>srcQueueFamilyIndex</code> is the queue family that is relinquishing
-    ownership of the range of <code>buffer</code> to another queue, or
-    <code>VK_QUEUE_FAMILY_IGNORED</code> if there is no transfer of ownership.
+<code>srcQueueFamilyIndex</code> is the source queue family for a
+    <a href="#synchronization-queue-transfers">queue family ownership transfer</a>
 </p>
 </li>
 <li>
 <p>
-<code>dstQueueFamilyIndex</code> is the queue family that is acquiring
-    ownership of the range of <code>buffer</code> from another queue, or
-    <code>VK_QUEUE_FAMILY_IGNORED</code> if there is no transfer of ownership.
+<code>dstQueueFamilyIndex</code> is the destination queue family for a
+    <a href="#synchronization-queue-transfers">queue family ownership transfer</a>
 </p>
 </li>
 <li>
@@ -28541,6 +28737,21 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_171">Description</h4>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access to the memory backing the specified buffer range, via
+access types in the <a href="#synchronization-access-masks">source access mask</a>
+specified by <code>srcAccessMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access to the memory backing the specified buffer range, via
+access types in the <a href="#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p></div>
+<div class="paragraph"><p>If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>, and
+<code>srcQueueFamilyIndex</code> is equal to the current queue family, then the
+memory barrier defines a <a href="#synchronization-queue-transfers-release">queue family release operation</a> for the specified buffer range, and the second
+access scope includes no access, as if <code>dstAccessMask</code> was <span class="monospaced">0</span>.</p></div>
+<div class="paragraph"><p>If <code>dstQueueFamilyIndex</code> is not equal to <code>srcQueueFamilyIndex</code>, and
+<code>dstQueueFamilyIndex</code> is equal to the current queue family, then the
+memory barrier defines a <a href="#synchronization-queue-transfers-acquire">queue family acquire operation</a> for the specified buffer range, and the first
+access scope includes no access, as if <code>srcAccessMask</code> was <span class="monospaced">0</span>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -29958,7 +30169,7 @@ That is:</p></div>
 style="
 width:100%;
 ">
-<caption class="title">Table 5. Component Mappings Equivalent To <code>VK_COMPONENT_SWIZZLE_IDENTITY</code></caption>
+<caption class="title">Table 6. Component Mappings Equivalent To <code>VK_COMPONENT_SWIZZLE_IDENTITY</code></caption>
 <col style="width:50%;">
 <col style="width:50%;">
 <thead>
@@ -31825,6 +32036,16 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
+<code>sType</code> is the type of this structure.
+</p>
+</li>
+<li>
+<p>
+<code>pNext</code> is <span class="monospaced">NULL</span> or a pointer to an extension-specific structure.
+</p>
+</li>
+<li>
+<p>
 <code>flags</code> is reserved for future use.
 </p>
 </li>
@@ -32029,6 +32250,16 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
+<code>sType</code> is the type of this structure.
+</p>
+</li>
+<li>
+<p>
+<code>pNext</code> is <span class="monospaced">NULL</span> or a pointer to an extension-specific structure.
+</p>
+</li>
+<li>
+<p>
 <code>flags</code> defines the initial state and behavior of the fence.
     Bits which <span role="normative">can</span> be set include:
 </p>
@@ -32046,8 +32277,8 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span> VkFenceCreateFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
 </div></div>
 <div class="paragraph"><p>If <code>flags</code> contains <code>VK_FENCE_CREATE_SIGNALED_BIT</code> then the fence
-object is created in the signaled state.
-Otherwise it is created in the unsignaled state.</p></div>
+object is created in the signaled state; otherwise it is created in the
+unsignaled state.</p></div>
 </li>
 </ul></div>
 </div>
@@ -34119,6 +34350,12 @@ If the <a href="#features-features-sparseBinding">sparse bindings</a> feature is
 </li>
 <li>
 <p>
+If <code>imageType</code> is <code>VK_IMAGE_TYPE_1D</code>, <code>flags</code> <span role="normative">must</span> not
+    contain <code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>
+</p>
+</li>
+<li>
+<p>
 If the <a href="#features-features-sparseResidencyImage2D">sparse residency for     2D images</a> feature is not enabled, and <code>imageType</code> is
     <code>VK_IMAGE_TYPE_2D</code>, <code>flags</code> <span role="normative">must</span> not contain
     <code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>
@@ -34499,41 +34736,36 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the first set of commands that will participate in the
-    dependency.
+<code>srcAccessMask</code> defines a <a href="#synchronization-access-masks">source     access mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>dstAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the second set of commands that will participate in the
-    dependency.
+<code>dstAccessMask</code> defines a <a href="#synchronization-access-masks">destination access mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>oldLayout</code> describes the current layout of the image
-    subresource(s).
+<code>oldLayout</code> is the old layout in an
+    <a href="#synchronization-image-layout-transitions">image layout transition</a>.
 </p>
 </li>
 <li>
 <p>
-<code>newLayout</code> describes the new layout of the image subresource(s).
+<code>newLayout</code> is the new layout in an
+    <a href="#synchronization-image-layout-transitions">image layout transition</a>.
 </p>
 </li>
 <li>
 <p>
-<code>srcQueueFamilyIndex</code> is the queue family that is relinquishing
-    ownership of the image subresource(s) to another queue, or
-    <code>VK_QUEUE_FAMILY_IGNORED</code> if there is no transfer of ownership).
+<code>srcQueueFamilyIndex</code> is the source queue family for a
+    <a href="#synchronization-queue-transfers">queue family ownership transfer</a>
 </p>
 </li>
 <li>
 <p>
-<code>dstQueueFamilyIndex</code> is the queue family that is acquiring
-    ownership of the image subresource(s) from another queue, or
-    <code>VK_QUEUE_FAMILY_IGNORED</code> if there is no transfer of ownership).
+<code>dstQueueFamilyIndex</code> is the destination queue family for a
+    <a href="#synchronization-queue-transfers">queue family ownership transfer</a>
 </p>
 </li>
 <li>
@@ -34554,34 +34786,29 @@ http://www.gnu.org/software/src-highlite -->
 </div>
 <div class="sect3">
 <h4 id="_description_209">Description</h4>
-<div class="paragraph"><p>If <code>oldLayout</code> differs from <code>newLayout</code>, a layout transition occurs
-as part of the image memory barrier, affecting the data contained in the
-region of the image defined by the <code>subresourceRange</code>.
-If <code>oldLayout</code> is <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, then the data is
-undefined after the layout transition.
-This <span role="normative">may</span> allow a more efficient transition, since the data <span role="normative">may</span> be
-discarded.
-The layout transition <span role="normative">must</span> occur after all operations using the old layout
-are completed and before all operations using the new layout are started.
-This is achieved by ensuring that there is a memory dependency between
-previous accesses and the layout transition, as well as between the layout
-transition and subsequent accesses, where the layout transition occurs
-between the two halves of a memory dependency in an image memory barrier.</p></div>
-<div class="paragraph"><p>Layout transitions that are performed via image memory barriers are
-automatically ordered against other layout transitions, including those that
-occur as part of a render pass instance.</p></div>
-<div class="admonitionblock">
-<table><tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph"><p>See <a href="#resources-image-layouts">[resources-image-layouts]</a> for details on available image layouts and
-their usages.</p></div>
-</td>
-</tr></table>
-</div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access to the memory backing the specified image subresource
+range, via access types in the <a href="#synchronization-access-masks">source access mask</a> specified by <code>srcAccessMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access to the memory backing the specified image subresource
+range, via access types in the <a href="#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p></div>
+<div class="paragraph"><p>If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>, and
+<code>srcQueueFamilyIndex</code> is equal to the current queue family, then the
+memory barrier defines a <a href="#synchronization-queue-transfers-release">queue family release operation</a> for the specified image subresource range, and
+the second access scope includes no access, as if <code>dstAccessMask</code> was
+<span class="monospaced">0</span>.</p></div>
+<div class="paragraph"><p>If <code>dstQueueFamilyIndex</code> is not equal to <code>srcQueueFamilyIndex</code>, and
+<code>dstQueueFamilyIndex</code> is equal to the current queue family, then the
+memory barrier defines a <a href="#synchronization-queue-transfers-acquire">queue family acquire operation</a> for the specified image subresource range, and
+the first access scope includes no access, as if <code>srcAccessMask</code> was
+<span class="monospaced">0</span>.</p></div>
+<div class="paragraph"><p>If <code>oldLayout</code> is not equal to <code>newLayout</code>, then the memory barrier
+defines an <a href="#synchronization-image-layout-transitions">image layout transition</a> for the specified image subresource range.
+Layout transitions that are performed via image memory barriers
+automatically happen-after layout transitions previously submitted to the
+same queue, and automatically happen-before layout transitions subsequently
+submitted to the same queue; this includes layout transitions that occur as
+part of a render pass instance, in both cases.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -35253,9 +35480,10 @@ attachment descriptors, and framebuffer attachments.</p></div>
 <li>
 <p>
 If <code>levelCount</code> is not <code>VK_REMAINING_MIP_LEVELS</code>,
-    <span class="eq"><code>levelCount</code></span> <span role="normative">must</span> be non-zero and <span class="eq">(<code>baseMipLevel</code><br>
-    <code>levelCount</code>)</span> <span role="normative">must</span> be less than or equal to the <code>mipLevels</code>
-    specified in <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code> when the image was created
+    <span class="eq"><code>levelCount</code></span> <span role="normative">must</span> be non-zero and <span class="eq">(<code>baseMipLevel</code>
+    &#x002b; <code>levelCount</code>)</span> <span role="normative">must</span> be less than or equal to the
+    <code>mipLevels</code> specified in <code><a href="#VkImageCreateInfo">VkImageCreateInfo</a></code> when the image was
+    created
 </p>
 </li>
 <li>
@@ -35388,7 +35616,7 @@ section.</p></div>
 style="
 width:100%;
 ">
-<caption class="title">Table 6. Image and image view parameter compatibility requirements</caption>
+<caption class="title">Table 7. Image and image view parameter compatibility requirements</caption>
 <col style="width:15%;">
 <col style="width:35%;">
 <col style="width:50%;">
@@ -36246,7 +36474,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <h3 id="_vkmemorybarrier_3">VkMemoryBarrier(3)</h3>
 <div class="sect3">
 <h4 id="_name_219">Name</h4>
-<div class="paragraph"><p>VkMemoryBarrier - Structure specifying a memory barrier</p></div>
+<div class="paragraph"><p>VkMemoryBarrier - Structure specifying a global memory barrier</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_219">C Specification</h4>
@@ -36280,306 +36508,22 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the first set of commands that will participate in the
-    dependency.
+<code>srcAccessMask</code> defines a <a href="#synchronization-access-masks">source     access mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>dstAccessMask</code> is a bitmask of the classes of memory accesses
-    performed by the second set of commands that will participate in the
-    dependency.
+<code>dstAccessMask</code> defines a <a href="#synchronization-access-masks">destination access mask</a>.
 </p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_219">Description</h4>
-<div class="paragraph"><p><code>srcAccessMask</code> and <code>dstAccessMask</code>, along with <code>srcStageMask</code>
-and <code>dstStageMask</code> from <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code>, define the two
-halves of a memory dependency and an execution dependency.
-Memory accesses using the set of access types in <code>srcAccessMask</code>
-performed in pipeline stages in <code>srcStageMask</code> by the first set of
-commands <span role="normative">must</span> complete and be available to later commands.
-The side effects of the first set of commands will be visible to memory
-accesses using the set of access types in <code>dstAccessMask</code> performed in
-pipeline stages in <code>dstStageMask</code> by the second set of commands.
-If the barrier is by-region, these requirements only apply to invocations
-within the same framebuffer-space region, for pipeline stages that perform
-framebuffer-space work.
-The execution dependency guarantees that execution of work by the
-destination stages of the second set of commands will not begin until
-execution of work by the source stages of the first set of commands has
-completed.</p></div>
-<div class="paragraph"><p>A common type of memory dependency is to avoid a read-after-write hazard.
-In this case, the source access mask and stages will include writes from a
-particular stage, and the destination access mask and stages will indicate
-how those writes will be read in subsequent commands.
-However, barriers <span role="normative">can</span> also express write-after-read dependencies and
-write-after-write dependencies, and are even useful to express
-read-after-read dependencies across an image layout change.</p></div>
-<div class="paragraph"><p>Bits which <span role="normative">can</span> be set in <code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>::<code>srcAccessMask</code> and
-<code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>::<code>dstAccessMask</code> include:</p></div>
-<div class="listingblock">
-<a id="VkAccessFlagBits"></a>
-<div class="title"></div>
-<div class="content"><!-- Generator: GNU source-highlight 3.1.7
-by Lorenzo Bettini
-http://www.lorenzobettini.it
-http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkAccessFlagBits <span style="color: #FF0000">{</span>
-    VK_ACCESS_INDIRECT_COMMAND_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
-    VK_ACCESS_INDEX_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000002</span><span style="color: #990000">,</span>
-    VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000004</span><span style="color: #990000">,</span>
-    VK_ACCESS_UNIFORM_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000008</span><span style="color: #990000">,</span>
-    VK_ACCESS_INPUT_ATTACHMENT_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000010</span><span style="color: #990000">,</span>
-    VK_ACCESS_SHADER_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000020</span><span style="color: #990000">,</span>
-    VK_ACCESS_SHADER_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000040</span><span style="color: #990000">,</span>
-    VK_ACCESS_COLOR_ATTACHMENT_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000080</span><span style="color: #990000">,</span>
-    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000100</span><span style="color: #990000">,</span>
-    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000200</span><span style="color: #990000">,</span>
-    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000400</span><span style="color: #990000">,</span>
-    VK_ACCESS_TRANSFER_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000800</span><span style="color: #990000">,</span>
-    VK_ACCESS_TRANSFER_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00001000</span><span style="color: #990000">,</span>
-    VK_ACCESS_HOST_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00002000</span><span style="color: #990000">,</span>
-    VK_ACCESS_HOST_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00004000</span><span style="color: #990000">,</span>
-    VK_ACCESS_MEMORY_READ_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00008000</span><span style="color: #990000">,</span>
-    VK_ACCESS_MEMORY_WRITE_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00010000</span><span style="color: #990000">,</span>
-<span style="color: #FF0000">}</span> VkAccessFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
-<div class="ulist"><ul>
-<li>
-<p>
-<code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> indicates that the access is
-    an indirect command structure read as part of an indirect drawing
-    command.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_INDEX_READ_BIT</code> indicates that the access is an index
-    buffer read.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code> indicates that the access is a
-    read via the vertex input bindings.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_UNIFORM_READ_BIT</code> indicates that the access is a read via
-    a uniform buffer or dynamic uniform buffer descriptor.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code> indicates that the access is a
-    read via an input attachment descriptor.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_SHADER_READ_BIT</code> indicates that the access is a read from
-    a shader via any other descriptor type.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_SHADER_WRITE_BIT</code> indicates that the access is a write or
-    atomic from a shader via the same descriptor types as in
-    <code>VK_ACCESS_SHADER_READ_BIT</code>.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code> indicates that the access is a
-    read via a color attachment.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> indicates that the access is
-    a write via a color or resolve attachment.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> indicates that the
-    access is a read via a depth/stencil attachment.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> indicates that the
-    access is a write via a depth/stencil attachment.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_TRANSFER_READ_BIT</code> indicates that the access is a read
-    from a transfer (copy, blit, resolve, etc.) operation.
-    For the complete set of transfer operations, see
-    <a href="#synchronization-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_TRANSFER_WRITE_BIT</code> indicates that the access is a write
-    from a transfer (copy, blit, resolve, etc.) operation.
-    For the complete set of transfer operations, see
-    <a href="#synchronization-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_HOST_READ_BIT</code> indicates that the access is a read via
-    the host.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_HOST_WRITE_BIT</code> indicates that the access is a write via
-    the host.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_MEMORY_READ_BIT</code> indicates that the access is a read via
-    a non-specific unit attached to the memory.
-    This unit <span role="normative">may</span> be external to the Vulkan device or otherwise not part of
-    the core Vulkan pipeline.
-    When included in <code>dstAccessMask</code>, all writes using access types in
-    <code>srcAccessMask</code> performed by pipeline stages in <code>srcStageMask</code>
-    <span role="normative">must</span> be visible in memory.
-</p>
-</li>
-<li>
-<p>
-<code>VK_ACCESS_MEMORY_WRITE_BIT</code> indicates that the access is a write
-    via a non-specific unit attached to the memory.
-    This unit <span role="normative">may</span> be external to the Vulkan device or otherwise not part of
-    the core Vulkan pipeline.
-    When included in <code>srcAccessMask</code>, all access types in
-    <code>dstAccessMask</code> from pipeline stages in <code>dstStageMask</code> will
-    observe the side effects of commands that executed before the barrier.
-    When included in <code>dstAccessMask</code> all writes using access types in
-    <code>srcAccessMask</code> performed by pipeline stages in <code>srcStageMask</code>
-    <span role="normative">must</span> be visible in memory.
-</p>
-</li>
-</ul></div>
-<div class="paragraph"><p>Color attachment reads and writes are automatically (without memory or
-execution dependencies) coherent and ordered against themselves and each
-other for a given sample within a subpass of a render pass instance,
-executing in <a href="#primrast-order">rasterization order</a>.
-Similarly, depth/stencil attachment reads and writes are automatically
-coherent and ordered against themselves and each other in the same
-circumstances.</p></div>
-<div class="paragraph"><p>Shader reads and/or writes through two variables (in the same or different
-shader invocations) decorated with <code>Coherent</code> and which use the same
-image view or buffer view are automatically coherent with each other, but
-require execution dependencies if a specific order is desired.
-Similarly, shader atomic operations are coherent with each other and with
-<code>Coherent</code> variables.
-Non-<code>Coherent</code> shader memory accesses require memory dependencies for
-writes to be available and reads to be visible.</p></div>
-<div class="paragraph"><p>Certain memory access types are only supported on queues that support a
-particular set of operations.
-The following table lists, for each access flag, which queue capability flag
-<span role="normative">must</span> be supported by the queue.
-When multiple flags are enumerated in the second column of the table it
-means that the access type is supported on the queue if it supports any of
-the listed capability flags.
-For further details on queue capabilities see
-<a href="#devsandqueues-physical-device-enumeration">Physical Device Enumeration</a>
-and <a href="#devsandqueues-queues">Queues</a>.</p></div>
-<table class="tableblock frame-all grid-all"
-style="
-margin-left:auto; margin-right:auto;
-width:100%;
-">
-<caption class="title">Table 7. Supported access flags</caption>
-<col style="width:67%;">
-<col style="width:33%;">
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top" >Access flag                                                  </th>
-<th class="tableblock halign-left valign-top" > Required queue capability flag</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_INDEX_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_UNIFORM_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_SHADER_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_SHADER_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_TRANSFER_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code>, <code>VK_QUEUE_COMPUTE_BIT</code> or <code>VK_QUEUE_TRANSFER_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_TRANSFER_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code>, <code>VK_QUEUE_COMPUTE_BIT</code> or <code>VK_QUEUE_TRANSFER_BIT</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_HOST_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">None</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_HOST_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">None</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_MEMORY_READ_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">None</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" ><p class="tableblock"><code>VK_ACCESS_MEMORY_WRITE_BIT</code></p></td>
-<td class="tableblock halign-left valign-top" ><p class="tableblock">None</p></td>
-</tr>
-</tbody>
-</table>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access types in the <a href="#synchronization-access-masks">source access mask</a> specified by <code>srcAccessMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access types in the <a href="#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -42617,9 +42561,9 @@ http://www.gnu.org/software/src-highlite -->
 <h4 id="_description_247">Description</h4>
 <div class="paragraph"><p><code>renderArea</code> is the render area that is affected by the render pass
 instance.
-The effects of attachment load, store and resolve operations are restricted
-to the pixels whose x and y coordinates fall within the render area on all
-attachments.
+The effects of attachment load, store and multisample resolve operations are
+restricted to the pixels whose x and y coordinates fall within the render
+area on all attachments.
 The render area extends to all layers of <code>framebuffer</code>.
 The application <span role="normative">must</span> ensure (using scissor if necessary) that all rendering
 is contained within the render area, otherwise the pixels outside of the
@@ -42847,6 +42791,15 @@ If the <code>attachment</code> member of any element of
 The value of any element of the <code>pPreserveAttachments</code> member in any
     given element of <code>pSubpasses</code> <span role="normative">must</span> not be
     <code>VK_ATTACHMENT_UNUSED</code>
+</p>
+</li>
+<li>
+<p>
+For any member of <code>pAttachments</code> with a <code>loadOp</code> equal to
+    <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
+    <span role="normative">must</span> not specify a <code>layout</code> equal to
+    <code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
+    <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>.
 </p>
 </li>
 </ul></div>
@@ -45106,92 +45059,86 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>srcSubpass</code> and <code>dstSubpass</code> are the subpass indices of the
-    producer and consumer subpasses, respectively.
-    <code>srcSubpass</code> and <code>dstSubpass</code> <span role="normative">can</span> also have the special value
-    <code>VK_SUBPASS_EXTERNAL</code>.
-    The source subpass <span role="normative">must</span> always be a lower numbered subpass than the
-    destination subpass (excluding external subpasses and
-    <a href="#synchronization-pipeline-barriers-subpass-self-dependencies">self-dependencies</a>), so that the order of subpass descriptions is a
-    valid execution ordering, avoiding cycles in the dependency graph.
+<code>srcSubpass</code> is the subpass index of the first subpass in the
+    dependency, or <code>VK_SUBPASS_EXTERNAL</code>.
 </p>
 </li>
 <li>
 <p>
-<code>srcStageMask</code>, <code>dstStageMask</code>, <code>srcAccessMask</code>,
-    <code>dstAccessMask</code>, and <code>dependencyFlags</code> describe an
-    <a href="#synchronization-execution-and-memory-dependencies">execution and memory     dependency</a> between subpasses.
-    The bits that <span role="normative">can</span> be included in <code>dependencyFlags</code> are:
-</p>
-<div class="openblock">
-<div class="content">
-<div class="listingblock">
-<a id="VkDependencyFlagBits"></a>
-<div class="title"></div>
-<div class="content"><!-- Generator: GNU source-highlight 3.1.7
-by Lorenzo Bettini
-http://www.lorenzobettini.it
-http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkDependencyFlagBits <span style="color: #FF0000">{</span>
-    VK_DEPENDENCY_BY_REGION_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
-<span style="color: #FF0000">}</span> VkDependencyFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
-</div></div>
-<div class="ulist"><ul>
-<li>
-<p>
-If <code>dependencyFlags</code> contains <code>VK_DEPENDENCY_BY_REGION_BIT</code>,
-     then the dependency is by-region as defined in
-     <a href="#synchronization-execution-and-memory-dependencies">Execution And      Memory Dependencies</a>.
+<code>dstSubpass</code> is the subpass index of the second subpass in the
+    dependency, or <code>VK_SUBPASS_EXTERNAL</code>.
 </p>
 </li>
-</ul></div>
+<li>
+<p>
+<code>srcStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">source stage mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dstStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">destination stage mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>srcAccessMask</code> defines a <a href="#synchronization-access-masks">source     access mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dstAccessMask</code> defines a <a href="#synchronization-access-masks">destination access mask</a>.
+</p>
+</li>
+<li>
+<p>
+<code>dependencyFlags</code> is a bitmask of <code><a href="#VkDependencyFlagBits">VkDependencyFlagBits</a></code>.
+</p>
 </li>
 </ul></div>
 </div>
 <div class="sect3">
 <h4 id="_description_263">Description</h4>
-<div class="paragraph"><p>Each subpass dependency defines an execution and memory dependency between
-two sets of commands, with the second set depending on the first set.
-When <code>srcSubpass</code> does not equal <code>dstSubpass</code> then the first set of
-commands is:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-All commands in the subpass indicated by <code>srcSubpass</code>, if
-    <code>srcSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-<li>
-<p>
-All commands before the render pass instance, if <code>srcSubpass</code> is
-    <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-</ul></div>
-<div class="paragraph"><p>While the corresponding second set of commands is:</p></div>
-<div class="ulist"><ul>
-<li>
-<p>
-All commands in the subpass indicated by <code>dstSubpass</code>, if
-    <code>dstSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-<li>
-<p>
-All commands after the render pass instance, if <code>dstSubpass</code> is
-    <code>VK_SUBPASS_EXTERNAL</code>.
-</p>
-</li>
-</ul></div>
-<div class="paragraph"><p>When <code>srcSubpass</code> equals <code>dstSubpass</code> then the first set consists of
-commands in the subpass before a call to <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code> and the
-second set consists of commands in the subpass following that same call as
-described in the
-<a href="#synchronization-pipeline-barriers-subpass-self-dependencies">Subpass Self-dependency</a> section.</p></div>
-<div class="paragraph"><p>The <code>srcStageMask</code>, <code>dstStageMask</code>, <code>srcAccessMask</code>,
-<code>dstAccessMask</code>, and <code>dependencyFlags</code> parameters of the dependency
-are interpreted the same way as for other dependencies, as described in
-<a href="#synchronization">Synchronization and Cache Control</a>.</p></div>
+<div class="paragraph"><p>If <code>srcSubpass</code> is equal to <code>dstSubpass</code> then the
+<code><a href="#VkSubpassDependency">VkSubpassDependency</a></code> describes a
+<a href="#synchronization-pipeline-barriers-subpass-self-dependencies">subpass self-dependency</a>, and only constrains the pipeline barriers allowed within
+a subpass instance.
+Otherwise, when a render pass instance which includes a subpass dependency
+is submitted to a queue, it defines a memory dependency between the
+subpasses identified by <code>srcSubpass</code> and <code>dstSubpass</code>.</p></div>
+<div class="paragraph"><p>If <code>srcSubpass</code> is equal to <code>VK_SUBPASS_EXTERNAL</code>, the first
+<a href="#synchronization-dependencies-scopes">synchronization scope</a> includes
+commands submitted to the queue before the render pass instance began.
+Otherwise, the first set of commands includes all commands submitted as part
+of the subpass instance identified by <code>srcSubpass</code> and any load, store
+or multisample resolve operations on attachments used in <code>srcSubpass</code>.
+In either case, the first synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>If <code>dstSubpass</code> is equal to <code>VK_SUBPASS_EXTERNAL</code>, the second
+<a href="#synchronization-dependencies-scopes">synchronization scope</a> includes
+commands submitted after the render pass instance is ended.
+Otherwise, the second set of commands includes all commands submitted as
+part of the subpass instance identified by <code>dstSubpass</code> and any load,
+store or multisample resolve operations on attachments used in
+<code>dstSubpass</code>.
+In either case, the second synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+It is also limited to access types in the <a href="#synchronization-access-masks">source access mask</a> specified by <code>srcAccessMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+It is also limited to access types in the <a href="#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p></div>
+<div class="paragraph"><p>The <a href="#synchronization-dependencies-available-and-visible">availability and visibility operations</a> defined by a subpass dependency affect the execution
+of <a href="#renderpass-layout-transitions">image layout transitions</a> within the
+render pass.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -45260,9 +45207,11 @@ If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, <code>srcStageMa
 </li>
 <li>
 <p>
-If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, the highest bit value
-    included in <code>srcStageMask</code> <span role="normative">must</span> be less than or equal to the lowest
-    bit value in <code>dstStageMask</code>
+If <code>srcSubpass</code> is equal to <code>dstSubpass</code>, the
+    <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline
+    stage in <code>srcStageMask</code> <span role="normative">must</span> be
+    <a href="#synchronization-pipeline-stages-order">logically earlier</a> than or
+    equal to the <a href="#synchronization-pipeline-stages-order">logically     earliest</a> pipeline stage in <code>dstStageMask</code>
 </p>
 </li>
 </ul></div>
@@ -45409,14 +45358,15 @@ http://www.gnu.org/software/src-highlite -->
     <code>colorAttachmentCount</code> <code><a href="#VkAttachmentReference">VkAttachmentReference</a></code> structures that
     lists which of the render pass&#8217;s attachments are resolved to at the end
     of the subpass, and what layout each attachment will be in during the
-    resolve.
+    multisample resolve operation.
     If <code>pResolveAttachments</code> is not <span class="monospaced">NULL</span>, each of its elements
     corresponds to a color attachment (the element in
-    <code>pColorAttachments</code> at the same index).
-    At the end of each subpass, the subpass&#8217;s color attachments are resolved
-    to corresponding resolve attachments, unless the resolve attachment
-    index is <code>VK_ATTACHMENT_UNUSED</code> or <code>pResolveAttachments</code> is
-    <span class="monospaced">NULL</span>.
+    <code>pColorAttachments</code> at the same index), and a multisample resolve
+    operation is defined for each attachment.
+    At the end of each subpass, multisample resolve operations read the
+    subpass&#8217;s color attachments, and resolve the samples for each pixel to
+    the same pixel location in the corresponding resolve attachments, unless
+    the resolve attachment index is <code>VK_ATTACHMENT_UNUSED</code>.
     If the first use of an attachment in a render pass is as a resolve
     attachment, then the <code>loadOp</code> is effectively ignored as the resolve
     is guaranteed to overwrite all pixels in the render area.
@@ -45450,7 +45400,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sect3">
 <h4 id="_description_264">Description</h4>
 <div class="paragraph"><p>The contents of an attachment within the render area become undefined at the
-start of a subpass S if all of the following conditions are true:</p></div>
+start of a subpass <strong>S</strong> if all of the following conditions are true:</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -45460,21 +45410,22 @@ The attachment is used as a color, depth/stencil, or resolve attachment
 </li>
 <li>
 <p>
-There is a subpass S1 that uses or preserves the attachment, and a
-    subpass dependency from S1 to S.
+There is a subpass <strong>S<sub>1</sub></strong> that uses or preserves the attachment, and a
+    subpass dependency from <strong>S<sub>1</sub></strong> to <strong>S</strong>.
 </p>
 </li>
 <li>
 <p>
-The attachment is not used or preserved in subpass S.
+The attachment is not used or preserved in subpass <strong>S</strong>.
 </p>
 </li>
 </ul></div>
-<div class="paragraph"><p>Once the contents of an attachment become undefined in subpass S, they
+<div class="paragraph"><p>Once the contents of an attachment become undefined in subpass <strong>S</strong>, they
 remain undefined for subpasses in subpass dependency chains starting with
-subpass S until they are written again.
+subpass <strong>S</strong> until they are written again.
 However, they remain valid for subpasses in other subpass dependency chains
-starting with subpass S1 if those subpasses use or preserve the attachment.</p></div>
+starting with subpass <strong>S<sub>1</sub></strong> if those subpasses use or preserve the
+attachment.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -46467,12 +46418,11 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <h3 id="_vkaccessflagbits_3">VkAccessFlagBits(3)</h3>
 <div class="sect3">
 <h4 id="_name_270">Name</h4>
-<div class="paragraph"><p>VkAccessFlagBits - Bitmask specifying classes of memory access the will participate in a memory barrier dependency</p></div>
+<div class="paragraph"><p>VkAccessFlagBits - Bitmask specifying memory access types that will participate in a memory dependency</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_270">C Specification</h4>
-<div class="paragraph"><p>Bits which <span role="normative">can</span> be set in <code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>::<code>srcAccessMask</code> and
-<code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>::<code>dstAccessMask</code> include:</p></div>
+<div class="paragraph"><p>Access types that can be set in an access mask include:</p></div>
 <div class="listingblock">
 <a id="VkAccessFlagBits"></a>
 <div class="title"></div>
@@ -46504,11 +46454,6 @@ http://www.gnu.org/software/src-highlite -->
 <h4 id="_description_270">Description</h4>
 <div class="paragraph"><p>For more information, see:</p></div>
 <div class="ulist"><ul>
-<li>
-<p>
-The reference page for <code><a href="#VkMemoryBarrier">VkMemoryBarrier</a></code>, where this interface is defined.
-</p>
-</li>
 <li>
 <p>
 The See Also section for other reference pages using this type.
@@ -47729,7 +47674,7 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <h3 id="_vkdependencyflagbits_3">VkDependencyFlagBits(3)</h3>
 <div class="sect3">
 <h4 id="_name_288">Name</h4>
-<div class="paragraph"><p>VkDependencyFlagBits - Bitmask specifying dependencies between subpasses</p></div>
+<div class="paragraph"><p>VkDependencyFlagBits - Bitmask specifying how execution and memory dependencies are formed</p></div>
 </div>
 <div class="sect3">
 <h4 id="_c_specification_288">C Specification</h4>
@@ -47750,7 +47695,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-The reference page for <code><a href="#VkSubpassDependency">VkSubpassDependency</a></code>, where this interface is defined.
+The reference page for <code><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a></code>, where this interface is defined.
 </p>
 </li>
 <li>
@@ -50592,7 +50537,7 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code>: <span role="normative">must</span> only be used as a
     source image of a transfer command (see the definition of
-    <a href="#synchronization-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>).
+    <a href="#synchronization-pipeline-stages-transfer"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></a>).
     This layout is valid only for image subresources of images created with
     the <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> usage bit enabled.
 </p>
@@ -51506,11 +51451,14 @@ Fixes and changes should be made to the generator scripts,not directly.</p></div
 </div>
 <div class="sect3">
 <h4 id="_c_specification_313">C Specification</h4>
-<div class="paragraph"><p>Several of the event commands, <code>vkCmdPipelineBarrier</code>, and
-<code>VkSubpassDependency</code> depend on being able to specify where in the
-logical pipeline events <span role="normative">can</span> be signaled, or the source and destination of
-an execution dependency.
-These pipeline stages are specified using a bitmask:</p></div>
+<div class="paragraph"><p>Several of the <a href="#fundamentals-queueoperation-commandorder">synchronization commands</a> include pipeline stage parameters, restricting the
+<a href="#synchronization-dependencies-scopes">synchronization scopes</a> for that
+command to those stages.
+This allows fine grained control over the exact execution dependencies and
+accesses performed by action commands.
+Implementations <span role="normative">should</span> use these pipeline stages to avoid unnecessary
+stalls or cache flushing.</p></div>
+<div class="paragraph"><p>These pipeline stages are specified using a bitmask:</p></div>
 <div class="listingblock">
 <a id="VkPipelineStageFlagBits"></a>
 <div class="title"></div>
@@ -51544,7 +51492,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>: Stage of the pipeline where
+<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>: Stage of the pipeline where any
     commands are initially received by the queue.
 </p>
 </li>
@@ -51592,6 +51540,7 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>: Stage of the pipeline
     where early fragment tests (depth and stencil tests before fragment
     shading) are performed.
+    This stage also includes <a href="#renderpass-load-store-ops">subpass load     operations</a> for framebuffer attachments with a depth/stencil format.
 </p>
 </li>
 <li>
@@ -51599,6 +51548,7 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code>: Stage of the pipeline
     where late fragment tests (depth and stencil tests after fragment
     shading) are performed.
+    This stage also includes <a href="#renderpass-load-store-ops">subpass store     operations</a> for framebuffer attachments with a depth/stencil format.
 </p>
 </li>
 <li>
@@ -51606,23 +51556,16 @@ http://www.gnu.org/software/src-highlite -->
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code>: Stage of the
     pipeline after blending where the final color values are output from the
     pipeline.
-    This stage also includes resolve operations that occur at the end of a
-    subpass.
-    Note that this does not necessarily indicate that the values have been
-    committed to memory.
+    This stage also includes <a href="#renderpass-load-store-ops">subpass load and     store operations</a> and multisample resolve operations for framebuffer
+    attachments with a color format.
 </p>
 </li>
 <li>
 <p>
-<a id="synchronization-transfer"></a><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code>:
-    Execution of copy commands.
-    This includes the operations resulting from all transfer commands.
-    The set of transfer commands comprises <code>vkCmdCopyBuffer</code>,
-    <code>vkCmdCopyImage</code>, <code>vkCmdBlitImage</code>,
-    <code>vkCmdCopyBufferToImage</code>, <code>vkCmdCopyImageToBuffer</code>,
-    <code>vkCmdUpdateBuffer</code>, <code>vkCmdFillBuffer</code>,
-    <code>vkCmdClearColorImage</code>, <code>vkCmdClearDepthStencilImage</code>,
-    <code>vkCmdResolveImage</code>, and <code>vkCmdCopyQueryPoolResults</code>.
+<a id="synchronization-pipeline-stages-transfer"></a>
+    <code>VK_PIPELINE_STAGE_TRANSFER_BIT</code>: Execution of copy commands.
+    This includes the operations resulting from all <a href="#copies">copy     commands</a>, <a href="#clears">clear commands</a> (with the exception of
+    <code><a href="#vkCmdClearAttachments">vkCmdClearAttachments</a></code>), and <code><a href="#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a></code>.
 </p>
 </li>
 <li>
@@ -51634,25 +51577,90 @@ http://www.gnu.org/software/src-highlite -->
 <li>
 <p>
 <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>: Final stage in the pipeline
-    where commands complete execution.
+    where operations generated by all commands complete execution.
 </p>
 </li>
 <li>
 <p>
 <code>VK_PIPELINE_STAGE_HOST_BIT</code>: A pseudo-stage indicating execution on
     the host of reads/writes of device memory.
+    This stage is not invoked by any action commands.
 </p>
 </li>
 <li>
 <p>
 <code>VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT</code>: Execution of all graphics
     pipeline stages.
+    Equivalent to the logical or of:
+</p>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>
 </p>
 </li>
 <li>
 <p>
-<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>: Execution of all stages
-    supported on the queue.
+<code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code>
+</p>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>
+</p>
+</li>
+</ul></div>
+</li>
+<li>
+<p>
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>: Equivalent to the logical or
+    of every other pipeline stage flag that is supported on the queue it is
+    used with.
 </p>
 </li>
 </ul></div>
@@ -51663,25 +51671,23 @@ http://www.gnu.org/software/src-highlite -->
 </td>
 <td class="content">
 <div class="title">Note</div>
-<div class="paragraph"><p>The <code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> and
-<code>VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT</code> differ from
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> in that they correspond to all
-(or all graphics) stages, rather than to a specific stage at the end of the
-pipeline.
-An execution dependency with only <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>
-in <code>dstStageMask</code> will not delay subsequent commands, while including
-either of the other two bits will.
-Similarly, when defining a memory dependency, if the stage mask(s) refer to
-all stages, then the indicated access types from all stages will be made
-available and/or visible, but using only
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> would not make any accesses
-available and/or visible because this stage does not access memory.
-The <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> is useful for accomplishing
-memory barriers and layout transitions when the next accesses will be done
-in a different queue or by a presentation engine; in these cases subsequent
-commands in the same queue do not need to wait, but the barrier or
-transition <span role="normative">must</span> complete before semaphores associated with the batch
-signal.</p></div>
+<div class="paragraph"><p>An execution dependency with only <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>
+in the destination stage mask will only prevent that stage from executing in
+subsequently submitted commands.
+As this stage doesn&#8217;t perform any actual execution, this is not observable -
+in effect, it does not delay processing of subsequent commands.
+Similarly an execution dependency with only
+<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> in the source stage mask will
+effectively not wait for any prior commands to complete.</p></div>
+<div class="paragraph"><p>When defining a memory dependency, using only
+<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> or
+<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> would never make any accesses
+available and/or visible because these stages do not access memory.</p></div>
+<div class="paragraph"><p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> and
+<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> are useful for accomplishing layout
+transitions and queue ownership operations when the required execution
+dependency is satisfied by other means - for example, semaphore operations
+between queues.</p></div>
 </td>
 </tr></table>
 </div>
@@ -52706,59 +52712,31 @@ the buffer or image than <code>VK_SHARING_MODE_EXCLUSIVE</code>.</p></div>
 <code>VK_SHARING_MODE_EXCLUSIVE</code> <span role="normative">must</span> only be accessed by queues in the same
 queue family at any given time.
 In order for a different queue family to be able to interpret the memory
-contents of a range or image subresource, the application <span role="normative">must</span> transfer
-exclusive ownership of the range or image subresource between the source and
-destination queue families with the following sequence of operations:</p></div>
-<div class="olist arabic"><ol class="arabic">
-<li>
-<p>
-Release exclusive ownership from the source queue family to the
-    destination queue family.
-</p>
-</li>
-<li>
-<p>
-Use semaphores to ensure proper execution control for the ownership
-    transfer.
-</p>
-</li>
-<li>
-<p>
-Acquire exclusive ownership for the destination queue family from the
-    source queue family.
-</p>
-</li>
-</ol></div>
-<div class="paragraph"><p>To release exclusive ownership of a range of a buffer or image subresource
-of an image object, the application <span role="normative">must</span> execute a buffer or image memory
-barrier, respectively (see <code><a href="#VkBufferMemoryBarrier">VkBufferMemoryBarrier</a></code> and
-<code><a href="#VkImageMemoryBarrier">VkImageMemoryBarrier</a></code>) on a queue from the source queue family.
-The <code>srcQueueFamilyIndex</code> parameter of the barrier <span role="normative">must</span> be set to the
-source queue family index, and the <code>dstQueueFamilyIndex</code> parameter to
-the destination queue family index.</p></div>
-<div class="paragraph"><p>To acquire exclusive ownership, the application <span role="normative">must</span> execute the same
-buffer or image memory barrier (i.e. an identically defined instance of the
-<code><a href="#VkBufferMemoryBarrier">VkBufferMemoryBarrier</a></code> or <code><a href="#VkImageMemoryBarrier">VkImageMemoryBarrier</a></code> structure that was
-used for the exclusive ownership release) on a queue from the destination
-queue family.</p></div>
+contents of a range or image subresource, the application <span role="normative">must</span> perform a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a>.</p></div>
 <div class="paragraph"><p>Upon creation, resources using <code>VK_SHARING_MODE_EXCLUSIVE</code> are not owned
 by any queue family.
-A buffer or image memory barrier is not required to acquire ownership when
+A buffer or image memory barrier is not required to acquire <em>ownership</em> when
 no queue family owns the resource - it is implicitly acquired upon first use
-within a queue.
-However, images still require a <a href="#resources-image-layouts">layout transition</a> from <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
-<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code> before being used on the first queue.
-This layout transition <span role="normative">can</span> either be accomplished by an image memory
-barrier or by use in a render pass instance.</p></div>
-<div class="paragraph"><p>Once a queue family has used a range or image subresource of an
-<code>VK_SHARING_MODE_EXCLUSIVE</code> resource, its contents are undefined to
-other queue families unless ownership is transferred.
-The contents <span role="normative">may</span> also become undefined for other reasons, e.g. as a result
-of writes to an image subresource that aliases the same memory.
-A queue family <span role="normative">can</span> take ownership of a range or image subresource without
-an ownership transfer in the same way as for a resource that was just
-created, however doing so means any contents written by other queue families
-or via incompatible aliases are undefined.</p></div>
+within a queue.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p>Images still require a <a href="#resources-image-layouts">layout transition</a> from
+<code>VK_IMAGE_LAYOUT_UNDEFINED</code> or <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code>
+before being used on the first queue.</p></div>
+</td>
+</tr></table>
+</div>
+<div class="paragraph"><p>A queue family <span role="normative">can</span> take ownership of an image subresource or buffer range
+of a resource created with <code>VK_SHARING_MODE_EXCLUSIVE</code>, without an
+ownership transfer, in the same way as for a resource that was just created;
+however, taking ownership in this way has the effect that the contents of
+the image subresource or buffer range are undefined.</p></div>
 <div class="paragraph"><p>Ranges of buffers and image subresources of image objects created using
 <code>VK_SHARING_MODE_CONCURRENT</code> <span role="normative">must</span> only be accessed by queues from the
 queue families specified through the <code>queueFamilyIndexCount</code> and
@@ -56360,7 +56338,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-style: italic"><span style="color: #9A1900">// Version of this file</span></span>
-<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">34</span>
+<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">35</span>
 </tt></pre></div></div>
 </div>
 <div class="sect3">
@@ -56589,9 +56567,9 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.34<br>
+Version 1.0.35<br>
 Last updated
- 2016-11-18 02:38:58 PST
+ 2016-11-26 02:39:37 PST
 </div>
 </div>
 </body>

@@ -520,7 +520,7 @@ vkCmdPipelineBarrier(3) Manual Page
 <h2>NAME</h2>
 <div class="sectionbody">
 <p>vkCmdPipelineBarrier -
-   Insert a set of execution and memory barriers
+   Insert a memory dependency
 </p>
 </div>
 </div>
@@ -559,29 +559,46 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcStageMask</code> is a bitmask of <code><a href="VkPipelineStageFlagBits.html">VkPipelineStageFlagBits</a></code>
-    specifying a set of source pipeline stages (see
-    <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>).
+<code>srcStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">source stage mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>dstStageMask</code> is a bitmask specifying a set of destination pipeline
-    stages.
+<code>dstStageMask</code> defines a <a href="#synchronization-pipeline-stages-masks">destination stage mask</a>.
 </p>
-<div class="paragraph"><p>The pipeline barrier specifies an execution dependency such that all work
-performed by the set of pipeline stages included in <code>srcStageMask</code> of
-the first set of commands completes before any work performed by the set of
-pipeline stages included in <code>dstStageMask</code> of the second set of commands
-begins.</p></div>
 </li>
 <li>
 <p>
 <code>dependencyFlags</code> is a bitmask of <code><a href="VkDependencyFlagBits.html">VkDependencyFlagBits</a></code>.
-    The execution dependency is by-region if the mask includes
-    <code>VK_DEPENDENCY_BY_REGION_BIT</code>.
+    The bits that <span role="normative">can</span> be included in <code>dependencyFlags</code> are:
+</p>
+<div class="openblock">
+<div class="content">
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.7
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">typedef</span></span> <span style="font-weight: bold"><span style="color: #0000FF">enum</span></span> VkDependencyFlagBits <span style="color: #FF0000">{</span>
+    VK_DEPENDENCY_BY_REGION_BIT <span style="color: #990000">=</span> <span style="color: #993399">0x00000001</span><span style="color: #990000">,</span>
+<span style="color: #FF0000">}</span> VkDependencyFlagBits<span style="color: #990000">;</span></tt></pre></div></div>
+</div></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<code>VK_DEPENDENCY_BY_REGION_BIT</code> signifies that dependencies will be
+     <a href="#synchronization-framebuffer-regions">framebuffer-local</a>.
 </p>
 </li>
+</ul></div>
+</li>
+</ul></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description">Description</h2>
+<div class="sectionbody">
+<div class="ulist"><ul>
 <li>
 <p>
 <code>memoryBarrierCount</code> is the length of the <code>pMemoryBarriers</code>
@@ -619,24 +636,55 @@ begins.</p></div>
 </p>
 </li>
 </ul></div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_description">Description</h2>
-<div class="sectionbody">
-<div class="paragraph"><p>Each element of the <code>pMemoryBarriers</code>, <code>pBufferMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> arrays specifies two halves of a memory
-dependency, as defined above.
-Specifics of each type of memory barrier and the memory access types are
-defined further in <a href="#synchronization-memory-barriers">Memory Barriers</a>.</p></div>
-<div class="paragraph"><p>If <code>vkCmdPipelineBarrier</code> is called outside a render pass instance, then
-the first set of commands is all prior commands submitted to the queue and
-recorded in the command buffer and the second set of commands is all
-subsequent commands recorded in the command buffer and submitted to the
-queue.
-If <code>vkCmdPipelineBarrier</code> is called inside a render pass instance, then
-the first set of commands is all prior commands in the same subpass and the
-second set of commands is all subsequent commands in the same subpass.</p></div>
+<div class="paragraph"><p>When <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> is submitted to a queue, it defines a memory
+dependency between commands that were submitted before it, and those
+submitted after it.</p></div>
+<div class="paragraph"><p>If <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> was recorded outside a render pass instance,
+the first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command submitted to the same queue before it, including
+those in the same command buffer and batch.
+If <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> was recorded inside a render pass instance,
+the first synchronization scope includes only commands submitted before it
+within the same subpass.
+In either case, the first synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>If <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> was recorded outside a render pass instance,
+the second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes every command submitted to the same queue after it, including those
+in the same command buffer and batch.
+If <code><a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a></code> was recorded inside a render pass instance,
+the second synchronization scope includes only commands submitted after it
+within the same subpass.
+In either case, the second synchronization scope is limited to operations on
+the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+Within that, the first access scope only includes the first access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the first access scope includes no
+accesses.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+Within that, the second access scope only includes the second access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the second access scope includes
+no accesses.</p></div>
+<div class="paragraph"><p>If <code>dependencyFlags</code> includes <code>VK_DEPENDENCY_BY_REGION_BIT</code>, then
+any dependency between <a href="#synchronization-framebuffer-regions">framebuffer-space</a> pipeline stages is
+<a href="#synchronization-framebuffer-regions">framebuffer-local</a> - otherwise it is
+<a href="#synchronization-framebuffer-regions">framebuffer-global</a>.</p></div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -898,7 +946,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-11-18 02:38:58 PST
+ 2016-11-26 02:39:37 PST
 </div>
 </div>
 </body>

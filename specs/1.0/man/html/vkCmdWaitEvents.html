@@ -531,6 +531,7 @@ vkCmdWaitEvents(3) Manual Page
 <div class="paragraph"><p>To wait for one or more events to enter the signaled state on a device,
 call:</p></div>
 <div class="listingblock">
+<a id="synchronization-events-waiting-device"></a>
 <div class="content"><!-- Generator: GNU source-highlight 3.1.7
 by Lorenzo Bettini
 http://www.lorenzobettini.it
@@ -571,34 +572,48 @@ http://www.gnu.org/software/src-highlite -->
 </li>
 <li>
 <p>
-<code>srcStageMask</code> (see <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>) is the
-    bitwise OR of the pipeline stages used to signal the event object
-    handles in <code>pEvents</code>.
+<code>srcStageMask</code> is the <a href="#synchronization-pipeline-stages">source     stage mask</a>
 </p>
 </li>
 <li>
 <p>
-<code>dstStageMask</code> is the pipeline stages at which the wait will occur.
+<code>dstStageMask</code> is the <a href="#synchronization-pipeline-stages">destination     stage mask</a>.
 </p>
 </li>
 <li>
 <p>
-<code>pMemoryBarriers</code> is a pointer to an array of
-    <code>memoryBarrierCount</code> <code>VkMemoryBarrier</code> structures.
+<code>memoryBarrierCount</code> is the length of the <code>pMemoryBarriers</code>
+    array.
+</p>
+</li>
+<li>
+<p>
+<code>pMemoryBarriers</code> is a pointer to an array of <code><a href="VkMemoryBarrier.html">VkMemoryBarrier</a></code>
+    structures.
+</p>
+</li>
+<li>
+<p>
+<code>bufferMemoryBarrierCount</code> is the length of the
+    <code>pBufferMemoryBarriers</code> array.
 </p>
 </li>
 <li>
 <p>
 <code>pBufferMemoryBarriers</code> is a pointer to an array of
-    <code>bufferMemoryBarrierCount</code> <code>VkBufferMemoryBarrier</code> structures.
+    <code><a href="VkBufferMemoryBarrier.html">VkBufferMemoryBarrier</a></code> structures.
+</p>
+</li>
+<li>
+<p>
+<code>imageMemoryBarrierCount</code> is the length of the
+    <code>pImageMemoryBarriers</code> array.
 </p>
 </li>
 <li>
 <p>
 <code>pImageMemoryBarriers</code> is a pointer to an array of
-    <code>imageMemoryBarrierCount</code> <code>VkImageMemoryBarrier</code> structures.
-    See <a href="#synchronization-memory-barriers">[synchronization-memory-barriers]</a> for more details about memory
-    barriers.
+    <code><a href="VkImageMemoryBarrier.html">VkImageMemoryBarrier</a></code> structures.
 </p>
 </li>
 </ul></div>
@@ -607,41 +622,59 @@ http://www.gnu.org/software/src-highlite -->
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="paragraph"><p><code>vkCmdWaitEvents</code> waits for events set by either <code>vkSetEvent</code> or
-<code>vkCmdSetEvent</code> to become signaled.
-Logically, it has three phases:</p></div>
-<div class="olist arabic"><ol class="arabic">
-<li>
-<p>
-Wait at the pipeline stages specified by <code>dstStageMask</code> (see
-    <a href="#synchronization-pipeline-stage-flags">[synchronization-pipeline-stage-flags]</a>) until the <code>eventCount</code>
-    event objects specified by <code>pEvents</code> become signaled.
-    Implementations <span role="normative">may</span> wait for each event object to become signaled in
-    sequence (starting with the first event object in <code>pEvents</code>, and
-    ending with the last), or wait for all of the event objects to become
-    signaled at the same time.
-</p>
-</li>
-<li>
-<p>
-Execute the memory barriers specified by <code>pMemoryBarriers</code>,
-    <code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> (see
-    <a href="#synchronization-memory-barriers">[synchronization-memory-barriers]</a>).
-</p>
-</li>
-<li>
-<p>
-Resume execution of pipeline stages specified by <code>dstStageMask</code>
-</p>
-</li>
-</ol></div>
-<div class="paragraph"><p>Implementations <span role="normative">may</span> not execute commands in a pipelined manner, so
-<code>vkCmdWaitEvents</code> <span role="normative">may</span> not observe the results of a subsequent
-<code>vkCmdSetEvent</code> or <code>vkCmdResetEvent</code> command, even if the stages in
-<code>dstStageMask</code> occur after the stages in <code>srcStageMask</code>.</p></div>
-<div class="paragraph"><p>Commands that update the state of events in different pipeline stages <span role="normative">may</span>
-execute out of order, unless the ordering is enforced by execution
-dependencies.</p></div>
+<div class="paragraph"><p>When <code>vkCmdWaitEvents</code> is submitted to a queue, it defines a memory
+dependency between prior event signal operations, and subsequent commands.</p></div>
+<div class="paragraph"><p>The first synchronization scope only includes event signal operations that
+operate on members of <code>pEvents</code>, and the operations that happened-before
+the event signal operations.
+Event signal operations performed by <code><a href="vkCmdSetEvent.html">vkCmdSetEvent</a></code> that were
+previously submitted to the same queue are included in the first
+synchronization scope, if the <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline stage in their <code>stageMask</code> parameter is
+<a href="#synchronization-pipeline-stages-order">logically earlier</a> than or equal
+to the <a href="#synchronization-pipeline-stages-order">logically latest</a> pipeline
+stage in <code>srcStageMask</code>.
+Event signal operations performed by <code><a href="vkSetEvent.html">vkSetEvent</a></code> are only included in
+the first synchronization scope if <code>VK_PIPELINE_STAGE_HOST_BIT</code> is
+included in <code>srcStageMask</code>.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes commands subsequently submitted to the same queue, including those
+in the same command buffer and batch.
+The second synchronization scope is limited to operations on the pipeline
+stages determined by the <a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified by <code>dstStageMask</code>.</p></div>
+<div class="paragraph"><p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">source stage mask</a> specified by
+<code>srcStageMask</code>.
+Within that, the first access scope only includes the first access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the first access scope includes no
+accesses.</p></div>
+<div class="paragraph"><p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+limited to access in the pipeline stages determined by the
+<a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
+by <code>dstStageMask</code>.
+Within that, the second access scope only includes the second access scopes
+defined by elements of the <code>pMemoryBarriers</code>,
+<code>pBufferMemoryBarriers</code> and <code>pImageMemoryBarriers</code> arrays, which
+each define a set of <a href="#synchronization-memory-barriers">memory barriers</a>.
+If no memory barriers are specified, then the second access scope includes
+no accesses.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph"><p><code><a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a></code> is used with <code><a href="vkCmdSetEvent.html">vkCmdSetEvent</a></code> to define a memory
+dependency between two sets of action commands, roughly in the same way as
+pipeline barriers, but split into two commands such that work between the
+two <span role="normative">may</span> execute unhindered.</p></div>
+</td>
+</tr></table>
+</div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -650,8 +683,10 @@ dependencies.</p></div>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph"><p>Applications <span role="normative">should</span> be careful to avoid race conditions when using events.
-For example, an event <span role="normative">should</span> only be reset if no <code>vkCmdWaitEvents</code>
-command is executing that waits upon that event.</p></div>
+There is no direct ordering guarantee between a <code><a href="vkCmdResetEvent.html">vkCmdResetEvent</a></code>
+command and a <code><a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a></code> command submitted after it, so some
+other execution dependency <span role="normative">must</span> be included between these commands (e.g. a
+semaphore).</p></div>
 </td>
 </tr></table>
 </div>
@@ -852,7 +887,7 @@ Attribution 4.0 International License</a>.</p></div>
 <div id="footer">
 <div id="footer-text">
 Last updated
- 2016-11-18 02:38:58 PST
+ 2016-11-26 02:39:37 PST
 </div>
 </div>
 </body>
