@@ -7,7 +7,7 @@ $static_breadcrumb = array(
 include_once("../../assets/static_pages/khr_page_top.php");
 ?>
 
-<h1 class="pagetitle">Khronos Vulkan&trade; Registry</h1>
+<h1 class="pagetitle">Khronos Vulkan&reg; Registry</h1>
 <div id="mainformat">
 
 <h1 style="text-align:center"> Khronos Vulkan&trade; Registry </h1>

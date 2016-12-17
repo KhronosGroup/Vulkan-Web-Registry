@@ -596,9 +596,9 @@ asciidoc.install();
 <body class="book">
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
-<span id="revnumber">version 1.0.37,</span>
-<span id="revdate">Sun, 11 Dec 2016 05:05:43 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: 8f014fa579ba050d9c5a3df2bdbca04107846c45</span>
+<span id="revnumber">version 1.0.38,</span>
+<span id="revdate">Sat, 17 Dec 2016 01:03:13 +0000</span>
+<br><span id="revremark">from git branch: 1.0 commit: 70b659d28d01a75209d27afbfd764d1ef0d1dcb3</span>
 </div>
 <div id="content">
 <div class="sect1">
@@ -11435,6 +11435,11 @@ event unsignal operation occurs, and no execution dependency is generated.</p></
 <div class="ulist"><ul>
 <li>
 <p>
+<code>stageMask</code> <span role="normative">must</span> not include <code>VK_PIPELINE_STAGE_HOST_BIT</code>
+</p>
+</li>
+<li>
+<p>
 If the <a href="#features-features-geometryShader">geometry shaders</a> feature is
     not enabled, <code>stageMask</code> <span role="normative">must</span> not contain
     <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>
@@ -12621,6 +12626,11 @@ signal operation occurs, and no execution dependency is generated.</p></div>
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist"><ul>
+<li>
+<p>
+<code>stageMask</code> <span role="normative">must</span> not include <code>VK_PIPELINE_STAGE_HOST_BIT</code>
+</p>
+</li>
 <li>
 <p>
 If the <a href="#features-features-geometryShader">geometry shaders</a> feature is
@@ -24660,13 +24670,37 @@ only define execution dependencies.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
-<code>fence</code> <span role="normative">must</span> be unsignaled
+If <code>fence</code> is not <code><a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a></code>, <code>fence</code> <span role="normative">must</span> be
+    unsignaled
 </p>
 </li>
 <li>
 <p>
-<code>fence</code> <span role="normative">must</span> not be associated with any other queue command that
-    has not yet completed execution on that queue
+If <code>fence</code> is not <code><a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a></code>, <code>fence</code> <span role="normative">must</span> not be
+    associated with any other queue command that has not yet completed
+    execution on that queue
+</p>
+</li>
+<li>
+<p>
+Any given element of the <code>pSignalSemaphores</code> member of any element
+    of <code>pBindInfo</code> <span role="normative">must</span> be unsignaled when the semaphore signal
+    operation it defines is executed on the device
+</p>
+</li>
+<li>
+<p>
+When a semaphore unsignal operation defined by any element of the
+    <code>pWaitSemaphores</code> member of any element of <code>pBindInfo</code> executes
+    on <code>queue</code>, no other queue <span role="normative">must</span> be waiting on the same semaphore.
+</p>
+</li>
+<li>
+<p>
+All elements of the <code>pWaitSemaphores</code> member of all elements of
+    <code>pBindInfo</code> <span role="normative">must</span> be semaphores that are signaled, or have
+    <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
+    previously submitted for execution.
 </p>
 </li>
 </ul></div>
@@ -24934,6 +24968,28 @@ Any stage flag included in any element of the <code>pWaitDstStageMask</code>
     member of any element of <code>pSubmits</code> <span role="normative">must</span> be a pipeline stage
     supported by one of the capabilities of <code>queue</code>, as specified in the
     <a href="#synchronization-pipeline-stages-supported">table of supported pipeline     stages</a>.
+</p>
+</li>
+<li>
+<p>
+Any given element of the <code>pSignalSemaphores</code> member of any element
+    of <code>pSubmits</code> <span role="normative">must</span> be unsignaled when the semaphore signal
+    operation it defines is executed on the device
+</p>
+</li>
+<li>
+<p>
+When a semaphore unsignal operation defined by any element of the
+    <code>pWaitSemaphores</code> member of any element of <code>pSubmits</code> executes
+    on <code>queue</code>, no other queue <span role="normative">must</span> be waiting on the same semaphore.
+</p>
+</li>
+<li>
+<p>
+All elements of the <code>pWaitSemaphores</code> member of all elements of
+    <code>pSubmits</code> <span role="normative">must</span> be semaphores that are signaled, or have
+    <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
+    previously submitted for execution.
 </p>
 </li>
 </ul></div>
@@ -28821,8 +28877,9 @@ destination image.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
-<code>bufferOffset</code> <span role="normative">must</span> be a multiple of the calling command&#8217;s
-    <code>VkImage</code> parameter&#8217;s format&#8217;s element size
+If the the calling command&#8217;s <code>VkImage</code> parameter&#8217;s format is not a
+    depth/stencil format, then <code>bufferOffset</code> <span role="normative">must</span> be a multiple of the
+    format&#8217;s element size
 </p>
 </li>
 <li>
@@ -45244,12 +45301,6 @@ http://www.gnu.org/software/src-highlite -->
 <div class="ulist"><ul>
 <li>
 <p>
-Any given element of <code>pSignalSemaphores</code> <span role="normative">must</span> currently be
-    unsignaled
-</p>
-</li>
-<li>
-<p>
 Any given element of <code>pCommandBuffers</code> <span role="normative">must</span> either have been
     recorded with the <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>, or
     not currently be executing on the device
@@ -45309,13 +45360,6 @@ Any given element of <code>pCommandBuffers</code> <span role="normative">must</s
 </li>
 <li>
 <p>
-Any given element of <code>VkSemaphore</code> in <code>pWaitSemaphores</code> <span role="normative">must</span>
-    refer to a prior signal of that <code>VkSemaphore</code> that will not be
-    consumed by any other wait on that semaphore
-</p>
-</li>
-<li>
-<p>
 If the <a href="#features-features-geometryShader">geometry shaders</a> feature is
     not enabled, any given element of <code>pWaitDstStageMask</code> <span role="normative">must</span> not
     contain <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>
@@ -45328,6 +45372,12 @@ If the <a href="#features-features-tessellationShader">tessellation shaders</a>
     <span role="normative">must</span> not contain
     <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code> or
     <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>
+</p>
+</li>
+<li>
+<p>
+Any given element of <code>pWaitDstStageMask</code> <span role="normative">must</span> not include
+    <code>VK_PIPELINE_STAGE_HOST_BIT</code>.
 </p>
 </li>
 </ul></div>
@@ -45507,6 +45557,18 @@ render pass.</p></div>
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist"><ul>
+<li>
+<p>
+If <code>srcSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>, <code>srcStageMask</code>
+    <span role="normative">must</span> not include <code>VK_PIPELINE_STAGE_HOST_BIT</code>
+</p>
+</li>
+<li>
+<p>
+If <code>dstSubpass</code> is not <code>VK_SUBPASS_EXTERNAL</code>, <code>dstStageMask</code>
+    <span role="normative">must</span> not include <code>VK_PIPELINE_STAGE_HOST_BIT</code>
+</p>
+</li>
 <li>
 <p>
 If the <a href="#features-features-geometryShader">geometry shaders</a> feature is
@@ -51973,7 +52035,7 @@ http://www.gnu.org/software/src-highlite -->
 <p>
 <code>VK_PIPELINE_STAGE_HOST_BIT</code>: A pseudo-stage indicating execution on
     the host of reads/writes of device memory.
-    This stage is not invoked by any action commands.
+    This stage is not invoked by any commands recorded in a command buffer.
 </p>
 </li>
 <li>
@@ -56727,7 +56789,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-style: italic"><span style="color: #9A1900">// Version of this file</span></span>
-<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">37</span>
+<span style="font-weight: bold"><span style="color: #000080">#define</span></span> VK_HEADER_VERSION <span style="color: #993399">38</span>
 </tt></pre></div></div>
 </div>
 <div class="sect3">
@@ -56956,9 +57018,9 @@ Fixes and changes should be made to the Specification,not directly.</p></div>
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.37<br>
+Version 1.0.38<br>
 Last updated
- 2016-12-10 21:05:43 PST
+ 2016-12-16 17:03:13 PST
 </div>
 </div>
 </body>
