@@ -137,24 +137,24 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Vulkan-Docs</a> repository contains the Asciidoc source for the Vulkan
     core API specification, and for registered Vulkan API extensions. </p>
 
-<p> As of version 1.0.25 of the Specification (August 26, 2016), extensions
-    are all documented in the <a
+<p> All published extension specifications are included in the <a
     href="https://github.com/KhronosGroup/Vulkan-Docs/tree/1.0">1.0</a> git
     branch. Specifications and reference pages can be built with or without
     different combinations of extensions by appropriate invocation of the
-    Makefile. This is a major difference from earlier versions of the
-    Specification, where each extension existed on its own git branch. The
-    branches still exist for historical purposes but are increasingly
-    out of date. </p>
+    Makefile. This is a major difference from versions of the Specification
+    prior to 1.0.24, where each extension existed on its own git branch. The
+    branches still exist for historical purposes but are increasingly out of
+    date. </p>
 
 <p> Registered and published extensions are listed below, grouped by
     Author/Vendor ID. The links are into the corresponding extension
     appendices of the <a href="specs/1.0-extensions/html/vkspec.html">
     Vulkan 1.0 Core API + all published Extensions</a> Specification. This
-    list is out of date as of the 1.0.39 Specification update - additional
-    extensions are present in the specification not linked from the manually
-    generated index here. See the Specification appendix C for more
-    extensions. </p>
+    list is driven by the <tt>supported</tt> tags in
+    <tt>src/spec/vk.xml</tt> in Vulkan-Docs, and may contain anomalies in
+    the form of links to extensions marked as supported by a vendor, but
+    whose specifications have not yet been merged into the Vulkan-Docs
+    repository. </a>
 
 <!-- Generated from /src/spec/indexExt.py in the spec repository -->
 <?php include_once("extensions.php"); ?>
