@@ -34,7 +34,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#apispecs"/> <b>API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
     <li> <a href="#styleguide"/> <b>Vulkan Procedures and Conventions</b>
-         </a> (formerly the ``API Style Guide'') </li>
+         </a> (formerly the &ldquo;API Style Guide&rdquo;) </li>
     <li> <a href="#refguide"/> <b>API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>API Reference Pages</b> </a> </li>
     <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
@@ -85,7 +85,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <h2> <a name="styleguide"></a> <b>Vulkan Procedures and Conventions</b> </h2>
 
 <p> The <a href="specs/1.0/styleguide.html">Vulkan Documentation: Procedures
-    and Conventions</a> document (formerly the ``API Style Guide'') defines
+    and Conventions</a> document (formerly the &ldquo;API Style Guide&rdquo;) defines
     mandatory and recommended conventions and best practices used in
     creating and modifying the API Specification and extensions . Authors
     wishing to write Vulkan extension specifications or contribute to
