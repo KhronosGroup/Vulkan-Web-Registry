@@ -159,13 +159,21 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <!-- Generated from /src/spec/indexExt.py in the spec repository -->
 <?php include_once("extensions.php"); ?>
 
-<p> The Vulkan-Docs repository also contains the <a
-    href="specs/misc/GL_KHR_vulkan_glsl.txt">GL_KHR_vulkan_glsl</a>
-    extension to the OpenGL Shading Language. The purpose of this extension
-    is to be used with an offline GLSL compiler generating SPIR-V code for
-    use with Vulkan; therefore it does not appear in the OpenGL Extension
-    Registry at this time. The master copy of the extension specification is
-    located under <b>doc/specs/misc/</b> in the Vulkan-Docs repository.
+<p> The Vulkan-Docs repository also contains several extensions
+    extensions to the OpenGL Shading Language: </p>
+
+    <ul>
+    <li> <a href="specs/misc/GL_KHR_vulkan_glsl.txt">GL_KHR_vulkan_glsl</a> </li>
+    <li> <a href="specs/misc/GL_EXT_device_group.txt">GL_EXT_device_group</a> </li>
+    <li> <a href="specs/misc/GL_EXT_multiview.txt">GL_EXT_multiview</a> </li>
+    <li> <a href="specs/misc/GL_NVX_multiview_per_view_attributes.txt">GL_NVX_multiview_per_view_attributes</a> </li>
+    </ul>
+
+<p> The purpose of these extensions is to be used with an offline GLSL
+    compiler generating SPIR-V code for use with Vulkan; therefore they do
+    not appear in the OpenGL Extension Registry at this time. The master
+    copy of the extension specifications are located under
+    <b>doc/specs/misc/</b> in the Vulkan-Docs repository. </p>
 
 <p> Currently, Vulkan-Docs also contains the header files, API Registry, and
     reference page sources. We hope to soon refactor the repositories to
