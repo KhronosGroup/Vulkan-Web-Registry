@@ -159,8 +159,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <!-- Generated from /src/spec/indexExt.py in the spec repository -->
 <?php include_once("extensions.php"); ?>
 
-<p> The Vulkan-Docs repository also contains several extensions
-    extensions to the OpenGL Shading Language: </p>
+<p> The Vulkan-Docs repository also contains several extensions to the
+    OpenGL Shading Language: </p>
 
     <ul>
     <li> <a href="specs/misc/GL_KHR_vulkan_glsl.txt">GL_KHR_vulkan_glsl</a> </li>
