@@ -534,6 +534,17 @@ operation</a> section of <a href="#synchronization">the synchronization chapter<
 Other than these implicit ordering guarantees and any <a href="#synchronization">explicit synchronization primitives</a>, these batches <strong class="purple">may</strong> overlap or
 otherwise execute out of order.</p>
 </div>
+<div class="paragraph">
+<p>If any command buffer submitted to this queue is in the
+<a href="#commandbuffers-lifecycle">executable state</a>, it is moved to the
+<a href="#commandbuffers-lifecycle">pending state</a>.
+Once execution of all submissions of a command buffer complete, it moves
+from the <a href="#commandbuffers-lifecycle">pending state</a>, back to the
+<a href="#commandbuffers-lifecycle">executable state</a>.
+If a command buffer was recorded with the
+<code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code> flag, it instead moves
+back to the <a href="#commandbuffers-lifecycle">invalid state</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -553,7 +564,8 @@ execution on that queue</p>
 <a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a> that have been recorded into any of the command
 buffer elements of the <code>pCommandBuffers</code> member of any element of
 <code>pSubmits</code>, <strong class="purple">must</strong> not reference any <a href="VkEvent.html">VkEvent</a> that is referenced
-by any of those commands that is pending execution on another queue.</p>
+by any of those commands in a command buffer that has been submitted to
+another queue and is still in the <em>pending state</em>.</p>
 </li>
 <li>
 <p>Any stage flag included in any element of the <code>pWaitDstStageMask</code>
@@ -577,6 +589,34 @@ on <code>queue</code>, no other queue <strong class="purple">must</strong> be wa
 <code>pSubmits</code> <strong class="purple">must</strong> be semaphores that are signaled, or have
 <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
 previously submitted for execution.</p>
+</li>
+<li>
+<p>Any given element of the <code>pCommandBuffers</code> member of any element of
+<code>pSubmits</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">pending or
+executable state</a>.</p>
+</li>
+<li>
+<p>If any given element of the <code>pCommandBuffers</code> member of any element
+of <code>pSubmits</code> was not recorded with the
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>, it <strong class="purple">must</strong> not be in
+the <a href="#commandbuffers-lifecycle">pending state</a>.</p>
+</li>
+<li>
+<p>Any <a href="#commandbuffers-secondary">secondary command buffers recorded</a>
+into any given element of the <code>pCommandBuffers</code> member of any
+element of <code>pSubmits</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">pending or executable state</a>.</p>
+</li>
+<li>
+<p>If any <a href="#commandbuffers-secondary">secondary command buffers recorded</a>
+into any given element of the <code>pCommandBuffers</code> member of any
+element of <code>pSubmits</code> was not recorded with the
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>, it <strong class="purple">must</strong> not be in
+the <a href="#commandbuffers-lifecycle">pending state</a>.</p>
+</li>
+<li>
+<p>Any given element of the <code>pCommandBuffers</code> member of any element of
+<code>pSubmits</code> <strong class="purple">must</strong> have been allocated from a <code>VkCommandPool</code> that
+was created for the same queue family <code>queue</code> belongs to.</p>
 </li>
 </ul>
 </div>
@@ -726,8 +766,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.42<br>
-Last updated 2017-02-26 23:03:01 PST
+Version 1.0.43<br>
+Last updated 2017-03-10 17:48:17 PST
 </div>
 </div>
 

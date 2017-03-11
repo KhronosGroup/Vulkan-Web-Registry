@@ -24,6 +24,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_discard_rectangles"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
@@ -36,6 +37,8 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_ballot"> VK_AMD_shader_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_trinary_minmax"> VK_AMD_shader_trinary_minmax </a> </li>
+    <li> <b>  GOOGLE Extensions (Google, Inc.)  </b> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_GOOGLE_display_timing"> VK_GOOGLE_display_timing </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_IMG_format_pvrtc"> VK_IMG_format_pvrtc </a> </li>
