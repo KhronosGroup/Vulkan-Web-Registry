@@ -5,12 +5,14 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_display"> VK_KHR_display </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_display_swapchain"> VK_KHR_display_swapchain </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_physical_device_properties2"> VK_KHR_get_physical_device_properties2 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_surface_capabilities2"> VK_KHR_get_surface_capabilities2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_incremental_present"> VK_KHR_incremental_present </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_maintenance1"> VK_KHR_maintenance1 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_mir_surface"> VK_KHR_mir_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> </li>
