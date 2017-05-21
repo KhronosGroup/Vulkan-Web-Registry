@@ -71,6 +71,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <li> <b>Vulkan 1.0 Core API + all published Extensions</b>
      <a href="specs/1.0-extensions/html/vkspec.html">(HTML)</a>
      <a href="specs/1.0-extensions/pdf/vkspec.pdf">(PDF)</a> </li>
+<li> <a href="specs/1.0-extensions/validation/validusage.json">JSON file
+     containing Valid Usage ID (VUID) tags</a> (and corresponding valid
+     usage statements) extracted from the specification sources. This is
+     used only by the validation layer, at present.
 </ul>
 
 
