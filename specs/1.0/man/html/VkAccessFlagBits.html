@@ -451,7 +451,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_c_specification">C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Access types that can be set in an access mask include:</p>
+<p>Memory in Vulkan <strong class="purple">can</strong> be accessed from within shader invocations and via
+some fixed-function stages of the pipeline.
+The <em>access type</em> is a function of the <a href="../../html/vkspec.html#descriptorsets">descriptor type</a>
+used, or how a fixed-function stage accesses memory.
+Each access type corresponds to a bit flag in <a href="VkAccessFlagBits.html">VkAccessFlagBits</a>.</p>
+</div>
+<div id="synchronization-access-masks" class="paragraph">
+<p>Some synchronization commands take sets of access types as parameters to
+define the <a href="../../html/vkspec.html#synchronization-dependencies-access-scopes">access scopes</a> of
+a memory dependency.
+If a synchronization command includes a source access mask, its first
+<a href="../../html/vkspec.html#synchronization-dependencies-access-scopes">access scope</a> only includes
+accesses via the access types specified in that mask.
+Similarly, if a synchronization command includes a destination access mask,
+its second <a href="../../html/vkspec.html#synchronization-dependencies-access-scopes">access scope</a> only
+includes accesses via the access types specified in that mask.</p>
+</div>
+<div class="paragraph">
+<p>Access types that <strong class="purple">can</strong> be set in an access mask include:</p>
 </div>
 <div id="VkAccessFlagBits" class="listingblock">
 <div class="content">
@@ -481,18 +499,247 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>For more information, see:</p>
-</div>
 <div class="ulist">
 <ul>
 <li>
-<p>The See Also section for other reference pages using this type.</p>
+<p><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> specifies read access to an
+indirect command structure read as part of an indirect drawing or
+dispatch command.</p>
 </li>
 <li>
-<p>The Vulkan Specification.</p>
+<p><code>VK_ACCESS_INDEX_READ_BIT</code> specifies read access to an index buffer
+as part of an indexed drawing command, bound by
+<a href="vkCmdBindIndexBuffer.html">vkCmdBindIndexBuffer</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code> specifies read access to a
+vertex buffer as part of a drawing command, bound by
+<a href="vkCmdBindVertexBuffers.html">vkCmdBindVertexBuffers</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_UNIFORM_READ_BIT</code> specifies read access to a
+<a href="../../html/vkspec.html#descriptorsets-uniformbuffer">uniform buffer</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code> specifies read access to an
+<a href="../../html/vkspec.html#renderpass">input attachment</a> within a renderpass during fragment
+shading.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_SHADER_READ_BIT</code> specifies read access to a
+<a href="../../html/vkspec.html#descriptorsets-storagebuffer">storage buffer</a>,
+<a href="../../html/vkspec.html#descriptorsets-uniformtexelbuffer">uniform texel buffer</a>,
+<a href="../../html/vkspec.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>,
+<a href="../../html/vkspec.html#descriptorsets-sampledimage">sampled image</a>, or
+<a href="../../html/vkspec.html#descriptorsets-storageimage">storage image</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_SHADER_WRITE_BIT</code> specifies write access to a
+<a href="../../html/vkspec.html#descriptorsets-storagebuffer">storage buffer</a>,
+<a href="../../html/vkspec.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
+<a href="../../html/vkspec.html#descriptorsets-storageimage">storage image</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code> specifies read access to a
+<a href="../../html/vkspec.html#renderpass">color attachment</a>, such as via <a href="../../html/vkspec.html#framebuffer-blending">blending</a>, <a href="../../html/vkspec.html#framebuffer-logicop">logic operations</a>, or via certain
+<a href="../../html/vkspec.html#renderpass-load-store-ops">subpass load operations</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> specifies write access to a
+<a href="../../html/vkspec.html#renderpass">color or resolve attachment</a> during a <a href="../../html/vkspec.html#renderpass">render pass</a> or via certain <a href="../../html/vkspec.html#renderpass-load-store-ops">subpass load
+and store operations</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read access
+to a <a href="../../html/vkspec.html#renderpass">depth/stencil attachment</a>, via <a href="../../html/vkspec.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="../../html/vkspec.html#renderpass-load-store-ops">subpass load operations</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
+access to a <a href="../../html/vkspec.html#renderpass">depth/stencil attachment</a>, via
+<a href="../../html/vkspec.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="../../html/vkspec.html#renderpass-load-store-ops">subpass load and store operations</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_TRANSFER_READ_BIT</code> specifies read access to an image or
+buffer in a <a href="../../html/vkspec.html#copies">copy</a> operation.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_TRANSFER_WRITE_BIT</code> specifies write access to an image or
+buffer in a <a href="../../html/vkspec.html#clears">clear</a> or <a href="../../html/vkspec.html#copies">copy</a> operation.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_HOST_READ_BIT</code> specifies read access by a host operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_HOST_WRITE_BIT</code> specifies write access by a host
+operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_MEMORY_READ_BIT</code> specifies read access via non-specific
+entities.
+These entities include the Vulkan device and host, but <strong class="purple">may</strong> also include
+entities external to the Vulkan device or otherwise not part of the core
+Vulkan pipeline.
+When included in a destination access mask, makes all available writes
+visible to all future read accesses on entities known to the Vulkan
+device.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_MEMORY_WRITE_BIT</code> specifies write access via non-specific
+entities.
+These entities include the Vulkan device and host, but <strong class="purple">may</strong> also include
+entities external to the Vulkan device or otherwise not part of the core
+Vulkan pipeline.
+When included in a source access mask, all writes that are performed by
+entities known to the Vulkan device are made available.
+When included in a destination access mask, makes all available writes
+visible to all future write accesses on entities known to the Vulkan
+device.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Certain access types are only performed by a subset of pipeline stages.
+Any synchronization command that takes both stage masks and access masks
+uses both to define the <a href="../../html/vkspec.html#synchronization-dependencies-access-scopes">access
+scopes</a> - only the specified access types performed by the specified stages
+are included in the access scope.
+An application <strong class="purple">must</strong> not specify an access flag in a synchronization command
+if it does not include a pipeline stage in the corresponding stage mask that
+is able to perform accesses of that type.
+The following table lists, for each access flag, which pipeline stages <strong class="purple">can</strong>
+perform that type of access.</p>
+</div>
+<table id="synchronization-access-types-supported" class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. Supported access types</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Access flag</th>
+<th class="tableblock halign-left valign-top">Supported pipeline stages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_INDEX_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_UNIFORM_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code>, or <code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_SHADER_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code>, or <code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_SHADER_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>, <code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code>, or <code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>, or <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>, or <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_TRANSFER_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_TRANSFER_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_HOST_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_HOST_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_HOST_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_HOST_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_MEMORY_READ_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_MEMORY_WRITE_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+</tr>
+</tbody>
+</table>
+<div id="synchronization-host-access-types" class="paragraph">
+<p>If a memory object does not have the
+<code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> property, then
+<a href="vkFlushMappedMemoryRanges.html">vkFlushMappedMemoryRanges</a> <strong class="purple">must</strong> be called in order to guarantee that
+writes to the memory object from the host are made visible to the
+<code>VK_ACCESS_HOST_WRITE_BIT</code> <a href="../../html/vkspec.html#synchronization-access-types">access
+type</a>, where it <strong class="purple">can</strong> be further made available to the device by
+<a href="../../html/vkspec.html#synchronization">synchronization commands</a>.
+Similarly, <a href="vkInvalidateMappedMemoryRanges.html">vkInvalidateMappedMemoryRanges</a> <strong class="purple">must</strong> be called to guarantee
+that writes which are visible to the <code>VK_ACCESS_HOST_READ_BIT</code>
+<a href="../../html/vkspec.html#synchronization-access-types">access type</a> are made visible to host
+operations.</p>
+</div>
+<div class="paragraph">
+<p>If the memory object does have the
+<code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> property flag, writes to the
+memory object from the host are automatically made visible to the
+<code>VK_ACCESS_HOST_WRITE_BIT</code> <a href="../../html/vkspec.html#synchronization-access-types">access type</a>.
+Similarly, writes made visible to the <code>VK_ACCESS_HOST_READ_BIT</code>
+<a href="../../html/vkspec.html#synchronization-access-types">access type</a> are automatically made visible
+to the host.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The <a href="vkQueueSubmit.html">vkQueueSubmit</a> command <a href="../../html/vkspec.html#synchronization-submission-host-writes">automatically guarantees that host writes flushed to
+<code>VK_ACCESS_HOST_WRITE_BIT</code> are made available</a> if they were flushed
+before the command executed, so in most cases an explicit memory barrier is
+not needed for this case.
+In the few circumstances where a submit does not occur between the host
+write and the device read access, writes <strong class="purple">can</strong> be made available by using an
+explicit memory barrier.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -514,8 +761,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><a href="https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#VkAccessFlagBits" class="bare">https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#VkAccessFlagBits</a></p>
 </div>
 <div class="paragraph">
-<p>This page is a generated document.
-Fixes and changes should be made to the generator scripts,not directly.</p>
+<p>This page is extracted from the Vulkan Specification.
+Fixes and changes should be made to the Specification,not directly.</p>
 </div>
 </div>
 </div>
@@ -532,8 +779,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.50<br>
-Last updated 2017-05-20 17:28:30 PDT
+Version 1.0.51<br>
+Last updated 2017-06-04 20:56:47 PDT
 </div>
 </div>
 
