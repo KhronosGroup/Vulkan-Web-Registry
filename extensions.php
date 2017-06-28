@@ -21,6 +21,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_xlib_surface"> VK_KHR_xlib_surface </a> </li>
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_report"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_direct_mode_display"> VK_EXT_direct_mode_display </a> </li>
@@ -28,6 +29,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sampler_filter_minmax"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
@@ -36,6 +38,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gpu_shader_half_float"> VK_AMD_gpu_shader_half_float </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gpu_shader_int16"> VK_AMD_gpu_shader_int16 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_negative_viewport_height"> VK_AMD_negative_viewport_height </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_ballot"> VK_AMD_shader_ballot </a> </li>
@@ -71,6 +74,9 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_external_memory"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_external_memory_capabilities"> VK_NV_external_memory_capabilities </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_external_memory_win32"> VK_NV_external_memory_win32 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_fill_rectangle"> VK_NV_fill_rectangle </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_fragment_coverage_to_color"> VK_NV_fragment_coverage_to_color </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_framebuffer_mixed_samples"> VK_NV_framebuffer_mixed_samples </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_geometry_shader_passthrough"> VK_NV_geometry_shader_passthrough </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_glsl_shader"> VK_NV_glsl_shader </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_NV_sample_mask_override_coverage"> VK_NV_sample_mask_override_coverage </a> </li>
