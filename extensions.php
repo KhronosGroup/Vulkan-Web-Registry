@@ -1,9 +1,24 @@
 <ul>
     <li> <b>  KHR Extensions (Khronos)  </b> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_16bit_storage"> VK_KHR_16bit_storage </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_android_surface"> VK_KHR_android_surface </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_descriptor_update_template"> VK_KHR_descriptor_update_template </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_display"> VK_KHR_display </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_display_swapchain"> VK_KHR_display_swapchain </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_fence"> VK_KHR_external_fence </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_fence_capabilities"> VK_KHR_external_fence_capabilities </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_fence_fd"> VK_KHR_external_fence_fd </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_fence_win32"> VK_KHR_external_fence_win32 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_memory"> VK_KHR_external_memory </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_memory_capabilities"> VK_KHR_external_memory_capabilities </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_memory_fd"> VK_KHR_external_memory_fd </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_memory_win32"> VK_KHR_external_memory_win32 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_semaphore"> VK_KHR_external_semaphore </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_semaphore_capabilities"> VK_KHR_external_semaphore_capabilities </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_semaphore_fd"> VK_KHR_external_semaphore_fd </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_external_semaphore_win32"> VK_KHR_external_semaphore_win32 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_memory_requirements2"> VK_KHR_get_memory_requirements2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_physical_device_properties2"> VK_KHR_get_physical_device_properties2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_surface_capabilities2"> VK_KHR_get_surface_capabilities2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_incremental_present"> VK_KHR_incremental_present </a> </li>
@@ -13,9 +28,12 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_win32_keyed_mutex"> VK_KHR_win32_keyed_mutex </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_win32_surface"> VK_KHR_win32_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_xcb_surface"> VK_KHR_xcb_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_xlib_surface"> VK_KHR_xlib_surface </a> </li>
@@ -53,16 +71,7 @@
     <li> <b>  KHX Extensions (full vendor description unavailable)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_device_group"> VK_KHX_device_group </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_device_group_creation"> VK_KHX_device_group_creation </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_memory"> VK_KHX_external_memory </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_memory_capabilities"> VK_KHX_external_memory_capabilities </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_memory_fd"> VK_KHX_external_memory_fd </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_memory_win32"> VK_KHX_external_memory_win32 </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_semaphore"> VK_KHX_external_semaphore </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_semaphore_capabilities"> VK_KHX_external_semaphore_capabilities </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_semaphore_fd"> VK_KHX_external_semaphore_fd </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_external_semaphore_win32"> VK_KHX_external_semaphore_win32 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_multiview"> VK_KHX_multiview </a> </li>
-    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_win32_keyed_mutex"> VK_KHX_win32_keyed_mutex </a> </li>
     <li> <b>  MVK Extensions (The Brenwill Workshop Ltd.)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_MVK_ios_surface"> VK_MVK_ios_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_MVK_macos_surface"> VK_MVK_macos_surface </a> </li>
