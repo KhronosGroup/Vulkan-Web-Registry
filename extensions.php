@@ -42,6 +42,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_report"> VK_EXT_debug_report </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_depth_range_unrestricted"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_direct_mode_display"> VK_EXT_direct_mode_display </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_discard_rectangles"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
@@ -68,7 +69,7 @@
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_IMG_format_pvrtc"> VK_IMG_format_pvrtc </a> </li>
-    <li> <b>  KHX Extensions (full vendor description unavailable)  </b> </li>
+    <li> <b>  KHX Extensions (Khronos)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_device_group"> VK_KHX_device_group </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_device_group_creation"> VK_KHX_device_group_creation </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHX_multiview"> VK_KHX_multiview </a> </li>
