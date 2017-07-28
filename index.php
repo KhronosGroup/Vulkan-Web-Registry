@@ -1,16 +1,8 @@
 <?php
 $static_title = 'Khronos Vulkan Registry';
-$static_breadcrumb = array(
-    '/registry/' => 'Registry',
-    'NOLINK' => 'Vulkan Registry'
-);
+
 include_once("../../assets/static_pages/khr_page_top.php");
 ?>
-
-<h1 class="pagetitle">Khronos Vulkan&reg; Registry</h1>
-<div id="mainformat">
-
-<h1 style="text-align:center"> Khronos Vulkan&reg; Registry </h1>
 
 <p> The Vulkan registry contains formatted specifications of the Vulkan API,
     header files, API reference pages, the reference card, and related
