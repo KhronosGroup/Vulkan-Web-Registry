@@ -442,9 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
 <div class="details">
-<span id="revnumber">version 1.0.56,</span>
-<span id="revdate">Fri, 21 Jul 2017 23:38:12 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: 80af5ce5a24c6801a93efc8c0259436a1a61f45a</span>
+<span id="revnumber">version 1.0.57,</span>
+<span id="revdate">Tue, 01 Aug 2017 00:30:14 +0000</span>
+<br><span id="revremark">from git branch: 1.0 commit: c8c0862dee6ba9ed861e87648c59fcdf8a032f3a</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6430,6 +6430,11 @@ image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(fo
 optimally tiled image) returned by
 <code>vkGetPhysicalDeviceFormatProperties</code></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdDraw-None-01499"></a>
+Image subresources used as attachments in the current render pass <strong class="purple">must</strong>
+not be accessed in any way other than as an attachment by this command.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -6740,6 +6745,11 @@ filtering, as specified by the
 image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
 optimally tiled image) returned by
 <code>vkGetPhysicalDeviceFormatProperties</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexed-None-01500"></a>
+Image subresources used as attachments in the current render pass <strong class="purple">must</strong>
+not be accessed in any way other than as an attachment by this command.</p>
 </li>
 </ul>
 </div>
@@ -7065,6 +7075,11 @@ filtering, as specified by the
 image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
 optimally tiled image) returned by
 <code>vkGetPhysicalDeviceFormatProperties</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-None-01503"></a>
+Image subresources used as attachments in the current render pass <strong class="purple">must</strong>
+not be accessed in any way other than as an attachment by this command.</p>
 </li>
 </ul>
 </div>
@@ -7395,6 +7410,11 @@ filtering, as specified by the
 image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
 optimally tiled image) returned by
 <code>vkGetPhysicalDeviceFormatProperties</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndirect-None-01501"></a>
+Image subresources used as attachments in the current render pass <strong class="purple">must</strong>
+not be accessed in any way other than as an attachment by this command.</p>
 </li>
 </ul>
 </div>
@@ -30498,8 +30518,8 @@ framebuffer.</p>
 <div class="sect3">
 <h4 id="_description_203">Description</h4>
 <div class="paragraph">
-<p>Image subresources used as attachments <strong class="purple">must</strong> not be used via any
-non-attachment usage for the duration of a render pass instance.</p>
+<p>Image subresources used as attachments <strong class="purple">must</strong> not be accessed in any other
+way for the duration of a render pass instance.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -33198,6 +33218,29 @@ section.
 Views of compatible formats will have the same mapping between texel
 coordinates and memory locations irrespective of the <code>format</code>, with only
 the interpretation of the bit pattern changing.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Values intended to be used with one view format <strong class="purple">may</strong> not be exactly
+preserved when written or read through a different format.
+For example, an integer value that happens to have the bit pattern of a
+floating point denorm or NaN <strong class="purple">may</strong> be flushed or canonicalized when written
+or read through a view with a floating point format.
+Similarly, a value written through a signed normalized format that has a bit
+pattern exactly equal to <span class="eq">-2<sup>b</sup></span> <strong class="purple">may</strong> be changed to <span class="eq">-2<sup>b</sup> +  1</span>
+as described in <a href="html/vkspec.html#fundamentals-fixedfpconv">Conversion from Normalized
+Fixed-Point to Floating-Point</a>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <table id="resources-image-views-compatibility" class="tableblock frame-all grid-all spread">
 <caption class="title">Table 6. Image and image view parameter compatibility requirements</caption>
@@ -36239,7 +36282,10 @@ The <code>layers</code> member of the <code>VkFramebufferCreateInfo</code> struc
 <p><a id="features-limits-framebufferColorSampleCounts"></a>
 <code>framebufferColorSampleCounts</code> is a bitmask<sup>1</sup> of
 <a href="#VkSampleCountFlagBits">VkSampleCountFlagBits</a> indicating the color sample counts that are
-supported for all framebuffer color attachments.</p>
+supported for all framebuffer color attachments with floating- or
+fixed-point formats.
+There is no limit that indicates the color sample counts that are
+supported for all color attachments with integer formats.</p>
 </li>
 <li>
 <p><a id="features-limits-framebufferDepthSampleCounts"></a>
@@ -46365,7 +46411,7 @@ values.</p>
 </li>
 <li>
 <p><code>VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK</code> specifies a four-component,
-ETC2 compressed format where each 64-bit compressed texel block encodes
+ETC2 compressed format where each 128-bit compressed texel block encodes
 a 4×4 rectangle of unsigned normalized RGBA texel data with the
 first 64 bits encoding alpha values followed by 64 bits encoding RGB
 values with sRGB nonlinear encoding applied.</p>
@@ -47056,7 +47102,7 @@ combined image/sampler and/or input attachment).
 This layout is valid only for image subresources of images created with
 the <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> usage bit enabled.
 Only image subresources of images created with
-<code>VK_IMAGE_USAGE_SAMPLED_BIT</code> <strong class="purple">can</strong> be used as sampled image or
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code> <strong class="purple">can</strong> be used as a sampled image or
 combined image/sampler in a shader.
 Similarly, only image subresources of images created with
 <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> <strong class="purple">can</strong> be used as input
@@ -48278,7 +48324,8 @@ Using this flag <strong class="purple">may</strong> reduce the time taken to cre
 <li>
 <p><code>VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT</code> specifies that the
 pipeline to be created is allowed to be the parent of a pipeline that
-will be created in a subsequent call to <a href="#vkCreateGraphicsPipelines">vkCreateGraphicsPipelines</a>.</p>
+will be created in a subsequent call to <a href="#vkCreateGraphicsPipelines">vkCreateGraphicsPipelines</a>
+or <a href="#vkCreateComputePipelines">vkCreateComputePipelines</a>.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code> specifies that the pipeline to
@@ -54058,7 +54105,7 @@ Specification updates have no effect on vulkan.h.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Version of this file
-#define VK_HEADER_VERSION 56</code></pre>
+#define VK_HEADER_VERSION 57</code></pre>
 </div>
 </div>
 </div>
@@ -54336,8 +54383,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.56<br>
-Last updated 2017-07-21 16:38:10 PDT
+Version 1.0.57<br>
+Last updated 2017-07-31 17:30:12 PDT
 </div>
 </div>
 

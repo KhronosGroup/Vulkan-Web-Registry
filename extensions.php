@@ -25,6 +25,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_maintenance1"> VK_KHR_maintenance1 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_mir_surface"> VK_KHR_mir_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
@@ -48,6 +49,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sampler_filter_minmax"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
@@ -58,6 +60,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gpu_shader_half_float"> VK_AMD_gpu_shader_half_float </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gpu_shader_int16"> VK_AMD_gpu_shader_int16 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_mixed_attachment_samples"> VK_AMD_mixed_attachment_samples </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_negative_viewport_height"> VK_AMD_negative_viewport_height </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_ballot"> VK_AMD_shader_ballot </a> </li>
