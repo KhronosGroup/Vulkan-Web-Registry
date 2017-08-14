@@ -53,6 +53,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sampler_filter_minmax"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_viewport_index_layer"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
