@@ -442,9 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
 <div class="details">
-<span id="revnumber">version 1.0.58,</span>
-<span id="revdate">Mon, 14 Aug 2017 09:05:34 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: cd4de492bf04b4a7542a5029ae4b998f117a7ac8</span>
+<span id="revnumber">version 1.0.59,</span>
+<span id="revdate">Sun, 20 Aug 2017 08:14:28 +0000</span>
+<br><span id="revremark">from git branch: 1.0 commit: bbb637d6dbe78a5d8c1c8f8f2129353b0e4dc1dc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -25939,16 +25939,18 @@ execute as part of the first subpass that uses the attachment.
 execute as part of the last subpass that uses the attachment.</p>
 </div>
 <div class="paragraph">
-<p>The load operation for each value in an attachment used by a subpass
-happens-before any command recorded into that subpass reads from that value.
+<p>The load operation for each sample in an attachment happens-before any
+recorded command which accesses the sample in the first subpass where the
+attachment is used.
 Load operations for attachments with a depth/stencil format execute in the
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> pipeline stage.
 Load operations for attachments with a color format execute in the
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
 </div>
 <div class="paragraph">
-<p>Store operations for each value in an attachment used by a subpass
-happen-after any command recorded into that subpass writes to that value.
+<p>The store operation for each sample in an attachment happens-after any
+recorded command which accesses the sample in the last subpass where the
+attachment is used.
 Store operations for attachments with a depth/stencil format execute in the
 <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stage.
 Store operations for attachments with a color format execute in the
@@ -29207,7 +29209,8 @@ shader stages, including any additional stages defined by extensions,
 <p>If a shader stage is not included in <code>stageFlags</code>, then a resource <strong class="purple">must</strong>
 not be accessed from that stage via this binding within any pipeline using
 the set layout.
-There are no limitations on what combinations of stages <strong class="purple">can</strong> be used by a
+Other than input attachments which are limited to the fragment shader, there
+are no limitations on what combinations of stages <strong class="purple">can</strong> be used by a
 descriptor binding, and in particular a binding <strong class="purple">can</strong> be used by both
 graphics stages and the compute stage.</p>
 </div>
@@ -29285,6 +29288,12 @@ If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code> or
 <p><a id="VUID-VkDescriptorSetLayoutBinding-descriptorCount-00283"></a>
 If <code>descriptorCount</code> is not <code>0</code>, <code>stageFlags</code> <strong class="purple">must</strong> be a valid
 combination of <a href="#VkShaderStageFlagBits">VkShaderStageFlagBits</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkDescriptorSetLayoutBinding-descriptorType-01510"></a>
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code> and
+<code>descriptorCount</code> is not <code>0</code>, then <code>stageFlags</code> <strong class="purple">must</strong> be <code>0</code> or
+<code>VK_SHADER_STAGE_FRAGMENT_BIT</code></p>
 </li>
 </ul>
 </div>
@@ -41769,6 +41778,45 @@ visibility operations</a> defined by a subpass dependency affect the execution
 of <a href="html/vkspec.html#renderpass-layout-transitions">image layout transitions</a> within the
 render pass.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>For non-attachment resources, the memory dependency expressed by subpass
+dependency is nearly identical to that of a <a href="#VkMemoryBarrier">VkMemoryBarrier</a> (with
+matching <code>srcAccessMask</code>/<code>dstAccessMask</code> parameters) submitted as a
+part of a <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a> (with matching
+<code>srcStageMask</code>/<code>dstStageMask</code> parameters).
+The only difference being that its scopes are limited to the identified
+subpasses rather than potentially affecting everything before and after.</p>
+</div>
+<div class="paragraph">
+<p>For attachments however, subpass dependencies work more like an
+<a href="#VkImageMemoryBarrier">VkImageMemoryBarrier</a> defined similarly to the <a href="#VkMemoryBarrier">VkMemoryBarrier</a>
+above, the queue family indices set to <code>VK_QUEUE_FAMILY_IGNORED</code>, and
+layouts as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The equivalent to <code>oldLayout</code> is the attachment&#8217;s layout according
+to the subpass description for <code>srcSubpass</code>.</p>
+</li>
+<li>
+<p>The equivalent to <code>newLayout</code> is the attachment&#8217;s layout according
+to the subpass description for <code>dstSubpass</code>.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -54105,7 +54153,7 @@ Specification updates have no effect on vulkan.h.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Version of this file
-#define VK_HEADER_VERSION 58</code></pre>
+#define VK_HEADER_VERSION 59</code></pre>
 </div>
 </div>
 </div>
@@ -54383,8 +54431,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.58<br>
-Last updated 2017-08-14 02:05:33 PDT
+Version 1.0.59<br>
+Last updated 2017-08-20 01:14:26 PDT
 </div>
 </div>
 
