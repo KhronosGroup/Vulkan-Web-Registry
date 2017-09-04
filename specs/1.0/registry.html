@@ -444,9 +444,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>The Khronos Vulkan<sup>&#174;</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.0.59,</span>
-<span id="revdate">Sun, 20 Aug 2017 08:14:26 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: bbb637d6dbe78a5d8c1c8f8f2129353b0e4dc1dc</span>
+<span id="revnumber">version 1.0.60,</span>
+<span id="revdate">Mon, 04 Sep 2017 10:16:51 +0000</span>
+<br><span id="revremark">from git branch: 1.0 commit: df88ded281466e08fcef9730ec5600f0f5535bce</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1210,7 +1210,7 @@ following things, separated by commas (one for each array
 indirection): another member of that struct; <code>"null-terminated"</code> for
 a string; <code>"1"</code> to indicate it is just a pointer (used for nested
 pointers); or an equation (a LaTeX math expression delimited by
-<code>\($` and `$\)</code>.</p>
+<code>\(` and `\)</code>.</p>
 </li>
 <li>
 <p><code>externsync</code> - denotes that the member should be externally
@@ -1760,8 +1760,8 @@ members.</p>
 following things, separated by commas (one for each array
 indirection): another param of that command; <code>"null-terminated"</code> for
 a string; <code>"1"</code> to indicate it is just a pointer (used for nested
-pointers); or an equation (a simple expression prefixed with
-<code>"math:"</code>)</p>
+pointers); or an equation (a LaTeX math expression delimited by
+<code>\(` and `\)</code>.</p>
 </li>
 <li>
 <p><code>optional</code> - a value of <code>"true"</code> or <code>"false"</code> determines whether this
@@ -2005,8 +2005,8 @@ other contact information. If not present, this can be taken from
 the corresponding <code>tag</code> attribute just like <code>author</code>.</p>
 </li>
 <li>
-<p><code>type</code> - optional. Must be either <code>'device'</code> or <code>'instance'</code>, if
-present.</p>
+<p><code>type</code> - required if the <code>supported</code> attribute is not
+<code>'disabled'</code>. Must be either <code>'device'</code> or <code>'instance'</code>, if present.</p>
 </li>
 <li>
 <p><code>requires</code> - optional. Comma-separated list of extension names this
@@ -2022,12 +2022,36 @@ file to be defined first.</p>
 <li>
 <p><code>supported</code> - required. A regular expression with an implicit <code>^</code> and
 <code>$</code> bracketing it, which should match the <code>api</code> tag of a set of
-<code>feature</code> tags.</p>
+<code>feature</code> tags. When the extension tag is just reserving an extension
+number, and no interfaces are yet defined, use <code>supported="disabled"</code> to
+indicate this extension should never be processed.</p>
 </li>
 <li>
 <p><code>comment</code> - optional. Arbitrary string (unused).</p>
 </li>
 </ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The <code>requires</code> attribute is used to specify other extensions that <strong>must</strong>
+be enabled for an extension to be enabled.</p>
+</div>
+<div class="paragraph">
+<p>In some cases, an extension may include functionality which is only defined
+<strong>if</strong> another extension is enabled. Such functionality should be specified
+within a <code>require</code>, using the <code>extension</code> attribute to specify that
+extension.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -2120,6 +2144,11 @@ is being generated. If not specified, interfaces are required (or
 removed) for all API profiles.</p>
 </li>
 <li>
+<p><code>extension</code> - optional. String containing an API extension name.
+Interfaces in the tag are only required (or removed) if the specified
+extension is enabled.</p>
+</li>
+<li>
 <p><code>comment</code> - optional. Arbitrary string (unused).</p>
 </li>
 <li>
@@ -2141,6 +2170,23 @@ required (or removed) for all APIs.</p>
 <div class="paragraph">
 <p>The <code>api</code> attribute is only supported inside <code>extension</code> tags,
 since <code>feature</code> tags already define a specific API.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The <code>extension</code> attribute currently does not affect output generators in
+any way, and is simply metadata. This will be addressed as we better define
+different types of dependencies between extensions.</p>
 </div>
 </td>
 </tr>
@@ -2861,7 +2907,7 @@ individual enumerants represent elements of a bitmask.</p>
 definition for compile time constants described above. In this case, because
 the enumerants are bits in a bitmask, their values are specified using the
 <code>bitpos</code> attribute. The value of this attribute must be an integer in
-the range $[0,31]$ specifying a single bit number, and the resulting value
+the range [0,31] specifying a single bit number, and the resulting value
 is printed as a hexadecimal constant corresponding to that bit.</p>
 </div>
 <div class="paragraph">
@@ -3019,20 +3065,28 @@ files and Python scripts are logged in Github history.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>2017-07-27 - finish removing validextensionstructs attribute and
+<p>2017-09-01 - Define syntax of parameter <code>len</code> attributes consistently
+and correctly for current uses of latexmath:</p>
+</li>
+<li>
+<p>2017-08-24 - Note that the <code>extension</code> attribute <code>type</code> must be
+specified if the extension is not disabled.</p>
+</li>
+<li>
+<p>2017-07-27 - Finish removing validextensionstructs attribute and
 replacing it with structextends.</p>
 </li>
 <li>
-<p>2017-07-14 - add comment attributes or tags as valid content in several
+<p>2017-07-14 - Add comment attributes or tags as valid content in several
 places, replacing XML comments which could not be preserved by XML
 transformation tools.</p>
 </li>
 <li>
-<p>2017-02-20 - change to asciidoctor markup and move into the
+<p>2017-02-20 - Change to asciidoctor markup and move into the
 specification source directory for ease of building.</p>
 </li>
 <li>
-<p>2016-09-27 - remove <code>validity</code> and <code>usage</code> tags, since these
+<p>2016-09-27 - Remove <code>validity</code> and <code>usage</code> tags, since these
 explicit usage statements have been moved to the specification source.</p>
 </li>
 <li>
@@ -3127,8 +3181,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.59<br>
-Last updated 2017-07-31 17:21:34 PDT
+Version 1.0.60<br>
+Last updated 2017-09-04 02:58:53 PDT
 </div>
 </div>
 

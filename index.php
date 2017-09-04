@@ -160,6 +160,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
     <ul>
     <li> <a href="specs/misc/GL_KHR_vulkan_glsl.txt">GL_KHR_vulkan_glsl</a> </li>
+    <li> <a href="specs/misc/GL_AMD_shader_fragment_mask.txt">GL_AMD_shader_fragment_mask</a> </li>
     <li> <a href="specs/misc/GL_EXT_device_group.txt">GL_EXT_device_group</a> </li>
     <li> <a href="specs/misc/GL_EXT_multiview.txt">GL_EXT_multiview</a> </li>
     <li> <a href="specs/misc/GL_NVX_multiview_per_view_attributes.txt">GL_NVX_multiview_per_view_attributes</a> </li>

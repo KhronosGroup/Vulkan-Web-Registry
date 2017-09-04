@@ -50,12 +50,14 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sampler_filter_minmax"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_stencil_export"> VK_EXT_shader_stencil_export </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_viewport_index_layer"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_cache"> VK_EXT_validation_cache </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
@@ -67,6 +69,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_ballot"> VK_AMD_shader_ballot </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_fragment_mask"> VK_AMD_shader_fragment_mask </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_trinary_minmax"> VK_AMD_shader_trinary_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_texture_gather_bias_lod"> VK_AMD_texture_gather_bias_lod </a> </li>
     <li> <b>  GOOGLE Extensions (Google, Inc.)  </b> </li>
