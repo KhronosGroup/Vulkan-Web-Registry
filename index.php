@@ -73,7 +73,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <h2> <a name="dataformat"></a> <b>Khronos Data Format Specification</b> </h2>
 
 <p> The <a href="https://www.khronos.org/registry/dataformat/"> Data
-    Format Specification</a> (version 1.1) defines compressed texture
+    Format Specification</a> (version 1.2) defines compressed texture
     formats used by Vulkan, and portions of that specification are
     incorporated into the Vulkan API Specification by reference. </p>
 
