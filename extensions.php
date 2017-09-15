@@ -2,6 +2,7 @@
     <li> <b>  KHR Extensions (Khronos)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_16bit_storage"> VK_KHR_16bit_storage </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_android_surface"> VK_KHR_android_surface </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_bind_memory2"> VK_KHR_bind_memory2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_descriptor_update_template"> VK_KHR_descriptor_update_template </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_display"> VK_KHR_display </a> </li>
@@ -21,12 +22,15 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_memory_requirements2"> VK_KHR_get_memory_requirements2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_physical_device_properties2"> VK_KHR_get_physical_device_properties2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_get_surface_capabilities2"> VK_KHR_get_surface_capabilities2 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_image_format_list"> VK_KHR_image_format_list </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_incremental_present"> VK_KHR_incremental_present </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_maintenance1"> VK_KHR_maintenance1 </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_maintenance2"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_mir_surface"> VK_KHR_mir_surface </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>

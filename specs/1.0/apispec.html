@@ -442,9 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
 <div class="details">
-<span id="revnumber">version 1.0.60,</span>
-<span id="revdate">Mon, 04 Sep 2017 10:16:53 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: df88ded281466e08fcef9730ec5600f0f5535bce</span>
+<span id="revnumber">version 1.0.61,</span>
+<span id="revdate">Fri, 15 Sep 2017 05:50:32 +0000</span>
+<br><span id="revremark">from git branch: github-1.0 commit: 0cc6bba634aeecb88e4b43f1bdfd84a339c1869e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2244,7 +2244,7 @@ If any of the <code>initialLayout</code> or <code>finalLayout</code> member of t
 the <code>VkAttachmentReference</code> structures specified when creating the
 render pass specified in the <code>renderPass</code> member of
 <code>pRenderPassBegin</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code>, or
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then the
 corresponding attachment image subresource of the framebuffer specified
 in the <code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have
@@ -11503,6 +11503,34 @@ of 4.</p>
 For larger updates, applications <strong class="purple">can</strong> use buffer to buffer
 <a href="html/vkspec.html#copies-buffers">copies</a>.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Buffer updates performed with <code>vkCmdUpdateBuffer</code> first copy the data
+into command buffer memory when the command is recorded (which requires
+additional storage and may incur an additional allocation), and then copy
+the data from the command buffer into <code>dstBuffer</code> when the command is
+executed on a device.</p>
+</div>
+<div class="paragraph">
+<p>The additional cost of this functionality compared to <a href="html/vkspec.html#&lt;&lt;copies-buffers">buffer to buffer copies</a> means it is only recommended for very small
+amounts of data, and is why it is limited to only 65536 bytes.</p>
+</div>
+<div class="paragraph">
+<p>Applications <strong class="purple">can</strong> work around this by issuing multiple
+<code>vkCmdUpdateBuffer</code> commands to different ranges of the same buffer, but
+it is strongly recommended that they <strong class="purple">should</strong> not.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>The source data is copied from the user pointer to the command buffer when
 the command is called.</p>
@@ -13967,7 +13995,13 @@ image view object is returned.</p>
 <h4 id="_description_63">Description</h4>
 <div class="paragraph">
 <p>Some of the image creation parameters are inherited by the view.
-The remaining parameters are contained in the <code>pCreateInfo</code>.</p>
+In particular, image view creation inherits the implicit parameter
+<code>usage</code> specifying the allowed usages of the image view that, by
+default, takes the value of the corresponding <code>usage</code> parameter
+specified in <code>VkImageCreateInfo</code> at image creation time.</p>
+</div>
+<div class="paragraph">
+<p>The remaining parameters are contained in the <code>pCreateInfo</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -21223,8 +21257,8 @@ be a header consisting of the following members:</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The first four bytes encode the length of the entire pipeline header, in
-bytes.
+<p>The first four bytes encode the length of the entire pipeline cache header,
+in bytes.
 This value includes all fields in the header including the pipeline cache
 version field and the size of the length field.</p>
 </div>
@@ -26734,51 +26768,51 @@ If the calling command&#8217;s <code>srcImage</code> (<a href="#vkCmdCopyImageTo
 or <code>dstImage</code> (<a href="#vkCmdCopyBufferToImage">vkCmdCopyBufferToImage</a>) is of type
 <code>VK_IMAGE_TYPE_1D</code> or <code>VK_IMAGE_TYPE_2D</code>, then
 <code>imageOffset.z</code> <strong class="purple">must</strong> be <code>0</code> and <code>imageExtent.depth</code> <strong class="purple">must</strong> be
-<code>1</code>.</p>
+<code>1</code></p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-bufferRowLength-00203"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>bufferRowLength</code> <strong class="purple">must</strong> be a multiple of the compressed texel
-block width</p>
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>bufferRowLength</code> <strong class="purple">must</strong> be a multiple of the compressed texel block
+width</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-bufferImageHeight-00204"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>bufferImageHeight</code> <strong class="purple">must</strong> be a multiple of the compressed
-texel block height</p>
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>bufferImageHeight</code> <strong class="purple">must</strong> be a multiple of the compressed texel
+block height</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-imageOffset-00205"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, all members of <code>imageOffset</code> <strong class="purple">must</strong> be a multiple of the
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+all members of <code>imageOffset</code> <strong class="purple">must</strong> be a multiple of the
 corresponding dimensions of the compressed texel block</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-bufferOffset-00206"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>bufferOffset</code> <strong class="purple">must</strong> be a multiple of the compressed texel
-block size in bytes</p>
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>bufferOffset</code> <strong class="purple">must</strong> be a multiple of the compressed texel block
+size in bytes</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-imageExtent-00207"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>imageExtent.width</code> <strong class="purple">must</strong> be a multiple of the compressed
-texel block width or <span class="eq">(<code>imageExtent.width</code> + 
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>imageExtent.width</code> <strong class="purple">must</strong> be a multiple of the compressed texel
+block width or <span class="eq">(<code>imageExtent.width</code> + 
 <code>imageOffset.x</code>)</span> <strong class="purple">must</strong> equal the image subresource width</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-imageExtent-00208"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>imageExtent.height</code> <strong class="purple">must</strong> be a multiple of the compressed
-texel block height or <span class="eq">(<code>imageExtent.height</code> + 
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>imageExtent.height</code> <strong class="purple">must</strong> be a multiple of the compressed texel
+block height or <span class="eq">(<code>imageExtent.height</code> + 
 <code>imageOffset.y</code>)</span> <strong class="purple">must</strong> equal the image subresource height</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-imageExtent-00209"></a>
-If the calling command&#8217;s <code>VkImage</code> parameter is a compressed format
-image, <code>imageExtent.depth</code> <strong class="purple">must</strong> be a multiple of the compressed
-texel block depth or <span class="eq">(<code>imageExtent.depth</code> + 
+If the calling command&#8217;s <code>VkImage</code> parameter is a compressed image,
+<code>imageExtent.depth</code> <strong class="purple">must</strong> be a multiple of the compressed texel
+block depth or <span class="eq">(<code>imageExtent.depth</code> + 
 <code>imageOffset.z</code>)</span> <strong class="purple">must</strong> equal the image subresource depth</p>
 </li>
 <li>
@@ -30559,10 +30593,11 @@ way for the duration of a render pass instance.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>This restriction means that the render pass has full knowledge of all uses
-of all of the attachments, so that the implementation is able to make
-correct decisions about when and how to perform layout transitions, when to
-overlap execution of subpasses, etc.</p>
+<p>This restriction means
+that the render pass has full knowledge of all uses of all of the
+attachments, so that the implementation is able to make correct decisions
+about when and how to perform layout transitions, when to overlap execution
+of subpasses, etc.</p>
 </div>
 </td>
 </tr>
@@ -31012,8 +31047,8 @@ chapter</p>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00743"></a>
 If rasterization is not disabled and <code>subpass</code> uses a depth/stencil
 attachment in <code>renderpass</code> that has a layout of
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the
-<code>VkAttachmentReference</code> defined by <code>subpass</code>, the
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>
+in the <code>VkAttachmentReference</code> defined by <code>subpass</code>, the
 <code>depthWriteEnable</code> member of <code>pDepthStencilState</code> <strong class="purple">must</strong> be
 <code>VK_FALSE</code></p>
 </li>
@@ -31021,10 +31056,10 @@ attachment in <code>renderpass</code> that has a layout of
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00744"></a>
 If rasterization is not disabled and <code>subpass</code> uses a depth/stencil
 attachment in <code>renderpass</code> that has a layout of
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> in the
-<code>VkAttachmentReference</code> defined by <code>subpass</code>, the <code>failOp</code>,
-<code>passOp</code> and <code>depthFailOp</code> members of each of the <code>front</code>
-and <code>back</code> members of <code>pDepthStencilState</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>
+in the <code>VkAttachmentReference</code> defined by <code>subpass</code>, the
+<code>failOp</code>, <code>passOp</code> and <code>depthFailOp</code> members of each of the
+<code>front</code> and <code>back</code> members of <code>pDepthStencilState</code> <strong class="purple">must</strong> be
 <code>VK_STENCIL_OP_KEEP</code></p>
 </li>
 <li>
@@ -31552,27 +31587,27 @@ number of layers in the destination image</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCopy-srcOffset-00157"></a>
-If the calling command&#8217;s <code>srcImage</code> is a compressed format image,
+If the calling command&#8217;s <code>srcImage</code> is a compressed image,
 all members of <code>srcOffset</code> <strong class="purple">must</strong> be a multiple of the corresponding
 dimensions of the compressed texel block</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCopy-extent-00158"></a>
-If the calling command&#8217;s <code>srcImage</code> is a compressed format image,
+If the calling command&#8217;s <code>srcImage</code> is a compressed image,
 <code>extent.width</code> <strong class="purple">must</strong> be a multiple of the compressed texel block
 width or <span class="eq">(<code>extent.width</code> +  <code>srcOffset.x</code>)</span> <strong class="purple">must</strong> equal
 the source image subresource width</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCopy-extent-00159"></a>
-If the calling command&#8217;s <code>srcImage</code> is a compressed format image,
+If the calling command&#8217;s <code>srcImage</code> is a compressed image,
 <code>extent.height</code> <strong class="purple">must</strong> be a multiple of the compressed texel block
 height or <span class="eq">(<code>extent.height</code> +  <code>srcOffset.y</code>)</span> <strong class="purple">must</strong>
 equal the source image subresource height</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCopy-extent-00160"></a>
-If the calling command&#8217;s <code>srcImage</code> is a compressed format image,
+If the calling command&#8217;s <code>srcImage</code> is a compressed image,
 <code>extent.depth</code> <strong class="purple">must</strong> be a multiple of the compressed texel block
 depth or <span class="eq">(<code>extent.depth</code> +  <code>srcOffset.z</code>)</span> <strong class="purple">must</strong> equal
 the source image subresource depth</p>
@@ -33110,7 +33145,8 @@ multiple of 6, behavior when indexing the last cube is undefined.</p>
 <div class="paragraph">
 <p><code>aspectMask</code> <strong class="purple">must</strong> be only <code>VK_IMAGE_ASPECT_COLOR_BIT</code>,
 <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> or <code>VK_IMAGE_ASPECT_STENCIL_BIT</code> if
-<code>format</code> is a color, depth-only or stencil-only format, respectively.
+<code>format</code> is a color, depth-only or stencil-only format,
+respectively.
 If using a depth/stencil format with both depth and stencil components,
 <code>aspectMask</code> <strong class="purple">must</strong> include at least one of
 <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, and
@@ -33132,7 +33168,8 @@ stencil image subresources are used.</p>
 describes a remapping from components of the image to components of the
 vector returned by shader image instructions.
 This remapping <strong class="purple">must</strong> be identity for storage image descriptors, input
-attachment descriptors, and framebuffer attachments.</p>
+attachment descriptors,
+and framebuffer attachments.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -33239,8 +33276,9 @@ set of mipmap levels and array layers to be accessible to the view.</p>
 <h4 id="_description_214">Description</h4>
 <div class="paragraph">
 <p>If <code>image</code> was created with the <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>
-flag, <code>format</code> <strong class="purple">can</strong> be different from the image&#8217;s format, but if they
-are not equal they <strong class="purple">must</strong> be <em>compatible</em>.
+flag,
+<code>format</code> <strong class="purple">can</strong> be different from the image&#8217;s format, but if
+they are not equal they <strong class="purple">must</strong> be <em>compatible</em>.
 Image format compatibility is defined in the
 <a href="html/vkspec.html#features-formats-compatibility-classes">Format Compatibility Classes</a>
 section.
@@ -33570,16 +33608,17 @@ the <code>arrayLayers</code> specified in <a href="#VkImageCreateInfo">VkImageCr
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01018"></a>
 If <code>image</code> was created with the
-<code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> flag, <code>format</code> <strong class="purple">must</strong> be
-compatible with the <code>format</code> used to create <code>image</code>, as defined
-in <a href="html/vkspec.html#features-formats-compatibility-classes">Format Compatibility
-Classes</a></p>
+<code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> flag,
+<code>format</code> <strong class="purple">must</strong> be compatible with the <code>format</code> used to create
+<code>image</code>, as defined in
+<a href="html/vkspec.html#features-formats-compatibility-classes">Format Compatibility Classes</a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01019"></a>
 If <code>image</code> was not created with the
-<code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> flag, <code>format</code> <strong class="purple">must</strong> be
-identical to the <code>format</code> used to create <code>image</code></p>
+<code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> flag,
+<code>format</code> <strong class="purple">must</strong> be identical to the <code>format</code> used to create
+<code>image</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01020"></a>
@@ -42355,8 +42394,9 @@ address(x,y,z,layer) = layer*arrayPitch + z*depthPitch + y*rowPitch + x*compress
 <code>depthPitch</code> is defined only for 3D images.</p>
 </div>
 <div class="paragraph">
-<p>For color formats, the <code>aspectMask</code> member of <code>VkImageSubresource</code>
-<strong class="purple">must</strong> be <code>VK_IMAGE_ASPECT_COLOR_BIT</code>.
+<p>For
+color formats, the <code>aspectMask</code> member of <code>VkImageSubresource</code> <strong class="purple">must</strong>
+be <code>VK_IMAGE_ASPECT_COLOR_BIT</code>.
 For depth/stencil formats, <code>aspectMask</code> <strong class="purple">must</strong> be either
 <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> or <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>.
 On implementations that store depth and stencil aspects separately, querying
@@ -45068,7 +45108,22 @@ to specify options for descriptor set layout are:</p>
 </div>
 <div class="sect3">
 <h4 id="_description_290">Description</h4>
-
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>All bits for this type are defined by extensions, and none of those
+extensions are enabled in this build of the specification.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_see_also_290">See Also</h4>
@@ -50386,7 +50441,22 @@ specifying usage of the subpass, are:</p>
 </div>
 <div class="sect3">
 <h4 id="_description_335">Description</h4>
-
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>All bits for this type are defined by extensions, and none of those
+extensions are enabled in this build of the specification.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_see_also_335">See Also</h4>
@@ -54174,7 +54244,7 @@ Specification updates have no effect on vulkan.h.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Version of this file
-#define VK_HEADER_VERSION 60</code></pre>
+#define VK_HEADER_VERSION 61</code></pre>
 </div>
 </div>
 </div>
@@ -54452,8 +54522,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.60<br>
-Last updated 2017-09-04 03:16:51 PDT
+Version 1.0.61<br>
+Last updated 2017-09-14 22:50:30 PDT
 </div>
 </div>
 

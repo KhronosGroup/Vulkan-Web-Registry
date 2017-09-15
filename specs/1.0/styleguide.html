@@ -444,9 +444,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>Vulkan<sup>&#174;</sup> Documentation and Extensions: Procedures and Conventions</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.0.60,</span>
-<span id="revdate">Mon, 04 Sep 2017 10:16:53 +0000</span>
-<br><span id="revremark">from git branch: 1.0 commit: df88ded281466e08fcef9730ec5600f0f5535bce</span>
+<span id="revnumber">version 1.0.61,</span>
+<span id="revdate">Fri, 15 Sep 2017 05:50:32 +0000</span>
+<br><span id="revremark">from git branch: github-1.0 commit: 0cc6bba634aeecb88e4b43f1bdfd84a339c1869e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -514,6 +514,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#extension-function_prototypes">3.13. Extension Function Prototypes</a></li>
 <li><a href="#_accessing_extension_functions_from_programs">3.14. Accessing Extension Functions from Programs</a></li>
 <li><a href="#extensions-interactions">3.15. Extension Interactions</a></li>
+<li><a href="#extensions-interactions-parent">3.16. Valid Usage and Extension <code>pNext</code> Chains</a></li>
 </ul>
 </li>
 <li><a href="#markup">4. Markup Style</a>
@@ -573,7 +574,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#writing-pNext-chain">5.4. Describing Extension Structure Chains</a></li>
 <li><a href="#writing-example">5.5. An Example Command Description</a></li>
 <li><a href="#sample-command">5.6. Sample Command Description: Creating Command Pools</a></li>
-<li><a href="#writing-refpages">5.7. Markup For Automatic Reference Page Extraction</a></li>
+<li><a href="#writing-empty-enumerations">5.7. Markup For Empty Enumerated Types</a></li>
+<li><a href="#writing-refpages">5.8. Markup For Automatic Reference Page Extraction</a></li>
 </ul>
 </li>
 <li><a href="#_still_to_be_done">6. Still To Be Done</a></li>
@@ -2285,7 +2287,9 @@ meaningful:</p>
 <ul>
 <li>
 <p><strong>Status</strong> - <strong>Complete</strong>, <strong>Draft</strong>, or other.
-Normally only <strong>Complete</strong> extensions should be published.</p>
+When an extension is published in the 1.0 branch, it is normally
+assumed to be complete; the <strong>Status</strong> field should be removed at this
+time, unless it contains additional information.</p>
 </li>
 <li>
 <p><strong>Last Modified Date</strong> - if wanted, although git log queries can provide
@@ -2413,6 +2417,11 @@ For example, instead of <code>chapters/VK_KHR_android_surface.txt</code>, there 
 <code>chapters/VK_KHR_android_surface/platformQuerySupport_android.txt</code>, both
 of which are conditionally included elsewhere in the core specification
 files.</p>
+</li>
+<li>
+<p>Valid Usage statements referring to interactions between structures in a
+<code>pNext</code> chain must be described in the parent structure&#8217;s language,
+as specified <a href="#extensions-interactions-parent">in more detail below</a>.</p>
 </li>
 <li>
 <p>Valid Usage statements <strong class="purple">must</strong> be kept atomic with regards to extension
@@ -2844,6 +2853,70 @@ specification.</p>
 <p>Validation of such extended structure chains is automatically generated from
 the registry, as described in the description of <code>structextends</code> in
 <a href="registry.html">the registry document</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="extensions-interactions-parent">3.16. Valid Usage and Extension <code>pNext</code> Chains</h3>
+<div class="paragraph">
+<p>When there is a Valid Usage interaction between a parent structure and
+another structure appearing in the <code>pNext</code> chain of the parent, that
+interaction <strong class="purple">must</strong> be described in the explicit Valid Usage section of the
+parent structure, rather than the chained structure, and <strong class="purple">must</strong> be protected
+by appropriate extension-specific <code>ifdef</code> constructs.</p>
+</div>
+<div class="paragraph">
+<p>For example, a constraint added to the <a href="#VkImageCreateInfo">VkImageCreateInfo</a> structure by
+the presence of two extensions which cannot interact is properly described
+as:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">// CORRECT: define interaction with children in parent VkImageCreateInfo
+// structure
+ifdef::VK_NV_external_memory+VK_KHR_external_memory[]
+  * If the pname:pNext chain contains an instance of
+    slink:VkExternalMemoryImageCreateInfoNV, it must: not contain an
+    instance of slink:VkExternalMemoryImageCreateInfoKHR.
+endif::VK_NV_external_memory+VK_KHR_external_memory[]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>However, a constraint added to <a href="#VkBufferCreateInfo">VkBufferCreateInfo</a> by a structure in
+the <code>VK_NV_dedicated_allocation</code> extension must not be described as part of
+that structure&#8217;s valid usage:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">// WRONG! Do not define interaction with parent in child
+// VkDedicatedAllocationBufferCreateInfoNV structure
+  * If pname:dedicatedAllocation is ename:VK_TRUE,
+    sname:VkBufferCreateInfo::pname:flags must: not include
+    ename:VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
+    ename:VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT, or
+    ename:VK_BUFFER_CREATE_SPARSE_ALIASED_BIT</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead, define the constraint as part of the parent
+<a href="#VkBufferCreateInfo">VkBufferCreateInfo</a> structure&#8217;s valid usage:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">// REWRITTEN CORRECTLY: Define interaction with child in
+// parent VkBufferCreateInfo structure
+ifdef::VK_NV_dedicated_allocation[]
+  * If the pname:pNext chain contains an instance of
+    slink:VkDedicatedAllocationBufferCreateInfoNV, and the
+    pname:dedicatedAllocation member of the chained structure is
+    ename:VK_TRUE, then pname:flags must: not include
+    ename:VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
+    ename:VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT, or
+    ename:VK_BUFFER_CREATE_SPARSE_ALIASED_BIT
+endif::VK_NV_dedicated_allocation[]</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -3630,9 +3703,9 @@ of applications using Vulkan.</p>
 </div>
 <div class="paragraph">
 <p>Whenever one of these terms appears in the <a href="#vulkan-spec">Vulkan API
-Specification</a>, it must be tagged using the macros, to indicate that its
-use has been carefully considered and is consistent with the definitions in
-section 1.3.
+Specification</a> outside of an <a href="#markup-informative">informative section</a>, it
+must be tagged using the macros, to indicate that its use has been carefully
+considered and is consistent with the definitions in section 1.3.
 This is extremely important for determining IP that is in and out of Scope
 during Ratification reviews.
 The normative terminology macros are defined in the following table:</p>
@@ -4395,8 +4468,9 @@ This list is not intended to be complete.</p>
 <div class="paragraph">
 <p>The <a href="#vulkan-spec">Vulkan API Specification</a> describes API commands followed
 by descriptions of their parameters, which are usually simple scalar types,
-handles or pointers to Vulkan objects or arrays of objects, or structures
-containing combinations of scalar types and objects.
+handles or pointers to Vulkan objects or arrays of objects; enumerated types
+specifying values or bitmasks which affect the operation of a command; or
+structures containing combinations of scalar types and objects.
 The templates and examples shown and annotated here are based on the
 <a href="#vulkan-spec">Vulkan API Specification</a>.
 Do not vary from them without compelling need.</p>
@@ -5270,7 +5344,45 @@ shown above, the tag</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="writing-refpages">5.7. Markup For Automatic Reference Page Extraction</h3>
+<h3 id="writing-empty-enumerations">5.7. Markup For Empty Enumerated Types</h3>
+<div class="paragraph">
+<p>Sometimes an enumerated type has all values defined by extensions, and each
+enumerated value defined by the type will be surrounded by an asciidoc
+conditional for the corresponding extension.
+When a specification is built without any of those extensions enabled, the
+type should still be included, even though it is empty.
+In this case, the enumerated value descriptions must be followed by one
+additional conditional section which is only included when <strong>none</strong> of the
+relevant extensions are enabled.</p>
+</div>
+<div class="paragraph">
+<p>For example, the relevant part of the
+<a href="#VkDescriptorSetLayoutCreateFlagBits">VkDescriptorSetLayoutCreateFlagBits</a> description, whose only value is
+defined by an extension, will look like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">include::../api/enums/VkDescriptorSetLayoutCreateFlagBits.txt[]
+
+ifdef::VK_KHR_push_descriptor[]
+  * ename:VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR specifies
+    that descriptor sets must: not be allocated using this layout, and
+    descriptors are instead pushed by flink:vkCmdPushDescriptorSetKHR.
+endif::VK_KHR_push_descriptor[]
+
+ifndef::VK_KHR_push_descriptor[]
+[NOTE]
+.Note
+====
+All bits for this type are defined by extensions, and none of those
+extensions are enabled in this build of the specification.
+====
+endif::VK_KHR_push_descriptor[]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="writing-refpages">5.8. Markup For Automatic Reference Page Extraction</h3>
 <div class="paragraph">
 <p>The Vulkan reference pages are (mostly) extracted from corresponding
 sections of the API Specification.
@@ -5597,6 +5709,15 @@ to by the Vulkan Working Group.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2017-09-10 - Add <a href="#extensions-interactions-parent">Valid Usage and
+Extension <code>pNext</code> Chains</a> language specifying where to describe
+interactions of structures in a <code>pNext</code> chain (internal issue 715).</p>
+</li>
+<li>
+<p>2017-09-10 - Add example of marking up an enumerated type all of whose
+values are defined by extensions (internal issue 864).</p>
+</li>
+<li>
 <p>2017-06-12 - Add sections describing when to use the
 <a href="#markup-macros-api-name">*name&#x3a;</a> and <a href="#markup-macros-api-text">*text&#x3a;</a> markup macros instead of the *link&#x3a; macros, and clarify
 that slink&#x3a; should be used for handle as well as structure names
@@ -5717,8 +5838,8 @@ Use American rather than British spelling conventions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.60<br>
-Last updated 2017-06-26 19:29:35 PDT
+Version 1.0.61<br>
+Last updated 2017-09-14 22:39:39 PDT
 </div>
 </div>
 
