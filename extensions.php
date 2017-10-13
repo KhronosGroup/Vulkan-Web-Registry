@@ -52,6 +52,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_discard_rectangles"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>

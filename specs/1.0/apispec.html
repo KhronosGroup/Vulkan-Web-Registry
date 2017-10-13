@@ -442,9 +442,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Vulkan API Reference Pages</h1>
 <div class="details">
-<span id="revnumber">version 1.0.62,</span>
-<span id="revdate">Sat, 07 Oct 2017 03:25:06 +0000</span>
-<br><span id="revremark">from git branch: github-1.0 commit: 739d87afdbbe409f0ea73c128bd070fb6006cdb8</span>
+<span id="revnumber">version 1.0.63,</span>
+<span id="revdate">Fri, 13 Oct 2017 03:05:58 +0000</span>
+<br><span id="revremark">from git branch: github-1.0 commit: 52d809dd04be4b063adb715eb5a2114e30a9f6d4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2898,8 +2898,7 @@ bind point.
 The pipeline bound to <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> controls the
 behavior of <a href="#vkCmdDispatch">vkCmdDispatch</a> and <a href="#vkCmdDispatchIndirect">vkCmdDispatchIndirect</a>.
 The pipeline bound to <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code> controls the
-behavior of <a href="#vkCmdDraw">vkCmdDraw</a>, <a href="#vkCmdDrawIndexed">vkCmdDrawIndexed</a>,
-<a href="#vkCmdDrawIndirect">vkCmdDrawIndirect</a>, and <a href="#vkCmdDrawIndexedIndirect">vkCmdDrawIndexedIndirect</a>.
+behavior of all <a href="html/vkspec.html#drawing">drawing commands</a>.
 No other commands are affected by the pipeline state.</p>
 </div>
 <div class="sidebarblock">
@@ -12205,7 +12204,7 @@ The command pool&#8217;s queue family <strong class="purple">must</strong> suppo
 <p><a id="VUID-vkCmdWriteTimestamp-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdWriteTimestamp-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics, or compute operations</p>
+<p><a id="VUID-vkCmdWriteTimestamp-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support transfer, graphics, or compute operations</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdWriteTimestamp-commonparent"></a> Both of <code>commandBuffer</code>, and <code>queryPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <code>VkDevice</code></p>
@@ -12252,7 +12251,8 @@ The command pool&#8217;s queue family <strong class="purple">must</strong> suppo
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
 Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
+graphics<br>
 compute</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer</p></td>
 </tr>
@@ -22110,7 +22110,7 @@ less than or equal to the size of the <code>memory</code> minus <code>offset</co
 <p><a id="VUID-vkMapMemory-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-vkMapMemory-ppData-parameter"></a> <code>ppData</code> <strong class="purple">must</strong> be a pointer to a pointer</p>
+<p><a id="VUID-vkMapMemory-ppData-parameter"></a> <code>ppData</code> <strong class="purple">must</strong> be a pointer to a pointer value</p>
 </li>
 <li>
 <p><a id="VUID-vkMapMemory-memory-parent"></a> <code>memory</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
@@ -22649,7 +22649,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 structures, each specifying a command buffer submission batch.</p>
 </li>
 <li>
-<p><code>fence</code> is an optional handle to a fence to be signaled.
+<p><code>fence</code> is an optional handle to a fence to be signaled once all
+submitted command buffers have completed execution.
 If <code>fence</code> is not <a href="#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, it defines a
 <a href="html/vkspec.html#synchronization-fences-signaling">fence signal operation</a>.</p>
 </li>
@@ -28436,6 +28437,12 @@ chapter</p>
 <a href="html/vkspec.html#descriptorsets-pipelinelayout-consistency">consistent</a> with the layout
 of the compute shader specified in <code>stage</code></p>
 </li>
+<li>
+<p><a id="VUID-VkComputePipelineCreateInfo-layout-01687"></a>
+The number of resources in <code>layout</code> accessible to the compute shader
+stage <strong class="purple">must</strong> be less than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxPerStageResources</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -31175,6 +31182,12 @@ attachments, then the <code>rasterizationSamples</code> member of
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00759"></a>
 <code>subpass</code> <strong class="purple">must</strong> be a valid subpass within <code>renderpass</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-layout-01688"></a>
+The number of resources in <code>layout</code> accessible to each shader stage
+that is used by the pipeline <strong class="purple">must</strong> be less than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxPerStageResources</code></p>
 </li>
 </ul>
 </div>
@@ -38064,6 +38077,82 @@ The total number of descriptors of the type
 shader stage across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less than
 or equal to
 <code>VkPhysicalDeviceLimits</code>::<code>maxPerStageDescriptorStorageImages</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01676"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code> accessible to any given shader
+stage across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less than or
+equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxPerStageDescriptorInputAttachments</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01677"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_SAMPLER</code> and
+<code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code> accessible across all
+shader stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetSamplers</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01678"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER</code> accessible across all shader
+stagess and and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetUniformBuffers</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01679"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</code> accessible across all
+shader stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetUniformBuffersDynamic</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01680"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER</code> accessible across all shader
+stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less than
+or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetStorageBuffers</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01681"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</code> accessible across all
+shader stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetStorageBuffersDynamic</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01682"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>,
+<code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, and
+<code>VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER</code> accessible across all
+shader stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetSampledImages</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01683"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, and
+<code>VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER</code> accessible across all
+shader stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
+than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetStorageImages</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01684"></a>
+The total number of descriptors of the type
+<code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code> accessible across all shader
+stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less than
+or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetInputAttachments</code></p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineLayoutCreateInfo-pPushConstantRanges-00292"></a>
@@ -54266,7 +54355,7 @@ Specification updates have no effect on vulkan.h.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Version of this file
-#define VK_HEADER_VERSION 62</code></pre>
+#define VK_HEADER_VERSION 63</code></pre>
 </div>
 </div>
 </div>
@@ -54544,8 +54633,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.62<br>
-Last updated 2017-10-06 20:25:05 PDT
+Version 1.0.63<br>
+Last updated 2017-10-12 20:05:56 PDT
 </div>
 </div>
 
