@@ -76,6 +76,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_fragment_mask"> VK_AMD_shader_fragment_mask </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_image_load_store_lod"> VK_AMD_shader_image_load_store_lod </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_info"> VK_AMD_shader_info </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_shader_trinary_minmax"> VK_AMD_shader_trinary_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_texture_gather_bias_lod"> VK_AMD_texture_gather_bias_lod </a> </li>
     <li> <b>  GOOGLE Extensions (Google, Inc.)  </b> </li>
