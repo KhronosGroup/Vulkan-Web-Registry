@@ -52,9 +52,12 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_discard_rectangles"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_control"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_external_memory_dma_buf"> VK_EXT_external_memory_dma_buf </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_sampler_filter_minmax"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_shader_stencil_export"> VK_EXT_shader_stencil_export </a> </li>
