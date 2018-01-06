@@ -45,6 +45,7 @@
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_conservative_rasterization"> VK_EXT_conservative_rasterization </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_debug_report"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_depth_range_unrestricted"> VK_EXT_depth_range_unrestricted </a> </li>
