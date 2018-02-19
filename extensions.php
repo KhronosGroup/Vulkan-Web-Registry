@@ -69,6 +69,7 @@
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_cache"> VK_EXT_validation_cache </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
+    <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_buffer_marker"> VK_AMD_buffer_marker </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
     <li> <a href="specs/1.0-extensions/html/vkspec.html#VK_AMD_gpu_shader_half_float"> VK_AMD_gpu_shader_half_float </a> </li>
