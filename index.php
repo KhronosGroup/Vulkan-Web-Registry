@@ -233,11 +233,11 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h3> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h3>
 
-<p> The <a href="https://github.com/KhronosGroup/Vulkan-CTS">
-    Vulkan-CTS</a> repository contains the source code for the Vulkan
-    Conformance Tests. Note that while the CTS source code is freely
-    available, you must be a Khronos Adopter and pay the Adopter Fee in
-    order to use the Vulkan trademark for your implementation. </p>
+<p> The <a href="https://github.com/KhronosGroup/VK-GL-CTS">VK-GL-CTS</a>
+    repository contains the source code for the Vulkan Conformance Tests.
+    Note that while the CTS source code is freely available, you must be a
+    Khronos Adopter and pay the Adopter Fee in order to use the Vulkan
+    trademark for your implementation. </p>
 
 
 <h3> <a name="repo-loader"></a> <b>Loader and Validation Layers Repository</b> </h3>
