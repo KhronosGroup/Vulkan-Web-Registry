@@ -19,7 +19,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     href="https://www.khronos.org/vulkan/">Vulkan landing page</a>. </p>
 
 <p> The <a href="https://github.com/KhronosGroup/GLSL">GLSL Shading
-    Language</a> Github repository contains OpenGL Shading Language
+    Language</a> GitHub repository contains OpenGL Shading Language
     extensions to be used with an offline GLSL compiler generating SPIR-V
     code for use with Vulkan. These specifications were previously
     maintained in the Vulkan-Docs repository and published in the Vulkan
@@ -37,7 +37,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     <li> <a href="#refguide"/> <b>Vulkan 1.1 API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>Vulkan API Reference Pages</b> </a> </li>
     <li> <a href="#vulkan1.0"/> <b>Vulkan 1.0 Material</b> </a> </li>
-    <li> <a href="#repos"/> <b>Vulkan Github Repositories</b>
+    <li> <a href="#repos"/> <b>Vulkan GitHub Repositories</b>
         <ul>
         <li> <a href="#repo-docs"/> <b>API and Extension Specification Repository</b> </a>
             <ul>
@@ -117,7 +117,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     structures in the core API and extensions, although there may be some
     omissions. In addition to the format published here, it is possible to
     generate other formats from the reference page sources, such as PDF or
-    Unix nroff man page sources.</p>
+    Unix <tt>nroff</tt> man page sources.</p>
 
 <ul>
 <li> <b>Vulkan 1.1 Reference Pages</b>
@@ -173,12 +173,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="repos"></a> <b> Vulkan Github Repositories </b> </h2>
+<h2> <a name="repos"></a> <b> Vulkan GitHub Repositories </b> </h2>
 
 <h3> <a name="repo-docs"></a> <b>API and Extension Specification Repository</b> </h3>
 
 <p> The <a href="https://github.com/KhronosGroup/Vulkan-Docs">
-    Vulkan-Docs</a> repository contains the Asciidoc source for the Vulkan
+    Vulkan-Docs</a> repository contains the AsciiDoc source for the Vulkan
     core API specification, and for registered Vulkan API extensions. </p>
 
 <p> All published extension specifications are included in the <tt><a
@@ -214,12 +214,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <p> For most developers, the header files provided with a loader and/or
     driver package, such as the one defined in the <a
-    href="#repo-loader"> loader and validation layers</a> Github
+    href="#repo-loader"> loader and validation layers</a> GitHub
     repository, are all that's needed. </p>
 
 <p> However, all Vulkan headers provided by Khronos are ultimately obtained
     from the <a href="#repo-docs"> Vulkan-Docs</a> repository You may clone
-    this repository and copy the headers from <b>include/vulkan/vulkan*.h</b>;
+    this repository and copy the headers from <b>include/vulkan/*.h</b>;
     or, if you need to generate a customized version of the headers, use the
     <a href="#apiregistry">API Registry</a> and scripts under
     <b>xml/</b>. </p>
@@ -232,14 +232,14 @@ include_once("../../assets/static_pages/khr_page_top.php");
     many other aspects of the API and extension mechanisms. The Vulkan
     Registry is used for many more purposes than most other Khronos API
     registries, and is the basis for generating the header files;
-    Asciidoc include files used in the Specification, and reference
+    AsciiDoc include files used in the Specification, and reference
     pages for interface definitions, parameter and member validity
     language, and synchronization language; and more. </p>
 
 <p> The Registry is in an XML file called <b>vk.xml</b> and currently
-    located in the <a href="#repo-docs"> Vulkan-Docs</a> repository
-    under <b>xml/</b>. This directory also includes a formal Relax
-    NG XML schema and scripts used to generate the various outputs. </p>
+    located in the <a href="#repo-docs">Vulkan-Docs</a> repository
+    under <b>xml/</b>. This directory also includes a formal RELAX&nbsp;NG
+    XML schema and scripts used to generate the various outputs. </p>
 
 <p> <a href="specs/1.1/registry.html"> Documentation of the XML schema</a>
     is available. </p>
