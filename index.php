@@ -186,12 +186,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
     appendices of the <a href="specs/1.1-extensions/html/vkspec.html">
     Vulkan 1.1 Core API + all published Extensions</a> Specification. This
     list is driven by the <tt>supported</tt> tags in
-    <tt>src/spec/vk.xml</tt> in Vulkan-Docs, and may contain anomalies in
+    <tt>xml/vk.xml</tt> in Vulkan-Docs, and may contain anomalies in
     the form of links to extensions marked as supported by a vendor, but
     whose specifications have not yet been merged into the Vulkan-Docs
     repository. </a>
 
-<!-- Generated from /src/spec/indexExt.py in the spec repository -->
+<!-- Generated from xml/indexExt.py in the spec repository -->
 <?php include_once("extensions.php"); ?>
 
 <p> Vulkan-Docs also contains the header files, API Registry, and
@@ -207,10 +207,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <p> However, all Vulkan headers provided by Khronos are ultimately obtained
     from the <a href="#repo-docs"> Vulkan-Docs</a> repository You may clone
-    this repository and copy the headers from <b>src/vulkan/vulkan*.h</b>;
+    this repository and copy the headers from <b>include/vulkan/vulkan*.h</b>;
     or, if you need to generate a customized version of the headers, use the
     <a href="#apiregistry">API Registry</a> and scripts under
-    <b>src/spec/</b>. </p>
+    <b>xml/</b>. </p>
 
 
 <h4> <a name="apiregistry"></a> <b>API Registry</b> </h4>
@@ -226,7 +226,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <p> The Registry is in an XML file called <b>vk.xml</b> and currently
     located in the <a href="#repo-docs"> Vulkan-Docs</a> repository
-    under <b>src/spec</b>. This directory also includes a formal Relax
+    under <b>xml/</b>. This directory also includes a formal Relax
     NG XML schema and scripts used to generate the various outputs. </p>
 
 <p> <a href="specs/1.1/registry.html"> Documentation of the XML schema</a>
