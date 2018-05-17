@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
 <meta name="author" content="The Khronos Vulkan Working Group">
-<title>Vulkan&#174; 1.0.74 - A Specification</title>
+<title>Vulkan&#174; 1.0.75 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>&#174;</sup> 1.0.74 - A Specification </h1>
+<h1>Vulkan<sup>&#174;</sup> 1.0.75 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.74,</span>
-<span id="revdate">2018-04-21 10:28:49Z</span>
-<br><span id="revremark">from git branch: github-master commit: c51545d33f4fd791dc4109d0d338e79b572f6286</span>
+<span id="revnumber">version 1.0.75,</span>
+<span id="revdate">2018-05-17 09:52:28Z</span>
+<br><span id="revremark">from git branch: github-master commit: e665b9e6910e54caf754ad1e83aaa500d1de44f3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3153,6 +3153,35 @@ drivers) <strong class="purple">must</strong> skip over, without processing (oth
 <p>Extension structures are not described in the base Vulkan Specification, but
 either in layered Specifications incorporating those extensions, or in
 separate vendor-provided documents.</p>
+</div>
+<div class="paragraph">
+<p>As a convenience to implementations and layers needing to iterate through a
+structure pointer chain, the Vulkan API provides the following base
+structures:</p>
+</div>
+<div id="VkBaseInStructure" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBaseInStructure {
+    VkStructureType                    sType;
+    <span class="directive">const</span> <span class="keyword">struct</span> VkBaseInStructure*    pNext;
+} VkBaseInStructure;</code></pre>
+</div>
+</div>
+<div id="VkBaseOutStructure" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBaseOutStructure {
+    VkStructureType               sType;
+    <span class="keyword">struct</span> VkBaseOutStructure*    pNext;
+} VkBaseOutStructure;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkBaseInStructure</code> can be used to facilitate iterating through a
+read-only structure pointer chain.
+<code>VkBaseOutStructure</code> can be used to facilitate iterating through a
+structure pointer chain that returns data back to the application.
+These structures allow for some type safety and can be used by Vulkan API
+functions that operate on generic inputs and outputs.</p>
 </div>
 </div>
 <div class="sect4">
@@ -6381,7 +6410,9 @@ buffers or the pool itself.</p>
 <p><code>device</code> is the logical device that creates the command pool.</p>
 </li>
 <li>
-<p><code>pCreateInfo</code> contains information used to create the command pool.</p>
+<p><code>pCreateInfo</code> is a pointer to an instance of the
+<a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure specifying the state of the
+command pool object.</p>
 </li>
 <li>
 <p><code>pAllocator</code> controls host memory allocation as described in the
@@ -6392,6 +6423,20 @@ buffers or the pool itself.</p>
 created pool is returned.</p>
 </li>
 </ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCreateCommandPool-queueFamilyIndex-01937"></a>
+<code>pCreateInfo</code>::<code>queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue
+family available in the logical device <code>device</code>.</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6482,20 +6527,6 @@ All command buffers allocated from this command pool <strong class="purple">must
 on queues from the same queue family.</p>
 </li>
 </ul>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkCommandPoolCreateInfo-queueFamilyIndex-00039"></a>
-<code>queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue family available in
-the calling command&#8217;s <code>device</code> parameter</p>
-</li>
-</ul>
-</div>
-</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -16563,7 +16594,7 @@ described by the <a href="#spirvenv">Vulkan Environment for SPIR-V</a> appendix.
 <p><code>device</code> is the logical device that creates the shader module.</p>
 </li>
 <li>
-<p><code>pCreateInfo</code> parameter is a pointer to an instance of the
+<p><code>pCreateInfo</code> is a pointer to an instance of the
 <code>VkShaderModuleCreateInfo</code> structure.</p>
 </li>
 <li>
@@ -23935,10 +23966,6 @@ of <code>pQueueFamilyIndices</code> <strong class="purple">must</strong> be uniq
 <code>physicalDevice</code> that was used to create <code>device</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageCreateInfo-format-00943"></a>
-<code>format</code> <strong class="purple">must</strong> not be <code>VK_FORMAT_UNDEFINED</code></p>
-</li>
-<li>
 <p><a id="VUID-VkImageCreateInfo-extent-00944"></a>
 <code>extent</code>::<code>width</code> <strong class="purple">must</strong> be greater than <code>0</code>.</p>
 </li>
@@ -26256,6 +26283,32 @@ a <code>propertyFlags</code> that has the
 <div class="paragraph">
 <p>The implication of this requirement is that lazily allocated memory is
 disallowed for buffers in all cases.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>The <code>size</code> member is identical for all <code>VkBuffer</code> objects
+created with the same combination of creation parameters specified in
+<code>VkBufferCreateInfo</code> and its <code>pNext</code> chain.</p>
+</li>
+<li>
+<p>The <code>size</code> member is identical for all <code>VkImage</code> objects created
+with the same combination of creation parameters specified in
+<code>VkImageCreateInfo</code> and its <code>pNext</code> chain.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This, however, does not imply that they interpret the contents of the bound
+memory identically with each other.</p>
 </div>
 </td>
 </tr>
@@ -28771,8 +28824,8 @@ than or equal to
 <p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-01678"></a>
 The total number of descriptors of the type
 <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER</code> accessible across all shader
-stagess and and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less
-than or equal to
+stages and across all elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be less than
+or equal to
 <code>VkPhysicalDeviceLimits</code>::<code>maxDescriptorSetUniformBuffers</code></p>
 </li>
 <li>
@@ -31134,8 +31187,8 @@ resulting draws and dispatches, or any time in between.</p>
 <div class="paragraph">
 <p>Thus, the contents of a descriptor set binding <strong class="purple">must</strong> not be altered
 (overwritten by an update command, or freed) between the first point in time
-that it <strong class="purple">may</strong> be consumed, and and when the command completes executing on
-the queue.</p>
+that it <strong class="purple">may</strong> be consumed, and when the command completes executing on the
+queue.</p>
 </div>
 <div class="paragraph">
 <p>The contents of <code>pDynamicOffsets</code> are consumed immediately during
@@ -32066,9 +32119,7 @@ specified, which are assigned and matched with the
 <p>Variables identified with the <code>UniformConstant</code> storage class are used
 only as handles to refer to opaque resources.
 Such variables <strong class="purple">must</strong> be typed as <code>OpTypeImage</code>, <code>OpTypeSampler</code>,
-<code>OpTypeSampledImage</code>, or arrays of only these types.
-Variables of type <code>OpTypeImage</code> <strong class="purple">must</strong> have a <code>Sampled</code> operand of 1
-(sampled image) or 2 (storage image).</p>
+<code>OpTypeSampledImage</code>, or an array of one of these types.</p>
 </div>
 <div class="paragraph">
 <p>The <code>Sampled</code> <code>Type</code> of an <code>OpTypeImage</code> declaration <strong class="purple">must</strong> match
@@ -32108,7 +32159,7 @@ Such variables <strong class="purple">must</strong> be:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>typed as <code>OpTypeStruct</code>, or arrays of only this type,</p>
+<p>typed as <code>OpTypeStruct</code>, or an array of this type,</p>
 </li>
 <li>
 <p>identified with a <code>Block</code> or <code>BufferBlock</code> decoration, and</p>
@@ -32203,6 +32254,12 @@ indices:</p>
 </div>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>If an instruction loads from or stores to a resource (including atomics and
+image instructions) and the resource descriptor being accessed is not
+uniform, then the corresponding dynamic indexing
+feature <strong class="purple">must</strong> be enabled and the capability <strong class="purple">must</strong> be declared.</p>
 </div>
 <table id="interfaces-resources-correspondence" class="tableblock frame-all grid-all" style="width: 90%;">
 <caption class="title">Table 12. Shader Resource and Descriptor Type Correspondence</caption>
@@ -32362,8 +32419,8 @@ Each descriptor set has its own binding name space.</p>
 <div class="paragraph">
 <p>If the <code>Binding</code> decoration is used with an array, the entire array is
 assigned that binding value.
-The size of the array declaration <strong class="purple">must</strong> be no larger than the
-<code>descriptorCount</code> of that <code>VkDescriptorSetLayoutBinding</code>.
+The array <strong class="purple">must</strong> be a single-dimensional array and size of the array <strong class="purple">must</strong> be
+no larger than the number of descriptors in the binding.
 The array <strong class="purple">must</strong> not be runtime-sized.
 The index of each element of the array is referred to as the <em>arrayElement</em>.
 For the purposes of interface matching and descriptor set
@@ -32397,11 +32454,51 @@ The descriptor set layout binding <strong class="purple">must</strong> be of a c
 type, as defined in <a href="#interfaces-resources-correspondence">Shader Resource
 and Descriptor Type Correspondence</a>.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
 <div class="paragraph">
-<p>It is valid for multiple shader variables to be assigned the same descriptor
-set and binding values, as long as all those that are statically used by the
-entry point being compiled are compatible with the descriptor type in the
-descriptor set layout binding.</p>
+<p>There are no limits on the number of shader variables that can have
+overlapping set and binding values in a shader; but which resources are
+<a href="#shaders-staticuse">statically used</a> has an impact.
+If any shader variable identifying a resource is
+<a href="#shaders-staticuse">statically used</a> in a shader, then the underlying
+descriptor bound at the declared set and binding must
+<a href="#interfaces-resources-correspondence">support the declared type in the
+shader</a> when the shader executes.</p>
+</div>
+<div class="paragraph">
+<p>If multiple shader variables are declared with the same set and binding
+values, and with the same underlying descriptor type, they can all be
+statically used within the same shader.
+However, accesses are not automatically synchronized, and <code>Aliased</code>
+decorations should be used to avoid data hazards (see
+<a href="https://www.khronos.org/registry/spir-v/specs/unified1/SPIRV.html#_a_id_aliasingsection_a_aliasing">section
+2.18.2 Aliasing in the SPIR-V specification</a>).</p>
+</div>
+<div class="paragraph">
+<p>If multiple shader variables with the same set and binding values are
+declared in a single shader, but with different declared types, where any of
+those are not supported by the relevant bound descriptor, that shader can
+only be executed if the variables with the unsupported type are not
+statically used.</p>
+</div>
+<div class="paragraph">
+<p>A noteworthy example of using multiple statically-used shader variables
+sharing the same descriptor set and binding values is a descriptor of type
+<code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code> that has multiple
+corresponding shader variables in the <code>UniformConstant</code> storage class,
+where some could be <code>OpTypeImage</code>, some could be <code>OpTypeSampler</code>
+(<code>Sampled</code>=1), and some could be <code>OpTypeSampledImage</code>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <table id="interfaces-resources-limits" class="tableblock frame-all grid-all" style="width: 80%;">
 <caption class="title">Table 14. Shader Resource Limits</caption>
@@ -39982,14 +40079,14 @@ be less than or equal to the <code>arrayLayers</code> specified in
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyImage-srcOffset-01783"></a>
-The <code>srcOffset</code> and and <code>extent</code> members of each element of
+The <code>srcOffset</code> and <code>extent</code> members of each element of
 <code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity requirements
 of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as described in
 <a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyImage-dstOffset-01784"></a>
-The <code>dstOffset</code> and and <code>extent</code> members of each element of
+The <code>dstOffset</code> and <code>extent</code> members of each element of
 <code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity requirements
 of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as described in
 <a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
@@ -40504,10 +40601,10 @@ The <span class="eq"><code>imageSubresource.baseArrayLayer</code> +
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyBufferToImage-imageOffset-01793"></a>
-The <code>imageOffset</code> and and <code>imageExtent</code> members of each element
-of <code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity
-requirements of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as
-described in <a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
+The <code>imageOffset</code> and <code>imageExtent</code> members of each element of
+<code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity requirements
+of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as described in
+<a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
 </li>
 </ul>
 </div>
@@ -40719,10 +40816,10 @@ The <span class="eq"><code>imageSubresource.baseArrayLayer</code> +
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyImageToBuffer-imageOffset-01794"></a>
-The <code>imageOffset</code> and and <code>imageExtent</code> members of each element
-of <code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity
-requirements of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as
-described in <a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
+The <code>imageOffset</code> and <code>imageExtent</code> members of each element of
+<code>pRegions</code> <strong class="purple">must</strong> respect the image transfer granularity requirements
+of <code>commandBuffer</code>&#8217;s command pool&#8217;s queue family, as described in
+<a href="#VkQueueFamilyProperties">VkQueueFamilyProperties</a></p>
 </li>
 </ul>
 </div>
@@ -41435,10 +41532,10 @@ sampled during the blit operation</p>
 <p><a id="VUID-vkCmdBlitImage-srcImage-00218"></a>
 <code>srcImage</code> <strong class="purple">must</strong> use a format that supports
 <code>VK_FORMAT_FEATURE_BLIT_SRC_BIT</code>, which is indicated by
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for linearly tiled
-images) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> (for
-optimally tiled images) - as returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-srcImage-00219"></a>
@@ -41465,10 +41562,10 @@ or <code>VK_IMAGE_LAYOUT_GENERAL</code></p>
 <p><a id="VUID-vkCmdBlitImage-dstImage-00223"></a>
 <code>dstImage</code> <strong class="purple">must</strong> use a format that supports
 <code>VK_FORMAT_FEATURE_BLIT_DST_BIT</code>, which is indicated by
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for linearly tiled
-images) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> (for
-optimally tiled images) - as returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-dstImage-00224"></a>
@@ -41533,10 +41630,10 @@ If <code>srcImage</code> was created with a depth/stencil format, <code>filter</
 If <code>filter</code> is <code>VK_FILTER_LINEAR</code>, <code>srcImage</code> <strong class="purple">must</strong> be of a
 format which supports linear filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-srcSubresource-01705"></a>
@@ -43251,10 +43348,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDraw-None-01499"></a>
@@ -43528,10 +43625,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexed-None-01500"></a>
@@ -43823,10 +43920,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirect-None-01501"></a>
@@ -44183,10 +44280,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-01503"></a>
@@ -49923,7 +50020,7 @@ z<sub>a</sub></span>.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If depth clamping (see <a href="#vertexpostproc-clipping">Primitive Clipping</a>) is
+<p>If <a href="#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthClampEnable</code> is
 enabled, before the incoming fragment&#8217;s <span class="eq"><code>z</code><sub>f</sub></span> is compared to
 <span class="eq"><code>z</code><sub>a</sub></span>, <span class="eq"><code>z</code><sub>f</sub></span> is clamped to <span class="eq">[min(n,f),max(n,f)]</span>,
 where <span class="eq">n</span> and <span class="eq">f</span> are the <code>minDepth</code> and <code>maxDepth</code> depth
@@ -51134,10 +51231,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 </ul>
 </div>
@@ -51349,10 +51446,10 @@ Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as
 result of this command <strong class="purple">must</strong> be of a format which supports linear
 filtering, as specified by the
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> (for a linear
-image) or <code>VkFormatProperties</code>::<code>optimalTilingFeatures</code>(for an
-optimally tiled image) returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
+<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
+<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
+tiled images, respectively</p>
 </li>
 </ul>
 </div>
@@ -66412,9 +66509,13 @@ type for the &#8220;Sampled Type&#8221;.
 the variable holding the result of a sampling instruction.)</p>
 </li>
 <li>
-<p><code>OpSampledImage</code>, <code>OpImageQuerySizeLod</code>, and
-<code>OpImageQueryLevels</code> <strong class="purple">must</strong> only consume an &#8220;Image&#8221; operand whose
-type has its &#8220;Sampled&#8221; operand set to 1.</p>
+<p><code>OpTypeImage</code> <strong class="purple">must</strong> have a &#8220;Sampled&#8221; operand of 1 (sampled image)
+or 2 (storage image).</p>
+</li>
+<li>
+<p><code>OpImageQuerySizeLod</code>, and <code>OpImageQueryLevels</code> <strong class="purple">must</strong> only
+consume an &#8220;Image&#8221; operand whose type has its &#8220;Sampled&#8221; operand set
+to 1.</p>
 </li>
 <li>
 <p>The <span class="eq">(u,v)</span> coordinates used for a <code>SubpassData</code> <strong class="purple">must</strong> be the
@@ -67287,7 +67388,7 @@ interface stability than a non-<code>X</code> extension from the same vendor.</p
 <div class="ulist">
 <ul>
 <li>
-<p>Tobias Hector @tobias</p>
+<p>Tobias Hector @tobski</p>
 </li>
 </ul>
 </div>
@@ -67626,7 +67727,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">74</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">75</span></code></pre>
 </div>
 </div>
 </div>
@@ -70128,7 +70229,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.74<br>
+Version 1.0.75<br>
 Last updated 2018-04-04 22:37:36 PDT
 </div>
 </div>
