@@ -9,6 +9,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group_creation"> VK_KHR_device_group_creation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_display"> VK_KHR_display </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_display_swapchain"> VK_KHR_display_swapchain </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_draw_indirect_count"> VK_KHR_draw_indirect_count </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence"> VK_KHR_external_fence </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence_capabilities"> VK_KHR_external_fence_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence_fd"> VK_KHR_external_fence_fd </a> </li>
@@ -21,6 +22,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_semaphore_capabilities"> VK_KHR_external_semaphore_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_semaphore_fd"> VK_KHR_external_semaphore_fd </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_semaphore_win32"> VK_KHR_external_semaphore_win32 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_get_display_properties2"> VK_KHR_get_display_properties2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_get_memory_requirements2"> VK_KHR_get_memory_requirements2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_get_physical_device_properties2"> VK_KHR_get_physical_device_properties2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_get_surface_capabilities2"> VK_KHR_get_surface_capabilities2 </a> </li>
