@@ -31,8 +31,9 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
     <li> <a href="#apispecs"/> <b>Vulkan 1.1 API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
-    <li> <a href="#styleguide"/> <b>Vulkan Procedures and Conventions</b>
-         </a> (formerly the &ldquo;API Style Guide&rdquo;) </li>
+    <li> <a href="#styleguide"/> <b>Vulkan Documentation and Extensions:
+         Procedures and Conventions</b> </a> (the &ldquo;Style Guide&rdquo;)
+         </li>
     <li> <a href="#refguide"/> <b>Vulkan 1.1 API Quick Reference</b> </a> </li>
     <li> <a href="#refpages"/> <b>Vulkan API Reference Pages</b> </a> </li>
     <li> <a href="#vulkan1.0"/> <b>Vulkan 1.0 Material</b> </a> </li>
@@ -86,15 +87,16 @@ include_once("../../assets/static_pages/khr_page_top.php");
     incorporated into the Vulkan API Specification by reference. </p>
 
 
-<h2> <a name="styleguide"></a> <b>Vulkan Procedures and Conventions</b> </h2>
+<h2> <a name="styleguide"></a> <b>Vulkan Documentation and Extensions:
+     Procedures and Conventions</b> </h2>
 
-<p> The <a href="specs/1.1/styleguide.html">Vulkan Documentation: Procedures
-    and Conventions</a> document (formerly the &ldquo;API Style Guide&rdquo;) defines
-    mandatory and recommended conventions and best practices used in
-    creating and modifying the API Specification and extensions . Authors
-    wishing to write Vulkan extension specifications or contribute to
-    existing specifications should familiarize themselves with this document
-    and follow its recommendations. </p>
+<p> The <a href="specs/1.1/styleguide.html">Vulkan Documentation and
+    Extensions: Procedures and Conventions</a> document (colloquially, the
+    &ldquo;Style Guide&rdquo;) defines mandatory and recommended conventions
+    and best practices used in creating and modifying the API Specification
+    and extensions. Authors wishing to write Vulkan extension
+    specifications, or contribute to existing specifications, should
+    familiarize themselves with and adhere to this document. </p>
 
 
 <h2> <a name="refguide"></a> <b>Vulkan 1.1 API Quick Reference</b> </h2>
