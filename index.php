@@ -45,7 +45,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
             <li> <a href="#apiregistry"/> <b>API Registry</b> </a> </li>
             </ul> </li>
         <li> <a href="#repo-cts"/> <b>Conformance Test Suite Repository</b> </a> </li>
-        <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repository</b> </a> </li>
+        <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repositories</b> </a> </li>
         <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
         </ul> </li>
 </ul>
