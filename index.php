@@ -250,18 +250,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
     single &quot;Vulkan-LoaderAndValidationLayers&quot; repository:
 
 <ul>
-<li> The <a href=https://github.com/KhronosGroup/Vulkan-Headers">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Headers">
      Vulkan-Headers</a> repository contains a copy of the Vulkan XML API
      Registry and scripts for processing it, taken from the latest public
      specification update in the <a href="#repo-docs"> Vulkan-Docs</a>
      project, and the corresponding generated Vulkan API headers. </li>
-<li> The <a href=https://github.com/KhronosGroup/Vulkan-Tools">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Tools">
      Vulkan-Tools</a> repository contains Khronos official Vulkan Tools and
      Utilities for Windows, Linux, Android, and MacOS. </li>
-<li> The <a href=https://github.com/KhronosGroup/Vulkan-ValidationLayers">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers">
      Vulkan-ValidationLayers</a> repository contains the Khronos official
      Vulkan validation layers for Windows, Linux, Androis, and MacOS. </li>
-<li> The <a href=https://github.com/KhronosGroup/Vulkan-Loader">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Loader">
      Vulkan-Loader</a> repository contains the Vulkan loader that is used
      for Linux, Windows, MacOS, and iOS. </li>
 </ul>
