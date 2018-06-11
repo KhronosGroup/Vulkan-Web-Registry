@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
 <meta name="author" content="The Khronos Vulkan Working Group">
-<title>Vulkan&#174; 1.0.76 - A Specification</title>
+<title>Vulkan&#174; 1.0.77 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>&#174;</sup> 1.0.76 - A Specification </h1>
+<h1>Vulkan<sup>&#174;</sup> 1.0.77 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.76,</span>
-<span id="revdate">2018-05-25 11:13:51Z</span>
-<br><span id="revremark">from git branch: github-master commit: ee13fc355fae06ffcd36ee09a98f12132d95dfc0</span>
+<span id="revnumber">version 1.0.77,</span>
+<span id="revdate">2018-06-11 02:56:40Z</span>
+<br><span id="revremark">from git branch: github-master commit: 0d5f92c7fafa7b61a14fce683f9624ba8c7f9a43</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1431,11 +1431,11 @@ February 10, 2016.</p>
 <div class="paragraph">
 <p><a id="vulkan-styleguide"></a> J. Leech and T. Hector, <em>Vulkan Documentation and
 Extensions: Procedures and Conventions</em>,
-<a href="https://www.khronos.org/registry/vulkan/" class="bare">https://www.khronos.org/registry/vulkan/</a>, July 11, 2016</p>
+<a href="https://www.khronos.org/registry/vulkan/specs/1.1/styleguide.html" class="bare">https://www.khronos.org/registry/vulkan/specs/1.1/styleguide.html</a></p>
 </div>
-<div id="LoaderAndValidationLayers" class="paragraph">
+<div id="LoaderAndLayerInterface" class="paragraph">
 <p><em>Vulkan Loader Specification and Architecture Overview</em>,
-<a href="https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md" class="bare">https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/blob/master/loader/LoaderAndLayerInterface.md</a>,
+<a href="https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md" class="bare">https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/LoaderAndLayerInterface.md</a>,
 August, 2016.</p>
 </div>
 </div>
@@ -4859,9 +4859,9 @@ accelerator.</p>
 vendor ID</a>, the low 16 bits of <code>vendorID</code> <strong class="purple">must</strong> contain that PCI vendor
 ID, and the remaining bits <strong class="purple">must</strong> be set to zero.
 Otherwise, the value returned <strong class="purple">must</strong> be a valid Khronos vendor ID, obtained
-as described in the <a href="#vulkan-styleguide">Vulkan Documentation and
-Extensions</a> document in the section &#8220;Registering a Vendor ID with
-Khronos&#8221;.
+as described in the <a href="#vulkan-styleguide">Vulkan Documentation and Extensions:
+Procedures and Conventions</a> document in the section &#8220;Registering a Vendor
+ID with Khronos&#8221;.
 Khronos vendor IDs are allocated starting at 0x10000, to distinguish them
 from the PCI vendor ID namespace.</p>
 </div>
@@ -26239,6 +26239,31 @@ created with the same combination of values for the <code>usage</code> and
 <code>vkCreateBuffer</code>.</p>
 </li>
 <li>
+<p>The <code>alignment</code> member satisfies the buffer descriptor offset
+alignment requirements associated with the <code>VkBuffer</code>&#8217;s <code>usage</code>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>usage</code> included
+<code>VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT</code> or
+<code>VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT</code>, <code>alignment</code> <strong class="purple">must</strong>
+be an integer multiple of
+<code>VkPhysicalDeviceLimits</code>::<code>minTexelBufferOffsetAlignment</code>.</p>
+</li>
+<li>
+<p>If <code>usage</code> included <code>VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT</code>,
+<code>alignment</code> <strong class="purple">must</strong> be an integer multiple of
+<code>VkPhysicalDeviceLimits</code>::<code>minUniformBufferOffsetAlignment</code>.</p>
+</li>
+<li>
+<p>If <code>usage</code> included <code>VK_BUFFER_USAGE_STORAGE_BUFFER_BIT</code>,
+<code>alignment</code> <strong class="purple">must</strong> be an integer multiple of
+<code>VkPhysicalDeviceLimits</code>::<code>minStorageBufferOffsetAlignment</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
 <p>For images created with a color format, the <code>memoryTypeBits</code> member
 is identical for all <code>VkImage</code> objects created with the same
 combination of values for the <code>tiling</code> member, the
@@ -26369,28 +26394,6 @@ flags</p>
 <li>
 <p><a id="VUID-vkBindBufferMemory-memoryOffset-01031"></a>
 <code>memoryOffset</code> <strong class="purple">must</strong> be less than the size of <code>memory</code></p>
-</li>
-<li>
-<p><a id="VUID-vkBindBufferMemory-buffer-01032"></a>
-If <code>buffer</code> was created with the
-<code>VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT</code> or
-<code>VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT</code>, <code>memoryOffset</code> <strong class="purple">must</strong>
-be a multiple of
-<code>VkPhysicalDeviceLimits</code>::<code>minTexelBufferOffsetAlignment</code></p>
-</li>
-<li>
-<p><a id="VUID-vkBindBufferMemory-buffer-01033"></a>
-If <code>buffer</code> was created with the
-<code>VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT</code>, <code>memoryOffset</code> <strong class="purple">must</strong> be a
-multiple of
-<code>VkPhysicalDeviceLimits</code>::<code>minUniformBufferOffsetAlignment</code></p>
-</li>
-<li>
-<p><a id="VUID-vkBindBufferMemory-buffer-01034"></a>
-If <code>buffer</code> was created with the
-<code>VK_BUFFER_USAGE_STORAGE_BUFFER_BIT</code>, <code>memoryOffset</code> <strong class="purple">must</strong> be a
-multiple of
-<code>VkPhysicalDeviceLimits</code>::<code>minStorageBufferOffsetAlignment</code></p>
 </li>
 <li>
 <p><a id="VUID-vkBindBufferMemory-memory-01035"></a>
@@ -27144,8 +27147,7 @@ function to apply to fetched data before filtering as described in the
 </li>
 <li>
 <p><code>minLod</code> and <code>maxLod</code> are the values used to clamp the computed
-LOD value, as described in the <a href="#textures-level-of-detail-operation">Level-of-Detail Operation</a> section.
-<code>maxLod</code> <strong class="purple">must</strong> be greater than or equal to <code>minLod</code>.</p>
+LOD value, as described in the <a href="#textures-level-of-detail-operation">Level-of-Detail Operation</a> section.</p>
 </li>
 <li>
 <p><code>borderColor</code> is a <a href="#VkBorderColor">VkBorderColor</a> value specifying the
@@ -27282,6 +27284,10 @@ In such cases, all such objects would only count once against the
 <p><a id="VUID-VkSamplerCreateInfo-mipLodBias-01069"></a>
 The absolute value of <code>mipLodBias</code> <strong class="purple">must</strong> be less than or equal to
 <code>VkPhysicalDeviceLimits</code>::<code>maxSamplerLodBias</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSamplerCreateInfo-maxLod-01973"></a>
+<code>maxLod</code> <strong class="purple">must</strong> be greater than or equal to <code>minLod</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSamplerCreateInfo-anisotropyEnable-01070"></a>
@@ -27678,8 +27684,10 @@ corresponding to different resources or usage.
 The following sections describe the API definitions of each descriptor type.
 The mapping of each type to SPIR-V is listed in the
 <a href="#interfaces-resources-correspondence">Shader Resource and Descriptor Type
-Correspondence and Shader Resource and Storage Class Correspondence</a> tables
-in the <a href="#interfaces">Shader Interfaces</a> chapter.</p>
+Correspondence</a> and <a href="#interfaces-resources-storage-class-correspondence
+Shader Resource and Storage Class Correspondence">[interfaces-resources-storage-class-correspondence
+Shader Resource and Storage Class Correspondence]</a> tables in the
+<a href="#interfaces">Shader Interfaces</a> chapter.</p>
 </div>
 <div class="sect3">
 <h4 id="descriptorsets-storageimage">13.1.1. Storage Image</h4>
@@ -31226,9 +31234,18 @@ provided when <code>layout</code> was created</p>
 parent <code>VkCommandPool</code>&#8217;s queue family</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBindDescriptorSets-pDynamicOffsets-00362"></a>
-Each element of <code>pDynamicOffsets</code> <strong class="purple">must</strong> satisfy the required
-alignment for the corresponding descriptor binding&#8217;s descriptor type</p>
+<p><a id="VUID-vkCmdBindDescriptorSets-pDynamicOffsets-01971"></a>
+Each element of <code>pDynamicOffsets</code> which corresponds to a descriptor
+binding with type <code>VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC</code> <strong class="purple">must</strong>
+be a multiple of
+<code>VkPhysicalDeviceLimits</code>::<code>minUniformBufferOffsetAlignment</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBindDescriptorSets-pDynamicOffsets-01972"></a>
+Each element of <code>pDynamicOffsets</code> which corresponds to a descriptor
+binding with type <code>VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC</code> <strong class="purple">must</strong>
+be a multiple of
+<code>VkPhysicalDeviceLimits</code>::<code>minStorageBufferOffsetAlignment</code></p>
 </li>
 </ul>
 </div>
@@ -32185,16 +32202,6 @@ decoration of <code>InputAttachmentIndex</code> <strong class="purple">must</str
 <a href="#interfaces-inputattachment">Fragment Input Attachment Interface</a>.</p>
 </div>
 <div class="paragraph">
-<p>Each shader variable in the descriptor set interface <strong class="purple">must</strong> be of a type that
-corresponds to the <code>descriptorType</code> in the descriptor set layout binding
-that the variable is assigned to, as described in
-<a href="#interfaces-resources-setandbinding">DescriptorSet and Binding
-Assignment</a>.
-See <a href="#interfaces-resources-correspondence">Shader Resource and Descriptor
-Type Correspondence</a> for the relationship between shader types and
-descriptor types.</p>
-</div>
-<div class="paragraph">
 <p>SPIR-V variables decorated with a descriptor set and binding that identify a
 <a href="#descriptorsets-combinedimagesampler">combined image sampler descriptor</a>
 <strong class="purple">can</strong> have a type of <code>OpTypeImage</code>, <code>OpTypeSampler</code> (<code>Sampled</code>=1),
@@ -32316,7 +32323,7 @@ feature <strong class="purple">must</strong> be enabled and the capability <stro
 </tr>
 </tbody>
 </table>
-<table class="tableblock frame-all grid-all spread">
+<table id="interfaces-resources-storage-class-correspondence" class="tableblock frame-all grid-all spread">
 <caption class="title">Table 13. Shader Resource and Storage Class Correspondence</caption>
 <colgroup>
 <col style="width: 21%;">
@@ -32450,6 +32457,10 @@ pipeline layout <strong class="purple">must</strong> contain a descriptor set la
 descriptor set layout and for that binding number, and that binding&#8217;s
 <code>stageFlags</code> <strong class="purple">must</strong> include the appropriate <a href="#VkShaderStageFlagBits">VkShaderStageFlagBits</a>
 for that stage.
+The variable <strong class="purple">must</strong> be of a valid resource type determined by its SPIR-V type
+and storage class, as defined in
+<a href="#interfaces-resources-storage-class-correspondence">Shader Resource and
+Storage Class Correspondence</a>.
 The descriptor set layout binding <strong class="purple">must</strong> be of a corresponding descriptor
 type, as defined in <a href="#interfaces-resources-correspondence">Shader Resource
 and Descriptor Type Correspondence</a>.</p>
@@ -54563,7 +54574,7 @@ This is generally discouraged, as it increases the probability of
 incompatibilities with new extensions.
 The validation layers wrap handles in order to track the proper use and
 destruction of each object.
-See the <a href="#LoaderAndValidationLayers">&#8220;Vulkan Loader Specification and
+See the <a href="#LoaderAndLayerInterface">&#8220;Vulkan Loader Specification and
 Architecture Overview&#8221;</a> document for additional information.</p>
 </div>
 <div class="openblock">
@@ -54885,7 +54896,7 @@ extension authors <strong class="purple">should</strong> add support for their e
 validation layers.
 This is especially important for new commands whose parameters have been
 wrapped by the validation layers.
-See the <a href="#LoaderAndValidationLayers">&#8220;Vulkan Loader Specification and
+See the <a href="#LoaderAndLayerInterface">&#8220;Vulkan Loader Specification and
 Architecture Overview&#8221;</a> document for additional information.</p>
 </div>
 <div class="admonitionblock note">
@@ -56017,7 +56028,7 @@ and images support stores and atomic operations in the vertex,
 tessellation, and geometry shader stages.
 If this feature is not enabled, all storage image, storage texel
 buffers, and storage buffer variables used by these stages in shader
-modules <strong class="purple">must</strong> be decorated with the <code>NonWriteable</code> decoration (or the
+modules <strong class="purple">must</strong> be decorated with the <code>NonWritable</code> decoration (or the
 <code>readonly</code> memory qualifier in GLSL).</p>
 </li>
 <li>
@@ -56027,7 +56038,7 @@ images support stores and atomic operations in the fragment shader
 stage.
 If this feature is not enabled, all storage image, storage texel
 buffers, and storage buffer variables used by the fragment stage in
-shader modules <strong class="purple">must</strong> be decorated with the <code>NonWriteable</code> decoration
+shader modules <strong class="purple">must</strong> be decorated with the <code>NonWritable</code> decoration
 (or the <code>readonly</code> memory qualifier in GLSL).</p>
 </li>
 <li>
@@ -66499,7 +66510,7 @@ entry points <strong class="purple">must</strong> declare <code>OriginUpperLeft<
 Pixels are always centered at half-integer coordinates.</p>
 </li>
 <li>
-<p>Images</p>
+<p>Images and Samplers</p>
 <div class="ulist">
 <ul>
 <li>
@@ -66524,7 +66535,7 @@ decorated with <code>NonReadable</code>.</p>
 <a href="#features-features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
 is not enabled and an <code>OpTypeImage</code> has &#8220;Image Format&#8221; operand of
 <code>Unknown</code>, any variables created with the given type must be
-decorated with <code>NonWriteable</code>.</p>
+decorated with <code>NonWritable</code>.</p>
 </li>
 <li>
 <p><code>OpImageQuerySizeLod</code>, and <code>OpImageQueryLevels</code> <strong class="purple">must</strong> only
@@ -66539,6 +66550,11 @@ and <span class="eq">v</span> components.</p>
 </li>
 <li>
 <p>The &#8220;Depth&#8221; operand of <code>OpTypeImage</code> is ignored.</p>
+</li>
+<li>
+<p>Objects of types <code>OpTypeImage</code>, <code>OpTypeSampler</code>,
+<code>OpTypeSampledImage</code>, and arrays of these types <strong class="purple">must</strong> not be stored
+to or modified.</p>
 </li>
 </ul>
 </div>
@@ -66560,6 +66576,12 @@ shader entry points.</p>
 <p>The <code>Patch</code> decoration <strong class="purple">must</strong> not be used on variables in the
 interface of a vertex, geometry, or fragment shader stage&#8217;s entry
 point.</p>
+</li>
+<li>
+<p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
+constraints on storage class, type, and descriptor type described in
+<a href="#interfaces-resources-setandbinding">DescriptorSet and Binding
+Assignment</a></p>
 </li>
 </ul>
 </div>
@@ -67741,7 +67763,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">76</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">77</span></code></pre>
 </div>
 </div>
 </div>
@@ -70243,7 +70265,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.76<br>
+Version 1.0.77<br>
 Last updated 2018-04-04 22:37:36 PDT
 </div>
 </div>
