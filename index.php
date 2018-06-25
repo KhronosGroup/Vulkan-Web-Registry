@@ -101,9 +101,9 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h2> <a name="refguide"></a> <b>Vulkan 1.1 API Quick Reference</b> </h2>
 
-<p> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">API Quick Reference
-    (PDF)</a> is a compact document summarizing the Vulkan 1.1 API commands,
-    structures, and enumerants.
+<p> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">Vulkan 1.1 API Quick
+    Reference (PDF)</a> is a compact document summarizing the Vulkan 1.1 API
+    commands, structures, and enumerants.
 
 <p> The <a href="specs/1.1/refguide/Vulkan-1.1-RefGuide.zip"> InDesign
     sources </a> for the Quick Reference are also available, formatted as a
@@ -147,16 +147,26 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
 <li> <b>Vulkan 1.0 Core API</b>
      <a href="specs/1.0/html/vkspec.html">(HTML)</a>
-     <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a>
+     <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a> </li>
+<li> <b>Vulkan 1.0 Core API + Khronos-defined Extensions</b>
+     <a href="specs/1.0-wsi_extensions/html/vkspec.html">(HTML)</a>
+     <a href="specs/1.0-wsi_extensions/pdf/vkspec.pdf">(PDF)</a>.
+     This Specification includes Khronos-defined <tt>KHR</tt> extensions
+     such as the Window-System Interface Extensions used to post images to a
+     display on different platforms and window systems. </li>
+<li> <b>Vulkan 1.0 Core API + all published Extensions</b>
+     <a href="specs/1.0-extensions/html/vkspec.html">(HTML)</a>
+     <a href="specs/1.0-extensions/pdf/vkspec.pdf">(PDF)</a>.
+     This Specification includes all registered Vulkan extensions applicable
+     to Vulkan 1.0 which have been incorporated into the Specification
+     Repository, including KHR, EXT, and vendor extensions. </li>
      <br/>
-     (<b>Note:</b> we previously linked to 1.0+KHR extensions and 1.0+all
-     extensions versions of the Specification as well. Since the additional
-     information in those documents essentially replicates the corresponding
-     versions of the 1.1 Specification, we are not linking to them at this
-     point.) </li>
-<li> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">API Quick
-     Reference</a> is a compact document summarizing the Vulkan 1.0 API
-     commands, structures, and enumerants. </p>
+     (<b>Note:</b> we have resumed posting up-to-date versions of the
+     1.0+KHR extensions and 1.0+all extensions versions of the
+     Specification, based on Github feedback. </li>
+<li> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">Vulkan 1.0 API
+     Quick Reference</a> is a compact document summarizing the Vulkan 1.0
+     API commands, structures, and enumerants. </p>
 <li> The <a href="specs/1.0/refguide/VulkanQuickRef.zip"> InDesign sources
      </a> for the 1.0 reference guide</a> are also available, formatted as a
      <b>.zip</b> file. </li>
@@ -193,7 +203,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     whose specifications have not yet been merged into the Vulkan-Docs
     repository. </a>
 
-<!-- Generated from xml/indexExt.py in the spec repository -->
+<!-- Generated from xml/indexExt.py in the Vulkan-Docs repository -->
 <?php include_once("extensions.php"); ?>
 
 <p> Vulkan-Docs also contains the header files, API Registry, and
