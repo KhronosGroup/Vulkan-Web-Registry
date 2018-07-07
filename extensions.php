@@ -1,8 +1,10 @@
 <ul>
     <li> <b>  KHR Extensions (Khronos)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_16bit_storage"> VK_KHR_16bit_storage </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_8bit_storage"> VK_KHR_8bit_storage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_android_surface"> VK_KHR_android_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_bind_memory2"> VK_KHR_bind_memory2 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_create_renderpass2"> VK_KHR_create_renderpass2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_descriptor_update_template"> VK_KHR_descriptor_update_template </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group"> VK_KHR_device_group </a> </li>
@@ -51,6 +53,7 @@
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conditional_rendering"> VK_EXT_conditional_rendering </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conservative_rasterization"> VK_EXT_conservative_rasterization </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_report"> VK_EXT_debug_report </a> </li>
