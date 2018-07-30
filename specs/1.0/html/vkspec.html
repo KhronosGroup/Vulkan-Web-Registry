@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
 <meta name="author" content="The Khronos Vulkan Working Group">
-<title>Vulkan&#174; 1.0.81 - A Specification</title>
+<title>Vulkan&#174; 1.0.82 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>&#174;</sup> 1.0.81 - A Specification </h1>
+<h1>Vulkan<sup>&#174;</sup> 1.0.82 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.81,</span>
-<span id="revdate">2018-07-23 09:37:38Z</span>
-<br><span id="revremark">from git branch: github-master commit: 6377124f371f9d8b1d9761b1116fac647222a13d</span>
+<span id="revnumber">version 1.0.82,</span>
+<span id="revdate">2018-07-30 10:41:49Z</span>
+<br><span id="revremark">from git branch: github-master commit: ff0c2339083b76aba0414afafdb195bba15c78d8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1133,6 +1133,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
 </li>
 <li><a href="#_compressed_image_formats">Appendix B: Compressed Image Formats</a>
@@ -8054,6 +8055,16 @@ Each element of the <code>pCommandBuffers</code> member of each element of
 <code>pSubmits</code> <strong class="purple">must</strong> have been allocated from a <code>VkCommandPool</code> that
 was created for the same queue family <code>queue</code> belongs to.</p>
 </li>
+<li>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers"></a>
+If any element of <code>pSubmits</code>&#8594;<code>pCommandBuffers</code> includes a
+<a href="#synchronization-queue-transfers-acquire">Queue Family Transfer Acquire
+Operation</a>, there <strong class="purple">must</strong> exist a previously submitted
+<a href="#synchronization-queue-transfers-release">Queue Family Transfer Release
+Operation</a> on a queue in the queue family identified by the acquire
+operation, with parameters matching the acquire operation as defined in
+the definition of such <a href="#synchronization-queue-transfers-acquire">acquire operations</a>, and which happens before the acquire operation.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -12513,43 +12524,28 @@ feature is not enabled, <code>dstStageMask</code> <strong class="purple">must</s
 <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-01172"></a>
+<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-02024"></a>
 If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the render pass <strong class="purple">must</strong> have been created with a <code>VkSubpassDependency</code>
-instance in <code>pDependencies</code> that expresses a dependency from the
-current subpass to itself.</p>
+the render pass <strong class="purple">must</strong> have been created with at least one
+<code>VkSubpassDependency</code> instance in
+<code>VkRenderPassCreateInfo</code>::<code>pDependencies</code> that expresses a
+dependency from the current subpass to itself, and for which
+<code>srcStageMask</code> contains a subset of the bit values in
+<code>VkSubpassDependency</code>::<code>srcStageMask</code>, <code>dstStageMask</code>
+contains a subset of the bit values in
+<code>VkSubpassDependency</code>::<code>dstStageMask</code>, and <code>dependencyFlags</code>
+is equal to <code>VkSubpassDependency</code>::<code>dependencyFlags</code>.</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-01173"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-<code>srcStageMask</code> <strong class="purple">must</strong> contain a subset of the bit values in the
-<code>srcStageMask</code> member of that instance of <code>VkSubpassDependency</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-dstStageMask-01174"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-<code>dstStageMask</code> <strong class="purple">must</strong> contain a subset of the bit values in the
-<code>dstStageMask</code> member of that instance of <code>VkSubpassDependency</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-srcAccessMask-01175"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>srcAccessMask</code> of any element of <code>pMemoryBarriers</code> or
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> contain a subset of the bit values the
-<code>srcAccessMask</code> member of that instance of <code>VkSubpassDependency</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-dstAccessMask-01176"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>dstAccessMask</code> of any element of <code>pMemoryBarriers</code> or
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> contain a subset of the bit values the
-<code>dstAccessMask</code> member of that instance of <code>VkSubpassDependency</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-dependencyFlags-01177"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-<code>dependencyFlags</code> <strong class="purple">must</strong> be equal to the <code>dependencyFlags</code> member
-of that instance of <code>VkSubpassDependency</code></p>
+<p>If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
+for each element of <code>pMemoryBarriers</code> and
+<code>pImageMemoryBarriers</code>, the render pass <strong class="purple">must</strong> have been defined with
+a <code>VkSubpassDependency</code> self-dependency for the current subpass with
+valid <code>srcStageMask</code>, <code>dstStageMask</code>, and <code>dependencyFlags</code>
+values such that <code>Vk*Barrier</code>::<code>srcAccessMask</code> contains a subset
+of the bit values in <code>VkSubpassDependency</code>::<code>srcAccessMask</code> and
+<code>Vk*Barrier</code>::<code>dstAccessMask</code> contains a subset of the bit
+values in <code>VkSubpassDependency</code>::<code>dstAccessMask</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178"></a>
@@ -13411,6 +13407,8 @@ An acquire operation is defined by executing a
 buffer range) or an <a href="#synchronization-image-memory-barriers">image memory
 barrier</a> (for an image subresource range), on a queue from the destination
 queue family.
+The buffer range or image subresource range specified in an acquire
+operation <strong class="purple">must</strong> match exactly that of a previous release operation.
 The <code>srcQueueFamilyIndex</code> parameter of the barrier <strong class="purple">must</strong> be set to the
 source queue family index, and the <code>dstQueueFamilyIndex</code> parameter to
 the destination queue family index.
@@ -18528,16 +18526,13 @@ and <code>back</code> members of <code>pDepthStencilState</code> <strong class="
 <code>VK_STENCIL_OP_KEEP</code></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00745"></a>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-blendEnable-02023"></a>
 If rasterization is not disabled and the subpass uses color attachments,
 then for each color attachment in the subpass the <code>blendEnable</code>
 member of the corresponding element of the <code>pAttachment</code> member of
-<code>pColorBlendState</code> <strong class="purple">must</strong> be <code>VK_FALSE</code> if the <code>format</code> of
-the attachment does not support color blend operations, as specified by
-the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<code>pColorBlendState</code> <strong class="purple">must</strong> be <code>VK_FALSE</code> if the attached image&#8217;s
+<a href="#resources-image-format-features">format features</a> does not contain the
+<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-attachmentCount-00746"></a>
@@ -24788,6 +24783,32 @@ created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>N
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="resources-image-format-features">11.3.1. Image Format Features</h4>
+<div class="paragraph">
+<p>Valid usage of a <a href="#VkImage">VkImage</a> <strong class="purple">may</strong> be constrained by the image&#8217;s format
+features, defined below.
+Such constraints are documented in the affected valid usage statement.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the image was created with <code>VK_IMAGE_TILING_LINEAR</code>, then its set
+of <em>format features</em> is the value of
+<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> found by calling
+<a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> on the same <code>format</code> as
+<a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>format</code>.</p>
+</li>
+<li>
+<p>If the image was created with <code>VK_IMAGE_TILING_OPTIMAL</code>,
+then its set of <em>format features</em> is the value of
+<a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> found by calling
+<a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> on the same <code>format</code> as
+<a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>format</code>.</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="resources-image-layouts">11.4. Image Layouts</h3>
@@ -26000,6 +26021,32 @@ created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>N
 </div>
 </div>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="resources-image-view-format-features">11.5.1. Image View Format Features</h4>
+<div class="paragraph">
+<p>Valid usage of a <a href="#VkImageView">VkImageView</a> <strong class="purple">may</strong> be constrained by the image view&#8217;s
+format features, defined below.
+Such constraints are documented in the affected valid usage statement.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the view&#8217;s image was created with <code>VK_IMAGE_TILING_LINEAR</code>, then
+the image view&#8217;s set of <em>format features</em> is the value of
+<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> found by calling
+<a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> on the same <code>format</code> as
+<a href="#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>format</code>.</p>
+</li>
+<li>
+<p>If the view&#8217;s image was created with <code>VK_IMAGE_TILING_OPTIMAL</code>,
+then the image view&#8217;s set of <em>format features</em> is the value of
+<a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> found by calling
+<a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> on the same <code>format</code> as
+<a href="#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>format</code>.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -27675,9 +27722,7 @@ corresponding to different resources or usage.
 The following sections describe the API definitions of each descriptor type.
 The mapping of each type to SPIR-V is listed in the
 <a href="#interfaces-resources-correspondence">Shader Resource and Descriptor Type
-Correspondence</a> and <a href="#interfaces-resources-storage-class-correspondence
-Shader Resource and Storage Class Correspondence">[interfaces-resources-storage-class-correspondence
-Shader Resource and Storage Class Correspondence]</a> tables in the
+Correspondence</a> and <a href="#interfaces-resources-storage-class-correspondence">Shader Resource and Storage Class Correspondence</a> tables in the
 <a href="#interfaces">Shader Interfaces</a> chapter.</p>
 </div>
 <div class="sect3">
@@ -27689,30 +27734,20 @@ type associated with an <a href="#resources-images">image resource</a> via an
 operations <strong class="purple">can</strong> be performed on.</p>
 </div>
 <div class="paragraph">
-<p>Storage image loads are supported in all shader stages for image formats
-which report support for the
-<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code></a>
-feature bit via <a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> in
-<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> (for images with linear
-tiling) or <a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> (for images
-with optimal tiling).</p>
+<p>Storage image loads are supported in all shader stages for image views whose
+<a href="#resources-image-view-format-features">format features</a> contain
+<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code></a>.</p>
 </div>
 <div class="paragraph">
-<p>Stores to storage images are supported in compute shaders for image formats
-which report support for the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code>
-feature via <a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> in
-<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> (for images with linear
-tiling) or <a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> (for images
-with optimal tiling).</p>
+<p>Stores to storage images are supported in compute shaders for image views
+whose <a href="#resources-image-view-format-features">format features</a> contain
+<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code></a>.</p>
 </div>
 <div class="paragraph">
 <p>Atomic operations on storage images are supported in compute shaders for
-image formats which report support for the
-<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT</code></a>
-feature via <a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> in
-<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> (for images with linear
-tiling) or <a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> (for images
-with optimal tiling).</p>
+image views whose <a href="#resources-image-view-format-features">format features</a>
+contain
+<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT</code></a>.</p>
 </div>
 <div class="paragraph">
 <p>When the <a href="#features-features-fragmentStoresAndAtomics"><code>fragmentStoresAndAtomics</code></a> feature is enabled, stores and atomic
@@ -27750,13 +27785,9 @@ type associated with an <a href="#resources-images">image resource</a> via an
 sampling operations.</p>
 </div>
 <div class="paragraph">
-<p>Sampled images are supported in all shader stages for image formats which
-report support for the
-<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code></a>
-feature bit via <a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> in
-<a href="#VkFormatProperties">VkFormatProperties</a>::<code>linearTilingFeatures</code> (for images with linear
-tiling) or <a href="#VkFormatProperties">VkFormatProperties</a>::<code>optimalTilingFeatures</code> (for images
-with optimal tiling).</p>
+<p>Sampled images are supported in all shader stages for image views whose
+<a href="#resources-image-view-format-features">format features</a> contain
+<a href="#features-formats-properties"><code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT</code></a>.</p>
 </div>
 <div class="paragraph">
 <p>The image subresources for a sampled image <strong class="purple">must</strong> be in the
@@ -29161,6 +29192,13 @@ was created, a compatible set of callbacks <strong class="purple">must</strong> 
 <p><a id="VUID-vkDestroyPipelineLayout-pipelineLayout-00300"></a>
 If no <code>VkAllocationCallbacks</code> were provided when
 <code>pipelineLayout</code> was created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyPipelineLayout-pipelineLayout-02004"></a>
+<code>pipelineLayout</code> <strong class="purple">must</strong> not have been passed to any vkCmd* command
+for any command buffers that are still in the
+<a href="#commandbuffers-lifecycle">recording state</a> when
+<code>vkDestroyPipelineLayout</code> is called</p>
 </li>
 </ul>
 </div>
@@ -41540,13 +41578,9 @@ The union of all destination regions, specified by the elements of
 sampled during the blit operation</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBlitImage-srcImage-00218"></a>
-<code>srcImage</code> <strong class="purple">must</strong> use a format that supports
-<code>VK_FORMAT_FEATURE_BLIT_SRC_BIT</code>, which is indicated by
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdBlitImage-srcImage-01999"></a>
+The <a href="#resources-image-format-features">format features</a> of
+<code>srcImage</code> <strong class="purple">must</strong> contain <code>VK_FORMAT_FEATURE_BLIT_SRC_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-srcImage-00219"></a>
@@ -41570,13 +41604,9 @@ is executed on a <code>VkDevice</code></p>
 or <code>VK_IMAGE_LAYOUT_GENERAL</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBlitImage-dstImage-00223"></a>
-<code>dstImage</code> <strong class="purple">must</strong> use a format that supports
-<code>VK_FORMAT_FEATURE_BLIT_DST_BIT</code>, which is indicated by
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdBlitImage-dstImage-02000"></a>
+The <a href="#resources-image-format-features">format features</a> of
+<code>dstImage</code> <strong class="purple">must</strong> contain <code>VK_FORMAT_FEATURE_BLIT_DST_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-dstImage-00224"></a>
@@ -41637,14 +41667,10 @@ If <code>srcImage</code> was created with a depth/stencil format, <code>filter</
 <code>VK_SAMPLE_COUNT_1_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBlitImage-filter-00235"></a>
-If <code>filter</code> is <code>VK_FILTER_LINEAR</code>, <code>srcImage</code> <strong class="purple">must</strong> be of a
-format which supports linear filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdBlitImage-filter-02001"></a>
+If <code>filter</code> is <code>VK_FILTER_LINEAR</code>, then the
+<a href="#resources-image-format-features">format features</a> of <code>srcImage</code>
+<strong class="purple">must</strong> contain <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBlitImage-srcSubresource-01705"></a>
@@ -42055,22 +42081,10 @@ is executed on a <code>VkDevice</code></p>
 or <code>VK_IMAGE_LAYOUT_GENERAL</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdResolveImage-dstImage-00264"></a>
-If <code>dstImage</code> was created with <code>tiling</code> equal to
-<code>VK_IMAGE_TILING_LINEAR</code>, <code>dstImage</code> <strong class="purple">must</strong> have been created
-with a <code>format</code> that supports being a color attachment, as specified
-by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdResolveImage-dstImage-00265"></a>
-If <code>dstImage</code> was created with <code>tiling</code> equal to
-<code>VK_IMAGE_TILING_OPTIMAL</code>, <code>dstImage</code> <strong class="purple">must</strong> have been created
-with a <code>format</code> that supports being a color attachment, as specified
-by the <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code></p>
+<p><a id="VUID-vkCmdResolveImage-dstImage-02003"></a>
+The <a href="#resources-image-format-features">format features</a> of
+<code>dstImage</code> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdResolveImage-srcImage-01386"></a>
@@ -43354,20 +43368,16 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDraw-linearTilingFeatures-00450"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdDraw-None-01499"></a>
 Image subresources used as attachments in the current render pass <strong class="purple">must</strong>
 not be accessed in any way other than as an attachment by this command.</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDraw-None-02009"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 </ul>
 </div>
@@ -43631,15 +43641,11 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndexed-linearTilingFeatures-00470"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdDrawIndexed-None-02011"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexed-None-01500"></a>
@@ -43926,15 +43932,11 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndirect-linearTilingFeatures-00496"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdDrawIndirect-None-02013"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirect-None-01501"></a>
@@ -44286,15 +44288,11 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndexedIndirect-linearTilingFeatures-00548"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-None-02018"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-01503"></a>
@@ -47667,8 +47665,8 @@ pixel.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="eq">(0.5,0.5)</span></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="eq">(0.25,0.25)</span><br>
-<span class="eq">(0.75,0.75)</span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="eq">(0.75,0.75)</span><br>
+<span class="eq">(0.25,0.25)</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="eq">(0.375, 0.125)</span><br>
 <span class="eq">(0.875, 0.375)</span><br>
 <span class="eq">(0.125, 0.625)</span><br>
@@ -51237,15 +51235,11 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDispatch-linearTilingFeatures-00398"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdDispatch-None-02005"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 </ul>
 </div>
@@ -51452,15 +51446,11 @@ buffer, it <strong class="purple">must</strong> not access values outside of the
 specified in the bound descriptor set</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDispatchIndirect-linearTilingFeatures-00414"></a>
-Any <code>VkImageView</code> being sampled with <code>VK_FILTER_LINEAR</code> as a
-result of this command <strong class="purple">must</strong> be of a format which supports linear
-filtering, as specified by the
-<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code> flag in
-<code>VkFormatProperties</code>::<code>linearTilingFeatures</code> or
-<code>VkFormatProperties</code>::<code>optimalTilingFeatures</code> returned by
-<code>vkGetPhysicalDeviceFormatProperties</code> for linearly or optimally
-tiled images, respectively</p>
+<p><a id="VUID-vkCmdDispatchIndirect-None-02007"></a>
+If a <code>VkImageView</code> is sampled with with <code>VK_FILTER_LINEAR</code> as a
+result of this command, then the image view&#8217;s
+<a href="#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT</code>.</p>
 </li>
 </ul>
 </div>
@@ -66673,8 +66663,51 @@ raised.</p>
 </div>
 <div class="paragraph">
 <p>The precision of double-precision instructions is at least that of single
-precision.
-For single precision (32 bit) instructions, precisions are <strong class="purple">required</strong> to be
+precision.</p>
+</div>
+<div class="paragraph">
+<p>The precision of operations is defined either in terms of rounding or as an
+error bound in ULP, as follows.</p>
+</div>
+<div class="paragraph">
+<div class="title">Correctly Rounded</div>
+<p>Operations described as "correctly rounded" will return the infinitely
+precise result, <span class="eq">x</span>, rounded so as to be representable in
+floating-point.
+The rounding mode used is not defined but if <span class="eq">x</span> is exactly
+representable then <span class="eq">x</span> will be returned.
+Otherwise, either the floating-point value closest to and no less than
+<span class="eq">x</span> or the value closest to and no greater than <span class="eq">x</span> will be
+returned.</p>
+</div>
+<div class="paragraph">
+<div class="title">ULP</div>
+<p>Where an error bound of <span class="eq">n</span> ULP (units in the last place) is given, for
+an operation with infinitely precise result <mark>x</mark> the value returned must be
+in the range <mark>[x - n * ulp(x), x + n * ulp(x)]</mark>.
+The function <mark>ulp(x)</mark> is defined as follows:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p>If there exist non-equal floating-point numbers <mark>a</mark> and <mark>b</mark> such that
+<span class="eq">a ≤ x ≤ b</span> then <mark>ulp(x)</mark> is the minimum possible distance
+between such numbers, \(ulp(x) = \mathrm{min}_{a,b} | b - a |\).
+If such numbers do not exist then <mark>ulp(x)</mark> is defined to be the difference
+between the two finite floating-point numbers nearest to <mark>x</mark>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Where the range of allowed return values includes any value of magnitude
+larger than that of the largest representable finite floating-point number,
+operations may return an infinity of the appropriate sign.
+If the infinitely precise result of the operation is not mathematically
+defined then the value returned is undefined.</p>
+</div>
+<div class="paragraph">
+<p>For single precision (32 bit) instructions, precisions are <strong class="purple">required</strong> to be
 at least as follows, unless decorated with RelaxedPrecision:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
@@ -66799,8 +66832,10 @@ additional functionality beyond what <code>OpUMod</code> provides.</p>
 </tr>
 </table>
 </div>
-<div id="spirvenv-image-formats" class="paragraph">
-<div class="title">Compatibility Between SPIR-V Image Formats And Vulkan Formats</div>
+</div>
+<div class="sect2">
+<h3 id="spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</h3>
+<div class="paragraph">
 <p>Images which are read from or written to by shaders <strong class="purple">must</strong> have SPIR-V image
 formats compatible with the Vulkan image formats backing the image under the
 circumstances described for <a href="#textures-operation-validation">texture image
@@ -67961,7 +67996,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">81</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">82</span></code></pre>
 </div>
 </div>
 </div>
@@ -69672,6 +69707,15 @@ unfiltered, formatted, read-only access in a shader.</p>
 <p>A descriptor type that represents a buffer, and supports read-only
 access in a shader.</p>
 </dd>
+<dt class="hdlist1">Units in the Last Place (ULP)</dt>
+<dd>
+<p>A measure of floating-point error loosely defined as the smallest
+representable step in a floating-point format near a given value.
+For the precise definition see <a href="#spirvenv-precision-operation">Precision
+and Operation of SPIR-V instructions</a> or Jean-Michel Muller, "On the
+definition of ulp(x).", RR-5504, INRIA.
+Other sources may also use the term "unit of least precision".</p>
+</dd>
 <dt class="hdlist1">Unnormalized</dt>
 <dd>
 <p>A value that is interpreted according to its conventional
@@ -70499,7 +70543,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.81<br>
+Version 1.0.82<br>
 Last updated 2018-04-04 22:37:36 PDT
 </div>
 </div>

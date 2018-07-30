@@ -112,6 +112,7 @@
     <li> <b>  NV Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_clip_space_w_scaling"> VK_NV_clip_space_w_scaling </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_device_diagnostic_checkpoints"> VK_NV_device_diagnostic_checkpoints </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory_capabilities"> VK_NV_external_memory_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory_win32"> VK_NV_external_memory_win32 </a> </li>
