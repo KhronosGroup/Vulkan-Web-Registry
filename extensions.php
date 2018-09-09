@@ -45,6 +45,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_vulkan_memory_model"> VK_KHR_vulkan_memory_model </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_win32_keyed_mutex"> VK_KHR_win32_keyed_mutex </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_win32_surface"> VK_KHR_win32_surface </a> </li>
@@ -52,6 +53,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_xlib_surface"> VK_KHR_xlib_surface </a> </li>
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_astc_decode_mode"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conditional_rendering"> VK_EXT_conditional_rendering </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conservative_rasterization"> VK_EXT_conservative_rasterization </a> </li>
@@ -68,6 +70,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>

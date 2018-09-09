@@ -795,12 +795,24 @@ p.tableblock.header { color: #6d6e71; }
 <p><code>dstBinding</code> is the descriptor binding within that set.</p>
 </li>
 <li>
-<p><code>dstArrayElement</code> is the starting element in that array.</p>
+<p><code>dstArrayElement</code> is the starting element in that array.
+If the descriptor binding identified by <code>dstSet</code> and
+<code>dstBinding</code> has a descriptor type of
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code> then
+<code>dstArrayElement</code> specifies the starting byte offset within the
+binding.</p>
 </li>
 <li>
 <p><code>descriptorCount</code> is the number of descriptors to update (the number
 of elements in <code>pImageInfo</code>, <code>pBufferInfo</code>, or
-<code>pTexelBufferView</code>).</p>
+<code>pTexelBufferView</code>
+, or a value matching the <code>dataSize</code> member of an instance of
+<a href="VkWriteDescriptorSetInlineUniformBlockEXT.html">VkWriteDescriptorSetInlineUniformBlockEXT</a> in the <code>pNext</code> chain
+).
+If the descriptor binding identified by <code>dstSet</code> and
+<code>dstBinding</code> has a descriptor type of
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code> then
+<code>descriptorCount</code> specifies the number of bytes to update.</p>
 </li>
 <li>
 <p><code>descriptorType</code> is a <a href="VkDescriptorType.html">VkDescriptorType</a> specifying the type of
@@ -835,7 +847,13 @@ is ignored, as described below.</p>
 <p>Only one of <code>pImageInfo</code>, <code>pBufferInfo</code>, or <code>pTexelBufferView</code>
 members is used according to the descriptor type specified in the
 <code>descriptorType</code> member of the containing <code>VkWriteDescriptorSet</code>
-structure, as specified below.</p>
+structure,
+or none of them in case <code>descriptorType</code> is
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code>, in which case the source
+data for the descriptor writes is taken from the instance of
+<a href="VkWriteDescriptorSetInlineUniformBlockEXT.html">VkWriteDescriptorSetInlineUniformBlockEXT</a> in the <code>pNext</code> chain of
+<code>VkWriteDescriptorSet</code>,
+as specified below.</p>
 </div>
 <div id="descriptorsets-updates-consecutive" class="paragraph">
 <p>If the <code>dstBinding</code> has fewer than <code>descriptorCount</code> array elements
@@ -845,6 +863,29 @@ array element zero.
 If a binding has a <code>descriptorCount</code> of zero, it is skipped.
 This behavior applies recursively, with the update affecting consecutive
 bindings as needed to update all <code>descriptorCount</code> descriptors.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The same behavior applies to bindings with a descriptor type of
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK</code> where <code>descriptorCount</code>
+specifies the number of bytes to update while <code>dstArrayElement</code>
+specifies the starting byte offset, thus in this case if the
+<code>dstBinding</code> has a smaller byte size than the sum of
+<code>dstArrayElement</code> and <code>descriptorCount</code>, then the remainder will be
+used to update the subsequent binding - <span class="eq"><code>dstBinding</code>+1</span> starting at
+offset zero.
+This falls out as a special case of the above rule.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -891,6 +932,18 @@ binding specified by <code>dstBinding</code>, and all applicable consecutive
 bindings, as described by <a href="../../html/vkspec.html#descriptorsets-updates-consecutive" class="bare">../../html/vkspec.html#descriptorsets-updates-consecutive</a></p>
 </li>
 <li>
+<p><a id="VUID-VkWriteDescriptorSet-descriptorType-02219"></a>
+If <code>descriptorType</code> is
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code>, <code>dstArrayElement</code>
+<strong class="purple">must</strong> be an integer multiple of <code>4</code></p>
+</li>
+<li>
+<p><a id="VUID-VkWriteDescriptorSet-descriptorType-02220"></a>
+If <code>descriptorType</code> is
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code>, <code>descriptorCount</code>
+<strong class="purple">must</strong> be an integer multiple of <code>4</code></p>
+</li>
+<li>
 <p><a id="VUID-VkWriteDescriptorSet-descriptorType-00322"></a>
 If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code>,
 <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>,
@@ -933,6 +986,13 @@ If <code>descriptorType</code> is
 <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, the <code>imageView</code> and
 <code>imageLayout</code> members of each element of <code>pImageInfo</code> <strong class="purple">must</strong> be a
 valid <code>VkImageView</code> and <a href="VkImageLayout.html">VkImageLayout</a>, respectively</p>
+</li>
+<li>
+<p><a id="VUID-VkWriteDescriptorSet-descriptorType-02221"></a>
+If <code>descriptorType</code> is
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code>, the <code>pNext</code> chain
+<strong class="purple">must</strong> include a <a href="VkWriteDescriptorSetInlineUniformBlockEXT.html">VkWriteDescriptorSetInlineUniformBlockEXT</a>
+structure whose <code>dataSize</code> member equals <code>descriptorCount</code></p>
 </li>
 <li>
 <p><a id="VUID-VkWriteDescriptorSet-descriptorType-01946"></a>
@@ -1145,8 +1205,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.83<br>
-Last updated 2018-08-13 06:23:22 PDT
+Version 1.1.84<br>
+Last updated 2018-09-08 19:45:14 PDT
 </div>
 </div>
 
