@@ -114,6 +114,8 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NN_vi_surface"> VK_NN_vi_surface </a> </li>
     <li> <b>  NV Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_clip_space_w_scaling"> VK_NV_clip_space_w_scaling </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_compute_shader_derivatives"> VK_NV_compute_shader_derivatives </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_corner_sampled_image"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_device_diagnostic_checkpoints"> VK_NV_device_diagnostic_checkpoints </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory"> VK_NV_external_memory </a> </li>
@@ -121,15 +123,22 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory_win32"> VK_NV_external_memory_win32 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_fill_rectangle"> VK_NV_fill_rectangle </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_fragment_coverage_to_color"> VK_NV_fragment_coverage_to_color </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_fragment_shader_barycentric"> VK_NV_fragment_shader_barycentric </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_framebuffer_mixed_samples"> VK_NV_framebuffer_mixed_samples </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_geometry_shader_passthrough"> VK_NV_geometry_shader_passthrough </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_glsl_shader"> VK_NV_glsl_shader </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_mesh_shader"> VK_NV_mesh_shader </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_representative_fragment_test"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_sample_mask_override_coverage"> VK_NV_sample_mask_override_coverage </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_scissor_exclusive"> VK_NV_scissor_exclusive </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shader_image_footprint"> VK_NV_shader_image_footprint </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shader_subgroup_partitioned"> VK_NV_shader_subgroup_partitioned </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shading_rate_image"> VK_NV_shading_rate_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_viewport_array2"> VK_NV_viewport_array2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_viewport_swizzle"> VK_NV_viewport_swizzle </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_win32_keyed_mutex"> VK_NV_win32_keyed_mutex </a> </li>
     <li> <b>  NVX Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_device_generated_commands"> VK_NVX_device_generated_commands </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_multiview_per_view_attributes"> VK_NVX_multiview_per_view_attributes </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_raytracing"> VK_NVX_raytracing </a> </li>
 </ul>

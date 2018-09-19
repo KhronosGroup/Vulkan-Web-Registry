@@ -811,12 +811,14 @@ stages to be included in the graphics pipeline.</p>
 </li>
 <li>
 <p><code>pVertexInputState</code> is a pointer to an instance of the
-<a href="VkPipelineVertexInputStateCreateInfo.html">VkPipelineVertexInputStateCreateInfo</a> structure.</p>
+<a href="VkPipelineVertexInputStateCreateInfo.html">VkPipelineVertexInputStateCreateInfo</a> structure.
+It is ignored if the pipeline includes a mesh shader stage.</p>
 </li>
 <li>
 <p><code>pInputAssemblyState</code> is a pointer to an instance of the
 <a href="VkPipelineInputAssemblyStateCreateInfo.html">VkPipelineInputAssemblyStateCreateInfo</a> structure which determines
-input assembly behavior, as described in <a href="../../html/vkspec.html#drawing">Drawing Commands</a>.</p>
+input assembly behavior, as described in <a href="../../html/vkspec.html#drawing">Drawing Commands</a>.
+It is ignored if the pipeline includes a mesh shader stage.</p>
 </li>
 <li>
 <p><code>pTessellationState</code> is a pointer to an instance of the
@@ -943,9 +945,20 @@ flag, and <code>basePipelineHandle</code> is not <a href="VK_NULL_HANDLE.html">V
 The <code>stage</code> member of each element of <code>pStages</code> <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-stage-00727"></a>
-The <code>stage</code> member of one element of <code>pStages</code> <strong class="purple">must</strong> be
-<code>VK_SHADER_STAGE_VERTEX_BIT</code></p>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-02095"></a>
+The geometric shader stages provided in <code>pStages</code> <strong class="purple">must</strong> be either
+from the mesh shading pipeline (<code>stage</code> is
+<code>VK_SHADER_STAGE_TASK_BIT_NV</code> or <code>VK_SHADER_STAGE_MESH_BIT_NV</code>)
+or from the primitive shading pipeline (<code>stage</code> is
+<code>VK_SHADER_STAGE_VERTEX_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code>, or
+<code>VK_SHADER_STAGE_GEOEMETRY_BIT</code>).</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-stage-02096"></a>
+The <code>stage</code> member of one element of <code>pStages</code> <strong class="purple">must</strong> be either
+<code>VK_SHADER_STAGE_VERTEX_BIT</code> or <code>VK_SHADER_STAGE_MESH_BIT_NV</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-stage-00728"></a>
@@ -1283,6 +1296,18 @@ an array of
 <a href="VkPipelineViewportWScalingStateCreateInfoNV.html">VkPipelineViewportWScalingStateCreateInfoNV</a>::<code>viewportCount</code>
 valid <a href="VkViewportWScalingNV.html">VkViewportWScalingNV</a> structures</p>
 </li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-02097"></a>
+If <code>pStages</code> includes a vertex shader stage, <code>pVertexInputState</code>
+<strong class="purple">must</strong> be a valid pointer to a valid
+<a href="VkPipelineVertexInputStateCreateInfo.html">VkPipelineVertexInputStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-02098"></a>
+If <code>pStages</code> includes a vertex shader stage,
+<code>pInputAssemblyState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="VkPipelineInputAssemblyStateCreateInfo.html">VkPipelineInputAssemblyStateCreateInfo</a> structure</p>
+</li>
 </ul>
 </div>
 </div>
@@ -1296,19 +1321,16 @@ valid <a href="VkViewportWScalingNV.html">VkViewportWScalingNV</a> structures</p
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="VkPipelineDiscardRectangleStateCreateInfoEXT.html">VkPipelineDiscardRectangleStateCreateInfoEXT</a></p>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkPipelineDiscardRectangleStateCreateInfoEXT.html">VkPipelineDiscardRectangleStateCreateInfoEXT</a> or <a href="VkPipelineRepresentativeFragmentTestStateCreateInfoNV.html">VkPipelineRepresentativeFragmentTestStateCreateInfoNV</a></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkPipelineCreateFlagBits.html">VkPipelineCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-parameter"></a> <code>pStages</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>stageCount</code> valid <code>VkPipelineShaderStageCreateInfo</code> structures</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pVertexInputState-parameter"></a> <code>pVertexInputState</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkPipelineVertexInputStateCreateInfo</code> structure</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pInputAssemblyState-parameter"></a> <code>pInputAssemblyState</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkPipelineInputAssemblyStateCreateInfo</code> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-parameter"></a> <code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkPipelineRasterizationStateCreateInfo</code> structure</p>
@@ -1370,8 +1392,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.84<br>
-Last updated 2018-09-08 19:45:13 PDT
+Version 1.1.85<br>
+Last updated 2018-09-15 18:35:39 PDT
 </div>
 </div>
 
