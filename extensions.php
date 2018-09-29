@@ -12,6 +12,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_display"> VK_KHR_display </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_display_swapchain"> VK_KHR_display_swapchain </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_draw_indirect_count"> VK_KHR_draw_indirect_count </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_driver_properties"> VK_KHR_driver_properties </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence"> VK_KHR_external_fence </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence_capabilities"> VK_KHR_external_fence_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_external_fence_fd"> VK_KHR_external_fence_fd </a> </li>
@@ -39,6 +40,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_atomic_int64"> VK_KHR_shader_atomic_int64 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
