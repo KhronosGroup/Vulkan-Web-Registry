@@ -944,20 +944,34 @@ The limiting values are referenced by the relevant valid usage statements of
 <div class="ulist">
 <ul>
 <li>
-<p>Let <code>VkExternalMemoryHandleTypeFlags imageCreateExternalMemoryHandles</code> be
-the set of external memory handle types that <strong class="purple">may</strong> be used with the
-resultant image.
-If <code>VkImageCreateInfo</code>::<code>pNext</code> contains an instance of
-<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>, then
-<code>imageCreateExternalMemoryHandles</code> is the value of
-<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code>.
-Otherwise, <code>imageCreateExternalMemoryHandles</code> is <code>0</code></p>
+<p>Let <code>uint64_t imageCreateDrmFormatModifiers[]</code> be the set of
+<a href="../../html/vkspec.html#glossary-drm-format-modifier">Linux DRM format modifiers</a> that the
+resultant image <strong class="purple">may</strong> have.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>tiling</code> is not <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>,
+then <code>imageCreateDrmFormatModifiers</code> is empty.</p>
+</li>
+<li>
+<p>If <code>VkImageCreateInfo</code>::<code>pNext</code> contains
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, then
+<code>imageCreateDrmFormatModifiers</code> contains exactly one modifier,
+<code>VkImageDrmFormatModifierExplicitCreateInfoEXT</code>::<code>drmFormatModifier</code>.</p>
+</li>
+<li>
+<p>If <code>VkImageCreateInfo</code>::<code>pNext</code> contains
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>, then
+<code>imageCreateDrmFormatModifiers</code> contains the exactly the modifiers
+in
+<code>VkImageDrmFormatModifierListCreateInfoEXT</code>::<code>pDrmFormatModifiers</code>.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>Let <code>VkBool32 imageCreateMaybeLinear</code> indicate if the resulant image may
-be <a href="../../html/vkspec.html#glossary-linear-image">linear</a>.
-(The definition below is trivial because certain extensions are disabled
-in this build of the specification).</p>
+be <a href="../../html/vkspec.html#glossary-linear-image">linear</a>.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -967,6 +981,12 @@ in this build of the specification).</p>
 <li>
 <p>If <code>tiling</code> is <code>VK_IMAGE_TILING_OPTIMAL</code>, then
 <code>imageCreateMaybeLinear</code> is <code>false</code>.</p>
+</li>
+<li>
+<p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
+<code>imageCreateMaybeLinear_</code> is <code>true</code> if and only if
+<code>imageCreateDrmFormatModifiers</code> contains
+<code>DRM_FORMAT_MOD_LINEAR</code>.</p>
 </li>
 </ul>
 </div>
@@ -1001,6 +1021,22 @@ with non-zero <code>externalFormat</code>, then
 obtained by <a href="vkGetAndroidHardwareBufferPropertiesANDROID.html">vkGetAndroidHardwareBufferPropertiesANDROID</a> with a
 matching <code>externalFormat</code> value.</p>
 </li>
+<li>
+<p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
+the value of <code>imageCreateFormatFeatures</code> is found by calling
+<a href="vkGetPhysicalDeviceFormatProperties2.html">vkGetPhysicalDeviceFormatProperties2</a> with
+<a href="VkImageFormatProperties.html">VkImageFormatProperties</a>::<code>format</code> equal to
+<code>VkImageCreateInfo</code>::<code>format</code> and with
+<a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a> chained into
+<a href="VkImageFormatProperties2.html">VkImageFormatProperties2</a>; by collecting all members of the
+returned array
+<a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a>::pDrmFormatModifierProperties
+whose <code>drmFormatModifier</code> belongs to
+<code>imageCreateDrmFormatModifiers</code>; and by taking the bitwise
+intersection, over the collected array members, of
+<code>drmFormatModifierTilingFeatures</code>.
+(The resultant <code>imageCreateFormatFeatures</code> <strong class="purple">may</strong> be empty).</p>
+</li>
 </ul>
 </div>
 </li>
@@ -1011,27 +1047,75 @@ defined as follows.</p>
 <ul>
 <li>
 <p>If <code>VkImageCreateInfo</code>::<code>pNext</code> contains no instance of
-     <a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a> with non-zero <code>externalFormat</code>, then
-     <code>imageCreateImageFormatPropertiesList</code> is
-     the list of structures obtained by calling
-     <a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> for each bit in
-     <code>imageCreateExternalMemoryHandles</code>, with
-     <a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a>::<code>handleType</code> set to
-     that bit
-.
-     (If <code>imageCreateExternalMemoryHandles</code> is empty, then
-     <code>imageCreateImageFormatPropertiesList</code> is the list of structures
-     obtained by calling <a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a>
-     with <a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a> omitted or with
-     <a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a>::<code>handleType</code> equal
-     to <code>0</code>).
-     In each call, the parameters
-     <a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>format</code>, <code>imageType</code>,
-     <code>tiling</code>, <code>usage</code>, and <code>flags</code> <strong class="purple">must</strong> be equal to those in
-     <code>VkImageCreateInfo</code>.
-     If any call returns an error, then
-     <code>imageCreateImageFormatPropertiesList</code> is defined to be the empty
-     list.</p>
+<a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a> with non-zero <code>externalFormat</code>, then
+<code>imageCreateImageFormatPropertiesList</code> is
+the list of structures obtained by calling
+<a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a>, possibly multiple
+times, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The parameters
+<a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>format</code>,
+<code>imageType</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> <strong class="purple">must</strong>
+be equal to those in <code>VkImageCreateInfo</code>.</p>
+</li>
+<li>
+<p>If <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>pNext</code> contains an instance of
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a> where <code>handleTypes</code> is
+not <code>0</code>, then <a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code>
+<strong class="purple">must</strong> contain an instance of
+<a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a> where
+<code>handleType</code> is not <code>0</code>; and
+<a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> <strong class="purple">must</strong> be called for
+each handle type in
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code>,
+successively setting
+<a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a>::<code>handleType</code> on
+each call.</p>
+</li>
+<li>
+<p>If <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>pNext</code> contains no instance of
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a> or contains an instance where
+<code>handleTypes</code> is <code>0</code>, then
+<a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> either
+contain no instance of
+<a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDeviceExternalImageFormatInfo</a> or contain an
+instance where <code>handleType</code> is <code>0</code>.</p>
+</li>
+<li>
+<p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>,
+then <a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong>
+contain an instance of
+<a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a> where
+<code>sharingMode</code> is equal to
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>sharingMode</code>; and, if
+<code>sharingMode</code> is <code>VK_SHARING_MODE_CONCURRENT</code>, then
+<code>queueFamilyIndexCount</code> and <code>pQueueFamilyIndices</code> <strong class="purple">must</strong> be
+equal to those in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>; and, if <code>flags</code>
+contains <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>, then the
+instance of <a href="VkImageFormatListCreateInfoKHR.html">VkImageFormatListCreateInfoKHR</a> in the <code>pNext</code>
+chain of <a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a> <strong class="purple">must</strong> be equivalent
+to the one in the <code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>; and
+<a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> <strong class="purple">must</strong> be called for
+each modifier in <code>imageCreateDrmFormatModifiers</code>, successively
+setting
+<a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a>::<code>drmFormatModifier</code>
+on each call.</p>
+</li>
+<li>
+<p>If <code>tiling</code> is not
+<code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
+<a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> contain
+no instance of <a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a>.</p>
+</li>
+<li>
+<p>If any call to <a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a>
+returns an error, then <code>imageCreateImageFormatPropertiesList</code> is
+defined to be the empty list.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>If <code>VkImageCreateInfo</code>::<code>pNext</code> contains an instance of
@@ -1485,6 +1569,27 @@ include <code>VK_IMAGE_CREATE_ALIAS_BIT</code>, <code>flags</code> <strong class
 <code>VK_IMAGE_CREATE_DISJOINT_BIT</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageCreateInfo-tiling-02261"></a>
+If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
+the <code>pNext</code> chain <strong class="purple">must</strong> contain exactly one of
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a> or
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-02262"></a>
+If the <code>pNext</code> chain contains
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a> or
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, then <code>tiling</code>
+<strong class="purple">must</strong> be <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-tiling-02353"></a>
+If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code> and
+<code>flags</code> contains <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>, then the
+<code>pNext</code> chain <strong class="purple">must</strong> contain <a href="VkImageFormatListCreateInfoKHR.html">VkImageFormatListCreateInfoKHR</a>
+with non-zero <code>viewFormatCount</code>.</p>
+</li>
+<li>
 <p><a id="VUID-VkImageCreateInfo-flags-01533"></a>
 If <code>flags</code> contains
 <code>VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT</code>
@@ -1587,7 +1692,7 @@ If <code>usage</code> includes <code>VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</c
 <p><a id="VUID-VkImageCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkDedicatedAllocationImageCreateInfoNV.html">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a>, <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>, <a href="VkExternalMemoryImageCreateInfoNV.html">VkExternalMemoryImageCreateInfoNV</a>, <a href="VkImageFormatListCreateInfoKHR.html">VkImageFormatListCreateInfoKHR</a>, or <a href="VkImageSwapchainCreateInfoKHR.html">VkImageSwapchainCreateInfoKHR</a></p>
+<p><a id="VUID-VkImageCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkDedicatedAllocationImageCreateInfoNV.html">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a>, <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>, <a href="VkExternalMemoryImageCreateInfoNV.html">VkExternalMemoryImageCreateInfoNV</a>, <a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, <a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>, <a href="VkImageFormatListCreateInfoKHR.html">VkImageFormatListCreateInfoKHR</a>, or <a href="VkImageSwapchainCreateInfoKHR.html">VkImageSwapchainCreateInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
@@ -1661,8 +1766,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.87<br>
-Last updated 2018-10-07 06:11:00 PDT
+Version 1.1.88<br>
+Last updated 2018-10-13 04:41:43 PDT
 </div>
 </div>
 

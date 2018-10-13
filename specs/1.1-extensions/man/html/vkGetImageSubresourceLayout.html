@@ -797,17 +797,24 @@ the layout is returned.</p>
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The image <strong class="purple">must</strong> be <a href="../../html/vkspec.html#glossary-linear-resource">linear</a>.
-The
+<p>If the image is <a href="../../html/vkspec.html#glossary-linear-resource">linear</a>, then the
 returned layout is valid for <a href="../../html/vkspec.html#memory-device-hostacces">host access</a>.</p>
 </div>
 <div class="paragraph">
 <p>If the image&#8217;s
+tiling is <code>VK_IMAGE_TILING_LINEAR</code> and its
 format is a
 <a href="../../html/vkspec.html#features-formats-requiring-sampler-ycbcr-conversion">multi-planar format</a>,
 then <code>vkGetImageSubresourceLayout</code> describes one
-plane
-of the image.</p>
+<em>format plane</em>
+of the image.
+If the image&#8217;s tiling is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
+<code>vkGetImageSubresourceLayout</code> describes one <em>memory plane</em> of the image.
+If the image&#8217;s tiling is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code> and
+the image is <a href="../../html/vkspec.html#glossary-linear-resource">non-linear</a>, then the returned
+layout has an implementation-dependent meaning; the vendor of the image&#8217;s
+<a href="../../html/vkspec.html#glossary-drm-format-modifier">DRM format modifier</a> <strong class="purple">may</strong> provide
+documentation that explains how to interpret the returned layout.</p>
 </div>
 <div class="paragraph">
 <p><code>vkGetImageSubresourceLayout</code> is invariant for the lifetime of a single
@@ -823,9 +830,10 @@ been bound will result in undefined behavior.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkGetImageSubresourceLayout-image-00996"></a>
+<p><a id="VUID-vkGetImageSubresourceLayout-image-02270"></a>
 <code>image</code> <strong class="purple">must</strong> have been created with <code>tiling</code> equal to
-<code>VK_IMAGE_TILING_LINEAR</code></p>
+<code>VK_IMAGE_TILING_LINEAR</code> or
+<code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkGetImageSubresourceLayout-aspectMask-00997"></a>
@@ -867,6 +875,18 @@ format</a> with three planes, the <code>aspectMask</code> member of
 If <code>image</code> was created with the
 <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID</code>
 external memory handle type, then <code>image</code> <strong class="purple">must</strong> be bound to memory.</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout-tiling-02271"></a>
+ If the <code>tiling</code> of the <code>image</code> is
+ <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then the <code>aspectMask</code>
+ member of <code>pSubresource</code> <strong class="purple">must</strong> be
+ <code>VK_IMAGE_ASPECT_MEMORY_PLANE</code><em>_i</em>_BIT_EXT and the index <em>i</em>
+ <strong class="purple">must</strong> be less than the
+ <a href="../../html/vkspec.html#VkDrmFormatModifierPropertiesEXT"><code>drmFormatModifierPlaneCount</code></a>
+ associated with the image&#8217;s
+<a href="../../html/vkspec.html#VkImageCreateInfo"><code>format</code></a> and
+<a href="../../html/vkspec.html#VkImageDrmFormatModifierPropertiesEXT"><code>drmFormatModifier</code></a>.</p>
 </li>
 </ul>
 </div>
@@ -934,8 +954,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.87<br>
-Last updated 2018-10-07 06:11:00 PDT
+Version 1.1.88<br>
+Last updated 2018-10-13 04:41:43 PDT
 </div>
 </div>
 

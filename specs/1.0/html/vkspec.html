@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
 <meta name="author" content="The Khronos^®^ Vulkan Working Group">
-<title>Vulkan® 1.0.87 - A Specification</title>
+<title>Vulkan® 1.0.88 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.87 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.88 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos^®^ Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.87,</span>
-<span id="revdate">2018-10-07 13:34:42Z</span>
-<br><span id="revremark">from git branch: github-master commit: 911a7646949e661b24ad6111479029ed9e841284</span>
+<span id="revnumber">version 1.0.88,</span>
+<span id="revdate">2018-10-13 12:05:36Z</span>
+<br><span id="revremark">from git branch: github-master commit: 0a7a04f32bd473bc7428efdbbbe132f33afad68c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -10037,9 +10037,9 @@ includes accesses via the access types specified in that mask.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> specifies read access to an
-indirect command structure read as part of an indirect drawing or
-dispatch command.</p>
+<p><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> specifies read access to
+indirect command data read as part of an indirect drawing or dispatch
+command.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_INDEX_READ_BIT</code> specifies read access to an index buffer
@@ -24089,8 +24089,10 @@ This pointer minus <code>offset</code> <strong class="purple">must</strong> be a
 </ul>
 </div>
 <div class="paragraph">
-<p>It is an application error to call <code>vkMapMemory</code> on a memory object that
-is already mapped.</p>
+<p>After a successful call to <code>vkMapMemory</code> the memory object <code>memory</code>
+is considered to be currently <em>host mapped</em>.
+It is an application error to call <code>vkMapMemory</code> on a memory object that
+is already host mapped.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -24132,7 +24134,7 @@ of the range up to the nearest multiple of
 <a href="#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a>::<code>nonCoherentAtomSize</code>.</p>
 </div>
 <div class="paragraph">
-<p>While a range of device memory is mapped for host access, the application is
+<p>While a range of device memory is host mapped, the application is
 responsible for synchronizing both device and host access to that memory
 range.</p>
 </div>
@@ -24161,7 +24163,7 @@ to maintaining memory access ordering.</p>
 <ul>
 <li>
 <p><a id="VUID-vkMapMemory-memory-00678"></a>
-<code>memory</code> <strong class="purple">must</strong> not be currently mapped</p>
+<code>memory</code> <strong class="purple">must</strong> not be currently host mapped</p>
 </li>
 <li>
 <p><a id="VUID-vkMapMemory-offset-00679"></a>
@@ -24338,16 +24340,16 @@ domain operations</a> using the <code>VK_ACCESS_HOST_WRITE_BIT</code>
 <div class="paragraph">
 <p>Within each range described by <code>pMemoryRanges</code>, each set of
 <code>nonCoherentAtomSize</code> bytes in that range is flushed if any byte in that
-set has been written by the host since it was first mapped, or the last time
-it was flushed.
+set has been written by the host since it was first host mapped, or the last
+time it was flushed.
 If <code>pMemoryRanges</code> includes sets of <code>nonCoherentAtomSize</code> bytes
 where no bytes have been written by the host, those bytes <strong class="purple">must</strong> not be
 flushed.</p>
 </div>
 <div id="memory-device-unmap-does-not-flush" class="paragraph">
-<p>Unmapping non-coherent memory does not implicitly flush the mapped memory,
-and host writes that have not been flushed <strong class="purple">may</strong> not ever be visible to the
-device.
+<p>Unmapping non-coherent memory does not implicitly flush the host mapped
+memory, and host writes that have not been flushed <strong class="purple">may</strong> not ever be visible
+to the device.
 However, implementations <strong class="purple">must</strong> ensure that writes that have not been flushed
 do not become visible to any other memory.</p>
 </div>
@@ -24461,8 +24463,8 @@ invalidated without first being flushed, its contents are undefined.</p>
 <div class="paragraph">
 <p>Within each range described by <code>pMemoryRanges</code>, each set of
 <code>nonCoherentAtomSize</code> bytes in that range is invalidated if any byte in
-that set has been written by the device since it was first mapped, or the
-last time it was invalidated.</p>
+that set has been written by the device since it was first host mapped, or
+the last time it was invalidated.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -24578,7 +24580,7 @@ allocation.</p>
 <ul>
 <li>
 <p><a id="VUID-VkMappedMemoryRange-memory-00684"></a>
-<code>memory</code> <strong class="purple">must</strong> be currently mapped</p>
+<code>memory</code> <strong class="purple">must</strong> be currently host mapped</p>
 </li>
 <li>
 <p><a id="VUID-VkMappedMemoryRange-size-00685"></a>
@@ -24664,7 +24666,7 @@ application, call:</p>
 <ul>
 <li>
 <p><a id="VUID-vkUnmapMemory-memory-00689"></a>
-<code>memory</code> <strong class="purple">must</strong> be currently mapped</p>
+<code>memory</code> <strong class="purple">must</strong> be currently host mapped</p>
 </li>
 </ul>
 </div>
@@ -33825,6 +33827,10 @@ the subsequent stage if the two variables are declared with the same
 <code>Location</code> and <code>Component</code> decoration and match in type and
 decoration, except that <a href="#shaders-interpolation-decorations">interpolation
 decorations</a> are not <strong class="purple">required</strong> to match.
+ifdef::VK_EXT_transform_feedback
+<code>XfbBuffer</code>, <code>XfbStride</code>, <code>Offset</code>, and <code>Stream</code> are also not
+required to match for the purposes of interface matching.
+endif::VK_EXT_transform_feedback
 For the purposes of interface matching, variables declared without a
 <code>Component</code> decoration are considered to have a <code>Component</code> decoration
 of zero.</p>
@@ -69297,13 +69303,15 @@ This also specifies whether shader modules <strong class="purple">can</strong> d
 </li>
 <li>
 <p><a id="features-features-shaderStorageImageExtendedFormats"></a>
-<code>shaderStorageImageExtendedFormats</code> specifies whether the extended
-storage image formats are available in shader code.
-If this feature is not enabled, the formats requiring the
-<code>StorageImageExtendedFormats</code> capability are not supported for
-storage images.
-This also specifies whether shader modules <strong class="purple">can</strong> declare the
-<code>StorageImageExtendedFormats</code> capability.</p>
+<code>shaderStorageImageExtendedFormats</code> specifies whether all the
+extended storage image formats are available in shader code.
+If this feature is enabled then the
+<code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> feature <strong class="purple">must</strong> be supported in
+<code>optimalTilingFeatures</code> for all of the extended formats.
+To query for additional properties, or if the feature is not enabled,
+<a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> and
+<a href="#vkGetPhysicalDeviceImageFormatProperties">vkGetPhysicalDeviceImageFormatProperties</a> <strong class="purple">can</strong> be used to check for
+supported properties of individual formats as normal.</p>
 </li>
 <li>
 <p><a id="features-features-shaderStorageImageMultisample"></a>
@@ -79586,7 +79594,7 @@ with that capability.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>StorageImageExtendedFormats</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#features-features-shaderStorageImageExtendedFormats">shaderStorageImageExtendedFormats</a></p></td>
+<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>InterpolationFunction</code></p></td>
@@ -81104,7 +81112,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">87</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">88</span></code></pre>
 </div>
 </div>
 </div>
@@ -82219,6 +82227,10 @@ invocations, and which does not have side effects.</p>
 <dd>
 <p>The processor(s) and execution environment that the application runs on,
 and that the Vulkan API is exposed on.</p>
+</dd>
+<dt class="hdlist1">Host Mapped Device Memory</dt>
+<dd>
+<p>Device memory that is mapped for host access using <a href="#vkMapMemory">vkMapMemory</a>.</p>
 </dd>
 <dt class="hdlist1">Host Memory</dt>
 <dd>
@@ -83728,7 +83740,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.87<br>
+Version 1.0.88<br>
 Last updated 2018-10-07 06:09:21 PDT
 </div>
 </div>

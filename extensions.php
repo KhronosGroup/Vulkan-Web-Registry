@@ -57,6 +57,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_astc_decode_mode"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_calibrated_timestamps"> VK_EXT_calibrated_timestamps </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conditional_rendering"> VK_EXT_conditional_rendering </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conservative_rasterization"> VK_EXT_conservative_rasterization </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
@@ -72,7 +73,9 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_pci_bus_info"> VK_EXT_pci_bus_info </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>
@@ -82,6 +85,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_shader_viewport_index_layer"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_transform_feedback"> VK_EXT_transform_feedback </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_cache"> VK_EXT_validation_cache </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_vertex_attribute_divisor"> VK_EXT_vertex_attribute_divisor </a> </li>
@@ -107,7 +111,9 @@
     <li> <b>  FUCHSIA Extensions (Google, Inc.)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_FUCHSIA_imagepipe_surface"> VK_FUCHSIA_imagepipe_surface </a> </li>
     <li> <b>  GOOGLE Extensions (Google, Inc.)  </b> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_decorate_string"> VK_GOOGLE_decorate_string </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_display_timing"> VK_GOOGLE_display_timing </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_hlsl_functionality1"> VK_GOOGLE_hlsl_functionality1 </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_format_pvrtc"> VK_IMG_format_pvrtc </a> </li>
