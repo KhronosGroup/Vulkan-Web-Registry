@@ -842,8 +842,8 @@ table.CodeRay td.code>pre{padding:0}
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
 <span id="revnumber">version 1.0.89,</span>
-<span id="revdate">2018-10-21 13:33:35Z</span>
-<br><span id="revremark">from git branch: github-master commit: 8d6a7b23a7decb5161e0e4a3297c4665f9061b0e</span>
+<span id="revdate">2018-10-29 04:56:55Z</span>
+<br><span id="revremark">from git branch: github-master commit: 099174883dbbad1b812f1767182e22d91bfd35dd</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2287,6 +2287,9 @@ These implicit parameters are documented as described below.</p>
 </li>
 <li>
 <p>The <code>fence</code> parameter in <a href="#vkQueueSubmit">vkQueueSubmit</a></p>
+</li>
+<li>
+<p>The <code>queue</code> parameter in <a href="#vkQueueWaitIdle">vkQueueWaitIdle</a></p>
 </li>
 <li>
 <p>The <code>memory</code> parameter in <a href="#vkFreeMemory">vkFreeMemory</a></p>
@@ -14028,6 +14031,18 @@ waiting with an infinite timeout for that fence to signal.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>queue</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
@@ -15163,7 +15178,9 @@ All attachments in <code>pColorAttachments</code> that are not
 </li>
 <li>
 <p><a id="VUID-VkSubpassDescription-pDepthStencilAttachment-01418"></a>
-If <code>pDepthStencilAttachment</code> is not <code>VK_ATTACHMENT_UNUSED</code> and
+If neither the VK_AMD_mixed_attachment_samples nor the
+VK_NV_framebuffer_mixed_samples extensions are enabled, and if
+<code>pDepthStencilAttachment</code> is not <code>VK_ATTACHMENT_UNUSED</code> and
 any attachments in <code>pColorAttachments</code> are not
 <code>VK_ATTACHMENT_UNUSED</code>, they <strong class="purple">must</strong> have the same sample count</p>
 </li>
@@ -17268,7 +17285,7 @@ corresponding feature(s) <strong class="purple">must</strong> be enabled.</p>
 <p><a id="VUID-VkShaderModuleCreateInfo-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-parameter"></a> <code>pCode</code> <strong class="purple">must</strong> be a valid pointer to an array of \(codeSize \over 4\) <code>uint32_t</code> values</p>
+<p><a id="VUID-VkShaderModuleCreateInfo-pCode-parameter"></a> <code>pCode</code> <strong class="purple">must</strong> be a valid pointer to an array of \(\textrm{codeSize} \over 4\) <code>uint32_t</code> values</p>
 </li>
 </ul>
 </div>
@@ -20657,7 +20674,9 @@ shaders specified in <code>pStages</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00757"></a>
-If <code>subpass</code> uses color and/or depth/stencil attachments, then the
+If neither the VK_AMD_mixed_attachment_samples nor the
+VK_NV_framebuffer_mixed_samples extensions are enabled, and if
+<code>subpass</code> uses color and/or depth/stencil attachments, then the
 <code>rasterizationSamples</code> member of <code>pMultisampleState</code> <strong class="purple">must</strong> be
 the same as the sample count for those subpass attachments</p>
 </li>
@@ -33559,6 +33578,24 @@ bytes.</p>
 constant values.</p>
 </li>
 </ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>As <code>stageFlags</code> needs to include all flags the relevant push constant
+ranges were created with, any flags that are not supported by the queue
+family that the <a href="#VkCommandPool">VkCommandPool</a> used to allocate <code>commandBuffer</code> was
+created on are ignored.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -58910,7 +58947,9 @@ Fragment shaders determine associated data for fragments, and <strong class="pur
 modify or replace their assigned depth values.</p>
 </div>
 <div class="paragraph">
-<p>If the subpass for which this pipeline is being created uses color and/or
+<p>When the VK_AMD_mixed_attachment_samples and
+VK_NV_framebuffer_mixed_samples extensions are not enabled,
+if the subpass for which this pipeline is being created uses color and/or
 depth/stencil attachments, then <code>rasterizationSamples</code> <strong class="purple">must</strong> be the same
 as the sample count for those subpass attachments.</p>
 </div>
@@ -59110,9 +59149,8 @@ process for each fragment.
 If sample shading is enabled an implementation <strong class="purple">must</strong> provide a minimum of
 <span class="eq">max(⌈ <code>minSampleShadingFactor</code> × <code>totalSamples</code>
 ⌉, 1)</span> unique associated data for each fragment, where
-<code>minSampleShadingFactor</code> is the minimum fraction of sample shading and
-<code>totalSamples</code> is
-the value of
+<code>minSampleShadingFactor</code> is the minimum fraction of sample shading.
+<code>totalSamples</code> is the value of
 <a href="#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>rasterizationSamples</code>
 specified at pipeline creation time.
 These are associated with the samples in an implementation-dependent manner.
@@ -61723,7 +61761,8 @@ If a bit in the color sample mask is 0, then blending and writing to the
 framebuffer are not performed for that sample.</p>
 </div>
 <div class="paragraph">
-<p>Each color sample is associated with a unique rasterization sample, and the
+<p>When the VK_NV_framebuffer_mixed_samples extension is not enabled,
+each color sample is associated with a unique rasterization sample, and the
 value of the coverage mask is assigned to the color sample mask.</p>
 </div>
 </div>
