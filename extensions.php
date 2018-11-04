@@ -34,7 +34,6 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_maintenance1"> VK_KHR_maintenance1 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_maintenance2"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_maintenance3"> VK_KHR_maintenance3 </a> </li>
-    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_mir_surface"> VK_KHR_mir_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_multiview"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
@@ -95,6 +94,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gpu_shader_half_float"> VK_AMD_gpu_shader_half_float </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gpu_shader_int16"> VK_AMD_gpu_shader_int16 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_memory_overallocation_behavior"> VK_AMD_memory_overallocation_behavior </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_mixed_attachment_samples"> VK_AMD_mixed_attachment_samples </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_negative_viewport_height"> VK_AMD_negative_viewport_height </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> </li>
@@ -138,6 +138,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_geometry_shader_passthrough"> VK_NV_geometry_shader_passthrough </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_glsl_shader"> VK_NV_glsl_shader </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_mesh_shader"> VK_NV_mesh_shader </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_ray_tracing"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_representative_fragment_test"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_sample_mask_override_coverage"> VK_NV_sample_mask_override_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_scissor_exclusive"> VK_NV_scissor_exclusive </a> </li>
@@ -150,5 +151,4 @@
     <li> <b>  NVX Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_device_generated_commands"> VK_NVX_device_generated_commands </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_multiview_per_view_attributes"> VK_NVX_multiview_per_view_attributes </a> </li>
-    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_raytracing"> VK_NVX_raytracing </a> </li>
 </ul>
