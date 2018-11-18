@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.92 - A Specification</title>
+<title>Vulkan® 1.0.93 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.92 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.93 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.92,</span>
-<span id="revdate">2018-11-12 13:07:14Z</span>
-<br><span id="revremark">from git branch: github-master commit: 279452463adf97364575ea9e5bdf17e5b5a0a74c</span>
+<span id="revnumber">version 1.0.93,</span>
+<span id="revdate">2018-11-18 11:23:00Z</span>
+<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3161,8 +3161,14 @@ separate vendor-provided documents.</p>
 </div>
 <div class="paragraph">
 <p>As a convenience to implementations and layers needing to iterate through a
-structure pointer chain, the Vulkan API provides the following base
-structures:</p>
+structure pointer chain, the Vulkan API provides two <em>base structures</em>.
+These structures allow for some type safety, and can be used by Vulkan API
+functions that operate on generic inputs and outputs.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkBaseInStructure</code> structure is defined as:</p>
 </div>
 <div id="VkBaseInStructure" class="listingblock">
 <div class="content">
@@ -3172,6 +3178,29 @@ structures:</p>
 } VkBaseInStructure;</code></pre>
 </div>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the structure type of the structure being iterated
+through.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to the next structure in a structure
+chain.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>VkBaseInStructure</code> can be used to facilitate iterating through a
+read-only structure pointer chain.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkBaseOutStructure</code> structure is defined as:</p>
+</div>
 <div id="VkBaseOutStructure" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBaseOutStructure {
@@ -3180,13 +3209,23 @@ structures:</p>
 } VkBaseOutStructure;</code></pre>
 </div>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the structure type of the structure being iterated
+through.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to the next structure in a structure
+chain.</p>
+</li>
+</ul>
+</div>
 <div class="paragraph">
-<p><code>VkBaseInStructure</code> can be used to facilitate iterating through a
-read-only structure pointer chain.
-<code>VkBaseOutStructure</code> can be used to facilitate iterating through a
-structure pointer chain that returns data back to the application.
-These structures allow for some type safety and can be used by Vulkan API
-functions that operate on generic inputs and outputs.</p>
+<p><code>VkBaseOutStructure</code> can be used to facilitate iterating through a
+structure pointer chain that returns data back to the application.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect4">
@@ -14499,31 +14538,28 @@ pairs of subpasses, or <code>NULL</code> if <code>dependencyCount</code> is zero
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Care should be taken to avoid a data race here; if any subpasses access
+attachments with overlapping memory locations, and one of those accesses is
+a write, a subpass dependency needs to be included between them.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-None-00832"></a>
-If any two subpasses operate on attachments with overlapping ranges of
-the same <code>VkDeviceMemory</code> object, and at least one subpass writes to
-that area of <code>VkDeviceMemory</code>, a subpass dependency <strong class="purple">must</strong> be
-included (either directly or via some intermediate subpasses) between
-them</p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-attachment-00833"></a>
-If the <code>attachment</code> member of any element of
-<code>pInputAttachments</code>, <code>pColorAttachments</code>,
-<code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code>, or the
-attachment indexed by any element of <code>pPreserveAttachments</code> in any
-element of <code>pSubpasses</code> is bound to a range of a
-<code>VkDeviceMemory</code> object that overlaps with any other attachment in
-any subpass (including the same subpass), the
-<code>VkAttachmentDescription</code> structures describing them <strong class="purple">must</strong> include
-<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> in <code>flags</code></p>
-</li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-attachment-00834"></a>
 If the <code>attachment</code> member of any element of
@@ -14534,13 +14570,16 @@ is not <code>VK_ATTACHMENT_UNUSED</code>, it <strong class="purple">must</strong
 <code>attachmentCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassCreateInfo-pPreserveAttachments-00835"></a>
-The value of each element of the <code>pPreserveAttachments</code> member in
-each element of <code>pSubpasses</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-00836"></a>
 For any member of <code>pAttachments</code> with a <code>loadOp</code> equal to
+<code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
+<strong class="purple">must</strong> not specify a <code>layout</code> equal to
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pAttachments-02511"></a>
+For any member of <code>pAttachments</code> with a <code>stencilLoadOp</code> equal to
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
 <strong class="purple">must</strong> not specify a <code>layout</code> equal to
 <code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
@@ -14552,7 +14591,7 @@ For any element of <code>pDependencies</code>, if the <code>srcSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>srcStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pDependencies-00838"></a>
@@ -14560,7 +14599,17 @@ For any element of <code>pDependencies</code>, if the <code>dstSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>dstStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-srcSubpass-02517"></a>
+The <code>srcSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-dstSubpass-02518"></a>
+The <code>dstSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
 </li>
 </ul>
 </div>
@@ -14576,9 +14625,6 @@ identified by the <code>pipelineBindPoint</code> member of the source subpass.</
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkRenderPassCreateFlagBits">VkRenderPassCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <code>VkAttachmentDescription</code> structures</p>
@@ -15185,12 +15231,6 @@ attachments in <code>pColorAttachments</code> are not
 <code>VK_ATTACHMENT_UNUSED</code>, they <strong class="purple">must</strong> have the same sample count</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDescription-None-00852"></a>
-If any input attachments are <code>VK_ATTACHMENT_UNUSED</code>, then any
-pipelines bound during the subpass <strong class="purple">must</strong> not access those input
-attachments from the fragment shader</p>
-</li>
-<li>
 <p><a id="VUID-VkSubpassDescription-attachment-00853"></a>
 The <code>attachment</code> member of each element of
 <code>pPreserveAttachments</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
@@ -15201,9 +15241,9 @@ Each element of <code>pPreserveAttachments</code> <strong class="purple">must</s
 of any other member of the subpass description</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDescription-layout-00855"></a>
-If any attachment is used as both an input attachment and a color or
-depth/stencil attachment, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
+<p><a id="VUID-VkSubpassDescription-layout-02519"></a>
+If any attachment is used by more than one <a href="#VkAttachmentReference">VkAttachmentReference</a>
+member, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
 </li>
 </ul>
 </div>
@@ -16452,7 +16492,15 @@ the <code>pDependencies</code> member of <a href="#VkRenderPassCreateInfo">VkRen
 create <code>renderPass</code> <strong class="purple">must</strong> be supported by the capabilities of the
 queue family identified by the <code>queueFamilyIndex</code> member of the
 <a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> used to create the command pool which
-<code>commandBuffer</code> was allocated from.</p>
+<code>commandBuffer</code> was allocated from</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass-framebuffer-02532"></a>
+For any attachment in <code>framebuffer</code> that is used by <code>renderPass</code>
+and is bound to memory locations that are also bound to another
+attachment used by <code>renderPass</code>, and if at least one of those uses
+causes either attachment to be written to, both attachments <strong class="purple">must</strong> have
+had the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> set</p>
 </li>
 </ul>
 </div>
@@ -16627,12 +16675,6 @@ in <code>renderPass</code> that specifies a <code>loadOp</code> (or
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassBeginInfo-clearValueCount-00903"></a>
-If <code>clearValueCount</code> is not <code>0</code>, <code>pClearValues</code> <strong class="purple">must</strong> be a valid
-pointer to an array of <code>clearValueCount</code> valid <code>VkClearValue</code>
-unions</p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassBeginInfo-renderPass-00904"></a>
 <code>renderPass</code> <strong class="purple">must</strong> be <a href="#renderpass-compatibility">compatible</a> with
 the <code>renderPass</code> member of the <code>VkFramebufferCreateInfo</code>
@@ -16658,6 +16700,9 @@ structure specified when creating <code>framebuffer</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-framebuffer-parameter"></a> <code>framebuffer</code> <strong class="purple">must</strong> be a valid <code>VkFramebuffer</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pClearValues-parameter"></a> If <code>clearValueCount</code> is not <code>0</code>, <code>pClearValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>clearValueCount</code> <code>VkClearValue</code> unions</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-commonparent"></a> Both of <code>framebuffer</code>, and <code>renderPass</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <code>VkDevice</code></p>
@@ -27274,7 +27319,8 @@ image view object is returned.</p>
 In particular, image view creation inherits the implicit parameter
 <code>usage</code> specifying the allowed usages of the image view that, by
 default, takes the value of the corresponding <code>usage</code> parameter
-specified in <code>VkImageCreateInfo</code> at image creation time.</p>
+specified in <code>VkImageCreateInfo</code> at image creation time
+.</p>
 </div>
 <div class="paragraph">
 <p>The remaining parameters are contained in the <code>pCreateInfo</code>.</p>
@@ -34753,10 +34799,28 @@ where some could be <code>OpTypeImage</code>, some could be <code>OpTypeSampler<
 <div class="sect3">
 <h4 id="interfaces-resources-layout">14.5.4. Offset and Stride Assignment</h4>
 <div class="paragraph">
-<p>All variables with a storage class of <code>PushConstant</code> or <code>Uniform</code>
-<strong class="purple">must</strong> be explicitly laid out using the <code>Offset</code>, <code>ArrayStride</code>, and
-<code>MatrixStride</code> decorations.
-There are two different layouts requirements depending on the specific
+<p>All variables with a storage class of <code>Uniform</code>, <code>StorageBuffer</code>, or
+<code>PushConstant</code> <strong class="purple">must</strong> be explicitly laid out using the <code>Offset</code>,
+<code>ArrayStride</code>, and <code>MatrixStride</code> decorations.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The numeric order of <code>Offset</code> decorations does not need to follow member
+declaration order.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>There are two different layouts requirements depending on the specific
 resources.</p>
 </div>
 <div id="interfaces-resources-layout-std140" class="paragraph">
@@ -34816,10 +34880,6 @@ multiple of the base alignment of the array or matrix from above.</p>
 end of a structure or an array and the next multiple of the base
 alignment of that structure or array.</p>
 </li>
-<li>
-<p>The numeric order of <code>Offset</code> decorations need not follow member
-declaration order.</p>
-</li>
 </ul>
 </div>
 <div class="admonitionblock note">
@@ -34869,7 +34929,7 @@ a multiple of <span class="eq">16</span>.</p>
 <h3 id="interfaces-builtin-variables">14.6. Built-In Variables</h3>
 <div class="paragraph">
 <p>Built-in variables are accessed in shaders by declaring a variable decorated
-with a <code>BuiltIn</code> decoration.
+with a <code>BuiltIn</code> SPIR-V decoration.
 The meaning of each <code>BuiltIn</code> decoration is as follows.
 In the remainder of this section, the name of a built-in is used
 interchangeably with a term equivalent to a variable decorated with that
@@ -43614,7 +43674,7 @@ format by taking the appropriate number of LSBs.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkClearDepthStencilValue-depth-00022"></a>
+<p><a id="VUID-VkClearDepthStencilValue-depth-02506"></a>
 <code>depth</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
 </ul>
@@ -45887,8 +45947,7 @@ conversion</a>:</p>
 </div>
 </li>
 <li>
-<p>These base coordinates are then offset by the first destination
-offset:</p>
+<p>These base coordinates are then offset by the first destination offset:</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"></dt>
@@ -45945,7 +46004,7 @@ applied to the offset coordinates:</p>
 <li>
 <p>Finally the source offset is added to the scaled coordinates, to
 determine the final unnormalized coordinates used to sample from
-<code>srcImage</code>:<br></p>
+<code>srcImage</code>:</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"></dt>
@@ -58611,11 +58670,11 @@ The absolute value of <code>height</code> <strong class="purple">must</strong> b
 <code>viewportBoundsRange</code>[1]</p>
 </li>
 <li>
-<p><a id="VUID-VkViewport-minDepth-01234"></a>
+<p><a id="VUID-VkViewport-minDepth-02540"></a>
 <code>minDepth</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
 <li>
-<p><a id="VUID-VkViewport-maxDepth-01235"></a>
+<p><a id="VUID-VkViewport-maxDepth-02541"></a>
 <code>maxDepth</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
 </ul>
@@ -61083,11 +61142,11 @@ The bound graphics pipeline <strong class="purple">must</strong> have been creat
 <code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic state enabled</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDepthBounds-minDepthBounds-00600"></a>
+<p><a id="VUID-vkCmdSetDepthBounds-minDepthBounds-02508"></a>
 <code>minDepthBounds</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDepthBounds-maxDepthBounds-00601"></a>
+<p><a id="VUID-vkCmdSetDepthBounds-maxDepthBounds-02509"></a>
 <code>maxDepthBounds</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
 </ul>
@@ -79959,7 +80018,7 @@ ignored.</p>
 </li>
 <li>
 <p>Any <code>OpVariable</code> with an <code>Initializer</code> operand <strong class="purple">must</strong> have one of
-the following as its <code>Storage</code> <code>Class</code> operand:</p>
+the following as its <strong>Storage Class</strong> operand:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -80037,6 +80096,14 @@ to or modified.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>Any <code>BuiltIn</code> decoration not listed in
+<a href="#interfaces-builtin-variables">Built-In Variables</a> <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
+extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
 <p>The <code>GLSLShared</code> and <code>GLSLPacked</code> decorations <strong class="purple">must</strong> not be used.</p>
 </li>
 <li>
@@ -80089,7 +80156,24 @@ mode or an object decorated with the <code>WorkgroupSize</code> decoration
 </li>
 <li>
 <p>Atomic instructions <strong class="purple">must</strong> declare a scalar 32-bit integer type,
-for the <em>Result Type</em> and the type of the value pointed to by <em>Pointer</em>.</p>
+for the value pointed to by <em>Pointer</em>.</p>
+</li>
+<li>
+<p>The <em>Pointer</em> operand of all atomic instructions <strong class="purple">must</strong> have a <strong>Storage
+Class</strong> limited to:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Uniform</strong></p>
+</li>
+<li>
+<p><strong>Workgroup</strong></p>
+</li>
+<li>
+<p><strong>Image</strong></p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -81312,7 +81396,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">92</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">93</span></code></pre>
 </div>
 </div>
 </div>
@@ -83933,8 +84017,8 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.92<br>
-Last updated 2018-11-03 23:49:18 -0700
+Version 1.0.93<br>
+Last updated 2018-11-18 02:54:52 -0800
 </div>
 </div>
 

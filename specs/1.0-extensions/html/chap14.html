@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.92 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.93 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.92 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.93 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.92,</span>
-<span id="revdate">2018-11-12 12:56:56Z</span>
-<br><span id="revremark">from git branch: github-master commit: 279452463adf97364575ea9e5bdf17e5b5a0a74c</span>
+<span id="revnumber">version 1.0.93,</span>
+<span id="revdate">2018-11-18 11:11:27Z</span>
+<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2523,10 +2523,54 @@ or <code>maxPerStageDescriptorUpdateAfterBindInlineUniformBlocks</code></p></td>
 <div class="sect3">
 <h4 id="interfaces-resources-layout">14.5.4. Offset and Stride Assignment</h4>
 <div class="paragraph">
-<p>All variables with a storage class of <code>PushConstant</code> or <code>Uniform</code>
-<strong class="purple">must</strong> be explicitly laid out using the <code>Offset</code>, <code>ArrayStride</code>, and
-<code>MatrixStride</code> decorations.
-There are two different layouts requirements depending on the specific
+<p>All variables with a storage class of <code>Uniform</code>, <code>StorageBuffer</code>, or
+<code>PushConstant</code> <strong class="purple">must</strong> be explicitly laid out using the <code>Offset</code>,
+<code>ArrayStride</code>, and <code>MatrixStride</code> decorations.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The numeric order of <code>Offset</code> decorations does not need to follow member
+declaration order.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the <a href="chap34.html#features-features-scalarBlockLayout"><code>scalarBlockLayout</code></a>
+feature is enabled, then the layout of blocks in these storage classes <strong class="purple">must</strong>
+adhere to the <a href="#interfaces-scalar-block-layout">Scalar Alignment</a>
+requirements below.
+If the feature is not enabled, they must adhere to the stricter
+<a href="#interfaces-base-block-layout">Base Alignment</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="title">Performance Note</div>
+<div class="paragraph">
+<p>Even if scalar alignment is supported, it is generally more performant to
+use the <em>base alignment</em>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect4">
+<h5 id="interfaces-base-block-layout">Base Alignment</h5>
+<div class="paragraph">
+<p>There are two different layouts requirements depending on the specific
 resources.</p>
 </div>
 <div id="interfaces-resources-layout-std140" class="paragraph">
@@ -2610,10 +2654,6 @@ multiple of the base alignment of the array or matrix from above.</p>
 end of a structure or an array and the next multiple of the base
 alignment of that structure or array.</p>
 </li>
-<li>
-<p>The numeric order of <code>Offset</code> decorations need not follow member
-declaration order.</p>
-</li>
 </ul>
 </div>
 <div class="admonitionblock note">
@@ -2659,12 +2699,56 @@ a multiple of <span class="eq">16</span>.</p>
 </table>
 </div>
 </div>
+<div class="sect4">
+<h5 id="interfaces-scalar-block-layout">Scalar Alignment</h5>
+<div class="paragraph">
+<p>The <em>scalar alignment</em> of the type of an <code>OpTypeStruct</code> member of is
+defined recursively as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A scalar of size <span class="eq">N</span> has a scalar alignment of <span class="eq">N</span>.</p>
+</li>
+<li>
+<p>A vector has a scalar alignment equal to that of its component type.</p>
+</li>
+<li>
+<p>A matrix has a scalar alignment equal to that of its component type.</p>
+</li>
+<li>
+<p>An array has a scalar alignment equal to that of its element type.</p>
+</li>
+<li>
+<p>A structure has a scalar alignment equal to the largest scalar alignment
+of any of its members.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Every member of an <code>OpTypeStruct</code> with storage class of <code>Uniform</code>,
+<code>StorageBuffer</code>, or <code>PushConstant</code> <strong class="purple">must</strong> be laid out according to the
+following rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>Offset</code> decoration <strong class="purple">must</strong> be a multiple of its scalar alignment.</p>
+</li>
+<li>
+<p>Any <code>ArrayStride</code> or <code>MatrixStride</code> decoration <strong class="purple">must</strong> be an integer
+multiple of the scalar alignment of the array or matrix from above.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="interfaces-builtin-variables">14.6. Built-In Variables</h3>
 <div class="paragraph">
 <p>Built-in variables are accessed in shaders by declaring a variable decorated
-with a <code>BuiltIn</code> decoration.
+with a <code>BuiltIn</code> SPIR-V decoration.
 The meaning of each <code>BuiltIn</code> decoration is as follows.
 In the remainder of this section, the name of a built-in is used
 interchangeably with a term equivalent to a variable decorated with that
@@ -5006,8 +5090,8 @@ values.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.92<br>
-Last updated 2018-11-03 23:49:18 -0700
+Version 1.0.93<br>
+Last updated 2018-11-18 02:54:52 -0800
 </div>
 </div>
 

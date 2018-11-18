@@ -829,31 +829,28 @@ pairs of subpasses, or <code>NULL</code> if <code>dependencyCount</code> is zero
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Care should be taken to avoid a data race here; if any subpasses access
+attachments with overlapping memory locations, and one of those accesses is
+a write, a subpass dependency needs to be included between them.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-None-00832"></a>
-If any two subpasses operate on attachments with overlapping ranges of
-the same <code>VkDeviceMemory</code> object, and at least one subpass writes to
-that area of <code>VkDeviceMemory</code>, a subpass dependency <strong class="purple">must</strong> be
-included (either directly or via some intermediate subpasses) between
-them</p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-attachment-00833"></a>
-If the <code>attachment</code> member of any element of
-<code>pInputAttachments</code>, <code>pColorAttachments</code>,
-<code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code>, or the
-attachment indexed by any element of <code>pPreserveAttachments</code> in any
-element of <code>pSubpasses</code> is bound to a range of a
-<code>VkDeviceMemory</code> object that overlaps with any other attachment in
-any subpass (including the same subpass), the
-<code>VkAttachmentDescription</code> structures describing them <strong class="purple">must</strong> include
-<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> in <code>flags</code></p>
-</li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-attachment-00834"></a>
 If the <code>attachment</code> member of any element of
@@ -864,13 +861,16 @@ is not <code>VK_ATTACHMENT_UNUSED</code>, it <strong class="purple">must</strong
 <code>attachmentCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassCreateInfo-pPreserveAttachments-00835"></a>
-The value of each element of the <code>pPreserveAttachments</code> member in
-each element of <code>pSubpasses</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-00836"></a>
 For any member of <code>pAttachments</code> with a <code>loadOp</code> equal to
+<code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
+<strong class="purple">must</strong> not specify a <code>layout</code> equal to
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pAttachments-02511"></a>
+For any member of <code>pAttachments</code> with a <code>stencilLoadOp</code> equal to
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
 <strong class="purple">must</strong> not specify a <code>layout</code> equal to
 <code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
@@ -909,11 +909,13 @@ by its <code>subpass</code> member</p>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pNext-01963"></a>
 If the <code>pNext</code> chain includes an instance of
-<a href="VkRenderPassInputAttachmentAspectCreateInfo.html">VkRenderPassInputAttachmentAspectCreateInfo</a>, the <code>aspectMask</code>
-member of any element of <code>pAspectReferences</code> <strong class="purple">must</strong> only include
-aspects that are present in images of the <code>format</code> of the input
-attachment specified by the <code>subpass</code> and <code>inputAttachment</code> of
-the same element of <code>pAspectReferences</code></p>
+<a href="VkRenderPassInputAttachmentAspectCreateInfo.html">VkRenderPassInputAttachmentAspectCreateInfo</a>, for any element of
+the <code>pInputAttachments</code> member of any element of <code>pSubpasses</code>
+where the <code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>, the
+<code>aspectMask</code> member of the corresponding element of
+<a href="VkRenderPassInputAttachmentAspectCreateInfo.html">VkRenderPassInputAttachmentAspectCreateInfo</a>::<code>pAspectReferences</code>
+<strong class="purple">must</strong> only include aspects that are present in images of the format
+specified by the element of <code>pAttachments</code> at <code>attachment</code></p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pNext-01928"></a>
@@ -936,12 +938,50 @@ If the <code>pNext</code> chain includes an instance of
 <code>pDependencies</code> at the same index <strong class="purple">must</strong> not be equal</p>
 </li>
 <li>
+<p><a id="VUID-VkRenderPassCreateInfo-pNext-02512"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a>, for any element of
+<code>pDependencies</code> with a <code>dependencyFlags</code> member that doesn&#8217;t
+include <code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code>, the corresponding element of
+the <code>pViewOffsets</code> member of that
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a> instance <strong class="purple">must</strong> be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pNext-02513"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a>, elements of its <code>pViewMasks</code>
+member <strong class="purple">must</strong> either all be <code>0</code>, or all not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pNext-02514"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a>, and each element of its
+<code>pViewMasks</code> member is <code>0</code>, the <code>dependencyFlags</code> member of each
+element of <code>pDependencies</code> <strong class="purple">must</strong> not include
+<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pNext-02515"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a>, and each element of its
+<code>pViewMasks</code> member is <code>0</code>, <code>correlatedViewMaskCount</code> <strong class="purple">must</strong> be
+<code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pNext-02516"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkRenderPassMultiviewCreateInfo.html">VkRenderPassMultiviewCreateInfo</a>, each element of its
+<code>pViewMask</code> member <strong class="purple">must</strong> not include a bit at a position greater
+than the value of
+<a href="VkPhysicalDeviceLimits.html">VkPhysicalDeviceLimits</a>::<code>maxFramebufferLayers</code></p>
+</li>
+<li>
 <p><a id="VUID-VkRenderPassCreateInfo-pDependencies-00837"></a>
 For any element of <code>pDependencies</code>, if the <code>srcSubpass</code> is not
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>srcStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="../../html/vkspec.html#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pDependencies-00838"></a>
@@ -949,7 +989,17 @@ For any element of <code>pDependencies</code>, if the <code>dstSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>dstStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="../../html/vkspec.html#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-srcSubpass-02517"></a>
+The <code>srcSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-dstSubpass-02518"></a>
+The <code>dstSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
 </li>
 </ul>
 </div>
@@ -968,9 +1018,6 @@ identified by the <code>pipelineBindPoint</code> member of the source subpass.</
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkRenderPassCreateFlagBits.html">VkRenderPassCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <code>VkAttachmentDescription</code> structures</p>
@@ -1026,8 +1073,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.92<br>
-Last updated 2018-11-12 04:42:10 -0800
+Version 1.1.93<br>
+Last updated 2018-11-18 02:56:05 -0800
 </div>
 </div>
 

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.92 - A Specification</title>
+<title>Vulkan® 1.0.93 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.92 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.93 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.92,</span>
-<span id="revdate">2018-11-12 13:07:14Z</span>
-<br><span id="revremark">from git branch: github-master commit: 279452463adf97364575ea9e5bdf17e5b5a0a74c</span>
+<span id="revnumber">version 1.0.93,</span>
+<span id="revdate">2018-11-18 11:23:00Z</span>
+<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1454,31 +1454,28 @@ pairs of subpasses, or <code>NULL</code> if <code>dependencyCount</code> is zero
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Care should be taken to avoid a data race here; if any subpasses access
+attachments with overlapping memory locations, and one of those accesses is
+a write, a subpass dependency needs to be included between them.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-None-00832"></a>
-If any two subpasses operate on attachments with overlapping ranges of
-the same <code>VkDeviceMemory</code> object, and at least one subpass writes to
-that area of <code>VkDeviceMemory</code>, a subpass dependency <strong class="purple">must</strong> be
-included (either directly or via some intermediate subpasses) between
-them</p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-attachment-00833"></a>
-If the <code>attachment</code> member of any element of
-<code>pInputAttachments</code>, <code>pColorAttachments</code>,
-<code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code>, or the
-attachment indexed by any element of <code>pPreserveAttachments</code> in any
-element of <code>pSubpasses</code> is bound to a range of a
-<code>VkDeviceMemory</code> object that overlaps with any other attachment in
-any subpass (including the same subpass), the
-<code>VkAttachmentDescription</code> structures describing them <strong class="purple">must</strong> include
-<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> in <code>flags</code></p>
-</li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-attachment-00834"></a>
 If the <code>attachment</code> member of any element of
@@ -1489,13 +1486,16 @@ is not <code>VK_ATTACHMENT_UNUSED</code>, it <strong class="purple">must</strong
 <code>attachmentCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassCreateInfo-pPreserveAttachments-00835"></a>
-The value of each element of the <code>pPreserveAttachments</code> member in
-each element of <code>pSubpasses</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-00836"></a>
 For any member of <code>pAttachments</code> with a <code>loadOp</code> equal to
+<code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
+<strong class="purple">must</strong> not specify a <code>layout</code> equal to
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-pAttachments-02511"></a>
+For any member of <code>pAttachments</code> with a <code>stencilLoadOp</code> equal to
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>, the first use of that attachment
 <strong class="purple">must</strong> not specify a <code>layout</code> equal to
 <code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> or
@@ -1507,7 +1507,7 @@ For any element of <code>pDependencies</code>, if the <code>srcSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>srcStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="chap6.html#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pDependencies-00838"></a>
@@ -1515,7 +1515,17 @@ For any element of <code>pDependencies</code>, if the <code>dstSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>dstStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="chap6.html#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass.</p>
+identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-srcSubpass-02517"></a>
+The <code>srcSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo-dstSubpass-02518"></a>
+The <code>dstSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
+be less than <code>subpassCount</code></p>
 </li>
 </ul>
 </div>
@@ -1531,9 +1541,6 @@ identified by the <code>pipelineBindPoint</code> member of the source subpass.</
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkRenderPassCreateFlagBits">VkRenderPassCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <code>VkAttachmentDescription</code> structures</p>
@@ -2140,12 +2147,6 @@ attachments in <code>pColorAttachments</code> are not
 <code>VK_ATTACHMENT_UNUSED</code>, they <strong class="purple">must</strong> have the same sample count</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDescription-None-00852"></a>
-If any input attachments are <code>VK_ATTACHMENT_UNUSED</code>, then any
-pipelines bound during the subpass <strong class="purple">must</strong> not access those input
-attachments from the fragment shader</p>
-</li>
-<li>
 <p><a id="VUID-VkSubpassDescription-attachment-00853"></a>
 The <code>attachment</code> member of each element of
 <code>pPreserveAttachments</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
@@ -2156,9 +2157,9 @@ Each element of <code>pPreserveAttachments</code> <strong class="purple">must</s
 of any other member of the subpass description</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDescription-layout-00855"></a>
-If any attachment is used as both an input attachment and a color or
-depth/stencil attachment, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
+<p><a id="VUID-VkSubpassDescription-layout-02519"></a>
+If any attachment is used by more than one <a href="#VkAttachmentReference">VkAttachmentReference</a>
+member, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
 </li>
 </ul>
 </div>
@@ -3407,7 +3408,15 @@ the <code>pDependencies</code> member of <a href="#VkRenderPassCreateInfo">VkRen
 create <code>renderPass</code> <strong class="purple">must</strong> be supported by the capabilities of the
 queue family identified by the <code>queueFamilyIndex</code> member of the
 <a href="chap5.html#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> used to create the command pool which
-<code>commandBuffer</code> was allocated from.</p>
+<code>commandBuffer</code> was allocated from</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass-framebuffer-02532"></a>
+For any attachment in <code>framebuffer</code> that is used by <code>renderPass</code>
+and is bound to memory locations that are also bound to another
+attachment used by <code>renderPass</code>, and if at least one of those uses
+causes either attachment to be written to, both attachments <strong class="purple">must</strong> have
+had the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> set</p>
 </li>
 </ul>
 </div>
@@ -3582,12 +3591,6 @@ in <code>renderPass</code> that specifies a <code>loadOp</code> (or
 <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassBeginInfo-clearValueCount-00903"></a>
-If <code>clearValueCount</code> is not <code>0</code>, <code>pClearValues</code> <strong class="purple">must</strong> be a valid
-pointer to an array of <code>clearValueCount</code> valid <code>VkClearValue</code>
-unions</p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassBeginInfo-renderPass-00904"></a>
 <code>renderPass</code> <strong class="purple">must</strong> be <a href="#renderpass-compatibility">compatible</a> with
 the <code>renderPass</code> member of the <code>VkFramebufferCreateInfo</code>
@@ -3613,6 +3616,9 @@ structure specified when creating <code>framebuffer</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-framebuffer-parameter"></a> <code>framebuffer</code> <strong class="purple">must</strong> be a valid <code>VkFramebuffer</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pClearValues-parameter"></a> If <code>clearValueCount</code> is not <code>0</code>, <code>pClearValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>clearValueCount</code> <code>VkClearValue</code> unions</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-commonparent"></a> Both of <code>framebuffer</code>, and <code>renderPass</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <code>VkDevice</code></p>
@@ -3991,8 +3997,8 @@ the render pass minus one</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.92<br>
-Last updated 2018-11-03 23:49:18 -0700
+Version 1.0.93<br>
+Last updated 2018-11-18 02:54:52 -0800
 </div>
 </div>
 
