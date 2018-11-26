@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.93 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.94 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.93 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.94 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.93,</span>
-<span id="revdate">2018-11-18 11:03:27Z</span>
-<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
+<span id="revnumber">version 1.1.94,</span>
+<span id="revdate">2018-11-26 07:35:14Z</span>
+<br><span id="revremark">from git branch: github-master commit: c24b84795f6c083df107d8639286881a23894679</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -7434,6 +7434,14 @@ to by <code>surface</code></p>
 <code>VK_IMAGE_TILING_OPTIMAL</code> images as reported by
 <a href="chap31.html#vkGetPhysicalDeviceImageFormatProperties">vkGetPhysicalDeviceImageFormatProperties</a>.</p>
 </li>
+<li>
+<p><a id="VUID-VkSwapchainCreateInfoKHR-flags-03168"></a>
+If <code>flags</code> contains <code>VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR</code>
+then the <code>pNext</code> chain <strong class="purple">must</strong> contain an instance of
+<a href="chap11.html#VkImageFormatListCreateInfoKHR">VkImageFormatListCreateInfoKHR</a> with a <code>viewFormatCount</code>
+greater than zero and <code>pViewFormats</code> <strong class="purple">must</strong> have an element equal to
+<code>imageFormat</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -7447,7 +7455,10 @@ to by <code>surface</code></p>
 <p><a id="VUID-VkSwapchainCreateInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSwapchainCreateInfoKHR-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupSwapchainCreateInfoKHR">VkDeviceGroupSwapchainCreateInfoKHR</a></p>
+<p><a id="VUID-VkSwapchainCreateInfoKHR-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupSwapchainCreateInfoKHR">VkDeviceGroupSwapchainCreateInfoKHR</a> or <a href="chap11.html#VkImageFormatListCreateInfoKHR">VkImageFormatListCreateInfoKHR</a></p>
+</li>
+<li>
+<p><a id="VUID-VkSwapchainCreateInfoKHR-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkSwapchainCreateInfoKHR-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkSwapchainCreateFlagBitsKHR">VkSwapchainCreateFlagBitsKHR</a> values</p>
@@ -7505,6 +7516,7 @@ specifying parameters of swapchain creation, are:</p>
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSwapchainCreateFlagBitsKHR {
     VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR = <span class="hex">0x00000001</span>,
     VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR = <span class="hex">0x00000002</span>,
+    VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR = <span class="hex">0x00000004</span>,
 } VkSwapchainCreateFlagBitsKHR;</code></pre>
 </div>
 </div>
@@ -7519,6 +7531,18 @@ handle) <strong class="purple">must</strong> use <code>VK_IMAGE_CREATE_SPLIT_INS
 <li>
 <p><code>VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR</code> specifies that images
 created from the swapchain are protected images.</p>
+</li>
+<li>
+<p><code>VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR</code> specifies that the
+images of the swapchain <strong class="purple">can</strong> be used to create a <code>VkImageView</code> with
+a different format than what the swapchain was created with.
+The list of allowed image view formats are specified by chaining an
+instance of the <a href="chap11.html#VkImageFormatListCreateInfoKHR">VkImageFormatListCreateInfoKHR</a> structure to the
+<code>pNext</code> chain of <code>VkSwapchainCreateInfoKHR</code>.
+In addition, this flag also specifies that the swapchain <strong class="purple">can</strong> be created
+with usage flags that are not supported for the format the swapchain is
+created with but are supported for at least one of the allowed image
+view formats.</p>
 </li>
 </ul>
 </div>
@@ -7619,8 +7643,13 @@ the following <code>VkImageCreateInfo</code> parameters:</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>flags</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT</code> is set if <code>VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR</code> is set</p>
-<p class="tableblock"><code>VK_IMAGE_CREATE_PROTECTED_BIT</code> is set if <code>VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR</code> is set</p>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT</code> is set if
+<code>VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR</code> is set</p>
+<p class="tableblock"><code>VK_IMAGE_CREATE_PROTECTED_BIT</code> is set if
+<code>VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR</code> is set</p>
+<p class="tableblock"><code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> and
+<code>VK_IMAGE_CREATE_EXTENDED_USAGE_BIT_KHR</code> are both set if
+<code>VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR</code> is set</p>
 <p class="tableblock">all other bits are unset</p></td>
 </tr>
 <tr>
@@ -9793,8 +9822,8 @@ swapchain as long as the swapchain has not entered a state that causes
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.93<br>
-Last updated 2018-11-18 02:54:52 -0800
+Version 1.1.94<br>
+Last updated 2018-11-25 23:27:01 -0800
 </div>
 </div>
 

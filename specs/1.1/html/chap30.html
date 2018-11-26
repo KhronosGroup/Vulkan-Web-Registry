@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.93 - A Specification</title>
+<title>Vulkan® 1.1.94 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.93 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.94 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.93,</span>
-<span id="revdate">2018-11-18 11:07:53Z</span>
-<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
+<span id="revnumber">version 1.1.94,</span>
+<span id="revdate">2018-11-26 07:39:30Z</span>
+<br><span id="revremark">from git branch: github-master commit: c24b84795f6c083df107d8639286881a23894679</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -5605,8 +5605,12 @@ implementation are queried individually using the
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>Image formats which <strong class="purple">can</strong> be passed to, and <strong class="purple">may</strong> be returned from Vulkan
-commands, are:</p>
+<p>The following image formats <strong class="purple">can</strong> be passed to, and <strong class="purple">may</strong> be returned from
+Vulkan commands.
+The memory required to store each format is discussed with that format, and
+also summarized in the <a href="#texel-block-size">Representation and Texel Block
+Size</a> section and the <a href="#features-formats-compatibility">Compatible
+formats</a> table.</p>
 </div>
 <div id="VkFormat" class="listingblock">
 <div class="content">
@@ -7382,7 +7386,7 @@ determined via <a href="chap11.html#vkGetImageSubresourceLayout">vkGetImageSubre
 <h5 id="features-formats-compatible-planes">Compatible formats of planes of multi-planar formats</h5>
 <div class="paragraph">
 <p>Individual planes of multi-planar formats are <em>compatible</em> with single-plane
-formats if they occupy the same number of bits per data element.
+formats if they occupy the same number of bits per texel block.
 In the following table, individual planes of a <em>multi-planar</em> format are
 compatible with the format listed against the relevant plane index for that
 multi-planar format.</p>
@@ -7784,8 +7788,8 @@ multi-planar format.</p>
 <div class="paragraph">
 <p>For the purposes of address alignment when accessing buffer memory
 containing vertex attribute or texel data, the following formats are
-considered <em>packed</em> - whole texels or attributes are stored in a single data
-element, rather than individual components occupying a single data element:</p>
+considered <em>packed</em> - whole texels or attributes are stored in bitfields of
+a single 8-, 16-, or 32-bit fundamental data type.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -8047,17 +8051,21 @@ does not store these channels at reduced horizontal resolution.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_representation">Representation</h5>
+<h5 id="texel-block-size">Representation and Texel Block Size</h5>
 <div class="paragraph">
 <p>Color formats <strong class="purple">must</strong> be represented in memory in exactly the form indicated
 by the format’s name.
 This means that promoting one format to another with more bits per component
 and/or additional components <strong class="purple">must</strong> not occur for color formats.
 Depth/stencil formats have more relaxed requirements as discussed
-<a href="#features-formats-depth-stencil">below</a>.
-Each format has an <em>element size</em>, the number of bytes used to stored one
-element or one compressed block, with the value of the element size listed
-in <a href="#VkFormat">VkFormat</a>.</p>
+<a href="#features-formats-depth-stencil">below</a>.</p>
+</div>
+<div class="paragraph">
+<p>Each format has a <em>texel block size</em>, the number of bytes used to store one
+<em>texel block</em> (a single addressable element of an uncompressed image, or a
+single compressed block of a compressed image).
+The texel block size for each format is shown in the
+<a href="#features-formats-compatibility">Compatible formats</a> table.</p>
 </div>
 <div class="paragraph">
 <p>The representation of non-packed formats is that the first component
@@ -8926,7 +8934,7 @@ implemented as D24 or D32).</p>
 <h5 id="features-formats-compatibility-classes">Format Compatibility Classes</h5>
 <div class="paragraph">
 <p>Uncompressed color formats are <em>compatible</em> with each other if they occupy
-the same number of bits per data element.
+the same number of bits per texel block.
 Compressed color formats are compatible with each other if the only
 difference between them is the numerical type of the uncompressed pixels
 (e.g. signed vs.
@@ -8937,20 +8945,22 @@ In the <a href="#features-formats-compatibility">following</a> table, all the fo
 in the same row are compatible.</p>
 </div>
 <table id="features-formats-compatibility" class="tableblock frame-all grid-all" style="width: 90%;">
-<caption class="title">Table 40. Compatible formats</caption>
+<caption class="title">Table 40. Compatible Formats</caption>
 <colgroup>
 <col style="width: 28.5714%;">
 <col style="width: 71.4286%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Class</th>
+<th class="tableblock halign-left valign-top">Class, Texel Block Size, # Texels/Block</th>
 <th class="tableblock halign-left valign-top">Formats</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit<br>
+  Block size 1 byte<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R4G4_UNORM_PACK8</code>,<br>
                     <code>VK_FORMAT_R8_UNORM</code>,<br>
                     <code>VK_FORMAT_R8_SNORM</code>,<br>
@@ -8961,7 +8971,9 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R8_SRGB</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit<br>
+  Block size 2 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R4G4B4A4_UNORM_PACK16</code>,<br>
                     <code>VK_FORMAT_B4G4R4A4_UNORM_PACK16</code>,<br>
                     <code>VK_FORMAT_R5G6B5_UNORM_PACK16</code>,<br>
@@ -8987,7 +8999,9 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R12X4_UNORM_PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">24-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24-bit<br>
+  Block size 3 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R8G8B8_UNORM</code>,<br>
                     <code>VK_FORMAT_R8G8B8_SNORM</code>,<br>
                     <code>VK_FORMAT_R8G8B8_USCALED</code>,<br>
@@ -9004,7 +9018,9 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_B8G8R8_SRGB</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R8G8B8A8_UNORM</code>,<br>
                     <code>VK_FORMAT_R8G8B8A8_SNORM</code>,<br>
                     <code>VK_FORMAT_R8G8B8A8_USCALED</code>,<br>
@@ -9054,15 +9070,21 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R12X4G12X4_UNORM_2PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit G8B8G8R8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit G8B8G8R8<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8B8G8R8_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit B8G8R8G8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32-bit B8G8R8G8<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_B8G8R8G8_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">48-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">48-bit<br>
+  Block size 6 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R16G16B16_UNORM</code>,<br>
                     <code>VK_FORMAT_R16G16B16_SNORM</code>,<br>
                     <code>VK_FORMAT_R16G16B16_USCALED</code>,<br>
@@ -9072,7 +9094,9 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R16G16B16_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R16G16B16A16_UNORM</code>,<br>
                     <code>VK_FORMAT_R16G16B16A16_SNORM</code>,<br>
                     <code>VK_FORMAT_R16G16B16A16_USCALED</code>,<br>
@@ -9088,45 +9112,65 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R64_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit R10G10B10A10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit R10G10B10A10<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G10B10G10R10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G10B10G10R10<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B10G10R10G10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B10G10R10G10<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit R12G12B12A12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit R12G12B12A12<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G12B12G12R12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G12B12G12R12<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B12G12R12G12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B12G12R12G12<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G16B16G16R16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit G16B16G16R16<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16B16G16R16_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B16G16R16G16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64-bit B16G16R16G16<br>
+  Block size 8 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_B16G16R16G16_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">96-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">96-bit<br>
+  Block size 12 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R32G32B32_UINT</code>,<br>
                     <code>VK_FORMAT_R32G32B32_SINT</code>,<br>
                     <code>VK_FORMAT_R32G32B32_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">128-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128-bit<br>
+  Block size 16 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R32G32B32A32_UINT</code>,<br>
                     <code>VK_FORMAT_R32G32B32A32_SINT</code>,<br>
                     <code>VK_FORMAT_R32G32B32A32_SFLOAT</code>,<br>
@@ -9135,258 +9179,370 @@ in the same row are compatible.</p>
                     <code>VK_FORMAT_R64G64_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">192-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">192-bit<br>
+  Block size 24 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R64G64B64_UINT</code>,<br>
                     <code>VK_FORMAT_R64G64B64_SINT</code>,<br>
                     <code>VK_FORMAT_R64G64B64_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">256-bit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">256-bit<br>
+  Block size 32 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R64G64B64A64_UINT</code>,<br>
                     <code>VK_FORMAT_R64G64B64A64_SINT</code>,<br>
                     <code>VK_FORMAT_R64G64B64A64_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC1_RGB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC1_RGB (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC1_RGB_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC1_RGB_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC1_RGBA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC1_RGBA (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC1_RGBA_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC1_RGBA_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC2 (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC2_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC2_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC3 (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC3_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC3_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC4 (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC4_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC4_SNORM_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC5 (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC5_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC5_SNORM_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC6H</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC6H (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC6H_UFLOAT_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC6H_SFLOAT_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BC7</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BC7 (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_BC7_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_BC7_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_RGB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_RGB (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_RGBA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_RGBA (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_EAC_RGBA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ETC2_EAC_RGBA (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">EAC_R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EAC_R (64 bit)<br>
+  Block size 8 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_EAC_R11_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_EAC_R11_SNORM_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">EAC_RG</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EAC_RG (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_EAC_R11G11_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_EAC_R11G11_SNORM_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_4x4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_4x4 (128 bit)<br>
+  Block size 16 bytes<br>
+  16 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_4x4_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_4x4_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_5x4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_5x4 (128 bit)<br>
+  Block size 16 bytes<br>
+  20 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_5x4_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_5x4_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_5x5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_5x5 (128 bit)<br>
+  Block size 16 bytes<br>
+  25 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_5x5_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_5x5_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_6x5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_6x5 (128 bit)<br>
+  Block size 16 bytes<br>
+  30 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_6x5_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_6x5_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_6x6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_6x6 (128 bit)<br>
+  Block size 16 bytes<br>
+  36 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_6x6_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_6x6_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x5 (128 bit)<br>
+  Block size 16 bytes<br>
+  40 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_8x5_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_8x5_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x6 (128 bit)<br>
+  Block size 16 bytes<br>
+  48 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_8x6_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_8x6_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_8x8 (128 bit)<br>
+  Block size 16 bytes<br>
+  64 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_8x8_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_8x8_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x5 (128 bit)<br>
+  Block size 16 bytes<br>
+  50 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_10x5_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_10x5_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x6 (128 bit)<br>
+  Block size 16 bytes<br>
+  60 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_10x6_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_10x6_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x8 (128 bit)<br>
+  Block size 16 bytes<br>
+  80 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_10x8_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_10x8_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_10x10 (128 bit)<br>
+  Block size 16 bytes<br>
+  100 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_10x10_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_10x10_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_12x10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_12x10 (128 bit)<br>
+  Block size 16 bytes<br>
+  120 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_12x10_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_12x10_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_12x12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ASTC_12x12 (128 bit)<br>
+  Block size 16 bytes<br>
+  144 texels/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_ASTC_12x12_UNORM_BLOCK</code>,<br>
                     <code>VK_FORMAT_ASTC_12x12_SRGB_BLOCK</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D16 (16 bit)<br>
+  Block size 2 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D24 (32 bit)<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_X8_D24_UNORM_PACK32</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D32 (32 bit)<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S8 (8 bit)<br>
+  Block size 1 byte<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D16S8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D16S8 (24 bit)<br>
+  Block size 3 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM_S8_UINT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D24S8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D24S8 (32 bit)<br>
+  Block size 4 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_D24_UNORM_S8_UINT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">D32S8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">D32S8 (40 bit)<br>
+  Block size 5 bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT_S8_UINT</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 420<br>
+  Block size (1,1,1) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 2-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 2-plane 420<br>
+  Block size (1,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8_B8R8_2PLANE_420_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 422<br>
+  Block size (1,1,1) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 2-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 2-plane 422<br>
+  Block size (1,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8_B8R8_2PLANE_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 444</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-bit 3-plane 444<br>
+  Block size (1,1,1) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 420<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 2-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 2-plane 420<br>
+  Block size (2,4) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 422<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 2-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 2-plane 422<br>
+  Block size (2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 444</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10-bit 3-plane 444<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 420<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 2-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 2-plane 420<br>
+  Block size (2,4) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 422<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 2-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 2-plane 422<br>
+  Block size (2,4) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 444</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12-bit 3-plane 444<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 420<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 2-plane 420</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 2-plane 420<br>
+  Block size (2,4) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16_B16R16_2PLANE_420_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 422<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 2-plane 422</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 2-plane 422<br>
+  Block size (2,4) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16_B16R16_2PLANE_422_UNORM</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 444</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16-bit 3-plane 444<br>
+  Block size (2,2,2) bytes<br>
+  1 texel/block</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM</code></p></td>
 </tr>
 </tbody>
@@ -9494,7 +9650,7 @@ supported, and images of that format cannot be created.</p>
 </table>
 </div>
 <div class="paragraph">
-<p>If <code>format</code> is a block-compression format, then <code>bufferFeatures</code>
+<p>If <code>format</code> is a block-compressed format, then <code>bufferFeatures</code>
 <strong class="purple">must</strong> not support any features for the format.</p>
 </div>
 <div class="paragraph">
@@ -16330,8 +16486,8 @@ zero or more <a href="#VkExternalFenceFeatureFlagBits">VkExternalFenceFeatureFla
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.93<br>
-Last updated 2018-11-18 02:54:52 -0800
+Version 1.1.94<br>
+Last updated 2018-11-25 23:27:01 -0800
 </div>
 </div>
 

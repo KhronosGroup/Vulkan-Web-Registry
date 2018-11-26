@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.93 - A Specification</title>
+<title>Vulkan® 1.1.94 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.93 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.94 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.93,</span>
-<span id="revdate">2018-11-18 11:07:53Z</span>
-<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
+<span id="revnumber">version 1.1.94,</span>
+<span id="revdate">2018-11-26 07:39:30Z</span>
+<br><span id="revremark">from git branch: github-master commit: c24b84795f6c083df107d8639286881a23894679</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1945,8 +1945,8 @@ to this starting offset.</p>
 If <code>range</code> is equal to <code>VK_WHOLE_SIZE</code>, the range from
 <code>offset</code> to the end of the buffer is used.
 If <code>VK_WHOLE_SIZE</code> is used and the remaining size of the buffer is
-not a multiple of the element size of <code>format</code>, then the nearest
-smaller multiple is used.</p>
+not a multiple of the <a href="chap30.html#texel-block-size">texel block size</a> of
+<code>format</code>, the nearest smaller multiple is used.</p>
 </li>
 </ul>
 </div>
@@ -1972,12 +1972,15 @@ greater than <code>0</code></p>
 <li>
 <p><a id="VUID-VkBufferViewCreateInfo-range-00929"></a>
 If <code>range</code> is not equal to <code>VK_WHOLE_SIZE</code>, <code>range</code> <strong class="purple">must</strong> be
-a multiple of the element size of <code>format</code></p>
+an integer multiple of the texel block size of <code>format</code></p>
 </li>
 <li>
 <p><a id="VUID-VkBufferViewCreateInfo-range-00930"></a>
 If <code>range</code> is not equal to <code>VK_WHOLE_SIZE</code>, <code>range</code> divided
-by the element size of <code>format</code> <strong class="purple">must</strong> be less than or equal to
+by the texel block size of <code>format</code>, multiplied by the number of
+texels per texel block for that format (as defined in the
+<a href="chap30.html#features-formats-compatibility">Compatible Formats</a> table), <strong class="purple">must</strong> be
+less than or equal to
 <code>VkPhysicalDeviceLimits</code>::<code>maxTexelBufferElements</code></p>
 </li>
 <li>
@@ -2317,7 +2320,7 @@ the image type.</p>
 </li>
 <li>
 <p><code>format</code> is a <a href="chap30.html#VkFormat">VkFormat</a> describing the format and type of the
-data elements that will be contained in the image.</p>
+texel blocks that will be contained in the image.</p>
 </li>
 <li>
 <p><code>extent</code> is a <a href="chap2.html#VkExtent3D">VkExtent3D</a> describing the number of data
@@ -2331,13 +2334,12 @@ minified sampling of the image.</p>
 <p><code>arrayLayers</code> is the number of layers in the image.</p>
 </li>
 <li>
-<p><code>samples</code> is the number of sub-data element samples in the image as
-defined in <a href="chap30.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a>.
-See <a href="chap24.html#primsrast-multisampling">Multisampling</a>.</p>
+<p><code>samples</code> is a <a href="chap30.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a> specifying the number of
+<a href="chap24.html#primsrast-multisampling">samples per texel</a>.</p>
 </li>
 <li>
 <p><code>tiling</code> is a <a href="#VkImageTiling">VkImageTiling</a> value specifying the tiling
-arrangement of the data elements in memory.</p>
+arrangement of the texel blocks in memory.</p>
 </li>
 <li>
 <p><code>usage</code> is a bitmask of <a href="#VkImageUsageFlagBits">VkImageUsageFlagBits</a> describing the
@@ -2451,8 +2453,8 @@ The limiting values are referenced by the relevant valid usage statements of
 <div class="ulist">
 <ul>
 <li>
-<p>Let <code>VkBool32 imageCreateMaybeLinear</code> indicate if the resulant image may
-be <a href="#glossary-linear-image">linear</a>.
+<p>Let <code>VkBool32 imageCreateMaybeLinear</code> indicate if the resultant image
+may be <a href="#glossary-linear-image">linear</a>.
 (The definition below is trivial because certain extensions are disabled
 in this build of the specification).</p>
 <div class="ulist">
@@ -2469,8 +2471,8 @@ in this build of the specification).</p>
 </div>
 </li>
 <li>
-<p>Let <code>VkFormatFeatureFlags imageCreateFormatFeatures</code> be the set of format
-features available during image creation.</p>
+<p>Let <code>VkFormatFeatureFlags imageCreateFormatFeatures</code> be the set of
+format features available during image creation.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -2498,22 +2500,20 @@ times, as follows:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>The parameters
-<a href="chap30.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>format</code>,
-<code>imageType</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> <strong class="purple">must</strong>
-be equal to those in <code>VkImageCreateInfo</code>.</p>
+<p>The parameters <a href="chap30.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>format</code>,
+<code>imageType</code>, <code>tiling</code>, <code>usage</code>, and <code>flags</code> <strong class="purple">must</strong> be
+equal to those in <code>VkImageCreateInfo</code>.</p>
 </li>
 <li>
 <p>If <a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>pNext</code> contains an instance of
-<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a> where <code>handleTypes</code> is
-not <code>0</code>, then <a href="chap30.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code>
-<strong class="purple">must</strong> contain an instance of
-<a href="chap30.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysicalDeviceExternalImageFormatInfo</a> where
-<code>handleType</code> is not <code>0</code>; and
+<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a> where <code>handleTypes</code> is not
+<code>0</code>, then <a href="chap30.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong>
+contain an instance of <a href="chap30.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysicalDeviceExternalImageFormatInfo</a>
+where <code>handleType</code> is not <code>0</code>; and
 <a href="chap30.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> <strong class="purple">must</strong> be called for
 each handle type in
-<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code>,
-successively setting
+<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code>, successively
+setting
 <a href="chap30.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysicalDeviceExternalImageFormatInfo</a>::<code>handleType</code> on
 each call.</p>
 </li>
@@ -2522,22 +2522,21 @@ each call.</p>
 <a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a> or contains an instance where
 <code>handleTypes</code> is <code>0</code>, then
 <a href="chap30.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> either
-contain no instance of
-<a href="chap30.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysicalDeviceExternalImageFormatInfo</a> or contain an
-instance where <code>handleType</code> is <code>0</code>.</p>
+contain no instance of <a href="chap30.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysicalDeviceExternalImageFormatInfo</a>
+or contain an instance where <code>handleType</code> is <code>0</code>.</p>
 </li>
 <li>
-<p>If any call to <a href="chap30.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a>
-returns an error, then <code>imageCreateImageFormatPropertiesList</code> is
-defined to be the empty list.</p>
+<p>If any call to <a href="chap30.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> returns
+an error, then <code>imageCreateImageFormatPropertiesList</code> is defined
+to be the empty list.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
 <p>Let <code>uint32_t imageCreateMaxMipLevels</code> be
-the minimum value of <a href="chap30.html#VkImageFormatProperties">VkImageFormatProperties</a>::<code>maxMipLevels</code> in
-<code>imageCreateImageFormatPropertiesList</code>.
+the minimum value of <a href="chap30.html#VkImageFormatProperties">VkImageFormatProperties</a>::<code>maxMipLevels</code>
+in <code>imageCreateImageFormatPropertiesList</code>.
 The value is undefined if <code>imageCreateImageFormatPropertiesList</code> is
 empty.</p>
 </li>
@@ -2558,8 +2557,9 @@ empty.</p>
 </li>
 <li>
 <p>Let <code>VkSampleCountFlags imageCreateSampleCounts</code> be
-the intersection of each <a href="chap30.html#VkImageFormatProperties">VkImageFormatProperties</a>::<code>sampleCounts</code>
-in <code>imageCreateImageFormatPropertiesList</code>.
+the intersection of each
+<a href="chap30.html#VkImageFormatProperties">VkImageFormatProperties</a>::<code>sampleCounts</code> in
+<code>imageCreateImageFormatPropertiesList</code>.
 The value is undefined if <code>imageCreateImageFormatPropertiesList</code> is
 empty.</p>
 </li>
@@ -2892,25 +2892,28 @@ If <code>flags</code> contains
     <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageCreateInfo-format-01574"></a>
+<p><a id="VUID-VkImageCreateInfo-format-02561"></a>
 If the image <code>format</code> is one of those listed in
-<a href="chap30.html#features-formats-requiring-sampler-ycbcr-conversion">Formats requiring sampler Y’C<sub>B</sub>C<sub>R</sub> conversion for <code>VK_IMAGE_ASPECT_COLOR_BIT</code> image views</a>:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><code>mipLevels</code> <strong class="purple">must</strong> be 1</p>
+<a href="chap30.html#features-formats-requiring-sampler-ycbcr-conversion">Formats requiring sampler Y’C<sub>B</sub>C<sub>R</sub> conversion for <code>VK_IMAGE_ASPECT_COLOR_BIT</code> image views</a>, then
+<code>mipLevels</code> <strong class="purple">must</strong> be 1</p>
 </li>
 <li>
-<p><code>samples</code> must be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
+<p><a id="VUID-VkImageCreateInfo-format-02562"></a>
+If the image <code>format</code> is one of those listed in
+<a href="chap30.html#features-formats-requiring-sampler-ycbcr-conversion">Formats requiring sampler Y’C<sub>B</sub>C<sub>R</sub> conversion for <code>VK_IMAGE_ASPECT_COLOR_BIT</code> image views</a>, <code>samples</code>
+must be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
 </li>
 <li>
-<p><code>imageType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_2D</code></p>
+<p><a id="VUID-VkImageCreateInfo-format-02563"></a>
+If the image <code>format</code> is one of those listed in
+<a href="chap30.html#features-formats-requiring-sampler-ycbcr-conversion">Formats requiring sampler Y’C<sub>B</sub>C<sub>R</sub> conversion for <code>VK_IMAGE_ASPECT_COLOR_BIT</code> image views</a>, <code>imageType</code>
+<strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_2D</code></p>
 </li>
 <li>
-<p><code>arrayLayers</code> <strong class="purple">must</strong> be 1</p>
-</li>
-</ul>
-</div>
+<p><a id="VUID-VkImageCreateInfo-format-02564"></a>
+If the image <code>format</code> is one of those listed in
+<a href="chap30.html#features-formats-requiring-sampler-ycbcr-conversion">Formats requiring sampler Y’C<sub>B</sub>C<sub>R</sub> conversion for <code>VK_IMAGE_ASPECT_COLOR_BIT</code> image views</a>,
+<code>arrayLayers</code> <strong class="purple">must</strong> be 1</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-imageCreateFormatFeatures-02260"></a>
@@ -3279,7 +3282,7 @@ basic dimensionality of an image, are:</p>
 <div class="content">
 <div class="paragraph">
 <p>Possible values of <a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>tiling</code>, specifying the
-tiling arrangement of data elements in an image, are:</p>
+tiling arrangement of texel blocks in an image, are:</p>
 </div>
 <div id="VkImageTiling" class="listingblock">
 <div class="content">
@@ -4208,7 +4211,8 @@ This implicit parameter <strong class="purple">can</strong> be overriden by chai
 <p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
 </li>
 <li>
-<p><code>flags</code> is reserved for future use.</p>
+<p><code>flags</code> is a bitmask of <a href="#VkImageViewCreateFlagBits">VkImageViewCreateFlagBits</a> describing
+additional parameters of the image view.</p>
 </li>
 <li>
 <p><code>image</code> is a <a href="#VkImage">VkImage</a> on which the view will be created.</p>
@@ -4219,7 +4223,7 @@ the image view.</p>
 </li>
 <li>
 <p><code>format</code> is a <a href="chap30.html#VkFormat">VkFormat</a> describing the format and type used to
-interpret data elements in the image.</p>
+interpret texel blocks in the image.</p>
 </li>
 <li>
 <p><code>components</code> is a <a href="#VkComponentMapping">VkComponentMapping</a> specifies a remapping of
@@ -4713,7 +4717,7 @@ image, as described in the
 <p><a id="VUID-VkImageViewCreateInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+<p><a id="VUID-VkImageViewCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkImageViewCreateFlagBits">VkImageViewCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-parameter"></a> <code>image</code> <strong class="purple">must</strong> be a valid <code>VkImage</code> handle</p>
@@ -4738,14 +4742,28 @@ image, as described in the
 </div>
 <div class="openblock">
 <div class="content">
+<div class="paragraph">
+<p>Bits which <strong class="purple">can</strong> be set in <a href="#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>flags</code>,
+specifying additional parameters of an image, are:</p>
+</div>
+<div id="VkImageViewCreateFlagBits" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkImageViewCreateFlagBits {
+} VkImageViewCreateFlagBits;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
 <div id="VkImageViewCreateFlags" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkImageViewCreateFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>VkImageViewCreateFlags</code> is a bitmask type for setting a mask, but is
-currently reserved for future use.</p>
+<p><code>VkImageViewCreateFlags</code> is a bitmask type for setting a mask of zero or
+more <a href="#VkImageViewCreateFlagBits">VkImageViewCreateFlagBits</a>.</p>
 </div>
 </div>
 </div>
@@ -5582,10 +5600,9 @@ alignment requirements associated with the <code>VkBuffer</code>’s <code>usage
 <div class="ulist">
 <ul>
 <li>
-<p>If <code>usage</code> included
-<code>VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT</code> or
-<code>VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT</code>, <code>alignment</code> <strong class="purple">must</strong>
-be an integer multiple of
+<p>If <code>usage</code> included <code>VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT</code>
+or <code>VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT</code>, <code>alignment</code>
+<strong class="purple">must</strong> be an integer multiple of
 <code>VkPhysicalDeviceLimits</code>::<code>minTexelBufferOffsetAlignment</code>.</p>
 </li>
 <li>
@@ -7824,8 +7841,8 @@ to satisfy all the above requirements.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.93<br>
-Last updated 2018-11-18 02:54:52 -0800
+Version 1.1.94<br>
+Last updated 2018-11-25 23:27:01 -0800
 </div>
 </div>
 

@@ -45,6 +45,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain_mutable_format"> VK_KHR_swapchain_mutable_format </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_vulkan_memory_model"> VK_KHR_vulkan_memory_model </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> </li>
@@ -70,6 +71,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_dma_buf"> VK_EXT_external_memory_dma_buf </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_fragment_density_map"> VK_EXT_fragment_density_map </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier </a> </li>

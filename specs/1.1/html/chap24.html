@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.93 - A Specification</title>
+<title>Vulkan® 1.1.94 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.93 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.94 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.93,</span>
-<span id="revdate">2018-11-18 11:07:53Z</span>
-<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
+<span id="revnumber">version 1.1.94,</span>
+<span id="revdate">2018-11-26 07:39:30Z</span>
+<br><span id="revremark">from git branch: github-master commit: c24b84795f6c083df107d8639286881a23894679</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1215,7 +1215,7 @@ coordinates.</p>
 </div>
 <div class="paragraph">
 <p>Rasterization operations also refer to a fragment’s sample locations, which
-are offset by subpixel fractional values from its upper left corner.
+are offset by fractional values from its upper left corner.
 The rasterization rules for points, lines, and triangles involve testing
 whether each sample location is inside the primitive.
 Fragments need not actually be square, and rasterization rules are not
@@ -1406,7 +1406,7 @@ a mask, but is currently reserved for future use.</p>
 </li>
 <li>
 <p><code>rasterizationSamples</code> is a <a href="chap30.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a> specifying
-the number of samples per pixel used in rasterization.</p>
+the number of samples used in rasterization.</p>
 </li>
 <li>
 <p><code>sampleShadingEnable</code> <strong class="purple">can</strong> be used to enable
@@ -1498,8 +1498,9 @@ mask, but is currently reserved for future use.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Rasterization only produces fragments corresponding to pixels in the
-framebuffer.
+<p>Rasterization only generates fragments which cover one or more pixels inside
+the framebuffer.
+Pixels outside the framebuffer are never considered covered in the fragment.
 Fragments which would be produced by application of any of the primitive
 rasterization rules described below but which lie outside the framebuffer
 are not produced, nor are they processed by any later stage of the pipeline,
@@ -1597,7 +1598,7 @@ non-multisample images).</p>
 <div class="paragraph">
 <p>Vulkan defines rasterization rules for single-sample modes in a way that is
 equivalent to a multisample mode with a single sample in the center of each
-pixel.</p>
+fragment.</p>
 </div>
 <div class="paragraph">
 <p>Each fragment includes a coverage value with <code>rasterizationSamples</code> bits
@@ -1607,12 +1608,13 @@ associated data.
 An implementation <strong class="purple">may</strong> choose to assign the same associated data to more
 than one sample.
 The location for evaluating such associated data <strong class="purple">may</strong> be anywhere within the
-pixel including the pixel center or any of the sample locations.
-When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the pixel
-center <strong class="purple">must</strong> be used.
+fragment area including the fragment’s center location <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> or
+any of the sample locations.
+When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the
+fragment’s center location <strong class="purple">must</strong> be used.
 The different associated data values need not all be evaluated at the same
 location.
-Each pixel fragment thus consists of integer x and y grid coordinates,
+Each fragment thus consists of integer x and y grid coordinates,
 <code>rasterizationSamples</code> depth values and sets of associated data, and a
 coverage value with <code>rasterizationSamples</code> bits.</p>
 </div>
@@ -1624,8 +1626,10 @@ is referred to as a sample point.
 The sample points associated with a pixel <strong class="purple">must</strong> be located inside or on the
 boundary of the unit square that is considered to bound the pixel.
 Furthermore, the relative locations of sample points <strong class="purple">may</strong> be identical for
-each pixel in the framebuffer, or they <strong class="purple">may</strong> differ.
-If the current pipeline includes a fragment shader with one or more
+each pixel in the framebuffer, or they <strong class="purple">may</strong> differ.</p>
+</div>
+<div class="paragraph">
+<p>If the current pipeline includes a fragment shader with one or more
 variables in its interface decorated with <code>Sample</code> and <code>Input</code>, the
 data associated with those variables will be assigned independently for each
 sample.
@@ -1643,7 +1647,7 @@ the table corresponding to bit <span class="eq">i</span> in the sample masks.
 <code>VK_SAMPLE_COUNT_32_BIT</code> and <code>VK_SAMPLE_COUNT_64_BIT</code> do not have
 standard sample locations.
 Locations are defined relative to an origin in the upper left corner of the
-pixel.</p>
+fragment.</p>
 </div>
 <div style="page-break-after: always;"></div>
 <table class="tableblock frame-all grid-all stretch">
@@ -1975,15 +1979,13 @@ instead.</p>
 <div class="sect3">
 <h4 id="primsrast-points-basic">24.5.1. Basic Point Rasterization</h4>
 <div class="paragraph">
-<p>Point rasterization produces a fragment for each framebuffer pixel with one
-or more sample points that intersect a region centered at the point’s
-<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span>.
+<p>Point rasterization produces a fragment for each fragment area group of
+framebuffer pixels with one or more sample points that intersect a region
+centered at the point’s <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span>.
 This region is a square with side equal to the current point size.
 Coverage bits that correspond to sample points that intersect the region are
-1, other coverage bits are 0.</p>
-</div>
-<div class="paragraph">
-<p>All fragments produced in rasterizing a point are assigned the same
+1, other coverage bits are 0.
+All fragments produced in rasterizing a point are assigned the same
 associated data, which are those of the vertex corresponding to the point.
 However, the fragment shader built-in <code>PointCoord</code> contains point sprite
 texture coordinates.
@@ -2003,13 +2005,11 @@ The following formulas are used to evaluate <span class="eq">s</span> and <span 
 </div>
 </div>
 <div class="paragraph">
-<p>where size is the point’s size, <span class="eq">(x<sub>p</sub>,y<sub>p</sub>)</span> is the location at which
+<p>where size is the point’s size; <span class="eq">(x<sub>p</sub>,y<sub>p</sub>)</span> is the location at which
 the point sprite coordinates are evaluated - this <strong class="purple">may</strong> be the framebuffer
-coordinates of the pixel center (i.e. at the half-integer) or the location
-of a sample, and <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> is the exact, unrounded framebuffer
-coordinate of the vertex for the point.
-When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the pixel
-center <strong class="purple">must</strong> be used.</p>
+coordinates of the fragment center, or the location of a sample; and
+<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> is the exact, unrounded framebuffer coordinate of the
+vertex for the point.</p>
 </div>
 </div>
 </div>
@@ -2164,9 +2164,9 @@ are 1, other coverage bits are 0.</p>
 obtained.
 Let <span class="eq"><strong>p</strong><sub>r</sub> = (x<sub>d</sub>, y<sub>d</sub>)</span> be the framebuffer coordinates at which
 associated data are evaluated.
-This <strong class="purple">may</strong> be the pixel center of a fragment or the location of a sample
-within the fragment.
-When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the pixel
+This <strong class="purple">may</strong> be the center of a fragment or the location of a sample within the
+fragment.
+When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the fragment
 center <strong class="purple">must</strong> be used.
 Let <span class="eq"><strong>p</strong><sub>a</sub> = (x<sub>a</sub>, y<sub>a</sub>)</span> and <span class="eq"><strong>p</strong><sub>b</sub> = (x<sub>b</sub>,y<sub>b</sub>)</span> be
 initial and final endpoints of the line segment, respectively.
@@ -2430,8 +2430,8 @@ been discarded.</p>
 rasterization is called <em>point sampling</em>.
 The two-dimensional projection obtained by taking the x and y framebuffer
 coordinates of the polygon’s vertices is formed.
-Fragments are produced for any pixels for which any sample points lie inside
-of this polygon.
+Fragments are produced for any fragment area groups of pixels for which any
+sample points lie inside of this polygon.
 Coverage bits that correspond to sample points that satisfy the point
 sampling criteria are 1, other coverage bits are 0.
 Special treatment is given to a sample whose sample location lies on a
@@ -2492,9 +2492,9 @@ coordinate, <strong class="purple">must</strong> be determined using perspective
 <p>where <span class="eq">w<sub>a</sub></span>, <span class="eq">w<sub>b</sub></span>, and <span class="eq">w<sub>c</sub></span> are the clip <span class="eq">w</span>
 coordinates of <span class="eq">p<sub>a</sub></span>, <span class="eq">p<sub>b</sub></span>, and <span class="eq">p<sub>c</sub></span>, respectively.
 <span class="eq">a</span>, <span class="eq">b</span>, and <span class="eq">c</span> are the barycentric coordinates of the
-location at which the data are produced - this <strong class="purple">must</strong> be a pixel center or
-the location of a sample.
-When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the pixel
+location at which the data are produced - this <strong class="purple">must</strong> be the location of the
+fragment center or the location of a sample.
+When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the fragment
 center <strong class="purple">must</strong> be used.</p>
 </div>
 <div id="triangle_linear_interpolation" class="paragraph">
@@ -2838,8 +2838,8 @@ Secondary</p></td>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.93<br>
-Last updated 2018-11-18 02:54:52 -0800
+Version 1.1.94<br>
+Last updated 2018-11-25 23:27:01 -0800
 </div>
 </div>
 

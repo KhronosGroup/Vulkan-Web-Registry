@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.93 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.94 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.93 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.94 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.93,</span>
-<span id="revdate">2018-11-18 11:03:27Z</span>
-<br><span id="revremark">from git branch: github-master commit: 256a1ef66182b2d458148f2fdea183557ea3f507</span>
+<span id="revnumber">version 1.1.94,</span>
+<span id="revdate">2018-11-26 07:35:14Z</span>
+<br><span id="revremark">from git branch: github-master commit: c24b84795f6c083df107d8639286881a23894679</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1628,10 +1628,8 @@ memory.</p>
 </div>
 <div id="copies-images-format-compatibility" class="paragraph">
 <p>The formats of <code>srcImage</code> and <code>dstImage</code> <strong class="purple">must</strong> be compatible.
-Formats are considered compatible if their element size is the same between
-both formats.
-For example, <code>VK_FORMAT_R8G8B8A8_UNORM</code> is compatible with
-<code>VK_FORMAT_R32_UINT</code> because both texels are 4 bytes in size.
+Formats are compatible if they share the same class, as shown in the
+<a href="chap31.html#features-formats-compatibility">Compatible Formats</a> table.
 Depth/stencil formats <strong class="purple">must</strong> match exactly.</p>
 </div>
 <div class="paragraph">
@@ -1675,9 +1673,8 @@ of format <code>VK_FORMAT_R8G8_UNORM</code> and (less usefully) with the
 <div id="copies-images-format-size-compatibility" class="paragraph">
 <p><code>vkCmdCopyImage</code> allows copying between <em>size-compatible</em> compressed and
 uncompressed internal formats.
-Formats are size-compatible if the element size of the uncompressed format
-is equal to the element size (compressed texel block size) of the compressed
-format.
+Formats are size-compatible if the texel block size of the uncompressed
+format is equal to the texel block size of the compressed format.
 Such a copy does not perform on-the-fly compression or decompression.
 When copying from an uncompressed format to a compressed format, each texel
 of uncompressed data of the source image is copied as a raw value to the
@@ -1865,7 +1862,7 @@ not a
 <a href="chap31.html#features-formats-requiring-sampler-ycbcr-conversion"><em>multi-planar
 format</em></a>, the <a href="chap31.html#VkFormat">VkFormat</a> of each of <code>srcImage</code> and
 <code>dstImage</code> <strong class="purple">must</strong> be compatible, as defined
-<a href="#copies-images-format-compatibility">below</a></p>
+<a href="#copies-images-format-compatibility">above</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyImage-None-01549"></a>
@@ -3059,7 +3056,7 @@ If the calling command’s <code>VkImage</code> parameter’s format is not a
 depth/stencil format or a
 <a href="chap31.html#features-formats-requiring-sampler-ycbcr-conversion">multi-planar
 format</a>, then <code>bufferOffset</code> <strong class="purple">must</strong> be a multiple of the format’s
-element size</p>
+texel block size.</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferImageCopy-bufferOffset-01559"></a>
@@ -3229,7 +3226,7 @@ the source buffer <strong class="purple">must</strong> be in the range <span cla
 <div class="sect3">
 <h4 id="copies-buffers-images-addressing">18.4.1. Buffer and Image Addressing</h4>
 <div class="paragraph">
-<p>Pseudocode for image/buffer addressing is:</p>
+<p>Pseudocode for image/buffer addressing of uncompressed formats is:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3241,9 +3238,9 @@ imageHeight = region-&gt;bufferImageHeight;
 <span class="keyword">if</span> (imageHeight == <span class="integer">0</span>)
     imageHeight = region-&gt;imageExtent.height;
 
-elementSize = &lt;element size of the format of the src/dstImage&gt;;
+texelBlockSize = &lt;texel block size of the format of the src/dstImage&gt;;
 
-address of (x,y,z) = region-&gt;bufferOffset + (((z * imageHeight) + y) * rowLength + x) * elementSize;
+address of (x,y,z) = region-&gt;bufferOffset + (((z * imageHeight) + y) * rowLength + x) * texelBlockSize;
 
 where x,y,z range from (<span class="integer">0</span>,<span class="integer">0</span>,<span class="integer">0</span>) to region-&gt;imageExtent.{width,height,depth}.</code></pre>
 </div>
@@ -3255,7 +3252,7 @@ Instead, <code>bufferOffset</code> <strong class="purple">can</strong> be used t
 buffer memory.</p>
 </div>
 <div class="paragraph">
-<p>For block-compression formats, all parameters are still specified in texels
+<p>For block-compressed formats, all parameters are still specified in texels
 rather than compressed texel blocks, but the addressing math operates on
 whole compressed texel blocks.
 Pseudocode for compressed copy addressing is:</p>
@@ -4414,8 +4411,8 @@ If the calling command’s <code>dstImage</code> is of type
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.93<br>
-Last updated 2018-11-18 02:54:52 -0800
+Version 1.1.94<br>
+Last updated 2018-11-25 23:27:01 -0800
 </div>
 </div>
 
