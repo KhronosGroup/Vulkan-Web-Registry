@@ -41,6 +41,8 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_atomic_int64"> VK_KHR_shader_atomic_int64 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float16_int8"> VK_KHR_shader_float16_int8 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float_controls"> VK_KHR_shader_float_controls </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
