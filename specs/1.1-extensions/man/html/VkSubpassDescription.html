@@ -788,74 +788,41 @@ specifying usage of the subpass.</p>
 </li>
 <li>
 <p><code>pipelineBindPoint</code> is a <a href="VkPipelineBindPoint.html">VkPipelineBindPoint</a> value specifying
-whether this is a compute or graphics subpass.
-Currently, only graphics subpasses are supported.</p>
+the pipeline type supported for this subpass.</p>
 </li>
 <li>
 <p><code>inputAttachmentCount</code> is the number of input attachments.</p>
 </li>
 <li>
 <p><code>pInputAttachments</code> is an array of <a href="VkAttachmentReference.html">VkAttachmentReference</a>
-structures (defined below) that lists which of the render pass&#8217;s
-attachments <strong class="purple">can</strong> be read in the fragment shader stage during the
-subpass, and what layout each attachment will be in during the subpass.
-Each element of the array corresponds to an input attachment unit number
-in the shader, i.e. if the shader declares an input variable
-<code>layout(input_attachment_index=X, set=Y, binding=Z)</code> then it uses the
-attachment provided in <code>pInputAttachments</code>[X].
-Input attachments <strong class="purple">must</strong> also be bound to the pipeline with a descriptor
-set, with the input attachment descriptor written in the location
-(set=Y, binding=Z).
-Fragment shaders <strong class="purple">can</strong> use subpass input variables to access the contents
-of an input attachment at the fragment&#8217;s (x, y, layer) framebuffer
-coordinates.</p>
+structures defining the input attachments for this subpass and their
+layouts.</p>
 </li>
 <li>
 <p><code>colorAttachmentCount</code> is the number of color attachments.</p>
 </li>
 <li>
-<p><code>pColorAttachments</code> is an array of <code>colorAttachmentCount</code>
-<a href="VkAttachmentReference.html">VkAttachmentReference</a> structures that lists which of the render
-pass&#8217;s attachments will be used as color attachments in the subpass, and
-what layout each attachment will be in during the subpass.
-Each element of the array corresponds to a fragment shader output
-location, i.e. if the shader declared an output variable
-<code>layout(location=X)</code> then it uses the attachment provided in
-<code>pColorAttachments</code>[X].</p>
+<p><code>pColorAttachments</code> is an array of <a href="VkAttachmentReference.html">VkAttachmentReference</a>
+structures defining the color attachments for this subpass and their
+layouts.</p>
 </li>
 <li>
-<p><code>pResolveAttachments</code> is <code>NULL</code> or an array of
-<code>colorAttachmentCount</code> <a href="VkAttachmentReference.html">VkAttachmentReference</a> structures that
-lists which of the render pass&#8217;s attachments are resolved to at the end
-of the subpass, and what layout each attachment will be in during the
-multisample resolve operation.
-If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements
-corresponds to a color attachment (the element in
-<code>pColorAttachments</code> at the same index), and a multisample resolve
-operation is defined for each attachment.
-At the end of each subpass, multisample resolve operations read the
-subpass&#8217;s color attachments, and resolve the samples for each pixel to
-the same pixel location in the corresponding resolve attachments, unless
-the resolve attachment index is <code>VK_ATTACHMENT_UNUSED</code>.
-If the first use of an attachment in a render pass is as a resolve
-attachment, then the <code>loadOp</code> is effectively ignored as the resolve
-is guaranteed to overwrite all pixels in the render area.</p>
+<p><code>pResolveAttachments</code> is an optional array of
+<code>colorAttachmentCount</code> <a href="VkAttachmentReference.html">VkAttachmentReference</a> structures
+defining the resolve attachments for this subpass and their layouts.</p>
 </li>
 <li>
 <p><code>pDepthStencilAttachment</code> is a pointer to a
-<a href="VkAttachmentReference.html">VkAttachmentReference</a> specifying which attachment will be used for
-depth/stencil data and the layout it will be in during the subpass.
-Setting the attachment index to <code>VK_ATTACHMENT_UNUSED</code> or leaving
-this pointer as <code>NULL</code> indicates that no depth/stencil attachment will
-be used in the subpass.</p>
+<a href="VkAttachmentReference.html">VkAttachmentReference</a> specifying the depth/stencil attachment for
+this subpass and its layout.</p>
 </li>
 <li>
 <p><code>preserveAttachmentCount</code> is the number of preserved attachments.</p>
 </li>
 <li>
 <p><code>pPreserveAttachments</code> is an array of <code>preserveAttachmentCount</code>
-render pass attachment indices describing the attachments that are not
-used by a subpass, but whose contents <strong class="purple">must</strong> be preserved throughout the
+render pass attachment indices identifying attachments that are not used
+by this subpass, but whose contents <strong class="purple">must</strong> be preserved throughout the
 subpass.</p>
 </li>
 </ul>
@@ -865,6 +832,78 @@ subpass.</p>
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Each element of the <code>pInputAttachments</code> array corresponds to an input
+attachment index in a fragment shader, i.e. if a shader declares an image
+variable decorated with a <code>InputAttachmentIndex</code> value of <strong>X</strong>, then it
+uses the attachment provided in <code>pInputAttachments</code>[<strong>X</strong>].
+Input attachments <strong class="purple">must</strong> also be bound to the pipeline in a descriptor set.
+If the <code>attachment</code> member of any element of <code>pInputAttachments</code> is
+<code>VK_ATTACHMENT_UNUSED</code>, the application <strong class="purple">must</strong> not read from the
+corresponding input attachment index.
+Fragment shaders <strong class="purple">can</strong> use subpass input variables to access the contents of
+an input attachment at the fragment&#8217;s (x, y, layer) framebuffer coordinates.</p>
+</div>
+<div class="paragraph">
+<p>Each element of the <code>pColorAttachments</code> array corresponds to an output
+location in the shader, i.e. if the shader declares an output variable
+decorated with a <code>Location</code> value of <strong>X</strong>, then it uses the attachment
+provided in <code>pColorAttachments</code>[<strong>X</strong>].
+If the <code>attacment</code> member of any element of <code>pColorAttachments</code> is
+<code>VK_ATTACHMENT_UNUSED</code>, writes to the corresponding location by a
+fragment are discarded.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds
+to a color attachment (the element in <code>pColorAttachments</code> at the same
+index), and a multisample resolve operation is defined for each attachment.
+At the end of each subpass, multisample resolve operations read the
+subpass&#8217;s color attachments, and resolve the samples for each pixel to the
+same pixel location in the corresponding resolve attachments, unless the
+resolve attachment index is <code>VK_ATTACHMENT_UNUSED</code>.</p>
+</div>
+<div class="paragraph">
+<p>Similarly, if
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>pDepthStencilResolveAttachment</code>
+is not <code>NULL</code> and does not have the value <code>VK_ATTACHMENT_UNUSED</code>, it
+corresponds to the depth/stencil attachment in
+<code>pDepthStencilAttachment</code>, and multisample resolve operations for depth
+and stencil are defined by
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code> and
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>,
+respectively.
+At the end of each subpass, multisample resolve operations read the
+subpass&#8217;s depth/stencil attachment, and resolve the samples for each pixel
+to the same pixel location in the corresponding resolve attachment.
+If <a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code>
+is <code>VK_RESOLVE_MODE_NONE_KHR</code>, then the depth component of the resolve
+attachment is not written to and its contents are preserved.
+Similarly, if
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>
+is <code>VK_RESOLVE_MODE_NONE_KHR</code>, then the stencil component of the resolve
+attachment is not written to and its contents are preserved.
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code> is
+ignored if the <a href="VkFormat.html">VkFormat</a> of the <code>pDepthStencilResolveAttachment</code>
+does not have a depth component.
+Similarly,
+<a href="VkSubpassDescriptionDepthStencilResolveKHR.html">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>
+is ignored if the <a href="VkFormat.html">VkFormat</a> of the <code>pDepthStencilResolveAttachment</code>
+does not have a stencil component.</p>
+</div>
+<div class="paragraph">
+<p>If the image subresource range referenced by the depth/stencil attachment is
+created with
+<code>VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT</code>, then the
+multisample resolve operation uses the sample locations state specified in
+the <code>sampleLocationsInfo</code> member of the element of the
+<code>VkRenderPassSampleLocationsBeginInfoEXT</code>::<code>pPostSubpassSampleLocations</code>
+for the subpass.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pDepthStencilAttachment</code> is <code>NULL</code>, or if its attachment index is
+<code>VK_ATTACHMENT_UNUSED</code>, it indicates that no depth/stencil attachment
+will be used in the subpass.</p>
+</div>
 <div class="paragraph">
 <p>The contents of an attachment within the render area become undefined at
 the start of a subpass <strong>S</strong> if all of the following conditions are true:</p>
@@ -1041,7 +1080,7 @@ Fixes and changes should be made to the Specification, not directly.</p>
 <h2 id="_copyright">Copyright</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Copyright (c) 2014-2018 Khronos Group. This work is licensed under a
+<p>Copyright (c) 2014-2019 Khronos Group. This work is licensed under a
 <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons
 Attribution 4.0 International License</a>.</p>
 </div>
@@ -1050,8 +1089,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.96<br>
-Last updated 2018-12-16 22:25:29 -0800
+Version 1.1.97<br>
+Last updated 2019-01-05 19:42:01 -0800
 </div>
 </div>
 

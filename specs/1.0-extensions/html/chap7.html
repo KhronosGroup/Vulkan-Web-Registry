@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.96 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.97 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.96 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.97 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.96,</span>
-<span id="revdate">2018-12-17 06:34:15Z</span>
-<br><span id="revremark">from git branch: github-master commit: b557dd2167a5b2c92a03a69b34ff7a4431cca7ad</span>
+<span id="revnumber">version 1.0.97,</span>
+<span id="revdate">2019-01-06 03:51:23Z</span>
+<br><span id="revremark">from git branch: github-master commit: 56e0289318a4cd23aa5f5dcfb290ee873be53b82</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -985,6 +985,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="chap13.html#descriptorsets-types">13.1. Descriptor Types</a></li>
 <li><a href="chap13.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
+<li><a href="chap13.html#_physical_storage_buffer_access">13.3. Physical Storage Buffer Access</a></li>
 </ul>
 </li>
 <li><a href="chap14.html#interfaces">14. Shader Interfaces</a>
@@ -1350,10 +1351,14 @@ contents <strong class="purple">must</strong> be preserved throughout the subpas
 </div>
 <div class="paragraph">
 <p>A subpass <em>uses an attachment</em> if the attachment is a color, depth/stencil,
-resolve, or input attachment for that subpass (as determined by the
+resolve,
+depth/stencil resolve,
+or input attachment for that subpass (as determined by the
 <code>pColorAttachments</code>, <code>pDepthStencilAttachment</code>,
-<code>pResolveAttachments</code>, and <code>pInputAttachments</code> members of
-<a href="#VkSubpassDescription">VkSubpassDescription</a>, respectively).
+<code>pResolveAttachments</code>,
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>pDepthStencilResolveAttachment</code>,
+and <code>pInputAttachments</code> members of <a href="#VkSubpassDescription">VkSubpassDescription</a>,
+respectively).
 A subpass does not use an attachment if that attachment is preserved by the
 subpass.
 The <em>first use of an attachment</em> is in the lowest numbered subpass that uses
@@ -2702,77 +2707,116 @@ specifying usage of the subpass.</p>
 </li>
 <li>
 <p><code>pipelineBindPoint</code> is a <a href="chap9.html#VkPipelineBindPoint">VkPipelineBindPoint</a> value specifying
-whether this is a compute or graphics subpass.
-Currently, only graphics subpasses are supported.</p>
+the pipeline type supported for this subpass.</p>
 </li>
 <li>
 <p><code>inputAttachmentCount</code> is the number of input attachments.</p>
 </li>
 <li>
 <p><code>pInputAttachments</code> is an array of <a href="#VkAttachmentReference">VkAttachmentReference</a>
-structures (defined below) that lists which of the render pass’s
-attachments <strong class="purple">can</strong> be read in the fragment shader stage during the
-subpass, and what layout each attachment will be in during the subpass.
-Each element of the array corresponds to an input attachment unit number
-in the shader, i.e. if the shader declares an input variable
-<code>layout(input_attachment_index=X, set=Y, binding=Z)</code> then it uses the
-attachment provided in <code>pInputAttachments</code>[X].
-Input attachments <strong class="purple">must</strong> also be bound to the pipeline with a descriptor
-set, with the input attachment descriptor written in the location
-(set=Y, binding=Z).
-Fragment shaders <strong class="purple">can</strong> use subpass input variables to access the contents
-of an input attachment at the fragment’s (x, y, layer) framebuffer
-coordinates.</p>
+structures defining the input attachments for this subpass and their
+layouts.</p>
 </li>
 <li>
 <p><code>colorAttachmentCount</code> is the number of color attachments.</p>
 </li>
 <li>
-<p><code>pColorAttachments</code> is an array of <code>colorAttachmentCount</code>
-<a href="#VkAttachmentReference">VkAttachmentReference</a> structures that lists which of the render
-pass’s attachments will be used as color attachments in the subpass, and
-what layout each attachment will be in during the subpass.
-Each element of the array corresponds to a fragment shader output
-location, i.e. if the shader declared an output variable
-<code>layout(location=X)</code> then it uses the attachment provided in
-<code>pColorAttachments</code>[X].</p>
+<p><code>pColorAttachments</code> is an array of <a href="#VkAttachmentReference">VkAttachmentReference</a>
+structures defining the color attachments for this subpass and their
+layouts.</p>
 </li>
 <li>
-<p><code>pResolveAttachments</code> is <code>NULL</code> or an array of
-<code>colorAttachmentCount</code> <a href="#VkAttachmentReference">VkAttachmentReference</a> structures that
-lists which of the render pass’s attachments are resolved to at the end
-of the subpass, and what layout each attachment will be in during the
-multisample resolve operation.
-If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements
-corresponds to a color attachment (the element in
-<code>pColorAttachments</code> at the same index), and a multisample resolve
-operation is defined for each attachment.
-At the end of each subpass, multisample resolve operations read the
-subpass’s color attachments, and resolve the samples for each pixel to
-the same pixel location in the corresponding resolve attachments, unless
-the resolve attachment index is <code>VK_ATTACHMENT_UNUSED</code>.
-If the first use of an attachment in a render pass is as a resolve
-attachment, then the <code>loadOp</code> is effectively ignored as the resolve
-is guaranteed to overwrite all pixels in the render area.</p>
+<p><code>pResolveAttachments</code> is an optional array of
+<code>colorAttachmentCount</code> <a href="#VkAttachmentReference">VkAttachmentReference</a> structures
+defining the resolve attachments for this subpass and their layouts.</p>
 </li>
 <li>
 <p><code>pDepthStencilAttachment</code> is a pointer to a
-<a href="#VkAttachmentReference">VkAttachmentReference</a> specifying which attachment will be used for
-depth/stencil data and the layout it will be in during the subpass.
-Setting the attachment index to <code>VK_ATTACHMENT_UNUSED</code> or leaving
-this pointer as <code>NULL</code> indicates that no depth/stencil attachment will
-be used in the subpass.</p>
+<a href="#VkAttachmentReference">VkAttachmentReference</a> specifying the depth/stencil attachment for
+this subpass and its layout.</p>
 </li>
 <li>
 <p><code>preserveAttachmentCount</code> is the number of preserved attachments.</p>
 </li>
 <li>
 <p><code>pPreserveAttachments</code> is an array of <code>preserveAttachmentCount</code>
-render pass attachment indices describing the attachments that are not
-used by a subpass, but whose contents <strong class="purple">must</strong> be preserved throughout the
+render pass attachment indices identifying attachments that are not used
+by this subpass, but whose contents <strong class="purple">must</strong> be preserved throughout the
 subpass.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Each element of the <code>pInputAttachments</code> array corresponds to an input
+attachment index in a fragment shader, i.e. if a shader declares an image
+variable decorated with a <code>InputAttachmentIndex</code> value of <strong>X</strong>, then it
+uses the attachment provided in <code>pInputAttachments</code>[<strong>X</strong>].
+Input attachments <strong class="purple">must</strong> also be bound to the pipeline in a descriptor set.
+If the <code>attachment</code> member of any element of <code>pInputAttachments</code> is
+<code>VK_ATTACHMENT_UNUSED</code>, the application <strong class="purple">must</strong> not read from the
+corresponding input attachment index.
+Fragment shaders <strong class="purple">can</strong> use subpass input variables to access the contents of
+an input attachment at the fragment’s (x, y, layer) framebuffer coordinates.</p>
+</div>
+<div class="paragraph">
+<p>Each element of the <code>pColorAttachments</code> array corresponds to an output
+location in the shader, i.e. if the shader declares an output variable
+decorated with a <code>Location</code> value of <strong>X</strong>, then it uses the attachment
+provided in <code>pColorAttachments</code>[<strong>X</strong>].
+If the <code>attacment</code> member of any element of <code>pColorAttachments</code> is
+<code>VK_ATTACHMENT_UNUSED</code>, writes to the corresponding location by a
+fragment are discarded.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds
+to a color attachment (the element in <code>pColorAttachments</code> at the same
+index), and a multisample resolve operation is defined for each attachment.
+At the end of each subpass, multisample resolve operations read the
+subpass’s color attachments, and resolve the samples for each pixel to the
+same pixel location in the corresponding resolve attachments, unless the
+resolve attachment index is <code>VK_ATTACHMENT_UNUSED</code>.</p>
+</div>
+<div class="paragraph">
+<p>Similarly, if
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>pDepthStencilResolveAttachment</code>
+is not <code>NULL</code> and does not have the value <code>VK_ATTACHMENT_UNUSED</code>, it
+corresponds to the depth/stencil attachment in
+<code>pDepthStencilAttachment</code>, and multisample resolve operations for depth
+and stencil are defined by
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code> and
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>,
+respectively.
+At the end of each subpass, multisample resolve operations read the
+subpass’s depth/stencil attachment, and resolve the samples for each pixel
+to the same pixel location in the corresponding resolve attachment.
+If <a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code>
+is <code>VK_RESOLVE_MODE_NONE_KHR</code>, then the depth component of the resolve
+attachment is not written to and its contents are preserved.
+Similarly, if
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>
+is <code>VK_RESOLVE_MODE_NONE_KHR</code>, then the stencil component of the resolve
+attachment is not written to and its contents are preserved.
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code> is
+ignored if the <a href="chap35.html#VkFormat">VkFormat</a> of the <code>pDepthStencilResolveAttachment</code>
+does not have a depth component.
+Similarly,
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>stencilResolveMode</code>
+is ignored if the <a href="chap35.html#VkFormat">VkFormat</a> of the <code>pDepthStencilResolveAttachment</code>
+does not have a stencil component.</p>
+</div>
+<div class="paragraph">
+<p>If the image subresource range referenced by the depth/stencil attachment is
+created with
+<code>VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT</code>, then the
+multisample resolve operation uses the sample locations state specified in
+the <code>sampleLocationsInfo</code> member of the element of the
+<code>VkRenderPassSampleLocationsBeginInfoEXT</code>::<code>pPostSubpassSampleLocations</code>
+for the subpass.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pDepthStencilAttachment</code> is <code>NULL</code>, or if its attachment index is
+<code>VK_ATTACHMENT_UNUSED</code>, it indicates that no depth/stencil attachment
+will be used in the subpass.</p>
 </div>
 <div class="paragraph">
 <p>The contents of an attachment within the render area become undefined at
@@ -4308,6 +4352,200 @@ The <code>aspectMask</code> member of each element of <code>pInputAttachments</c
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>If the <code>pNext</code> list of <code>VkSubpassDescription2KHR</code> includes a
+<code>VkSubpassDescriptionDepthStencilResolveKHR</code> structure, then that
+structure describes multisample resolve operations for the depth/stencil
+attachment in a subpass.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkSubpassDescriptionDepthStencilResolveKHR</code> structure is defined
+as:</p>
+</div>
+<div id="VkSubpassDescriptionDepthStencilResolveKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSubpassDescriptionDepthStencilResolveKHR {
+    VkStructureType                     sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                         pNext;
+    VkResolveModeFlagBitsKHR            depthResolveMode;
+    VkResolveModeFlagBitsKHR            stencilResolveMode;
+    <span class="directive">const</span> VkAttachmentReference2KHR*    pDepthStencilResolveAttachment;
+} VkSubpassDescriptionDepthStencilResolveKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>depthResolveMode</code> is a bitmask of <a href="#VkResolveModeFlagBitsKHR">VkResolveModeFlagBitsKHR</a>
+describing the depth resolve mode.</p>
+</li>
+<li>
+<p><code>stencilResolveMode</code> is a bitmask of <a href="#VkResolveModeFlagBitsKHR">VkResolveModeFlagBitsKHR</a>
+describing the stencil resolve mode.</p>
+</li>
+<li>
+<p><code>pDepthStencilResolveAttachment</code> is an optional
+<a href="#VkAttachmentReference">VkAttachmentReference</a> structure defining the depth/stencil resolve
+attachment for this subpass and its layout.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03177"></a>
+If <code>pDepthStencilResolveAttachment</code> is not <code>NULL</code> and does not have
+the value <code>VK_ATTACHMENT_UNUSED</code>, <code>pDepthStencilAttachment</code>
+<strong class="purple">must</strong> not have the value <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03178"></a>
+If <code>pDepthStencilResolveAttachment</code> is not <code>NULL</code> and does not have
+the value <code>VK_ATTACHMENT_UNUSED</code>, <code>depthResolveMode</code> and
+<code>stencilResolveMode</code> <strong class="purple">must</strong> not both be
+<code>VK_RESOLVE_MODE_NONE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03179"></a>
+If <code>pDepthStencilResolveAttachment</code> is not <code>NULL</code>, the sample count
+of <code>pDepthStencilAttachment</code> <strong class="purple">must</strong> be anything other than
+<code>VK_SAMPLE_COUNT_1_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03180"></a>
+<code>pDepthStencilResolveAttachment</code> <strong class="purple">must</strong> have a sample count of
+<code>VK_SAMPLE_COUNT_1_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03181"></a>
+If the <a href="chap35.html#VkFormat">VkFormat</a> of <code>pDepthStencilResolveAttachment</code> has a
+depth component, then the <a href="chap35.html#VkFormat">VkFormat</a> of
+<code>pDepthStencilAttachment</code> <strong class="purple">must</strong> have a depth component with the same
+number of bits and numerical type</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03182"></a>
+If the <a href="chap35.html#VkFormat">VkFormat</a> of <code>pDepthStencilResolveAttachment</code> has a
+stencil component, then the <a href="chap35.html#VkFormat">VkFormat</a> of
+<code>pDepthStencilAttachment</code> <strong class="purple">must</strong> have a stencil component with the
+same number of bits and numerical type</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-depthResolveMode-03183"></a>
+The value of <code>depthResolveMode</code> <strong class="purple">must</strong> be one of the bits set in
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>supportedDepthResolveModes</code>
+or <code>VK_RESOLVE_MODE_NONE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-stencilResolveMode-03184"></a>
+The value of <code>stencilResolveMode</code> <strong class="purple">must</strong> be one of the bits set in
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>supportedStencilResolveModes</code>
+or <code>VK_RESOLVE_MODE_NONE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03185"></a>
+If the <a href="chap35.html#VkFormat">VkFormat</a> of <code>pDepthStencilResolveAttachment</code> has both
+depth and stencil components,
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>independentResolve</code>
+is <code>VK_FALSE</code>, and
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>independentResolveNone</code>
+is <code>VK_FALSE</code>, then the values of <code>depthResolveMode</code> and
+<code>stencilResolveMode</code> <strong class="purple">must</strong> be identical</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-03186"></a>
+If the <a href="chap35.html#VkFormat">VkFormat</a> of <code>pDepthStencilResolveAttachment</code> has both
+depth and stencil components,
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>independentResolve</code>
+is <code>VK_FALSE</code> and
+<a href="chap35.html#VkPhysicalDeviceDepthStencilResolvePropertiesKHR">VkPhysicalDeviceDepthStencilResolvePropertiesKHR</a>::<code>independentResolveNone</code>
+is <code>VK_TRUE</code>, then the values of <code>depthResolveMode</code> and
+<code>stencilResolveMode</code> <strong class="purple">must</strong> be identical or one of them <strong class="purple">must</strong> be
+<code>VK_RESOLVE_MODE_NONE_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-depthResolveMode-parameter"></a> <code>depthResolveMode</code> <strong class="purple">must</strong> be a valid <a href="#VkResolveModeFlagBitsKHR">VkResolveModeFlagBitsKHR</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-stencilResolveMode-parameter"></a> <code>stencilResolveMode</code> <strong class="purple">must</strong> be a valid <a href="#VkResolveModeFlagBitsKHR">VkResolveModeFlagBitsKHR</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescriptionDepthStencilResolveKHR-pDepthStencilResolveAttachment-parameter"></a> If <code>pDepthStencilResolveAttachment</code> is not <code>NULL</code>, <code>pDepthStencilResolveAttachment</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkAttachmentReference2KHR</code> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values of
+<a href="#VkSubpassDescriptionDepthStencilResolveKHR">VkSubpassDescriptionDepthStencilResolveKHR</a>::<code>depthResolveMode</code> and
+<code>stencilResolveMode</code>, specifying the depth and stencil resolve modes,
+are:</p>
+</div>
+<div id="VkResolveModeFlagBitsKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkResolveModeFlagBitsKHR {
+    VK_RESOLVE_MODE_NONE_KHR = <span class="integer">0</span>,
+    VK_RESOLVE_MODE_SAMPLE_ZERO_BIT_KHR = <span class="hex">0x00000001</span>,
+    VK_RESOLVE_MODE_AVERAGE_BIT_KHR = <span class="hex">0x00000002</span>,
+    VK_RESOLVE_MODE_MIN_BIT_KHR = <span class="hex">0x00000004</span>,
+    VK_RESOLVE_MODE_MAX_BIT_KHR = <span class="hex">0x00000008</span>,
+} VkResolveModeFlagBitsKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_RESOLVE_MODE_NONE_KHR</code> indicates that no resolve operation is
+done.</p>
+</li>
+<li>
+<p><code>VK_RESOLVE_MODE_SAMPLE_ZERO_BIT_KHR</code> indicates that result of the
+resolve operation is equal to the value of sample 0.</p>
+</li>
+<li>
+<p><code>VK_RESOLVE_MODE_AVERAGE_BIT_KHR</code> indicates that result of the
+resolve operation is the average of the sample values.</p>
+</li>
+<li>
+<p><code>VK_RESOLVE_MODE_MIN_BIT_KHR</code> indicates that result of the resolve
+operation is the minimum of the sample values.</p>
+</li>
+<li>
+<p><code>VK_RESOLVE_MODE_MAX_BIT_KHR</code> indicates that result of the resolve
+operation is the maximum of the sample values.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>The <code>VkAttachmentReference2KHR</code> structure is defined as:</p>
 </div>
 <div id="VkAttachmentReference2KHR" class="listingblock">
@@ -4764,6 +5002,11 @@ are otherwise identical except for:</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>As an additional special case, if two render passes have a single subpass,
+they are compatible even if they have different resolve attachment
+references but satisfy the other compatibility conditions.</p>
+</div>
+<div class="paragraph">
 <p>A framebuffer is compatible with a render pass if it was created using the
 same render pass or a compatible render pass.</p>
 </div>
@@ -5000,8 +5243,9 @@ resolve attachment by <code>renderPass</code> <strong class="purple">must</stron
 <code>usage</code> value including <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00878"></a>
+<p><a id="VUID-VkFramebufferCreateInfo-pAttachments-02603"></a>
 Each element of <code>pAttachments</code> that is used as a depth/stencil
+attachment or depth/stencil resolve
 attachment by <code>renderPass</code> <strong class="purple">must</strong> have been created with a
 <code>usage</code> value including
 <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
@@ -6359,6 +6603,8 @@ provided, in the same fashion as the corresponding parameter of
 operations in the subpass being ended.
 End-of-subpass multisample resolves are treated as color attachment writes
 for the purposes of synchronization.
+This applies to resolve operations for both color and depth/stencil
+attachments.
 That is, they are considered to execute in the
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage and their
 writes are synchronized with <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.
@@ -6873,8 +7119,8 @@ This command <strong class="purple">must</strong> not be recorded when transform
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.96<br>
-Last updated 2018-11-25 23:27:01 -0800
+Version 1.0.97<br>
+Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>
 

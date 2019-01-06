@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.96 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.97 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.96 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.97 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.96,</span>
-<span id="revdate">2018-12-17 06:25:31Z</span>
-<br><span id="revremark">from git branch: github-master commit: b557dd2167a5b2c92a03a69b34ff7a4431cca7ad</span>
+<span id="revnumber">version 1.1.97,</span>
+<span id="revdate">2019-01-06 03:42:03Z</span>
+<br><span id="revremark">from git branch: github-master commit: 56e0289318a4cd23aa5f5dcfb290ee873be53b82</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -986,6 +986,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="chap13.html#descriptorsets-types">13.1. Descriptor Types</a></li>
 <li><a href="chap13.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
+<li><a href="chap13.html#_physical_storage_buffer_access">13.3. Physical Storage Buffer Access</a></li>
 </ul>
 </li>
 <li><a href="chap14.html#interfaces">14. Shader Interfaces</a>
@@ -1793,7 +1794,12 @@ or
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>FragmentDensityEXT</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap35.html#features-features-fragmentdensitymap">fragmentDensityMap</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap35.html#features-features-fragmentdensitymap">fragmentDensityMap</a>
+<a id="spirvenv-capabilities-table-physicalstoragebufferaddresses"></a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PhysicalStorageBufferAddressesEXT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap35.html#features-features-bufferDeviceAddress">bufferDeviceAddress</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1946,6 +1952,10 @@ uses the <code>SPV_GOOGLE_decorate_string</code> SPIR-V extension.</p>
 <div class="paragraph">
 <p>The application <strong class="purple">can</strong> pass a SPIR-V module to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> that
 uses the <code>SPV_EXT_fragment_invocation_density</code> SPIR-V extension.</p>
+</div>
+<div class="paragraph">
+<p>The application <strong class="purple">can</strong> pass a SPIR-V module to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> that
+uses the <code>SPV_EXT_physical_storage_buffer</code> SPIR-V extension.</p>
 </div>
 <div class="paragraph">
 <p>The application <strong class="purple">must</strong> not pass a SPIR-V module containing any of the
@@ -2103,6 +2113,9 @@ not enabled, <strong>QueueFamilyKHR</strong> <strong class="purple">must</strong
 </li>
 <li>
 <p><strong>ShaderRecordBufferNV</strong></p>
+</li>
+<li>
+<p><strong>PhysicalStorageBufferEXT</strong></p>
 </li>
 </ul>
 </div>
@@ -2287,6 +2300,8 @@ Assignment</a></p>
 <p>the last member of an <code>OpTypeStruct</code>
 that is in the <code>StorageBuffer</code> storage class decorated as
 <code>Block</code>, or
+that is in the <code>PhysicalStorageBufferEXT</code> storage class decorated as
+<code>Block</code>, or
 that is in the <code>Uniform</code> storage class decorated as
 <code>BufferBlock</code>.</p>
 </li>
@@ -2336,27 +2351,6 @@ be a multiple of four.</p>
 32-bit float, 32-bit integer, boolean, or vectors of these types.
 If the <code>Float64</code> capability is enabled, double and vectors of double
 types are also permitted.</p>
-</li>
-<li>
-<p>“Mask” for <code>OpGroupNonUniformShuffleXor</code> <strong class="purple">must</strong> be a specialization
-constant or a constant, or if the dynamic instance is called within a
-loop construct it <strong class="purple">must</strong> be one of:</p>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>A specialization constant.</p>
-</li>
-<li>
-<p>A constant.</p>
-</li>
-<li>
-<p>An arithmetic operation whose operands are 1., 2., or 4.</p>
-</li>
-<li>
-<p>A phi node whose operands are 1., 2., or 3.</p>
-</li>
-</ol>
-</div>
 </li>
 <li>
 <p>If <code>OpGroupNonUniformBallotBitCount</code> is used, the group operation
@@ -2635,6 +2629,49 @@ closest hit, miss, and callable shaders.</p>
 <li>
 <p><code>IncomingCallableDataNV</code> storage class must only be used in callable
 shaders.</p>
+</li>
+<li>
+<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
+following storage classes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
+</li>
+<li>
+<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
+<code>VariablePointersStorageBuffer</code> is enabled.</p>
+</li>
+<li>
+<p><strong>PhysicalStorageBufferEXT</strong>, if the <code>PhysicalStorageBuffer64EXT</code>
+addressing model is enabled.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the <code>PhysicalStorageBuffer64EXT</code> addressing model is enabled:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Any load or store through a physical pointer type <strong class="purple">must</strong> be aligned to a
+multiple of the size of the largest scalar type in the pointed-to type.</p>
+</li>
+<li>
+<p>All instructions that support memory access operands and that use a
+physical pointer <strong class="purple">must</strong> include the <code>Aligned</code> operand.</p>
+</li>
+<li>
+<p>The pointer value of a memory access instruction must be at least as
+aligned as specified by the <code>Aligned</code> memory access operand.</p>
+</li>
+<li>
+<p>Any access chain instruction that accesses into a <code>RowMajor</code> matrix
+<strong class="purple">must</strong> only be used as the <code>Pointer</code> operand to <code>OpLoad</code> or
+<code>OpStore</code>.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -3360,8 +3397,8 @@ The compatibile formats are:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.96<br>
-Last updated 2018-11-25 23:27:01 -0800
+Version 1.1.97<br>
+Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>
 

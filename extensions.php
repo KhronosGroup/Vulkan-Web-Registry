@@ -6,6 +6,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_bind_memory2"> VK_KHR_bind_memory2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_create_renderpass2"> VK_KHR_create_renderpass2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_depth_stencil_resolve"> VK_KHR_depth_stencil_resolve </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_descriptor_update_template"> VK_KHR_descriptor_update_template </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group"> VK_KHR_device_group </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group_creation"> VK_KHR_device_group_creation </a> </li>
@@ -59,6 +60,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_acquire_xlib_display"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_astc_decode_mode"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_buffer_device_address"> VK_EXT_buffer_device_address </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_calibrated_timestamps"> VK_EXT_calibrated_timestamps </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conditional_rendering"> VK_EXT_conditional_rendering </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_conservative_rasterization"> VK_EXT_conservative_rasterization </a> </li>
@@ -78,6 +80,8 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_budget"> VK_EXT_memory_budget </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_priority"> VK_EXT_memory_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_pci_bus_info"> VK_EXT_pci_bus_info </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
@@ -92,6 +96,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_transform_feedback"> VK_EXT_transform_feedback </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_cache"> VK_EXT_validation_cache </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_features"> VK_EXT_validation_features </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_vertex_attribute_divisor"> VK_EXT_vertex_attribute_divisor </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
