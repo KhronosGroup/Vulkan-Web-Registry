@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.97 - A Specification</title>
+<title>Vulkan® 1.0.98 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.97 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.98 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.97,</span>
-<span id="revdate">2019-01-06 03:57:59Z</span>
-<br><span id="revremark">from git branch: github-master commit: 56e0289318a4cd23aa5f5dcfb290ee873be53b82</span>
+<span id="revnumber">version 1.0.98,</span>
+<span id="revdate">2019-01-13 14:11:08Z</span>
+<br><span id="revremark">from git branch: github-master commit: f1a7c4b4f3031f985396f1aa617c51fd8a01c8c8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3272,12 +3272,15 @@ extension is enabled in <a href="#VkDeviceCreateInfo">VkDeviceCreateInfo</a>.</p
 <div class="paragraph">
 <p>Physical-device-level functionality or behavior added by a <a href="#versions">new
 core version</a> of the API <strong class="purple">must</strong> not be used unless it is supported by the
-physical device as determined by <a href="#vkGetPhysicalDeviceProperties">vkGetPhysicalDeviceProperties</a>.</p>
+physical device as determined by
+<a href="#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> and the specified version
+of <a href="#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code>.</p>
 </div>
 <div class="paragraph">
 <p>Device-level functionality or behavior added by a <a href="#versions">new core
 version</a> of the API <strong class="purple">must</strong> not be used unless it is supported by the device
-as determined by <a href="#vkGetPhysicalDeviceProperties">vkGetPhysicalDeviceProperties</a>.</p>
+as determined by <a href="#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> and the
+specified version of <a href="#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code>.</p>
 </div>
 </div>
 </div>
@@ -14536,35 +14539,28 @@ resulting render pass object is returned.</p>
 </li>
 <li>
 <p><code>attachmentCount</code> is the number of attachments used by this render
-pass, or zero indicating no attachments.
-Attachments are referred to by zero-based indices in the range
-[0,<code>attachmentCount</code>).</p>
+pass.</p>
 </li>
 <li>
-<p><code>pAttachments</code> points to an array of <code>attachmentCount</code> number of
-<a href="#VkAttachmentDescription">VkAttachmentDescription</a> structures describing properties of the
-attachments, or <code>NULL</code> if <code>attachmentCount</code> is zero.</p>
+<p><code>pAttachments</code> points to an array of <code>attachmentCount</code>
+<a href="#VkAttachmentDescription">VkAttachmentDescription</a> structures describing the attachments used
+by the render pass.</p>
 </li>
 <li>
-<p><code>subpassCount</code> is the number of subpasses to create for this render
-pass.
-Subpasses are referred to by zero-based indices in the range
-[0,<code>subpassCount</code>).
-A render pass <strong class="purple">must</strong> have at least one subpass.</p>
+<p><code>subpassCount</code> is the number of subpasses to create.</p>
 </li>
 <li>
-<p><code>pSubpasses</code> points to an array of <code>subpassCount</code> number of
-<a href="#VkSubpassDescription">VkSubpassDescription</a> structures describing properties of the
-subpasses.</p>
+<p><code>pSubpasses</code> points to an array of <code>subpassCount</code>
+<a href="#VkSubpassDescription">VkSubpassDescription</a> structures describing each subpass.</p>
 </li>
 <li>
-<p><code>dependencyCount</code> is the number of dependencies between pairs of
-subpasses, or zero indicating no dependencies.</p>
+<p><code>dependencyCount</code> is the number of memory dependencies between pairs
+of subpasses.</p>
 </li>
 <li>
-<p><code>pDependencies</code> points to an array of <code>dependencyCount</code> number
-of <a href="#VkSubpassDependency">VkSubpassDependency</a> structures describing dependencies between
-pairs of subpasses, or <code>NULL</code> if <code>dependencyCount</code> is zero.</p>
+<p><code>pDependencies</code> points to an array of <code>dependencyCount</code>
+<a href="#VkSubpassDependency">VkSubpassDependency</a> structures describing dependencies between
+pairs of subpasses.</p>
 </li>
 </ul>
 </div>
@@ -14747,9 +14743,7 @@ be in when a render pass instance begins.</p>
 </li>
 <li>
 <p><code>finalLayout</code> is the layout the attachment image subresource will be
-transitioned to when a render pass instance ends.
-During a render pass instance, an attachment <strong class="purple">can</strong> use a different layout
-in each subpass, if desired.</p>
+transitioned to when a render pass instance ends.</p>
 </li>
 </ul>
 </div>
@@ -15372,11 +15366,10 @@ or more <a href="#VkSubpassDescriptionFlagBits">VkSubpassDescriptionFlagBits</a>
 <div class="ulist">
 <ul>
 <li>
-<p><code>attachment</code> is the index of the attachment of the render pass, and
-corresponds to the index of the corresponding element in the
-<code>pAttachments</code> array of the <code>VkRenderPassCreateInfo</code> structure.
-If any color or depth/stencil attachments are
-<code>VK_ATTACHMENT_UNUSED</code>, then no writes occur for those attachments.</p>
+<p><code>attachment</code> is either an integer value identifying an attachment at
+the corresponding index in
+<a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a>::<code>pAttachments</code>, or
+<code>VK_ATTACHMENT_UNUSED</code> to signify that this attachment is not used.</p>
 </li>
 <li>
 <p><code>layout</code> is a <a href="#VkImageLayout">VkImageLayout</a> value specifying the layout the
@@ -31422,8 +31415,8 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </li>
 <li>
 <p><a id="VUID-vkDestroyPipelineLayout-pipelineLayout-02004"></a>
-<code>pipelineLayout</code> <strong class="purple">must</strong> not have been passed to any vkCmd* command
-for any command buffers that are still in the
+<code>pipelineLayout</code> <strong class="purple">must</strong> not have been passed to any <code>vkCmd*</code>
+command for any command buffers that are still in the
 <a href="#commandbuffers-lifecycle">recording state</a> when
 <code>vkDestroyPipelineLayout</code> is called</p>
 </li>
@@ -34416,10 +34409,10 @@ be accessed with <em>dynamically uniform</em> indices.</p>
 <h4 id="interfaces-resources-descset">14.5.2. Descriptor Set Interface</h4>
 <div class="paragraph">
 <p>The <em>descriptor set interface</em> is comprised of the shader variables with the
-storage class of <code>Uniform</code> or <code>UniformConstant</code> (including the
-variables in the <a href="#interfaces-inputattachment">fragment input attachment
-interface</a>) that are statically used by the shader entry points for the
-pipeline.</p>
+storage class of
+<code>Uniform</code> or <code>UniformConstant</code> (including the variables in the
+<a href="#interfaces-inputattachment">fragment input attachment interface</a>) that are
+statically used by the shader entry points for the pipeline.</p>
 </div>
 <div class="paragraph">
 <p>These variables <strong class="purple">must</strong> have <code>DescriptorSet</code> and <code>Binding</code> decorations
@@ -43420,9 +43413,9 @@ implicitly selects the images to clear based on the current framebuffer
 attachments and the command parameters.</p>
 </div>
 <div class="paragraph">
-<p>Unlike other <a href="#clears">clear commands</a>, vkCmdClearAttachments executes as a
-drawing command, rather than a transfer command, with writes performed by it
-executing in <a href="#primrast-order">rasterization order</a>.
+<p>Unlike other <a href="#clears">clear commands</a>, <a href="#vkCmdClearAttachments">vkCmdClearAttachments</a> executes
+as a drawing command, rather than a transfer command, with writes performed
+by it executing in <a href="#primrast-order">rasterization order</a>.
 Clears to color attachments are executed as color attachment writes, by the
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> stage.
 Clears to depth/stencil attachments are executed as <a href="#fragops-depth">depth
@@ -80501,7 +80494,7 @@ at least as follows, unless decorated with RelaxedPrecision:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Correctly rounded.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OpFMul</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OpFMul</code>, <code>OpVectorTimesScalar</code>, <code>OpMatrixTimesScalar</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Correctly rounded.</p></td>
 </tr>
 <tr>
@@ -81594,7 +81587,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">97</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">98</span></code></pre>
 </div>
 </div>
 </div>
@@ -84230,7 +84223,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.97<br>
+Version 1.0.98<br>
 Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>

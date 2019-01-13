@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.97 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.98 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -838,12 +838,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.97 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.98 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.97,</span>
-<span id="revdate">2019-01-06 03:51:23Z</span>
-<br><span id="revremark">from git branch: github-master commit: 56e0289318a4cd23aa5f5dcfb290ee873be53b82</span>
+<span id="revnumber">version 1.0.98,</span>
+<span id="revdate">2019-01-13 14:04:18Z</span>
+<br><span id="revremark">from git branch: github-master commit: f1a7c4b4f3031f985396f1aa617c51fd8a01c8c8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1349,8 +1349,8 @@ its set of memory locations.</p>
 </div>
 <div class="paragraph">
 <p>Memory locations for buffers and images are explicitly allocated in
-VkDeviceMemory objects, and are implicitly allocated for SPIR-V variables in
-each shader invocation.</p>
+<a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> objects, and are implicitly allocated for SPIR-V
+variables in each shader invocation.</p>
 </div>
 </div>
 <div class="sect2">
@@ -2079,7 +2079,7 @@ This covers all Vulkan synchronization primitives, including device
 operations executing before a synchronization primitive is signaled, wait
 operations happening before subsequent device operations, signal operations
 happening before host operations that wait on them, and host operations
-happening before vkQueueSubmit.
+happening before <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a>.
 The list is spread throughout the synchronization chapter, and is not
 repeated here.
 </td>
@@ -2257,9 +2257,9 @@ corresponding to the <code>Subgroup</code> scope.</p>
 </td>
 <td class="content">
 These do not correspond to storage classes or device-local and
-host-local VkDeviceMemory allocations, rather they indicate whether a write
-can be made visible only to agents in the same subgroup, same workgroup, in
-any shader invocation, or anywhere on the device, or host.
+host-local <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> allocations, rather they indicate whether a
+write can be made visible only to agents in the same subgroup, same
+workgroup, in any shader invocation, or anywhere on the device, or host.
 The shader, queue family instance, workgroup instance, and subgroup instance
 domains are only used for shader-based availability/visibility operatons, in
 other cases writes can be made available from/visible to the shader via the
@@ -2330,6 +2330,34 @@ write to those locations).</p>
 other non-atomic memory accesses for the purpose of
 <a href="#memory-model-memory-semantics">memory semantics</a>, meaning they can be
 ordered by release-acquire sequences or memory barriers.</p>
+</div>
+<div class="paragraph">
+<p>An <em>availability chain</em> is a sequence of availability operations of
+increasing scope where element N+1 of the chain is performed in the same
+scope instance as the destination of element N and element N happens-before
+element N+1.
+An example is an availability operation with destination scope of the
+workgroup instance domain that happens before an availability operation to
+the shader domain performed by an invocation in the same workgroup.
+An availability chain AVC that happens-after W and that includes (A,R,L) in
+the source scope makes (W,L) <em>available</em> to the memory domains in its final
+destination scope.
+An availability chain with a single element is just the availability
+operation.</p>
+</div>
+<div class="paragraph">
+<p>Similarly, a <em>visibility chain</em> is a sequence of visibility operations of
+decreasing scope where element N of the chain is performed in the same scope
+instance as the source of element N+1 and element N happens-before element
+N+1.
+An example is a visibility operation with source scope of the shader domain
+that happens before a visibility operation with source scope of the
+workgroup instance domain performance by an invocation in the same
+workgroup.
+A visibility chain VISC that happens-after AVC (or DOM) and for which (W,L)
+is available in any domain in the source scope makes (W,L) <em>visible</em> to all
+(agent,reference,L) tuples included in its final destination scope.
+A visibility chain with a single element is just the visibility operation.</p>
 </div>
 </div>
 <div class="sect2">
@@ -2538,15 +2566,20 @@ domain), and both X and Y are non-private:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>X is a write, Y is a write, AV(A<sub>X</sub>,R<sub>X</sub>,D,L) is an availability
-operation making (X,L) available to domain D, and
-X→<sup>rcpo</sup>AV(A<sub>X</sub>,R<sub>X</sub>,D,L)→Y</p>
+<p>X is a write, Y is a write, AVC(A<sub>X</sub>,R<sub>X</sub>,D,L) is an availability chain
+making (X,L) available to domain D, and X→<sup>rcpo</sup>AVC(A<sub>X</sub>,R<sub>X</sub>,D,L)→Y</p>
 </li>
 <li>
-<p>X is a write, Y is a read, AV(A<sub>X</sub>,R<sub>X</sub>,D,L) is an availability
-operation making (X,L) available to domain D, VIS(A<sub>Y</sub>,R<sub>Y</sub>,D,L) is a
-visibility operation making writes to L available in domain D visible
-to Y, and X→<sup>rcpo</sup>AV(A<sub>X</sub>,R<sub>X</sub>,D,L)→VIS(A<sub>Y</sub>,R<sub>Y</sub>,D,L)→<sup>rcpo</sup>Y</p>
+<p>X is a write, Y is a read, AVC(A<sub>X</sub>,R<sub>X</sub>,D,L) is an availability chain
+making (X,L) available to domain D, VISC(A<sub>Y</sub>,R<sub>Y</sub>,D,L) is a visibility
+chain making writes to L available in domain D visible to Y, and
+X→<sup>rcpo</sup>AVC(A<sub>X</sub>,R<sub>X</sub>,D,L)→VISC(A<sub>Y</sub>,R<sub>Y</sub>,D,L)→<sup>rcpo</sup>Y</p>
+</li>
+<li>
+<p>If
+<a href="chap35.html#VkPhysicalDeviceVulkanMemoryModelFeaturesKHR">VkPhysicalDeviceVulkanMemoryModelFeaturesKHR</a>::<code>vulkanMemoryModelAvailabilityVisibilityChains</code>
+is <code>VK_FALSE</code>, then AVC and VISC <strong class="purple">must</strong> each only have a single
+element in the chain, in each sub-bullet above.</p>
 </li>
 </ul>
 </div>
@@ -2708,8 +2741,8 @@ being read.
 <div class="sect2">
 <h3 id="memory-model-deallocation">Deallocation</h3>
 <div class="paragraph">
-<p>A call to vkFreeMemory <strong class="purple">must</strong> happen-after all memory operations on all
-memory locations in that VkDeviceMemory object.</p>
+<p>A call to <a href="chap10.html#vkFreeMemory">vkFreeMemory</a> <strong class="purple">must</strong> happen-after all memory operations on all
+memory locations in that <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> object.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2719,8 +2752,9 @@ memory locations in that VkDeviceMemory object.</p>
 </td>
 <td class="content">
 Normally, device memory operations in a given queue are synchronized
-with vkFreeMemory by having a host thread wait on a fence signalled by that
-queue, and the wait happens-before the call to vkFreeMemory on the host.
+with <a href="chap10.html#vkFreeMemory">vkFreeMemory</a> by having a host thread wait on a fence signalled by
+that queue, and the wait happens-before the call to <a href="chap10.html#vkFreeMemory">vkFreeMemory</a> on
+the host.
 </td>
 </tr>
 </table>
@@ -2827,7 +2861,7 @@ X is a write and Y is a read then X is visible-to Y.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.97<br>
+Version 1.0.98<br>
 Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>
