@@ -60,18 +60,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
 <li> <b>Vulkan 1.1 Core API</b>
      <a href="specs/1.1/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.1/html/chap1.html">(Chunked HTML)</a>
+     <a href="specs/1.1/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.1/pdf/vkspec.pdf">(PDF)</a> </li>
 <li> <b>Vulkan 1.1 Core API + Khronos-defined Extensions</b>
      <a href="specs/1.1-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.1-khr-extensions/html/chap1.html">(Chunked HTML)</a>
+     <a href="specs/1.1-khr-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.1-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
      This Specification includes Khronos-defined <tt>KHR</tt> extensions
      such as the Window-System Interface Extensions used to post images to a
      display on different platforms and window systems. </li>
 <li> <b>Vulkan 1.1 Core API + all published Extensions</b>
      <a href="specs/1.1-extensions/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.1-extensions/html/chap1.html">(Chunked HTML)</a>
+     <a href="specs/1.1-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.1-extensions/pdf/vkspec.pdf">(PDF)</a>.
      This Specification includes all registered Vulkan extensions which have
      been incorporated into the Specification Repository, including KHR,
@@ -150,18 +150,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
 <li> <b>Vulkan 1.0 Core API</b>
      <a href="specs/1.0/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.0/html/chap1.html">(Chunked HTML)</a>
+     <a href="specs/1.0/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a> </li>
 <li> <b>Vulkan 1.0 Core API + Khronos-defined Extensions</b>
      <a href="specs/1.0-wsi_extensions/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.0-wsi_extensions/html/chap1.html">(Chunked)</a>
+     <a href="specs/1.0-wsi_extensions/html/index.html">(Chunked)</a>
      <a href="specs/1.0-wsi_extensions/pdf/vkspec.pdf">(PDF)</a>.
      This Specification includes Khronos-defined <tt>KHR</tt> extensions
      such as the Window-System Interface Extensions used to post images to a
      display on different platforms and window systems. </li>
 <li> <b>Vulkan 1.0 Core API + all published Extensions</b>
      <a href="specs/1.0-extensions/html/vkspec.html">(Single-file HTML)</a>
-     <a href="specs/1.0-extensions/html/chap1.html">(Chunked HTML)</a>
+     <a href="specs/1.0-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.0-extensions/pdf/vkspec.pdf">(PDF)</a>.
      This Specification includes all registered Vulkan extensions applicable
      to Vulkan 1.0 which have been incorporated into the Specification
