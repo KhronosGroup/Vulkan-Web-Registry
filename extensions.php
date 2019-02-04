@@ -75,6 +75,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_display_surface_counter"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_dma_buf"> VK_EXT_external_memory_dma_buf </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_filter_cubic"> VK_EXT_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_fragment_density_map"> VK_EXT_fragment_density_map </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
@@ -138,6 +139,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_compute_shader_derivatives"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_corner_sampled_image"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation_image_aliasing"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_device_diagnostic_checkpoints"> VK_NV_device_diagnostic_checkpoints </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_external_memory_capabilities"> VK_NV_external_memory_capabilities </a> </li>
