@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.100 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.101 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.100 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.101 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.100,</span>
-<span id="revdate">2019-02-11 06:19:06Z</span>
-<br><span id="revremark">from git branch: github-master commit: fcf5980cf6acc620334f55b0cf2d162b05e0487a</span>
+<span id="revnumber">version 1.1.101,</span>
+<span id="revdate">2019-02-15 12:01:01Z</span>
+<br><span id="revremark">from git branch: github-master commit: 55220784e078fe3dad80e9520ca1d264f9b12b72</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -867,8 +867,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap2.html#fundamentals-errors">2.7. Errors</a></li>
 <li><a href="chap2.html#fundamentals-numerics">2.8. Numeric Representation and Computation</a></li>
 <li><a href="chap2.html#fundamentals-fixedconv">2.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap2.html#fundamentals-versionnum">2.10. API Version Numbers and Semantics</a></li>
-<li><a href="chap2.html#fundamentals-common-objects">2.11. Common Object Types</a></li>
+<li><a href="chap2.html#fundamentals-common-objects">2.10. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap3.html#initialization">3. Initialization</a>
@@ -943,7 +942,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#shaders-staticuse">8.20. Static Use</a></li>
 <li><a href="#shaders-invocationgroups">8.21. Invocation and Derivative Groups</a></li>
 <li><a href="#shaders-subgroup">8.22. Subgroups</a></li>
-<li><a href="#shaders-validation-cache">8.23. Validation Cache</a></li>
+<li><a href="#_cooperative_matrices">8.23. Cooperative Matrices</a></li>
+<li><a href="#shaders-validation-cache">8.24. Validation Cache</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -1199,12 +1199,14 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap33.html#acceleration-structure">33.3. Acceleration Structures</a></li>
 </ul>
 </li>
-<li><a href="chap34.html#extended-functionality">34. Extended Functionality</a>
+<li><a href="chap34.html#extendingvulkan">34. Extending Vulkan</a>
 <ul class="sectlevel2">
-<li><a href="chap34.html#extended-functionality-layers">34.1. Layers</a></li>
-<li><a href="chap34.html#extended-functionality-extensions">34.2. Extensions</a></li>
-<li><a href="chap34.html#extended-functionality-extensions-dependencies">34.3. Extension Dependencies</a></li>
-<li><a href="chap34.html#extended-functionality-extensions-compatibility">34.4. Extension Compatibility</a></li>
+<li><a href="chap34.html#extendingvulkan-instanceanddevicefunctionality">34.1. Instance and Device Functionality</a></li>
+<li><a href="chap34.html#extendingvulkan-coreversions">34.2. Core Versions</a></li>
+<li><a href="chap34.html#extendingvulkan-layers">34.3. Layers</a></li>
+<li><a href="chap34.html#extendingvulkan-extensions">34.4. Extensions</a></li>
+<li><a href="chap34.html#extendingvulkan-extensions-extensiondependencies">34.5. Extension Dependencies</a></li>
+<li><a href="chap34.html#_compatibility_guarantees_informative">34.6. Compatibility Guarantees (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap35.html#features">35. Features, Limits, and Formats</a>
@@ -1267,6 +1269,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap38.html#memory-model-deallocation">Deallocation</a></li>
 <li><a href="chap38.html#memory-model-informative-descriptions">Informative Descriptions</a></li>
 <li><a href="chap38.html#memory-model-tessellation-output-ordering">Tessellation Output Ordering</a></li>
+<li><a href="chap38.html#memory-model-cooperative-matrix">Cooperative Matrix Memory Access</a></li>
 </ul>
 </li>
 <li><a href="chap39.html#_compressed_image_formats">Appendix C: Compressed Image Formats</a>
@@ -2663,7 +2666,351 @@ The operations supported are add, mul, min, max, and, or, xor.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="shaders-validation-cache">8.23. Validation Cache</h3>
+<h3 id="_cooperative_matrices">8.23. Cooperative Matrices</h3>
+<div class="paragraph">
+<p>A <em>cooperative matrix</em> type is a SPIR-V type where the storage for and
+computations performed on the matrix are spread across a set of invocations
+such as a subgroup.
+These types give the implementation freedom in how to optimize matrix
+multiplies.</p>
+</div>
+<div class="paragraph">
+<p>SPIR-V defines the types and instructions, but does not specify rules about
+what sizes/combinations are valid, and it is expected that different
+implementations <strong class="purple">may</strong> support different sizes.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To enumerate the supported cooperative matrix types and operations, call:</p>
+</div>
+<div id="vkGetPhysicalDeviceCooperativeMatrixPropertiesNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pPropertyCount,
+    VkCooperativeMatrixPropertiesNV*            pProperties);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>physicalDevice</code> is the physical device.</p>
+</li>
+<li>
+<p><code>pPropertyCount</code> is a pointer to an integer related to the number of
+cooperative matrix properties available or queried.</p>
+</li>
+<li>
+<p><code>pProperties</code> is either <code>NULL</code> or a pointer to an array of
+<a href="#VkCooperativeMatrixPropertiesNV">VkCooperativeMatrixPropertiesNV</a> structures.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pProperties</code> is <code>NULL</code>, then the number of cooperative matrix
+properties available is returned in <code>pPropertyCount</code>.
+Otherwise, <code>pPropertyCount</code> <strong class="purple">must</strong> point to a variable set by the user to
+the number of elements in the <code>pProperties</code> array, and on return the
+variable is overwritten with the number of structures actually written to
+<code>pProperties</code>.
+If <code>pPropertyCount</code> is less than the number of cooperative matrix
+properties available, at most <code>pPropertyCount</code> structures will be
+written.
+If <code>pPropertyCount</code> is smaller than the number of cooperative matrix
+properties available, <code>VK_INCOMPLETE</code> will be returned instead of
+<code>VK_SUCCESS</code>, to indicate that not all the available cooperative matrix
+properties were returned.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCooperativeMatrixPropertiesNV-physicalDevice-parameter"></a> <code>physicalDevice</code> <strong class="purple">must</strong> be a valid <code>VkPhysicalDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCooperativeMatrixPropertiesNV-pPropertyCount-parameter"></a> <code>pPropertyCount</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint32_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCooperativeMatrixPropertiesNV-pProperties-parameter"></a> If the value referenced by <code>pPropertyCount</code> is not <code>0</code>, and <code>pProperties</code> is not <code>NULL</code>, <code>pProperties</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pPropertyCount</code> <code>VkCooperativeMatrixPropertiesNV</code> structures</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Each <code>VkCooperativeMatrixPropertiesNV</code> structure describes a single
+supported combination of types for a matrix multiply/add operation
+(<code>OpCooperativeMatrixMulAddNV</code>).
+The multiply <strong class="purple">can</strong> be described in terms of the following variables and types
+(in SPIR-V pseudocode):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c">    %A is of type OpTypeCooperativeMatrixNV %AType %scope %MSize %KSize
+    %B is of type OpTypeCooperativeMatrixNV %BType %scope %KSize %NSize
+    %C is of type OpTypeCooperativeMatrixNV %CType %scope %MSize %NSize
+    %D is of type OpTypeCooperativeMatrixNV %DType %scope %MSize %NSize
+
+    %D = %A * %B + %C <span class="comment">// using OpCooperativeMatrixMulAddNV</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A matrix multiply with these dimensions is known as an <em>MxNxK</em> matrix
+multiply.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkCooperativeMatrixPropertiesNV</code> structure is defined as:</p>
+</div>
+<div id="VkCooperativeMatrixPropertiesNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkCooperativeMatrixPropertiesNV {
+    VkStructureType      sType;
+    <span class="directive">void</span>*                pNext;
+    uint32_t             MSize;
+    uint32_t             NSize;
+    uint32_t             KSize;
+    VkComponentTypeNV    AType;
+    VkComponentTypeNV    BType;
+    VkComponentTypeNV    CType;
+    VkComponentTypeNV    DType;
+    VkScopeNV            scope;
+} VkCooperativeMatrixPropertiesNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>MSize</code> is the number of rows in matrices A, C, and D.</p>
+</li>
+<li>
+<p><code>KSize</code> is the number of columns in matrix A and rows in matrix B.</p>
+</li>
+<li>
+<p><code>NSize</code> is the number of columns in matrices B, C, D.</p>
+</li>
+<li>
+<p><code>AType</code> is the component type of matrix A, of type
+<a href="#VkComponentTypeNV">VkComponentTypeNV</a>.</p>
+</li>
+<li>
+<p><code>BType</code> is the component type of matrix B, of type
+<a href="#VkComponentTypeNV">VkComponentTypeNV</a>.</p>
+</li>
+<li>
+<p><code>CType</code> is the component type of matrix C, of type
+<a href="#VkComponentTypeNV">VkComponentTypeNV</a>.</p>
+</li>
+<li>
+<p><code>DType</code> is the component type of matrix D, of type
+<a href="#VkComponentTypeNV">VkComponentTypeNV</a>.</p>
+</li>
+<li>
+<p><code>scope</code> is the scope of all the matrix types, of type
+<a href="#VkScopeNV">VkScopeNV</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If some types are preferred over other types (e.g. for performance), they
+<strong class="purple">should</strong> appear earlier in the list enumerated by
+<a href="#vkGetPhysicalDeviceCooperativeMatrixPropertiesNV">vkGetPhysicalDeviceCooperativeMatrixPropertiesNV</a>.</p>
+</div>
+<div class="paragraph">
+<p>At least one entry in the list <strong class="purple">must</strong> have power of two values for all of
+<code>MSize</code>, <code>KSize</code>, and <code>NSize</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-AType-parameter"></a> <code>AType</code> <strong class="purple">must</strong> be a valid <a href="#VkComponentTypeNV">VkComponentTypeNV</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-BType-parameter"></a> <code>BType</code> <strong class="purple">must</strong> be a valid <a href="#VkComponentTypeNV">VkComponentTypeNV</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-CType-parameter"></a> <code>CType</code> <strong class="purple">must</strong> be a valid <a href="#VkComponentTypeNV">VkComponentTypeNV</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-DType-parameter"></a> <code>DType</code> <strong class="purple">must</strong> be a valid <a href="#VkComponentTypeNV">VkComponentTypeNV</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkCooperativeMatrixPropertiesNV-scope-parameter"></a> <code>scope</code> <strong class="purple">must</strong> be a valid <a href="#VkScopeNV">VkScopeNV</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values for <a href="#VkScopeNV">VkScopeNV</a> include:</p>
+</div>
+<div id="VkScopeNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkScopeNV {
+    VK_SCOPE_DEVICE_NV = <span class="integer">1</span>,
+    VK_SCOPE_WORKGROUP_NV = <span class="integer">2</span>,
+    VK_SCOPE_SUBGROUP_NV = <span class="integer">3</span>,
+    VK_SCOPE_QUEUE_FAMILY_NV = <span class="integer">5</span>,
+} VkScopeNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SCOPE_DEVICE_NV</code> corresponds to SPIR-V <code>Device</code> scope.</p>
+</li>
+<li>
+<p><code>VK_SCOPE_WORKGROUP_NV</code> corresponds to SPIR-V <code>Workgroup</code> scope.</p>
+</li>
+<li>
+<p><code>VK_SCOPE_SUBGROUP_NV</code> corresponds to SPIR-V <code>Subgroup</code> scope.</p>
+</li>
+<li>
+<p><code>VK_SCOPE_QUEUE_FAMILY_NV</code> corresponds to SPIR-V <code>QueueFamilyKHR</code>
+scope.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All enum values match the corresponding SPIR-V value.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values for <a href="#VkComponentTypeNV">VkComponentTypeNV</a> include:</p>
+</div>
+<div id="VkComponentTypeNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkComponentTypeNV {
+    VK_COMPONENT_TYPE_FLOAT16_NV = <span class="integer">0</span>,
+    VK_COMPONENT_TYPE_FLOAT32_NV = <span class="integer">1</span>,
+    VK_COMPONENT_TYPE_FLOAT64_NV = <span class="integer">2</span>,
+    VK_COMPONENT_TYPE_SINT8_NV = <span class="integer">3</span>,
+    VK_COMPONENT_TYPE_SINT16_NV = <span class="integer">4</span>,
+    VK_COMPONENT_TYPE_SINT32_NV = <span class="integer">5</span>,
+    VK_COMPONENT_TYPE_SINT64_NV = <span class="integer">6</span>,
+    VK_COMPONENT_TYPE_UINT8_NV = <span class="integer">7</span>,
+    VK_COMPONENT_TYPE_UINT16_NV = <span class="integer">8</span>,
+    VK_COMPONENT_TYPE_UINT32_NV = <span class="integer">9</span>,
+    VK_COMPONENT_TYPE_UINT64_NV = <span class="integer">10</span>,
+} VkComponentTypeNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_COMPONENT_TYPE_FLOAT16_NV</code> corresponds to SPIR-V
+<code>OpTypeFloat</code> 16.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_FLOAT32_NV</code> corresponds to SPIR-V
+<code>OpTypeFloat</code> 32.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_FLOAT64_NV</code> corresponds to SPIR-V
+<code>OpTypeFloat</code> 64.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_SINT8_NV</code> corresponds to SPIR-V <code>OpTypeInt</code> 8
+1.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_SINT16_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+16 1.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_SINT32_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+32 1.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_SINT64_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+64 1.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_UINT8_NV</code> corresponds to SPIR-V <code>OpTypeInt</code> 8
+0.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_UINT16_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+16 0.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_UINT32_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+32 0.</p>
+</li>
+<li>
+<p><code>VK_COMPONENT_TYPE_UINT64_NV</code> corresponds to SPIR-V <code>OpTypeInt</code>
+64 0.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="shaders-validation-cache">8.24. Validation Cache</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3353,7 +3700,7 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.100<br>
+Version 1.1.101<br>
 Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.100 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.101 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.100 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.101 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.100,</span>
-<span id="revdate">2019-02-11 06:33:29Z</span>
-<br><span id="revremark">from git branch: github-master commit: fcf5980cf6acc620334f55b0cf2d162b05e0487a</span>
+<span id="revnumber">version 1.0.101,</span>
+<span id="revdate">2019-02-15 12:14:43Z</span>
+<br><span id="revremark">from git branch: github-master commit: 55220784e078fe3dad80e9520ca1d264f9b12b72</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -867,8 +867,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap2.html#fundamentals-errors">2.7. Errors</a></li>
 <li><a href="chap2.html#fundamentals-numerics">2.8. Numeric Representation and Computation</a></li>
 <li><a href="chap2.html#fundamentals-fixedconv">2.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap2.html#fundamentals-versionnum">2.10. API Version Numbers and Semantics</a></li>
-<li><a href="chap2.html#fundamentals-common-objects">2.11. Common Object Types</a></li>
+<li><a href="chap2.html#fundamentals-common-objects">2.10. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap3.html#initialization">3. Initialization</a>
@@ -1130,12 +1129,14 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap29.html#_wsi_swapchain">29.7. WSI Swapchain</a></li>
 </ul>
 </li>
-<li><a href="chap30.html#extended-functionality">30. Extended Functionality</a>
+<li><a href="chap30.html#extendingvulkan">30. Extending Vulkan</a>
 <ul class="sectlevel2">
-<li><a href="chap30.html#extended-functionality-layers">30.1. Layers</a></li>
-<li><a href="chap30.html#extended-functionality-extensions">30.2. Extensions</a></li>
-<li><a href="chap30.html#extended-functionality-extensions-dependencies">30.3. Extension Dependencies</a></li>
-<li><a href="chap30.html#extended-functionality-extensions-compatibility">30.4. Extension Compatibility</a></li>
+<li><a href="chap30.html#extendingvulkan-instanceanddevicefunctionality">30.1. Instance and Device Functionality</a></li>
+<li><a href="chap30.html#extendingvulkan-coreversions">30.2. Core Versions</a></li>
+<li><a href="chap30.html#extendingvulkan-layers">30.3. Layers</a></li>
+<li><a href="chap30.html#extendingvulkan-extensions">30.4. Extensions</a></li>
+<li><a href="chap30.html#extendingvulkan-extensions-extensiondependencies">30.5. Extension Dependencies</a></li>
+<li><a href="chap30.html#_compatibility_guarantees_informative">30.6. Compatibility Guarantees (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap31.html#features">31. Features, Limits, and Formats</a>
@@ -2348,37 +2349,59 @@ declaration order.</p>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>There are two different layouts requirements depending on the specific
-resources.</p>
-</div>
-<div id="interfaces-resources-layout-std140" class="paragraph">
-<p><strong>Standard Uniform Buffer Layout</strong></p>
+<div id="interfaces-alignment-requirements" class="paragraph">
+<p><strong>Alignment Requirements</strong></p>
 </div>
 <div class="paragraph">
-<p>The <em>base alignment</em> of the type of an <code>OpTypeStruct</code> member of is
+<p>There are different alignment requirements depending on the specific
+resources and on the features enabled on the device.</p>
+</div>
+<div class="paragraph">
+<p>The <em>scalar alignment</em> of the type of an <code>OpTypeStruct</code> member of is
 defined recursively as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>A scalar of size <span class="eq">N</span> has a base alignment of <span class="eq">N</span>.</p>
+<p>A scalar of size <span class="eq">N</span> has a scalar alignment of <span class="eq">N</span>.</p>
 </li>
 <li>
-<p>A two-component vector, with components of size <span class="eq">N</span>, has a base
-alignment of <span class="eq">2 N</span>.</p>
+<p>A vector or matrix type has a scalar alignment equal to that of its
+component type.</p>
 </li>
 <li>
-<p>A three- or four-component vector, with components of size <span class="eq">N</span>, has
-a base alignment of <span class="eq">4 N</span>.</p>
+<p>An array type has a scalar alignment equal to that of its element type.</p>
+</li>
+<li>
+<p>A structure has a scalar alignment equal to the largest scalar alignment
+of any of its members.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <em>base alignment</em> of the type of an <code>OpTypeStruct</code> member is defined
+recursively as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A scalar has a base alignment equal to its scalar alignment.</p>
+</li>
+<li>
+<p>A two-component vector has a base alignment equal to twice its scalar
+alignment.</p>
+</li>
+<li>
+<p>A three- or four-component vector has a base alignment equal to four
+times its scalar alignment.</p>
 </li>
 <li>
 <p>An array has a base alignment equal to the base alignment of its element
-type, rounded up to a multiple of <span class="eq">16</span>.</p>
+type.</p>
 </li>
 <li>
 <p>A structure has a base alignment equal to the largest base alignment of
-any of its members, rounded up to a multiple of <span class="eq">16</span>.</p>
+any of its members.</p>
 </li>
 <li>
 <p>A row-major matrix of <span class="eq">C</span> columns has a base alignment equal to the
@@ -2387,6 +2410,23 @@ base alignment of a vector of <span class="eq">C</span> matrix components.</p>
 <li>
 <p>A column-major matrix has a base alignment equal to the base alignment
 of the matrix column type.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <em>extended alignment</em> of the type of an <code>OpTypeStruct</code> member is
+similarly defined as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A scalar, vector or matrix type has an extended alignment equal to its
+base alignment.</p>
+</li>
+<li>
+<p>An array or structure type has an extended alignment equal to the
+largest extended alignment of any of its members, rounded up to a
+multiple of 16.</p>
 </li>
 </ul>
 </div>
@@ -2408,30 +2448,49 @@ of 16.</p>
 </li>
 </ul>
 </div>
+<div id="interfaces-resources-standard-layout" class="paragraph">
+<p><strong>Standard Buffer Layout</strong></p>
+</div>
 <div class="paragraph">
-<p>Every member of an <code>OpTypeStruct</code> with storage class of <code>Uniform</code> and
-a decoration of <code>Block</code> (uniform buffers) <strong class="purple">must</strong> be laid out according to
-the following rules:</p>
+<p>Every member of an <code>OpTypeStruct</code> with storage class of <code>Uniform</code>,
+<code>StorageBuffer</code>, or <code>PushConstant</code> <strong class="purple">must</strong> be aligned according to the
+first matching rule as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>All vectors <strong class="purple">must</strong> be aligned according to their scalar alignment.</p>
+</li>
+<li>
+<p>Any member of an <code>OpTypeStruct</code> with a storage class of <code>Uniform</code> and a
+decoration of <code>Block</code> <strong class="purple">must</strong> be aligned according to its extended
+alignment.</p>
+</li>
+<li>
+<p>Every other member <strong class="purple">must</strong> be aligned according to its base alignment.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The memory layout <strong class="purple">must</strong> obey the following rules:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The <code>Offset</code> decoration of a scalar, an array, a structure, or a
-matrix <strong class="purple">must</strong> be a multiple of its base alignment.</p>
+<p>The <code>Offset</code> decoration of any member <strong class="purple">must</strong> be a multiple of its
+alignment.</p>
 </li>
 <li>
-<p>The <code>Offset</code> decoration of a vector <strong class="purple">must</strong> be an integer multiple of
-the base alignment of its scalar component type, and <strong class="purple">must</strong> not
-improperly straddle, as defined above.</p>
+<p>Any <code>ArrayStride</code> or <code>MatrixStride</code> decoration <strong class="purple">must</strong> be a multiple
+of the alignment of the array or matrix as defined above.</p>
 </li>
 <li>
-<p>Any <code>ArrayStride</code> or <code>MatrixStride</code> decoration <strong class="purple">must</strong> be an integer
-multiple of the base alignment of the array or matrix from above.</p>
+<p>Vectors <strong class="purple">must</strong> not improperly straddle, as defined above.</p>
 </li>
 <li>
 <p>The <code>Offset</code> decoration of a member <strong class="purple">must</strong> not place it between the
-end of a structure or an array and the next multiple of the base
-alignment of that structure or array.</p>
+end of a structure or an array and the next multiple of the alignment of
+that structure or array.</p>
 </li>
 </ul>
 </div>
@@ -2444,34 +2503,10 @@ alignment of that structure or array.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>The <strong>std140 layout</strong> in GLSL satisfies these rules.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div id="interfaces-resources-layout-std430" class="paragraph">
-<p><strong>Standard Storage Buffer Layout</strong></p>
-</div>
-<div class="paragraph">
-<p>Member variables of an <code>OpTypeStruct</code> with a storage class of
-<code>PushConstant</code> (push constants), or a storage class of <code>Uniform</code> with
-a decoration of <code>BufferBlock</code> (storage buffers)
-, or a storage class of <code>StorageBuffer</code> with a decoration of <code>Block</code>
-<strong class="purple">must</strong> be laid out as <a href="#interfaces-resources-layout-std140">above</a>, except
-for array and structure base alignment which do not need to be rounded up to
-a multiple of <span class="eq">16</span>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>The <strong>std430 layout</strong> in GLSL satisfies these rules.</p>
+<p>The <strong>std430 layout</strong> in GLSL satisfies these rules for types using the base
+alignment.
+The <strong>std140 layout</strong> satisfies the rules for types using the extended
+alignment.</p>
 </div>
 </td>
 </tr>
@@ -3674,7 +3709,7 @@ three-component vector of 32-bit integers.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.100<br>
+Version 1.0.101<br>
 Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.100 - A Specification</title>
+<title>Vulkan® 1.1.101 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.100 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.101 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.100,</span>
-<span id="revdate">2019-02-11 06:26:50Z</span>
-<br><span id="revremark">from git branch: github-master commit: fcf5980cf6acc620334f55b0cf2d162b05e0487a</span>
+<span id="revnumber">version 1.1.101,</span>
+<span id="revdate">2019-02-15 12:08:18Z</span>
+<br><span id="revremark">from git branch: github-master commit: 55220784e078fe3dad80e9520ca1d264f9b12b72</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -867,8 +867,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap2.html#fundamentals-errors">2.7. Errors</a></li>
 <li><a href="chap2.html#fundamentals-numerics">2.8. Numeric Representation and Computation</a></li>
 <li><a href="chap2.html#fundamentals-fixedconv">2.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap2.html#fundamentals-versionnum">2.10. API Version Numbers and Semantics</a></li>
-<li><a href="chap2.html#fundamentals-common-objects">2.11. Common Object Types</a></li>
+<li><a href="chap2.html#fundamentals-common-objects">2.10. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap3.html#initialization">3. Initialization</a>
@@ -1120,12 +1119,14 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap28.html#sparsememory-examples">28.8. Examples</a></li>
 </ul>
 </li>
-<li><a href="chap29.html#extended-functionality">29. Extended Functionality</a>
+<li><a href="chap29.html#extendingvulkan">29. Extending Vulkan</a>
 <ul class="sectlevel2">
-<li><a href="chap29.html#extended-functionality-layers">29.1. Layers</a></li>
-<li><a href="chap29.html#extended-functionality-extensions">29.2. Extensions</a></li>
-<li><a href="chap29.html#extended-functionality-extensions-dependencies">29.3. Extension Dependencies</a></li>
-<li><a href="chap29.html#extended-functionality-extensions-compatibility">29.4. Extension Compatibility</a></li>
+<li><a href="chap29.html#extendingvulkan-instanceanddevicefunctionality">29.1. Instance and Device Functionality</a></li>
+<li><a href="chap29.html#extendingvulkan-coreversions">29.2. Core Versions</a></li>
+<li><a href="chap29.html#extendingvulkan-layers">29.3. Layers</a></li>
+<li><a href="chap29.html#extendingvulkan-extensions">29.4. Extensions</a></li>
+<li><a href="chap29.html#extendingvulkan-extensions-extensiondependencies">29.5. Extension Dependencies</a></li>
+<li><a href="chap29.html#_compatibility_guarantees_informative">29.6. Compatibility Guarantees (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap30.html#features">30. Features, Limits, and Formats</a>
@@ -1201,42 +1202,8 @@ table.CodeRay td.code>pre{padding:0}
 <p>New minor versions of the Vulkan API are defined periodically by the Khronos
 Vulkan Working Group.
 These consist of some amount of additional functionality added to the core
-API, some of which <strong class="purple">may</strong> be promoted from extensions, other parts of which
-<strong class="purple">may</strong> be new.
-Extensions that are promoted in this way typically have their functionality
-replicated directly in the core, but with extension suffixes dropped.
-The existing values with suffixes are still present in the API itself as
-aliases of the original extension functionality.
-Any differences between the core and extension version of the functionality
-will be documented in the extension appendix, and mentioned briefly in the
-version description in this appendix.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>For structure and enumeration aliases, the aliased extension type is
-semantically identical to the new core type.
-The C99 headers simply <code>typedef</code> the aliases to the core types.</p>
-</div>
-<div class="paragraph">
-<p>For command aliases, however, there are two separate entry point
-definitions, due to the fact that the C99 ABI has no way to alias command
-definitions without resorting to the preprocessor.
-Calling via either entry point definition will produce identical behavior
-within the bounds of the specification, and should still invoke the same
-entry point in the implementation.
-Debug tools may use separate entry points with different debug behavior; to
-write the appropriate command name to an output log, for instance.</p>
-</div>
-</td>
-</tr>
-</table>
+API, potentially including both new functionality and functionality
+<a href="#extendingvulkan-compatibility-promotions">promoted</a> from extensions.</p>
 </div>
 <div class="paragraph">
 <p>It’s possible to build the specification for earlier versions, but to aid
@@ -1246,7 +1213,8 @@ changes as compared to earlier versions.</p>
 <div class="sect2">
 <h3 id="versions-1.1">Version 1.1</h3>
 <div id="versions-1.1-promotions" class="paragraph">
-<p>Vulkan Version 1.1 <em>promoted</em> a number of key extensions into the core API:</p>
+<p>Vulkan Version 1.1 <a href="#extendingvulkan-compatibility-promotions">promoted</a> a
+number of key extensions into the core API:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1422,7 +1390,7 @@ command to <a href="chap3.html#vkEnumerateInstanceVersion">enumerate the instanc
 <div class="ulist">
 <ul>
 <li>
-<p><a href="chap36.html#VK_API_VERSION_1_1">VK_API_VERSION_1_1</a></p>
+<p><a href="chap29.html#VK_API_VERSION_1_1">VK_API_VERSION_1_1</a></p>
 </li>
 </ul>
 </div>
@@ -2352,7 +2320,7 @@ command to <a href="chap3.html#vkEnumerateInstanceVersion">enumerate the instanc
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.100<br>
+Version 1.1.101<br>
 Last updated 2019-01-05 19:39:28 -0800
 </div>
 </div>

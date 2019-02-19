@@ -67,6 +67,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_marker"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_report"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_debug_utils"> VK_EXT_debug_utils </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_depth_clip_enable"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_depth_range_unrestricted"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_descriptor_indexing"> VK_EXT_descriptor_indexing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_direct_mode_display"> VK_EXT_direct_mode_display </a> </li>
@@ -137,6 +138,7 @@
     <li> <b>  NV Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_clip_space_w_scaling"> VK_NV_clip_space_w_scaling </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_compute_shader_derivatives"> VK_NV_compute_shader_derivatives </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_cooperative_matrix"> VK_NV_cooperative_matrix </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_corner_sampled_image"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation_image_aliasing"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
