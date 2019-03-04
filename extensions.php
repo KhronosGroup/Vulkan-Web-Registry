@@ -84,6 +84,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_budget"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_priority"> VK_EXT_memory_priority </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_metal_surface"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_pci_bus_info"> VK_EXT_pci_bus_info </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
@@ -101,6 +102,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_features"> VK_EXT_validation_features </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_flags"> VK_EXT_validation_flags </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_vertex_attribute_divisor"> VK_EXT_vertex_attribute_divisor </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_ycbcr_image_arrays"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_buffer_marker"> VK_AMD_buffer_marker </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
@@ -119,11 +121,11 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_info"> VK_AMD_shader_info </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_trinary_minmax"> VK_AMD_shader_trinary_minmax </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_texture_gather_bias_lod"> VK_AMD_texture_gather_bias_lod </a> </li>
-    <li> <b>  ANDROID Extensions (Google, Inc.)  </b> </li>
+    <li> <b>  ANDROID Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_ANDROID_external_memory_android_hardware_buffer"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
-    <li> <b>  FUCHSIA Extensions (Google, Inc.)  </b> </li>
+    <li> <b>  FUCHSIA Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_FUCHSIA_imagepipe_surface"> VK_FUCHSIA_imagepipe_surface </a> </li>
-    <li> <b>  GOOGLE Extensions (Google, Inc.)  </b> </li>
+    <li> <b>  GOOGLE Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_decorate_string"> VK_GOOGLE_decorate_string </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_display_timing"> VK_GOOGLE_display_timing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_hlsl_functionality1"> VK_GOOGLE_hlsl_functionality1 </a> </li>
@@ -165,5 +167,6 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_win32_keyed_mutex"> VK_NV_win32_keyed_mutex </a> </li>
     <li> <b>  NVX Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_device_generated_commands"> VK_NVX_device_generated_commands </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_image_view_handle"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NVX_multiview_per_view_attributes"> VK_NVX_multiview_per_view_attributes </a> </li>
 </ul>
