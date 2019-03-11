@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.102 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.103 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.102 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.103 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.102,</span>
-<span id="revdate">2019-03-04 05:20:13Z</span>
-<br><span id="revremark">from git branch: github-master commit: 35e7bee5f0f50b7c1634cd205ded035acea43ad9</span>
+<span id="revnumber">version 1.0.103,</span>
+<span id="revdate">2019-03-11 09:23:57Z</span>
+<br><span id="revremark">from git branch: github-master commit: 4ad4fd17161efd9bfd1125c0c9d17db6fb276216</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1201,7 +1201,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#memory-model-location-ordered">Location-Ordered</a></li>
 <li><a href="#memory-model-access-data-race">Data Race</a></li>
 <li><a href="#memory-model-visible-to">Visible-To</a></li>
-<li><a href="#memory-model-scoped-modification-order-coherence">Scoped Modification Order Coherence</a></li>
+<li><a href="#memory-model-acyclicity">Acyclicity</a></li>
 <li><a href="#memory-model-shader-io">Shader I/O</a></li>
 <li><a href="#memory-model-deallocation">Deallocation</a></li>
 <li><a href="#memory-model-informative-descriptions">Informative Descriptions</a></li>
@@ -2487,10 +2487,6 @@ the same (agent,reference).</p>
 </div>
 </li>
 <li>
-<p>X and Y are mutually-ordered atomics, and X is before Y in X’s scoped
-modification order</p>
-</li>
-<li>
 <p>X is a read, both X and Y are non-private, and X→Y</p>
 </li>
 <li>
@@ -2624,31 +2620,90 @@ will still be visible-to Y.
 </div>
 </div>
 <div class="sect2">
-<h3 id="memory-model-scoped-modification-order-coherence">Scoped Modification Order Coherence</h3>
+<h3 id="memory-model-acyclicity">Acyclicity</h3>
 <div class="paragraph">
-<p>Let A and B be mutually-ordered atomic operations, where A happens-before B,
-and let O be A’s scoped modification order.
-Then:</p>
+<p><em>Reads-from</em> is a relation between operations, where the first operation is
+a write, the second operation is a read, and the second operation reads the
+value written by the first operation.
+<em>From-reads</em> is a relation between operations, where the first operation is
+a read, the second operation is a write, and the first operation reads a
+value written earlier than the second operation in the second operation’s
+scoped modification order (or the first operation reads from the initial
+value, and the second operation is any write to the same locations).</p>
+</div>
+<div class="paragraph">
+<p>Then the implementation <strong class="purple">must</strong> guarantee that no cycles exist in the union of
+the following relations:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If A and B are both writes, then A <strong class="purple">must</strong> be earlier than B in O</p>
+<p>location-ordered</p>
 </li>
 <li>
-<p>If A and B are both reads, then the write that A takes its value from
-<strong class="purple">must</strong> be earlier in O than (or the same as) the write that B takes its
-value from</p>
+<p>scoped modification order (over all atomic writes)</p>
+</li>
+<li>
+<p>reads-from</p>
+</li>
+<li>
+<p>from-reads</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is a &quot;consistency&quot; axiom, which informally guarantees that
+sequences of operations can’t violate causality.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="memory-model-scoped-modification-order-coherence">Scoped Modification Order Coherence</h4>
+<div class="paragraph">
+<p>Let A and B be mutually-ordered atomic operations, where A is
+location-ordered before B. Then the following rules are a consequence of
+acyclicity:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If A and B are both reads and A does not read the initial value, then
+the write that A takes its value from <strong class="purple">must</strong> be earlier in its own scoped
+modification order than (or the same as) the write that B takes its
+value from (no cycles between location-order, reads-from, and
+from-reads).</p>
+</li>
+<li>
+<p>If A is a read and B is a write and A does not read the initial value,
+then A <strong class="purple">must</strong> take its value from a write earlier than B in B’s scoped
+modification order (no cycles between location-order, scope modification
+order, and reads-from).</p>
 </li>
 <li>
 <p>If A is a write and B is a read, then B <strong class="purple">must</strong> take its value from A or a
-write later than A in O</p>
+write later than A in A’s scoped modification order (no cycles between
+location-order, scoped modification order, and from-reads).</p>
 </li>
 <li>
-<p>If A is a read and B is a write, then A <strong class="purple">must</strong> take its value from a
-write earlier than B in O</p>
+<p>If A and B are both writes, then A <strong class="purple">must</strong> be earlier than B in A’s scoped
+modification order (no cycles between location-order and scoped
+modification order).</p>
+</li>
+<li>
+<p>If A is a write and B is a read-modify-write and B reads the value
+written by A, then B comes immediately after A in A’s scoped
+modification order (no cycles between scoped modification order and
+from-reads).</p>
 </li>
 </ul>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2798,7 +2853,7 @@ X is a write and Y is a read then X is visible-to Y.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.102<br>
+Version 1.0.103<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

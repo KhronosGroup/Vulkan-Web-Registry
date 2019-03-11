@@ -821,6 +821,29 @@ set of mipmap levels and array layers to be accessible to the view.</p>
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>Some of the <code>image</code> creation parameters are inherited by the view.
+In particular, image view creation inherits the implicit parameter
+<code>usage</code> specifying the allowed usages of the image view that, by
+default, takes the value of the corresponding <code>usage</code> parameter
+specified in <code>VkImageCreateInfo</code> at image creation time.
+If the image was has a depth-stencil format and was created with an instance
+of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code> chain of
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, the usage is calculated based on the
+<code>subresource.aspectMask</code> provided:
+  * If <code>aspectMask</code> includes only <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the
+    implicit <code>usage</code> is equal to
+    <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a>::<code>stencilUsage</code>.
+  * If <code>aspectMask</code> includes only <code>VK_IMAGE_ASPECT_DEPTH_BIT</code>, the
+    implicit <code>usage</code> is equal to
+    <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>stencilUsage</code>.
+  * If both aspects are included in <code>aspectMask</code>, the implicit
+    <code>usage</code> is equal to the intersection of
+    slinkVkImageCreateInfo::<code>usage</code> and
+    <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a>::<code>stencilUsage</code>.
+The implicit <code>usage</code> <strong class="purple">can</strong> be overriden by including an instance of
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> structure in the <code>pNext</code> chain.</p>
+</div>
+<div class="paragraph">
 <p>If <code>image</code> was created with the <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>
 flag,
 and if the <code>format</code> of the image is not
@@ -1343,14 +1366,48 @@ feature is not enabled, <code>flags</code> <strong class="purple">must</strong> 
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-02573"></a>
-If <a href="../../html/vkspec.html#features-fragmentdensitymapdynamic">dynamic fragment density map</a>
-feature is not enabled and <code>image</code> was created with <code>usage</code>
-containing <code>VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</code>,
-<code>flags</code> <strong class="purple">must</strong> not contain any of
-<code>VK_IMAGE_CREATE_PROTECTED_BIT</code>,
-<code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code>,
-<code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>, or
-<code>VK_IMAGE_CREATE_SPARSE_ALIASED_BIT</code></p>
+    If <a href="../../html/vkspec.html#features-fragmentdensitymapdynamic">dynamic fragment density map</a>
+    feature is not enabled and <code>image</code> was created with <code>usage</code>
+    containing <code>VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</code>,
+    <code>flags</code> <strong class="purple">must</strong> not contain any of
+    <code>VK_IMAGE_CREATE_PROTECTED_BIT</code>,
+    <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code>,
+    <code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>, or
+    <code>VK_IMAGE_CREATE_SPARSE_ALIASED_BIT</code>
+ifdef::VK_VERSION_1_1,VK_KHR_maintenance2</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-02662"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, and <code>image</code> was not created with
+an instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
+chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, its <code>usage</code> member <strong class="purple">must</strong> not
+include any bits that were not set in the <code>usage</code> member of the
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-02663"></a>
+If the <code>pNext</code> chain includes an instance of
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
+instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
+chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
+includes <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the <code>usage</code> member of
+the <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> instance <strong class="purple">must</strong> not include any bits
+that were not set in the <code>usage</code> member of the
+<a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure used to create
+<code>image</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-02664"></a>
+    If the <code>pNext</code> chain includes an instance of
+    <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
+    instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
+    chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
+    includes bits other than <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the
+    <code>usage</code> member of the <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> instance
+    <strong class="purple">must</strong> not include any bits that were not set in the <code>usage</code> member
+    of the <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code>
+endif::VK_VERSION_1_1,VK_KHR_maintenance2</p>
 </li>
 </ul>
 </div>
@@ -1430,8 +1487,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.102<br>
-Last updated 2019-03-03 21:06:34 -0800
+Version 1.1.103<br>
+Last updated 2019-03-11 02:10:42 -0700
 </div>
 </div>
 

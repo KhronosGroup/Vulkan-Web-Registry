@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.102 - A Specification</title>
+<title>Vulkan® 1.0.103 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.102 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.103 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.102,</span>
-<span id="revdate">2019-03-04 05:22:50Z</span>
-<br><span id="revremark">from git branch: github-master commit: 35e7bee5f0f50b7c1634cd205ded035acea43ad9</span>
+<span id="revnumber">version 1.0.103,</span>
+<span id="revdate">2019-03-11 09:26:31Z</span>
+<br><span id="revremark">from git branch: github-master commit: 4ad4fd17161efd9bfd1125c0c9d17db6fb276216</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -27329,17 +27329,6 @@ image view object is returned.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Some of the image creation parameters are inherited by the view.
-In particular, image view creation inherits the implicit parameter
-<code>usage</code> specifying the allowed usages of the image view that, by
-default, takes the value of the corresponding <code>usage</code> parameter
-specified in <code>VkImageCreateInfo</code> at image creation time
-.</p>
-</div>
-<div class="paragraph">
-<p>The remaining parameters are contained in the <code>pCreateInfo</code>.</p>
-</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -27447,6 +27436,13 @@ converted into color components).</p>
 set of mipmap levels and array layers to be accessible to the view.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Some of the <code>image</code> creation parameters are inherited by the view.
+In particular, image view creation inherits the implicit parameter
+<code>usage</code> specifying the allowed usages of the image view that, by
+default, takes the value of the corresponding <code>usage</code> parameter
+specified in <code>VkImageCreateInfo</code> at image creation time.</p>
 </div>
 <div class="paragraph">
 <p>If <code>image</code> was created with the <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>
@@ -27736,9 +27732,18 @@ contiguously to a single <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-subResourceRange-01021"></a>
-<code>subresourceRange</code> and <code>viewType</code> <strong class="purple">must</strong> be compatible with the
-image, as described in the
-<a href="#resources-image-views-compatibility">compatibility table</a></p>
+    <code>subresourceRange</code> and <code>viewType</code> <strong class="purple">must</strong> be compatible with the
+    image, as described in the
+    <a href="#resources-image-views-compatibility">compatibility table</a>
+ifdef::VK_VERSION_1_1,VK_KHR_maintenance2</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-02661"></a>
+    If the <code>pNext</code> chain includes an instance of
+    <a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a>, its <code>usage</code> member <strong class="purple">must</strong> not
+    include any bits that were not set in the <code>usage</code> member of the
+    <a href="#VkImageCreateInfo">VkImageCreateInfo</a> structure used to create <code>image</code>.
+endif::VK_VERSION_1_1,VK_KHR_maintenance2</p>
 </li>
 </ul>
 </div>
@@ -44762,12 +44767,6 @@ Destination image subresources <strong class="purple">must</strong> be in the
 As a consequence, if an image subresource is used as both source and
 destination of a copy, it <strong class="purple">must</strong> be in the <code>VK_IMAGE_LAYOUT_GENERAL</code>
 layout.</p>
-</li>
-<li>
-<p>Source images <strong class="purple">must</strong> have been created with the
-<code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> usage bit enabled and destination
-images <strong class="purple">must</strong> have been created with the
-<code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> usage bit enabled.</p>
 </li>
 <li>
 <p>Source buffers <strong class="purple">must</strong> have been created with the
@@ -82840,8 +82839,8 @@ Class</strong> limited to:</p>
 <div class="sect2">
 <h3 id="spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</h3>
 <div class="paragraph">
-<p>The following rules apply to both single and double-precision floating point
-instructions:</p>
+<p>The following rules apply to half, single, and double-precision floating
+point instructions:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -82855,8 +82854,25 @@ precisions allowed in the following table.</p>
 <a href="#ieee-754">IEEE 754</a> infinity.</p>
 </li>
 <li>
+<p>Signaling <span class="eq">NaN</span>s are not required to be generated and exceptions
+are never raised.
+Signaling <span class="eq">NaN</span> <strong class="purple">may</strong> be converted to quiet <span class="eq">NaN</span>s values by
+any floating point instruction.</p>
+</li>
+<li>
+<p>The following instructions <strong class="purple">must</strong> not flush denormalized values:
+<code>OpConstant</code>, <code>OpConstantComposite</code>, <code>OpSpecConstant</code>,
+<code>OpSpecConstantComposite</code>, <code>OpLoad</code>, <code>OpStore</code>, <code>OpBitcast</code>,
+<code>OpPhi</code>, <code>OpSelect</code>, <code>OpFunctionCall</code>, <code>OpReturnValue</code>,
+<code>OpVectorExtractDynamic</code>, <code>OpVectorInsertDynamic</code>,
+<code>OpVectorShuffle</code>, <code>OpCompositeConstruct</code>,
+<code>OpCompositeExtract</code>, <code>OpCompositeInsert</code>, <code>OpCopyMemory</code>,
+<code>OpCopyObject</code>.</p>
+</li>
+<li>
 <p>Any denormalized value input into a shader or potentially generated by
-any instruction in a shader <strong class="purple">may</strong> be flushed to 0.</p>
+any instruction in a shader (except those listed above) <strong class="purple">may</strong> be flushed
+to 0.</p>
 </li>
 <li>
 <p>The rounding mode <strong class="purple">cannot</strong> be set, and results will be <a href="#Correctly
@@ -82866,10 +82882,6 @@ Rounded]</a>, as described below.</p>
 <li>
 <p><span class="eq">NaN</span>s <strong class="purple">may</strong> not be generated.
 Instructions that operate on a <span class="eq">NaN</span> <strong class="purple">may</strong> not result in a <span class="eq">NaN</span>.</p>
-</li>
-<li>
-<p>Support for signaling <span class="eq">NaN</span>s is <strong class="purple">optional</strong> and exceptions are never
-raised.</p>
 </li>
 </ul>
 </div>
@@ -83950,7 +83962,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">102</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">103</span></code></pre>
 </div>
 </div>
 </div>
@@ -86579,7 +86591,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.102<br>
+Version 1.0.103<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
