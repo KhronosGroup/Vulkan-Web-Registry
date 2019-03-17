@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.103 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.104 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.103 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.104 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.103,</span>
-<span id="revdate">2019-03-11 09:19:51Z</span>
-<br><span id="revremark">from git branch: github-master commit: 4ad4fd17161efd9bfd1125c0c9d17db6fb276216</span>
+<span id="revnumber">version 1.0.104,</span>
+<span id="revdate">2019-03-17 13:22:39Z</span>
+<br><span id="revremark">from git branch: github-master commit: 476e3f422dc251065c535c1d8a5cfc58f1cff3c9</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -958,6 +958,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap9.html#pipelines-dynamic-state">9.9. Dynamic State</a></li>
 <li><a href="chap9.html#pipelines-shader-information">9.10. Pipeline Shader Information</a></li>
 <li><a href="chap9.html#pipelines-raytracing">9.11. Ray Tracing Pipeline</a></li>
+<li><a href="chap9.html#pipelines-creation-feedback">9.12. Pipeline Creation Feedback</a></li>
 </ul>
 </li>
 <li><a href="chap10.html#memory">10. Memory Allocation</a>
@@ -1187,10 +1188,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap32.html#display">32.3. Presenting Directly to Display Devices</a></li>
 <li><a href="chap32.html#_querying_for_wsi_support">32.4. Querying for WSI Support</a></li>
 <li><a href="chap32.html#_surface_queries">32.5. Surface Queries</a></li>
-<li><a href="chap32.html#_device_group_queries">32.6. Device Group Queries</a></li>
-<li><a href="chap32.html#_display_timing_queries">32.7. Display Timing Queries</a></li>
-<li><a href="chap32.html#_wsi_swapchain">32.8. WSI Swapchain</a></li>
-<li><a href="chap32.html#_hdr_metadata">32.9. Hdr Metadata</a></li>
+<li><a href="chap32.html#_full_screen_exclusive_control">32.6. Full Screen Exclusive Control</a></li>
+<li><a href="chap32.html#_device_group_queries">32.7. Device Group Queries</a></li>
+<li><a href="chap32.html#_display_timing_queries">32.8. Display Timing Queries</a></li>
+<li><a href="chap32.html#_wsi_swapchain">32.9. WSI Swapchain</a></li>
+<li><a href="chap32.html#_hdr_metadata">32.10. Hdr Metadata</a></li>
 </ul>
 </li>
 <li><a href="chap33.html#raytracing">33. Ray Tracing</a>
@@ -1658,6 +1660,7 @@ the type of queries managed by the pool, are:</p>
     VK_QUERY_TYPE_TIMESTAMP = <span class="integer">2</span>,
     VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT = <span class="integer">1000028004</span>,
     VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV = <span class="integer">1000165000</span>,
+    VK_QUERY_TYPE_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkQueryType;</code></pre>
 </div>
 </div>
@@ -1718,10 +1721,8 @@ There is one significant exception to this; if the <code>flags</code> parameter 
 <strong class="purple">may</strong> happen-before the results of <a href="#vkCmdEndQuery">vkCmdEndQuery</a> are available.</p>
 </div>
 <div class="paragraph">
-<p>After query pool creation, each query is in an undefined state and <strong class="purple">must</strong> be
-reset prior to use.
-Queries <strong class="purple">must</strong> also be reset between uses.
-Using a query that has not been reset will result in undefined behavior.</p>
+<p>After query pool creation, each query <strong class="purple">must</strong> be reset before it is used.
+Queries <strong class="purple">must</strong> also be reset between uses.</p>
 </div>
 <div class="paragraph">
 <p>If a logical device includes multiple physical devices, then each command
@@ -1732,7 +1733,7 @@ command on the same physical device.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To reset a range of queries in a query pool, call:</p>
+<p>To reset a range of queries in a query pool on a queue, call:</p>
 </div>
 <div id="vkCmdResetQueryPool" class="listingblock">
 <div class="content">
@@ -1856,6 +1857,81 @@ Compute</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To reset a range of queries in a query pool on the host, call:</p>
+</div>
+<div id="vkResetQueryPoolEXT" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkResetQueryPoolEXT(
+    VkDevice                                    device,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>queryPool</code> is the handle of the query pool managing the queries
+being reset.</p>
+</li>
+<li>
+<p><code>firstQuery</code> is the initial query index to reset.</p>
+</li>
+<li>
+<p><code>queryCount</code> is the number of queries to reset.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This command sets the status of query indices <span class="eq">[<code>firstQuery</code>,
+<code>firstQuery</code> +  <code>queryCount</code> - 1]</span> to unavailable.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-None-02665"></a>
+The <a href="chap35.html#features-hostQueryReset">hostQueryReset</a> feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-firstQuery-02666"></a>
+<code>firstQuery</code> <strong class="purple">must</strong> be less than the number of queries in
+<code>queryPool</code></p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-firstQuery-02667"></a>
+The sum of <code>firstQuery</code> and <code>queryCount</code> <strong class="purple">must</strong> be less than or
+equal to the number of queries in <code>queryPool</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-queryPool-parameter"></a> <code>queryPool</code> <strong class="purple">must</strong> be a valid <code>VkQueryPool</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-queryPool-parent"></a> <code>queryPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -2313,6 +2389,7 @@ constraints on the types of queries that <strong class="purple">can</strong> be 
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkQueryControlFlagBits {
     VK_QUERY_CONTROL_PRECISE_BIT = <span class="hex">0x00000001</span>,
+    VK_QUERY_CONTROL_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkQueryControlFlagBits;</code></pre>
 </div>
 </div>
@@ -2971,6 +3048,7 @@ results are returned, are:</p>
     VK_QUERY_RESULT_WAIT_BIT = <span class="hex">0x00000002</span>,
     VK_QUERY_RESULT_WITH_AVAILABILITY_BIT = <span class="hex">0x00000004</span>,
     VK_QUERY_RESULT_PARTIAL_BIT = <span class="hex">0x00000008</span>,
+    VK_QUERY_RESULT_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkQueryResultFlagBits;</code></pre>
 </div>
 </div>
@@ -3383,6 +3461,7 @@ and for secondary command buffers with
     VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_CONTROL_SHADER_PATCHES_BIT = <span class="hex">0x00000100</span>,
     VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT = <span class="hex">0x00000200</span>,
     VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT = <span class="hex">0x00000400</span>,
+    VK_QUERY_PIPELINE_STATISTIC_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkQueryPipelineStatisticFlagBits;</code></pre>
 </div>
 </div>
@@ -3852,7 +3931,7 @@ The application <strong class="purple">can</strong> then either copy the result 
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.103<br>
+Version 1.0.104<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

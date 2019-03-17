@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.103 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.104 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.103 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.104 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.103,</span>
-<span id="revdate">2019-03-11 09:15:10Z</span>
-<br><span id="revremark">from git branch: github-master commit: 4ad4fd17161efd9bfd1125c0c9d17db6fb276216</span>
+<span id="revnumber">version 1.1.104,</span>
+<span id="revdate">2019-03-17 13:17:58Z</span>
+<br><span id="revremark">from git branch: github-master commit: 476e3f422dc251065c535c1d8a5cfc58f1cff3c9</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1666,6 +1666,7 @@ allocation scope, are:</p>
     VK_SYSTEM_ALLOCATION_SCOPE_CACHE = <span class="integer">2</span>,
     VK_SYSTEM_ALLOCATION_SCOPE_DEVICE = <span class="integer">3</span>,
     VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE = <span class="integer">4</span>,
+    VK_SYSTEM_ALLOCATION_SCOPE_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkSystemAllocationScope;</code></pre>
 </div>
 </div>
@@ -1784,6 +1785,7 @@ memory allocations and frees.</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkInternalAllocationType {
     VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE = <span class="integer">0</span>,
+    VK_INTERNAL_ALLOCATION_TYPE_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkInternalAllocationType;</code></pre>
 </div>
 </div>
@@ -2398,6 +2400,7 @@ attribute flags for the heap, are:</p>
     VK_MEMORY_HEAP_DEVICE_LOCAL_BIT = <span class="hex">0x00000001</span>,
     VK_MEMORY_HEAP_MULTI_INSTANCE_BIT = <span class="hex">0x00000002</span>,
     VK_MEMORY_HEAP_MULTI_INSTANCE_BIT_KHR = VK_MEMORY_HEAP_MULTI_INSTANCE_BIT,
+    VK_MEMORY_HEAP_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkMemoryHeapFlagBits;</code></pre>
 </div>
 </div>
@@ -2476,6 +2479,7 @@ indicating properties of a memory heap, are:</p>
     VK_MEMORY_PROPERTY_HOST_CACHED_BIT = <span class="hex">0x00000008</span>,
     VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT = <span class="hex">0x00000010</span>,
     VK_MEMORY_PROPERTY_PROTECTED_BIT = <span class="hex">0x00000020</span>,
+    VK_MEMORY_PROPERTY_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkMemoryPropertyFlagBits;</code></pre>
 </div>
 </div>
@@ -4310,6 +4314,7 @@ controlling device memory allocation, are:</p>
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkMemoryAllocateFlagBits {
     VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT = <span class="hex">0x00000001</span>,
     VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT_KHR = VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT,
+    VK_MEMORY_ALLOCATE_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkMemoryAllocateFlagBits;</code></pre>
 </div>
 </div>
@@ -4384,10 +4389,8 @@ more <a href="#VkMemoryAllocateFlagBits">VkMemoryAllocateFlagBits</a>.</p>
 <p>Before freeing a memory object, an application <strong class="purple">must</strong> ensure the memory
 object is no longer in use by the device—​for example by command buffers in
 the <em>pending state</em>.
-The memory <strong class="purple">can</strong> remain bound to images or buffers at the time the memory
-object is freed, but any further use of them (on host or device) for
-anything other than destroying those objects will result in undefined
-behavior.
+Memory <strong class="purple">can</strong> be freed whilst still bound to resources, but those resources
+<strong class="purple">must</strong> not be used afterwards.
 If there are still any bound images or buffers, the memory <strong class="purple">may</strong> not be
 immediately released by the implementation, but <strong class="purple">must</strong> be released by the
 time all bound images and buffers have been destroyed.
@@ -5347,41 +5350,9 @@ buffers <strong class="purple">can</strong> be submitted</p>
 <ul>
 <li>
 <p>Unprotected queue operations</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Any read from or write to protected memory during unprotected queue
-operations results in undefined behavior but is subject to the
-inviolable rules below.</p>
-</li>
-</ul>
-</div>
 </li>
 <li>
 <p>Protected queue operations</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Any write to unprotected memory during protected queue operations
-results in undefined behavior but is subject to the inviolable rules
-below.</p>
-</li>
-<li>
-<p>Except for framebuffer-space pipeline stages, compute shader stage,
-and transfer stage, any read from or write to protected memory during
-protected queue operations results in undefined behavior but is
-subject to the inviolable rules below.</p>
-</li>
-<li>
-<p>Any query during protected queue operations results in undefined
-behavior, but is subject to the inviolable rules below.</p>
-</li>
-<li>
-<p>Any indirect command during protected queue operations results in
-undefined behavior but is subject to the inviolable rules below.</p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>
@@ -5389,28 +5360,50 @@ undefined behavior but is subject to the inviolable rules below.</p>
 </ul>
 </div>
 <div class="sect4">
-<h5 id="memory-protected-memory-undefined">Protected memory inviolable rules</h5>
+<h5 id="memory-protected-access-rules">Protected Memory Access Rules</h5>
 <div class="paragraph">
-<p>Implementations <strong class="purple">must</strong> ensure that correct usage or incorrect usage by an
-application does not affect the integrity of the memory protection system.</p>
-</div>
-<div class="paragraph">
-<p>The implementation <strong class="purple">must</strong> guarantee that:</p>
+<p>If <a href="chap32.html#VkPhysicalDeviceProtectedMemoryProperties">VkPhysicalDeviceProtectedMemoryProperties</a>::<code>protectedNoFault</code>
+is <code>VK_FALSE</code>, applications <strong class="purple">must</strong> not perform any of the following
+operations:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Protected device memory <strong class="purple">must</strong> not be visible to the host.</p>
+<p>Write to unprotected memory within protected queue operations.</p>
 </li>
 <li>
-<p>Values written to unprotected device memory <strong class="purple">must</strong> not be a function of
-data from protected memory.</p>
+<p>Access protected memory within protected queue operations other than in
+framebuffer-space pipeline stages, the compute shader stage, or the
+transfer stage.</p>
+</li>
+<li>
+<p>Perform a query within protected queue operations.</p>
+</li>
+<li>
+<p>Execute an indirect command within protected queue operations.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Incorrect usage by an application of the memory protection system results in
-undefined behavior which <strong class="purple">may</strong> include process termination or device loss.</p>
+<p>If <a href="chap32.html#VkPhysicalDeviceProtectedMemoryProperties">VkPhysicalDeviceProtectedMemoryProperties</a>::<code>protectedNoFault</code>
+is <code>VK_TRUE</code>, these operations are valid, but reads will return
+undefined values, and writes will either be dropped or store undefined
+values.</p>
+</div>
+<div class="paragraph">
+<p>Whether these operations are valid or not, or if any other invalid usage is
+performed, the implementation <strong class="purple">must</strong> guarantee that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Protected device memory <strong class="purple">must</strong> never be visible to the host.</p>
+</li>
+<li>
+<p>Values written to unprotected device memory <strong class="purple">must</strong> not be a function of
+values from protected memory.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -5536,6 +5529,7 @@ indicating the supported peer memory features, are:</p>
     VK_PEER_MEMORY_FEATURE_COPY_DST_BIT_KHR = VK_PEER_MEMORY_FEATURE_COPY_DST_BIT,
     VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT_KHR = VK_PEER_MEMORY_FEATURE_GENERIC_SRC_BIT,
     VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT_KHR = VK_PEER_MEMORY_FEATURE_GENERIC_DST_BIT,
+    VK_PEER_MEMORY_FEATURE_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkPeerMemoryFeatureFlagBits;</code></pre>
 </div>
 </div>
@@ -5631,7 +5625,7 @@ or more <a href="#VkPeerMemoryFeatureFlagBits">VkPeerMemoryFeatureFlagBits</a>.<
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.103<br>
+Version 1.1.104<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

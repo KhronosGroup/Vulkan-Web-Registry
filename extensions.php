@@ -47,6 +47,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface_protected_capabilities"> VK_KHR_surface_protected_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain_mutable_format"> VK_KHR_swapchain_mutable_format </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
@@ -78,14 +79,17 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_filter_cubic"> VK_EXT_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_fragment_density_map"> VK_EXT_fragment_density_map </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_full_screen_exclusive"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_host_query_reset"> VK_EXT_host_query_reset </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_budget"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_memory_priority"> VK_EXT_memory_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_metal_surface"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_pci_bus_info"> VK_EXT_pci_bus_info </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_pipeline_creation_feedback"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_sample_locations"> VK_EXT_sample_locations </a> </li>
@@ -105,6 +109,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_ycbcr_image_arrays"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_buffer_marker"> VK_AMD_buffer_marker </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_display_native_hdr"> VK_AMD_display_native_hdr </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gpu_shader_half_float"> VK_AMD_gpu_shader_half_float </a> </li>
