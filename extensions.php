@@ -130,6 +130,9 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_ANDROID_external_memory_android_hardware_buffer"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  FUCHSIA Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_FUCHSIA_imagepipe_surface"> VK_FUCHSIA_imagepipe_surface </a> </li>
+    <li> <b>  GGP Extensions (Google, LLC)  </b> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GGP_frame_token"> VK_GGP_frame_token </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GGP_stream_descriptor_surface"> VK_GGP_stream_descriptor_surface </a> </li>
     <li> <b>  GOOGLE Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_decorate_string"> VK_GOOGLE_decorate_string </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_display_timing"> VK_GOOGLE_display_timing </a> </li>
