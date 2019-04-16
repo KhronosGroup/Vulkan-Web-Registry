@@ -82,6 +82,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_full_screen_exclusive"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_headless_surface"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_host_query_reset"> VK_EXT_host_query_reset </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_inline_uniform_block"> VK_EXT_inline_uniform_block </a> </li>
