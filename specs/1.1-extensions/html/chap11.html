@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.107 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.108 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.107 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.108 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.107,</span>
-<span id="revdate">2019-04-16 12:20:14Z</span>
-<br><span id="revremark">from git branch: github-master commit: 5abf83f95d89cf6ba104b4c70d42d5c7c678b630</span>
+<span id="revnumber">version 1.1.108,</span>
+<span id="revdate">2019-05-13 08:50:25Z</span>
+<br><span id="revremark">from git branch: github-master commit: 40ba6e9a4468915aa3aef2ccc153d60e7988193f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6100,11 +6100,10 @@ of <a href="#VkImageStencilUsageCreateInfoEXT">VkImageStencilUsageCreateInfoEXT<
     implicit <code>usage</code> is equal to
     <a href="#VkImageStencilUsageCreateInfoEXT">VkImageStencilUsageCreateInfoEXT</a>::<code>stencilUsage</code>.
   * If <code>aspectMask</code> includes only <code>VK_IMAGE_ASPECT_DEPTH_BIT</code>, the
-    implicit <code>usage</code> is equal to
-    <a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>stencilUsage</code>.
+    implicit <code>usage</code> is equal to <a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>usage</code>.
   * If both aspects are included in <code>aspectMask</code>, the implicit
     <code>usage</code> is equal to the intersection of
-    slinkVkImageCreateInfo::<code>usage</code> and
+    <a href="#VkImageCreateInfo">VkImageCreateInfo</a>::<code>usage</code> and
     <a href="#VkImageStencilUsageCreateInfoEXT">VkImageStencilUsageCreateInfoEXT</a>::<code>stencilUsage</code>.
 The implicit <code>usage</code> <strong class="purple">can</strong> be overriden by including an instance of
 <a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a> structure in the <code>pNext</code> chain.</p>
@@ -6488,16 +6487,18 @@ the <code>arrayLayers</code> specified in <a href="#VkImageCreateInfo">VkImageCr
 <code>image</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-image-01484"></a>
+<p><a id="VUID-VkImageViewCreateInfo-image-02724"></a>
 If <code>image</code> is a 3D image created with
 <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, and <code>viewType</code> is
 <code>VK_IMAGE_VIEW_TYPE_2D</code> or <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>,
 <code>subresourceRange</code>::<code>baseArrayLayer</code> <strong class="purple">must</strong> be less than the
-<code>extent.depth</code> specified in <a href="#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
-was created</p>
+depth computed from <code>baseMipLevel</code> and <code>extent.depth</code> specified
+in <a href="#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code> was created, according to
+the formula defined in <a href="#resources-image-miplevel-sizing">Image Miplevel
+Sizing</a>.</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-subresourceRange-01485"></a>
+<p><a id="VUID-VkImageViewCreateInfo-subresourceRange-02725"></a>
 If <code>subresourceRange</code>::<code>layerCount</code> is not
 <code>VK_REMAINING_ARRAY_LAYERS</code>, <code>image</code> is a 3D image created with
 <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, and <code>viewType</code> is
@@ -6505,8 +6506,10 @@ If <code>subresourceRange</code>::<code>layerCount</code> is not
 <code>subresourceRange</code>::<code>layerCount</code> <strong class="purple">must</strong> be non-zero and
 <span class="eq"><code>subresourceRange</code>::<code>baseArrayLayer</code> + 
 <code>subresourceRange</code>::<code>layerCount</code></span> <strong class="purple">must</strong> be less than or equal to
-the <code>extent.depth</code> specified in <a href="#VkImageCreateInfo">VkImageCreateInfo</a> when
-<code>image</code> was created</p>
+the depth computed from <code>baseMipLevel</code> and <code>extent.depth</code>
+specified in <a href="#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code> was created,
+according to the formula defined in
+<a href="#resources-image-miplevel-sizing">Image Miplevel Sizing</a>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01018"></a>
@@ -6632,15 +6635,14 @@ feature is not enabled, <code>flags</code> <strong class="purple">must</strong> 
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-02573"></a>
-    If <a href="chap35.html#features-fragmentdensitymapdynamic">dynamic fragment density map</a>
-    feature is not enabled and <code>image</code> was created with <code>usage</code>
-    containing <code>VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</code>,
-    <code>flags</code> <strong class="purple">must</strong> not contain any of
-    <code>VK_IMAGE_CREATE_PROTECTED_BIT</code>,
-    <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code>,
-    <code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>, or
-    <code>VK_IMAGE_CREATE_SPARSE_ALIASED_BIT</code>
-ifdef::VK_VERSION_1_1,VK_KHR_maintenance2</p>
+If <a href="chap35.html#features-fragmentdensitymapdynamic">dynamic fragment density map</a>
+feature is not enabled and <code>image</code> was created with <code>usage</code>
+containing <code>VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</code>,
+<code>flags</code> <strong class="purple">must</strong> not contain any of
+<code>VK_IMAGE_CREATE_PROTECTED_BIT</code>,
+<code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code>,
+<code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code>, or
+<code>VK_IMAGE_CREATE_SPARSE_ALIASED_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02662"></a>
@@ -6665,15 +6667,14 @@ that were not set in the <code>usage</code> member of the
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02664"></a>
-    If the <code>pNext</code> chain includes an instance of
-    <a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
-    instance of <a href="#VkImageStencilUsageCreateInfoEXT">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
-    chain of <a href="#VkImageCreateInfo">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
-    includes bits other than <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the
-    <code>usage</code> member of the <a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a> instance
-    <strong class="purple">must</strong> not include any bits that were not set in the <code>usage</code> member
-    of the <a href="#VkImageCreateInfo">VkImageCreateInfo</a> structure used to create <code>image</code>
-endif::VK_VERSION_1_1,VK_KHR_maintenance2</p>
+If the <code>pNext</code> chain includes an instance of
+<a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
+instance of <a href="#VkImageStencilUsageCreateInfoEXT">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
+chain of <a href="#VkImageCreateInfo">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
+includes bits other than <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the
+<code>usage</code> member of the <a href="#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a> instance
+<strong class="purple">must</strong> not include any bits that were not set in the <code>usage</code> member
+of the <a href="#VkImageCreateInfo">VkImageCreateInfo</a> structure used to create <code>image</code></p>
 </li>
 </ul>
 </div>
@@ -8690,6 +8691,21 @@ equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</
 buffer handle created with identical creation parameters to <code>buffer</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
 </li>
+<li>
+<p><a id="VUID-vkBindBufferMemory-memory-02726"></a>
+If <code>memory</code> was allocated with
+<a href="chap10.html#VkExportMemoryAllocateInfo">VkExportMemoryAllocateInfo</a>::<code>handleTypes</code> not equal to <code>0</code>, at
+least one handle type it contained must also have been set in
+<a href="#VkExternalMemoryBufferCreateInfo">VkExternalMemoryBufferCreateInfo</a>::<code>handleTypes</code> when
+<code>buffer</code> was created.</p>
+</li>
+<li>
+<p><a id="VUID-vkBindBufferMemory-memory-02727"></a>
+If <code>memory</code> was created by a memory import operation, the external
+handle type of the imported memory must also have been set in
+<a href="#VkExternalMemoryBufferCreateInfo">VkExternalMemoryBufferCreateInfo</a>::<code>handleTypes</code> when
+<code>buffer</code> was created.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -9253,6 +9269,21 @@ equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</
 <a href="chap10.html#VkDedicatedAllocationMemoryAllocateInfoNV">VkDedicatedAllocationMemoryAllocateInfoNV</a>::<code>image</code> equal to an
 image handle created with identical creation parameters to <code>image</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
+</li>
+<li>
+<p><a id="VUID-vkBindImageMemory-memory-02728"></a>
+If <code>memory</code> was allocated with
+<a href="chap10.html#VkExportMemoryAllocateInfo">VkExportMemoryAllocateInfo</a>::<code>handleTypes</code> not equal to <code>0</code>, at
+least one handle type it contained must also have been set in
+<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code> when
+<code>image</code> was created.</p>
+</li>
+<li>
+<p><a id="VUID-vkBindImageMemory-memory-02729"></a>
+If <code>memory</code> was created by a memory import operation, the external
+handle type of the imported memory must also have been set in
+<a href="#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code> when
+<code>image</code> was created.</p>
 </li>
 </ul>
 </div>
@@ -11906,7 +11937,7 @@ as described above</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.107<br>
+Version 1.1.108<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

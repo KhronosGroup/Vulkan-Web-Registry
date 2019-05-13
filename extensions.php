@@ -50,6 +50,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface_protected_capabilities"> VK_KHR_surface_protected_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain_mutable_format"> VK_KHR_swapchain_mutable_format </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_uniform_buffer_standard_layout"> VK_KHR_uniform_buffer_standard_layout </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_vulkan_memory_model"> VK_KHR_vulkan_memory_model </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_wayland_surface"> VK_KHR_wayland_surface </a> </li>
@@ -151,6 +152,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_compute_shader_derivatives"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_cooperative_matrix"> VK_NV_cooperative_matrix </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_corner_sampled_image"> VK_NV_corner_sampled_image </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_coverage_reduction_mode"> VK_NV_coverage_reduction_mode </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_dedicated_allocation_image_aliasing"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_device_diagnostic_checkpoints"> VK_NV_device_diagnostic_checkpoints </a> </li>
