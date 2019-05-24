@@ -142,6 +142,9 @@
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_format_pvrtc"> VK_IMG_format_pvrtc </a> </li>
+    <li> <b>  INTEL Extensions (Intel Corporation)  </b> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_INTEL_performance_query"> VK_INTEL_performance_query </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_INTEL_shader_integer_functions2"> VK_INTEL_shader_integer_functions2 </a> </li>
     <li> <b>  MVK Extensions (The Brenwill Workshop Ltd.)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_MVK_ios_surface"> VK_MVK_ios_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_MVK_macos_surface"> VK_MVK_macos_surface </a> </li>

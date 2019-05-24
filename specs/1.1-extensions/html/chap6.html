@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.108 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.109 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.108 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.109 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.108,</span>
-<span id="revdate">2019-05-13 08:50:25Z</span>
-<br><span id="revremark">from git branch: github-master commit: 40ba6e9a4468915aa3aef2ccc153d60e7988193f</span>
+<span id="revnumber">version 1.1.109,</span>
+<span id="revdate">2019-05-24 12:29:59Z</span>
+<br><span id="revremark">from git branch: github-master commit: 6635a81b5b9dea234faf967d54abf7241db371c9</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1037,6 +1037,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap17.html#queries-pipestats">17.4. Pipeline Statistics Queries</a></li>
 <li><a href="chap17.html#queries-timestamps">17.5. Timestamp Queries</a></li>
 <li><a href="chap17.html#queries-transform-feedback">17.6. Transform Feedback Queries</a></li>
+<li><a href="chap17.html#queries-performance-intel">17.7. Intel performance queries</a></li>
 </ul>
 </li>
 <li><a href="chap18.html#clears">18. Clear Commands</a>
@@ -10509,24 +10510,63 @@ returned by <a href="chap38.html#vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"
 <ul>
 <li>
 <p><code>VK_TIME_DOMAIN_DEVICE_EXT</code> specifies the device time domain.
-Timestamp values in this time domain are comparable with device
-timestamp values captured using <a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a> and are
-defined to be incrementing according to the
-<a href="chap36.html#limits-timestampPeriod">timestampPeriod</a> of the device.</p>
+Timestamp values in this time domain use the same units and are
+comparable with device timestamp values captured using
+<a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a> and are defined to be incrementing according
+to the <a href="chap36.html#limits-timestampPeriod">timestampPeriod</a> of the device.</p>
 </li>
 <li>
 <p><code>VK_TIME_DOMAIN_CLOCK_MONOTONIC_EXT</code> specifies the CLOCK_MONOTONIC
-time domain available on POSIX platforms.</p>
-</li>
-<li>
-<p><code>VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_EXT</code> specifies the
-CLOCK_MONOTONIC_RAW time domain available on POSIX platforms.</p>
-</li>
-<li>
-<p><code>VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_EXT</code> specifies the
-performance counter (QPC) time domain available on Windows.</p>
+time domain available on POSIX platforms.
+Timestamp values in this time domain are in units of nanoseconds and are
+comparable with platform timestamp values captured using the POSIX
+clock_gettime API as computed by this example:</p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c"><span class="keyword">struct</span> timespec tv;
+clock_gettime(CLOCK_MONOTONIC, &amp;tv);
+<span class="keyword">return</span> tv.tv_nsec + tv.tv_sec*<span class="integer">1000000000</span>ull;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_EXT</code> specifies the
+CLOCK_MONOTONIC_RAW time domain available on POSIX platforms.
+Timestamp values in this time domain are in units of nanoseconds and are
+comparable with platform timestamp values captured using the POSIX
+clock_gettime API as computed by this example:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c"><span class="keyword">struct</span> timespec tv;
+clock_gettime(CLOCK_MONOTONIC_RAW, &amp;tv);
+<span class="keyword">return</span> tv.tv_nsec + tv.tv_sec*<span class="integer">1000000000</span>ull;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_EXT</code> specifies the
+performance counter (QPC) time domain available on Windows.
+Timestamp values in this time domain are in the same units as those
+provided by the Windows QueryPerformanceCounter API and are comparable
+with platform timestamp values captured using that API as computed by
+this example:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c">LARGE_INTEGER counter;
+QueryPerformanceCounter(&amp;counter);
+<span class="keyword">return</span> counter.QuadPart;</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -10535,7 +10575,7 @@ performance counter (QPC) time domain available on Windows.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.108<br>
+Version 1.1.109<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
