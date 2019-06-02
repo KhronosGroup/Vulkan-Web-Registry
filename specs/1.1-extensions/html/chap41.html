@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.109 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.110 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.109 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.110 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.109,</span>
-<span id="revdate">2019-05-24 12:29:59Z</span>
-<br><span id="revremark">from git branch: github-master commit: 6635a81b5b9dea234faf967d54abf7241db371c9</span>
+<span id="revnumber">version 1.1.110,</span>
+<span id="revdate">2019-06-02 12:15:52Z</span>
+<br><span id="revremark">from git branch: github-master commit: 619084d44a605285e39530a0810d323ad024f897</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1558,6 +1558,14 @@ queue in a given queue family, including those from different shader
 launches.</p>
 </li>
 <li>
+<p><code>FragmentInterlock</code> identifies sets of fragment shader invocations
+that overlap as defined in <a href="chap8.html#shaders-fragment-shader-interlock">Fragment
+Shader Interlock</a>.
+This scope does not exist as an enum in SPIR-V, it is only implicitly
+used as a memory scope by <code>OpBeginInvocationInterlockEXT</code> and
+<code>OpEndInvocationInterlockEXT</code>.</p>
+</li>
+<li>
 <p><code>Workgroup</code> identifies all invocations in a single workgroup.</p>
 </li>
 <li>
@@ -2087,6 +2095,20 @@ a control barrier filling the role of the relaxed atomics.
 </table>
 </div>
 <div class="paragraph">
+<p>Let F be an ordering of fragment shader invocations, such that invocation
+F<sub>1</sub> is ordered before invocation F<sub>2</sub> if and only if F<sub>1</sub> and F<sub>2</sub> overlap
+as described in <a href="chap8.html#shaders-fragment-shader-interlock">Fragment Shader
+Interlock</a> and F<sub>1</sub> executes the interlocked code before F<sub>2</sub>.</p>
+</div>
+<div class="paragraph">
+<p>If A is an <code>OpEndInvocationInterlockEXT</code> instruction and B is an
+<code>OpBeginInvocationInterlockEXT</code> instruction, then A synchronizes-with B
+if the agent that executes A is ordered before the agent that executes B in
+F. A and B are both considered to have <code>FragmentInterlock</code> memory scope
+and semantics of UniformMemory and ImageMemory, and A is considered to have
+Release semantics and B is considered to have Acquire semantics.</p>
+</div>
+<div class="paragraph">
 <p>No other release and acquire barriers synchronize-with each other.</p>
 </div>
 </div>
@@ -2278,6 +2300,11 @@ corresponding to the <code>Device</code> scope</p>
 family, corresponding to the <code>QueueFamilyKHR</code> scope.</p>
 </li>
 <li>
+<p><em>fragment interlock instance</em> - accessible by fragment shader agents
+that <a href="chap8.html#shaders-fragment-shader-interlock">overlap</a>, corresponding to the
+<code>FragmentInterlock</code> scope.</p>
+</li>
+<li>
 <p><em>workgroup instance</em> - accessible by shader agents in the same
 workgroup, corresponding to the <code>Workgroup</code> scope.</p>
 </li>
@@ -2297,11 +2324,14 @@ corresponding to the <code>Subgroup</code> scope.</p>
 These do not correspond to storage classes or device-local and
 host-local <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> allocations, rather they indicate whether a
 write can be made visible only to agents in the same subgroup, same
-workgroup, in any shader invocation, or anywhere on the device, or host.
-The shader, queue family instance, workgroup instance, and subgroup instance
-domains are only used for shader-based availability/visibility operatons, in
-other cases writes can be made available from/visible to the shader via the
-device domain.
+workgroup,
+overlapping fragment shader invocation,
+in any shader invocation, or anywhere on the device, or host.
+The shader, queue family instance,
+fragment interlock instance,
+workgroup instance, and subgroup instance domains are only used for
+shader-based availability/visibility operatons, in other cases writes can be
+made available from/visible to the shader via the device domain.
 </td>
 </tr>
 </table>
@@ -2484,6 +2514,9 @@ as follows:</p>
 <p><code>QueueFamilyKHR</code> scope uses the queue family instance domain</p>
 </li>
 <li>
+<p><code>FragmentInterlock</code> scope uses the fragment interlock instance domain</p>
+</li>
+<li>
 <p><code>Workgroup</code> scope uses the workgroup instance domain</p>
 </li>
 <li>
@@ -2532,10 +2565,11 @@ other operations program-ordered before the read.</p>
 </td>
 <td class="content">
 Although reads with per-instruction visibility only perform visibility
-ops from the shader or workgroup instance or subgroup instance domain, they
-will also see writes that were made visible via the device domain, i.e.
-those writes previously performed by non-shader agents and made visible via
-API commands.
+ops from the shader or
+fragment interlock instance or
+workgroup instance or subgroup instance domain, they will also see writes
+that were made visible via the device domain, i.e. those writes previously
+performed by non-shader agents and made visible via API commands.
 </td>
 </tr>
 </table>
@@ -2964,7 +2998,7 @@ memory location that is defined to be accessed by the instruction.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.109<br>
+Version 1.1.110<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

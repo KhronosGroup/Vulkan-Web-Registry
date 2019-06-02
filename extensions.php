@@ -80,6 +80,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_external_memory_host"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_filter_cubic"> VK_EXT_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_fragment_density_map"> VK_EXT_fragment_density_map </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_fragment_shader_interlock"> VK_EXT_fragment_shader_interlock </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_full_screen_exclusive"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_global_priority"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_hdr_metadata"> VK_EXT_hdr_metadata </a> </li>
@@ -174,6 +175,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_sample_mask_override_coverage"> VK_NV_sample_mask_override_coverage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_scissor_exclusive"> VK_NV_scissor_exclusive </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shader_image_footprint"> VK_NV_shader_image_footprint </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shader_sm_builtins"> VK_NV_shader_sm_builtins </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shader_subgroup_partitioned"> VK_NV_shader_subgroup_partitioned </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_shading_rate_image"> VK_NV_shading_rate_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_NV_viewport_array2"> VK_NV_viewport_array2 </a> </li>
