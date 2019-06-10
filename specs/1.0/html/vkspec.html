@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.110 - A Specification</title>
+<title>Vulkan® 1.0.111 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.110 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.111 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.110,</span>
-<span id="revdate">2019-06-02 12:32:35Z</span>
-<br><span id="revremark">from git branch: github-master commit: 619084d44a605285e39530a0810d323ad024f897</span>
+<span id="revnumber">version 1.0.111,</span>
+<span id="revdate">2019-06-10 10:49:45Z</span>
+<br><span id="revremark">from git branch: github-master commit: ad46c7dc688fe973ac7299b651403be5f562db8e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -986,7 +986,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="#_derivative_operations">15.5. Derivative Operations</a></li>
+<li><a href="#texture-derivatives">15.5. Derivative Operations</a></li>
 <li><a href="#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
 <li><a href="#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
 <li><a href="#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
@@ -34420,6 +34420,10 @@ feature is enabled and the shader module declares the
 shader module declares the <code>StorageImageReadWithoutFormat</code>
 capability.</p>
 </li>
+<li>
+<p>For <code>OpImageRead</code>, if <code>Dim</code> is <code>SubpassData</code> (indicating a read
+from an input attachment).</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -35822,11 +35826,9 @@ make that variable contain the sub-pixel position of the sample being
 shaded.
 The top left of the pixel is considered to be at coordinate <span class="eq">(0,0)</span> and
 the bottom right of the pixel is considered to be at coordinate <span class="eq">(1,1)</span>.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
-<p>If a fragment shader entry point&#8217;s interface includes an input variable
+<p>+
+If a fragment shader entry point&#8217;s interface includes an input variable
 decorated with <code>SamplePosition</code>, <a href="#primsrast-sampleshading">Sample
 Shading</a> is considered enabled with a <code>minSampleShading</code> value of 1.0.</p>
 </div>
@@ -35845,8 +35847,7 @@ The variable decorated with <code>SamplePosition</code> <strong class="purple">m
 The variable decorated with <code>SamplePosition</code> <strong class="purple">must</strong> be declared as a
 two-component vector of 32-bit floating-point values.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>TessCoord</code></dt>
 <dd>
 <p>Decorating a variable with the <code>TessCoord</code> built-in decoration will make
@@ -36077,8 +36078,8 @@ three-component vector of 32-bit integers.</p>
 <div class="sect2">
 <h3 id="_image_operations_overview">15.1. Image Operations Overview</h3>
 <div class="paragraph">
-<p>Image Operations are steps performed by SPIR-V image instructions, where
-those instructions which take an <code>OpTypeImage</code> (representing a
+<p>Vulkan Image Operations are operations performed by those SPIR-V Image
+Instructions which take an <code>OpTypeImage</code> (representing a
 <code>VkImageView</code>) or <code>OpTypeSampledImage</code> (representing a
 (<code>VkImageView</code>, <code>VkSampler</code>) pair) and texel coordinates as
 operands, and return a value based on one or more neighboring texture
@@ -36104,7 +36105,8 @@ the historical term texel to refer to them.</p>
 </table>
 </div>
 <div class="paragraph">
-<p>SPIR-V Image Instructions include the following functionality:</p>
+<p>Image Operations include the functionality of the following SPIR-V Image
+Instructions:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -39625,7 +39627,7 @@ format is undefined.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_derivative_operations">15.5. Derivative Operations</h3>
+<h3 id="texture-derivatives">15.5. Derivative Operations</h3>
 <div class="paragraph">
 <p>SPIR-V derivative instructions include <code>OpDPdx</code>, <code>OpDPdy</code>,
 <code>OpDPdxFine</code>, <code>OpDPdyFine</code>, <code>OpDPdxCoarse</code>, and <code>OpDPdyCoarse</code>.
@@ -71579,11 +71581,10 @@ used.</p>
 </div>
 </li>
 <li>
-<p>If any buffer access in a given SPIR-V block is determined to be out
-of bounds, then any other access of the same type (load, store, or
-atomic) in the same SPIR-V block that accesses an address less than 16
-bytes away from the out of bounds address <strong class="purple">may</strong> also be considered out
-of bounds.</p>
+<p>If any buffer access is determined to be out of bounds, then any other
+access of the same type (load, store, or atomic) to the same buffer
+that accesses an address less than 16 bytes away from the out of
+bounds address <strong class="purple">may</strong> also be considered out of bounds.</p>
 </li>
 </ul>
 </div>
@@ -84058,7 +84059,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">110</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">111</span></code></pre>
 </div>
 </div>
 </div>
@@ -86688,7 +86689,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.110<br>
+Version 1.0.111<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
