@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.111 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.112 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.111 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.112 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.111,</span>
-<span id="revdate">2019-06-10 10:33:18Z</span>
-<br><span id="revremark">from git branch: github-master commit: ad46c7dc688fe973ac7299b651403be5f562db8e</span>
+<span id="revnumber">version 1.1.112,</span>
+<span id="revdate">2019-06-24 03:30:45Z</span>
+<br><span id="revremark">from git branch: github-master commit: 7376fb77d1a43d79bb1cfd919d493d21b963d5ef</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1351,7 +1351,7 @@ table.CodeRay td.code>pre{padding:0}
 a sequence of Vulkan commands.
 Query operations are asynchronous, and as such, their results are not
 returned immediately.
-Instead, their results, and their availability status, are stored in a
+Instead, their results, and their availability status are stored in a
 <a href="#queries-pools">Query Pool</a>.
 The state of these queries <strong class="purple">can</strong> be read back on the host, or copied to a
 buffer object on the device.</p>
@@ -1722,8 +1722,9 @@ query type of a given query pool.</p>
 <p>Each query in a query pool has a status that is either <em>unavailable</em> or
 <em>available</em>, and also has state to store the numerical results of a query
 operation of the type requested when the query pool was created.
-Resetting a query via <a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a> sets the status to
-unavailable and makes the numerical results undefined.
+Resetting a query via <a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a>
+or <a href="#vkResetQueryPoolEXT">vkResetQueryPoolEXT</a>
+sets the status to unavailable and makes the numerical results undefined.
 Performing a query operation with <a href="#vkCmdBeginQuery">vkCmdBeginQuery</a> and
 <a href="#vkCmdEndQuery">vkCmdEndQuery</a> changes the status to available when the query
 <a href="#queries-operation-finished">finishes</a>, and updates the numerical results.
@@ -1899,6 +1900,9 @@ Compute</p></td>
 <div class="ulist">
 <ul>
 <li>
+<p><code>device</code> is the logical device that owns the query pool.</p>
+</li>
+<li>
 <p><code>queryPool</code> is the handle of the query pool managing the queries
 being reset.</p>
 </li>
@@ -1932,6 +1936,18 @@ The <a href="chap35.html#features-hostQueryReset">hostQueryReset</a> feature <st
 <p><a id="VUID-vkResetQueryPoolEXT-firstQuery-02667"></a>
 The sum of <code>firstQuery</code> and <code>queryCount</code> <strong class="purple">must</strong> be less than or
 equal to the number of queries in <code>queryPool</code></p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-firstQuery-02741"></a>
+Submitted commands that refer to the range specified by <code>firstQuery</code>
+and <code>queryCount</code> in <code>queryPool</code> <strong class="purple">must</strong> have completed execution</p>
+</li>
+<li>
+<p><a id="VUID-vkResetQueryPoolEXT-firstQuery-02742"></a>
+The range of queries specified by <code>firstQuery</code> and <code>queryCount</code>
+in <code>queryPool</code> <strong class="purple">must</strong> not be in use by calls to
+<a href="#vkGetQueryPoolResults">vkGetQueryPoolResults</a> or <code>vkResetQueryPoolEXT</code> in other
+threads</p>
 </li>
 </ul>
 </div>
@@ -2100,10 +2116,9 @@ support compute operations</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginQuery-query-00808"></a>
-If <code>vkCmdBeginQuery</code> is called within a render pass instance, the
-sum of <code>query</code> and the number of bits set in the current subpass’s
-view mask <strong class="purple">must</strong> be less than or equal to the number of queries in
-<code>queryPool</code></p>
+If called within a render pass instance, the sum of <code>query</code> and the
+number of bits set in the current subpass’s view mask <strong class="purple">must</strong> be less than
+or equal to the number of queries in <code>queryPool</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginQuery-queryType-02327"></a>
@@ -2249,34 +2264,34 @@ specific <code>index</code> parameter.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryPool-02329"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryPool-01922"></a>
 <code>queryPool</code> <strong class="purple">must</strong> have been created with a <code>queryType</code> that
 differs from that of any queries that are
 <a href="#queries-operation-active">active</a> within <code>commandBuffer</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-None-02330"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-None-00807"></a>
 All queries used by the command <strong class="purple">must</strong> be unavailable</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-02331"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-00800"></a>
 If the <a href="chap35.html#features-occlusionQueryPrecise">precise occlusion queries</a>
 feature is not enabled, or the <code>queryType</code> used to create
 <code>queryPool</code> was not <code>VK_QUERY_TYPE_OCCLUSION</code>, <code>flags</code> <strong class="purple">must</strong>
 not contain <code>VK_QUERY_CONTROL_PRECISE_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-query-02332"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-query-00802"></a>
 <code>query</code> <strong class="purple">must</strong> be less than the number of queries in <code>queryPool</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-02333"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-00803"></a>
 If the <code>queryType</code> used to create <code>queryPool</code> was
 <code>VK_QUERY_TYPE_OCCLUSION</code>, the <code>VkCommandPool</code> that
 <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-02334"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-00804"></a>
 If the <code>queryType</code> used to create <code>queryPool</code> was
 <code>VK_QUERY_TYPE_PIPELINE_STATISTICS</code> and any of the
 <code>pipelineStatistics</code> indicate graphics operations, the
@@ -2284,7 +2299,7 @@ If the <code>queryType</code> used to create <code>queryPool</code> was
 support graphics operations</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-02335"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-00805"></a>
 If the <code>queryType</code> used to create <code>queryPool</code> was
 <code>VK_QUERY_TYPE_PIPELINE_STATISTICS</code> and any of the
 <code>pipelineStatistics</code> indicate compute operations, the
@@ -2292,15 +2307,14 @@ If the <code>queryType</code> used to create <code>queryPool</code> was
 support compute operations</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-commandBuffer-02336"></a>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-commandBuffer-01885"></a>
 <code>commandBuffer</code> <strong class="purple">must</strong> not be a protected command buffer</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBeginQueryIndexedEXT-query-02337"></a>
-If <code>vkCmdBeginQuery</code> is called within a render pass instance, the
-sum of <code>query</code> and the number of bits set in the current subpass’s
-view mask <strong class="purple">must</strong> be less than or equal to the number of queries in
-<code>queryPool</code></p>
+<p><a id="VUID-vkCmdBeginQueryIndexedEXT-query-00808"></a>
+If called within a render pass instance, the sum of <code>query</code> and the
+number of bits set in the current subpass’s view mask <strong class="purple">must</strong> be less than
+or equal to the number of queries in <code>queryPool</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginQueryIndexedEXT-queryType-02338"></a>
@@ -2829,13 +2843,7 @@ desired results.</p>
 <p><code>firstQuery</code> is the initial query index.</p>
 </li>
 <li>
-<p><code>queryCount</code> is the number of queries.
-<code>firstQuery</code> and <code>queryCount</code> together define a range of
-queries.
-For pipeline statistics queries, each query index in the pool contains
-one integer value for each bit that is enabled in
-<a href="#VkQueryPoolCreateInfo">VkQueryPoolCreateInfo</a>::<code>pipelineStatistics</code> when the pool is
-created.</p>
+<p><code>queryCount</code> is the number of queries to read.</p>
 </li>
 <li>
 <p><code>dataSize</code> is the size in bytes of the buffer pointed to by
@@ -2854,6 +2862,14 @@ queries within <code>pData</code>.</p>
 and when results are returned.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>The range of queries read is defined by <span class="eq">[<code>firstQuery</code>,
+<code>firstQuery</code> +  <code>queryCount</code> - 1]</span>.
+For pipeline statistics queries, each query index in the pool contains one
+integer value for each bit that is enabled in
+<a href="#VkQueryPoolCreateInfo">VkQueryPoolCreateInfo</a>::pname pipelineStatistics when the pool is
+created.</p>
 </div>
 <div class="paragraph">
 <p>If no bits are set in <code>flags</code>, and all requested queries are in the
@@ -2902,8 +2918,9 @@ queries if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set.</p>
 <p>For example, if a query has been used previously and a command buffer
 records the commands <code>vkCmdResetQueryPool</code>, <code>vkCmdBeginQuery</code>, and
 <code>vkCmdEndQuery</code> for that query, then the query will remain in the
-available state until the <code>vkCmdResetQueryPool</code> command executes on a
-queue.
+available state until
+<code>vkResetQueryPoolEXT</code> is called or
+the <code>vkCmdResetQueryPool</code> command executes on a queue.
 Applications <strong class="purple">can</strong> use fences or events to ensure that a query has already
 been reset before checking for its results or availability status.
 Otherwise, a stale value could be returned from a previous use of the query.</p>
@@ -2912,8 +2929,10 @@ Otherwise, a stale value could be returned from a previous use of the query.</p>
 <p>The above also applies when <code>VK_QUERY_RESULT_WAIT_BIT</code> is used in
 combination with <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code>.
 In this case, the returned availability status <strong class="purple">may</strong> reflect the result of a
-previous use of the query unless the <code>vkCmdResetQueryPool</code> command has
-been executed since the last use of the query.</p>
+previous use of the query unless
+<code>vkResetQueryPoolEXT</code> is called or
+the <code>vkCmdResetQueryPool</code> command has been executed since the last use
+of the query.</p>
 </div>
 </td>
 </tr>
@@ -3771,8 +3790,9 @@ synchronization behavior equivalent to how other queries operate.
 Timestamp values <strong class="purple">can</strong> also be retrieved from the query pool using
 <a href="#vkGetQueryPoolResults">vkGetQueryPoolResults</a>.
 As with other queries, the query <strong class="purple">must</strong> be reset using
-<a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a> before requesting the timestamp value be written
-to it.</p>
+<a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a>
+or <a href="#vkResetQueryPoolEXT">vkResetQueryPoolEXT</a>
+before requesting the timestamp value be written to it.</p>
 </div>
 <div class="paragraph">
 <p>While <code>vkCmdWriteTimestamp</code> <strong class="purple">can</strong> be called inside or outside of a render
@@ -5385,7 +5405,7 @@ submitted while the configuration was set are in
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.111<br>
+Version 1.1.112<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.111 - A Specification</title>
+<title>Vulkan® 1.0.112 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.111 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.112 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.111,</span>
-<span id="revdate">2019-06-10 10:49:45Z</span>
-<br><span id="revremark">from git branch: github-master commit: ad46c7dc688fe973ac7299b651403be5f562db8e</span>
+<span id="revnumber">version 1.0.112,</span>
+<span id="revdate">2019-06-24 03:46:57Z</span>
+<br><span id="revremark">from git branch: github-master commit: 7376fb77d1a43d79bb1cfd919d493d21b963d5ef</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -22817,7 +22817,8 @@ by the application.</p>
 </li>
 <li>
 <p><code>pOriginal</code> <strong class="purple">must</strong> be either <code>NULL</code> or a pointer previously returned
-by <code>pfnReallocation</code> or <code>pfnAllocation</code> of the same allocator.</p>
+by <code>pfnReallocation</code> or <code>pfnAllocation</code> of a compatible
+allocator.</p>
 </li>
 <li>
 <p><code>size</code> is the size in bytes of the requested allocation.</p>
@@ -23256,7 +23257,8 @@ object&#8217;s <code>vkCreate*</code> command.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p><code>pfnFree</code> <strong class="purple">may</strong> be called in the following situations:</p>
+<p><code>pfnFree</code>, or <code>pfnReallocation</code> with zero <code>size</code>, <strong class="purple">may</strong> be called
+in the following situations:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -40549,7 +40551,10 @@ instruction) or implicit (determined from a scale factor calculated from the
 derivatives).
 The implicit LOD selected <strong class="purple">can</strong> be queried using the SPIR-V instruction
 <code>OpImageQueryLod</code>, which gives access to the <span class="eq">λ</span>' and
-<span class="eq">d<sub>l</sub></span> values, defined below.</p>
+<span class="eq">d<sub>l</sub></span> values, defined below.
+These values <strong class="purple">must</strong> be computed with <code>mipmapPrecisionBits</code> of accuracy
+and <strong class="purple">may</strong> be subject to implementation-specific maxima and minima for very
+large, out-of-range values.</p>
 </div>
 <div class="sect4">
 <h5 id="textures-scale-factor">Scale Factor Operation</h5>
@@ -41403,7 +41408,7 @@ Texel Anisotropic Filtering: Performed by all <code>OpImageSample</code>* and
 a sequence of Vulkan commands.
 Query operations are asynchronous, and as such, their results are not
 returned immediately.
-Instead, their results, and their availability status, are stored in a
+Instead, their results, and their availability status are stored in a
 <a href="#queries-pools">Query Pool</a>.
 The state of these queries <strong class="purple">can</strong> be read back on the host, or copied to a
 buffer object on the device.</p>
@@ -41760,8 +41765,8 @@ query type of a given query pool.</p>
 <p>Each query in a query pool has a status that is either <em>unavailable</em> or
 <em>available</em>, and also has state to store the numerical results of a query
 operation of the type requested when the query pool was created.
-Resetting a query via <a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a> sets the status to
-unavailable and makes the numerical results undefined.
+Resetting a query via <a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a>
+sets the status to unavailable and makes the numerical results undefined.
 Performing a query operation with <a href="#vkCmdBeginQuery">vkCmdBeginQuery</a> and
 <a href="#vkCmdEndQuery">vkCmdEndQuery</a> changes the status to available when the query
 <a href="#queries-operation-finished">finishes</a>, and updates the numerical results.
@@ -42352,13 +42357,7 @@ desired results.</p>
 <p><code>firstQuery</code> is the initial query index.</p>
 </li>
 <li>
-<p><code>queryCount</code> is the number of queries.
-<code>firstQuery</code> and <code>queryCount</code> together define a range of
-queries.
-For pipeline statistics queries, each query index in the pool contains
-one integer value for each bit that is enabled in
-<a href="#VkQueryPoolCreateInfo">VkQueryPoolCreateInfo</a>::<code>pipelineStatistics</code> when the pool is
-created.</p>
+<p><code>queryCount</code> is the number of queries to read.</p>
 </li>
 <li>
 <p><code>dataSize</code> is the size in bytes of the buffer pointed to by
@@ -42377,6 +42376,14 @@ queries within <code>pData</code>.</p>
 and when results are returned.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>The range of queries read is defined by <span class="eq">[<code>firstQuery</code>,
+<code>firstQuery</code> +  <code>queryCount</code> - 1]</span>.
+For pipeline statistics queries, each query index in the pool contains one
+integer value for each bit that is enabled in
+<a href="#VkQueryPoolCreateInfo">VkQueryPoolCreateInfo</a>::pname pipelineStatistics when the pool is
+created.</p>
 </div>
 <div class="paragraph">
 <p>If no bits are set in <code>flags</code>, and all requested queries are in the
@@ -42425,8 +42432,8 @@ queries if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set.</p>
 <p>For example, if a query has been used previously and a command buffer
 records the commands <code>vkCmdResetQueryPool</code>, <code>vkCmdBeginQuery</code>, and
 <code>vkCmdEndQuery</code> for that query, then the query will remain in the
-available state until the <code>vkCmdResetQueryPool</code> command executes on a
-queue.
+available state until
+the <code>vkCmdResetQueryPool</code> command executes on a queue.
 Applications <strong class="purple">can</strong> use fences or events to ensure that a query has already
 been reset before checking for its results or availability status.
 Otherwise, a stale value could be returned from a previous use of the query.</p>
@@ -42435,8 +42442,9 @@ Otherwise, a stale value could be returned from a previous use of the query.</p>
 <p>The above also applies when <code>VK_QUERY_RESULT_WAIT_BIT</code> is used in
 combination with <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code>.
 In this case, the returned availability status <strong class="purple">may</strong> reflect the result of a
-previous use of the query unless the <code>vkCmdResetQueryPool</code> command has
-been executed since the last use of the query.</p>
+previous use of the query unless
+the <code>vkCmdResetQueryPool</code> command has been executed since the last use
+of the query.</p>
 </div>
 </td>
 </tr>
@@ -43288,8 +43296,8 @@ synchronization behavior equivalent to how other queries operate.
 Timestamp values <strong class="purple">can</strong> also be retrieved from the query pool using
 <a href="#vkGetQueryPoolResults">vkGetQueryPoolResults</a>.
 As with other queries, the query <strong class="purple">must</strong> be reset using
-<a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a> before requesting the timestamp value be written
-to it.</p>
+<a href="#vkCmdResetQueryPool">vkCmdResetQueryPool</a>
+before requesting the timestamp value be written to it.</p>
 </div>
 <div class="paragraph">
 <p>While <code>vkCmdWriteTimestamp</code> <strong class="purple">can</strong> be called inside or outside of a render
@@ -82953,9 +82961,8 @@ any instruction in a shader (except those listed above) <strong class="purple">m
 to 0.</p>
 </li>
 <li>
-<p>The rounding mode <strong class="purple">cannot</strong> be set, and results will be <a href="#Correctly
-Rounded">[Correctly
-Rounded]</a>, as described below.</p>
+<p>The rounding mode <strong class="purple">cannot</strong> be set, and results will be
+<a href="#spirvenv-correctly-rounded">correctly rounded</a>, as described below.</p>
 </li>
 <li>
 <p><span class="eq">NaN</span>s <strong class="purple">may</strong> not be generated.
@@ -82971,7 +82978,7 @@ precision.</p>
 <p>The precision of operations is defined either in terms of rounding, as an
 error bound in ULP, or as inherited from a formula as follows.</p>
 </div>
-<div class="paragraph">
+<div id="spirvenv-correctly-rounded" class="paragraph">
 <div class="title">Correctly Rounded</div>
 <p>Operations described as &#8220;correctly rounded&#8221; will return the infinitely
 precise result, <span class="eq">x</span>, rounded so as to be representable in
@@ -83078,8 +83085,8 @@ at least as follows, unless decorated with RelaxedPrecision:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Correct result.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OpFDiv</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">2.5 ULP for b in the range [2<sup>-126</sup>, 2<sup>126</sup>].</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OpFDiv</code>(x,y)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.5 ULP for <span class="eq">|y|</span> in the range [2<sup>-126</sup>, 2<sup>126</sup>].</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">conversions between types</p></td>
@@ -83130,8 +83137,7 @@ at least as follows, unless decorated with RelaxedPrecision:</p>
 <p>GLSL.std.450 extended instructions specifically defined in terms of the
 above instructions inherit the above errors.
 GLSL.std.450 extended instructions not listed above and not defined in terms
-of the above have undefined precision.
-These include, for example, the trigonometric functions and determinant.</p>
+of the above have undefined precision.</p>
 </div>
 <div class="paragraph">
 <p>For the <code>OpSRem</code> and <code>OpSMod</code> instructions, if either operand is
@@ -84059,7 +84065,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">111</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">112</span></code></pre>
 </div>
 </div>
 </div>
@@ -86689,7 +86695,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.111<br>
+Version 1.0.112<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
