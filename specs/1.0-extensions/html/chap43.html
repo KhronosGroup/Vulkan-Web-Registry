@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.112 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.113 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.112 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.113 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.112,</span>
-<span id="revdate">2019-06-24 03:40:12Z</span>
-<br><span id="revremark">from git branch: github-master commit: 7376fb77d1a43d79bb1cfd919d493d21b963d5ef</span>
+<span id="revnumber">version 1.0.113,</span>
+<span id="revdate">2019-06-30 06:23:47Z</span>
+<br><span id="revremark">from git branch: github-master commit: 8897c572ce5473486bb92e3ab9574a5f130794c3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1706,6 +1706,9 @@ interface stability than a non-<code>X</code> extension from the same vendor.</p
 <p><a href="#VK_EXT_separate_stencil_usage">VK_EXT_separate_stencil_usage</a></p>
 </li>
 <li>
+<p><a href="#VK_EXT_shader_demote_to_helper_invocation">VK_EXT_shader_demote_to_helper_invocation</a></p>
+</li>
+<li>
 <p><a href="#VK_EXT_shader_stencil_export">VK_EXT_shader_stencil_export</a></p>
 </li>
 <li>
@@ -1719,6 +1722,9 @@ interface stability than a non-<code>X</code> extension from the same vendor.</p
 </li>
 <li>
 <p><a href="#VK_EXT_swapchain_colorspace">VK_EXT_swapchain_colorspace</a></p>
+</li>
+<li>
+<p><a href="#VK_EXT_texel_buffer_alignment">VK_EXT_texel_buffer_alignment</a></p>
 </li>
 <li>
 <p><a href="#VK_EXT_transform_feedback">VK_EXT_transform_feedback</a></p>
@@ -21900,7 +21906,7 @@ Therefore, higher-priority work may retain similar latency and throughput
 characteristics even if the system is congested with lower priority work.</p>
 </div>
 <div class="paragraph">
-<p>The global priority level of a queue shall take predence over the
+<p>The global priority level of a queue shall take precedence over the
 per-process queue priority
 (<code>VkDeviceQueueCreateInfo</code>::<code>pQueuePriorities</code>).</p>
 </div>
@@ -25261,6 +25267,165 @@ of images with a depth-stencil format at image creation time.</p>
 </div>
 </div>
 <div class="sect3">
+<h4 id="VK_EXT_shader_demote_to_helper_invocation">VK_EXT_shader_demote_to_helper_invocation</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Name String</strong></dt>
+<dd>
+<p><code>VK_EXT_shader_demote_to_helper_invocation</code></p>
+</dd>
+<dt class="hdlist1"><strong>Extension Type</strong></dt>
+<dd>
+<p>Device extension</p>
+</dd>
+<dt class="hdlist1"><strong>Registered Extension Number</strong></dt>
+<dd>
+<p>277</p>
+</dd>
+<dt class="hdlist1"><strong>Revision</strong></dt>
+<dd>
+<p>1</p>
+</dd>
+<dt class="hdlist1"><strong>Extension and Version Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Requires Vulkan 1.0</p>
+</li>
+<li>
+<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">VK_KHR_get_physical_device_properties2</a></code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contact</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz <a href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_shader_demote_to_helper_invocation:%20&amp;body=@jeffbolznv%20"><span class="icon black"><i class="fa fa-github"></i></span>jeffbolznv</a></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2019-06-01</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This extension adds Vulkan support for the
+<code>SPV_EXT_demote_to_helper_invocation</code> SPIR-V extension.
+That SPIR-V extension provides a new instruction
+<code>OpDemoteToHelperInvocationEXT</code> allowing shaders to &quot;demote&quot; a fragment
+shader invocation to behave like a helper invocation for its duration.
+The demoted invocation will have no further side effects and will not output
+to the framebuffer, but remains active and can participate in computing
+derivatives and in subgroup operations.
+This is a better match for the &quot;discard&quot; instruction in HLSL.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_object_types_68">New Object Types</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_enum_constants_93">New Enum Constants</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_enums_80">New Enums</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_structures_76">New Structures</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap35.html#VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT">VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_functions_84">New Functions</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_spir_v_capability">New SPIR-V Capability</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap40.html#spirvenv-capabilities-table-demote">DemoteToHelperInvocationEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_issues_82">Issues</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_examples_18">Examples</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_version_history_82">Version History</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2019-06-01 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
 <h4 id="VK_EXT_shader_stencil_export">VK_EXT_shader_stencil_export</h4>
 <div class="dlist">
 <dl>
@@ -25347,7 +25512,7 @@ against the value generated in the shader.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_82">Version History</h4>
+<h4 id="_version_history_83">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25555,31 +25720,31 @@ decorations and instructions:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_68">New Object Types</h4>
+<h4 id="_new_object_types_69">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_93">New Enum Constants</h4>
+<h4 id="_new_enum_constants_94">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_80">New Enums</h4>
+<h4 id="_new_enums_81">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_76">New Structures</h4>
+<h4 id="_new_structures_77">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_84">New Functions</h4>
+<h4 id="_new_functions_85">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -25623,13 +25788,13 @@ decorations and instructions:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_82">Issues</h4>
+<h4 id="_issues_83">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_83">Version History</h4>
+<h4 id="_version_history_84">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25838,31 +26003,31 @@ specific value for one of its inputs (<code>do_fast_path</code>).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_69">New Object Types</h4>
+<h4 id="_new_object_types_70">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_94">New Enum Constants</h4>
+<h4 id="_new_enum_constants_95">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_81">New Enums</h4>
+<h4 id="_new_enums_82">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_77">New Structures</h4>
+<h4 id="_new_structures_78">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_85">New Functions</h4>
+<h4 id="_new_functions_86">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -25884,13 +26049,13 @@ specific value for one of its inputs (<code>do_fast_path</code>).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_83">Issues</h4>
+<h4 id="_issues_84">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_84">Version History</h4>
+<h4 id="_version_history_85">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26039,31 +26204,31 @@ Behaviour of these variables is extended as described in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_70">New Object Types</h4>
+<h4 id="_new_object_types_71">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_95">New Enum Constants</h4>
+<h4 id="_new_enum_constants_96">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_82">New Enums</h4>
+<h4 id="_new_enums_83">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_78">New Structures</h4>
+<h4 id="_new_structures_79">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_86">New Functions</h4>
+<h4 id="_new_functions_87">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -26099,13 +26264,13 @@ Behaviour of these variables is extended as described in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_84">Issues</h4>
+<h4 id="_issues_85">Issues</h4>
 <div class="paragraph">
 <p>None yet!</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_85">Version History</h4>
+<h4 id="_version_history_86">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26186,7 +26351,7 @@ Behaviour of these variables is extended as described in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_96">New Enum Constants</h4>
+<h4 id="_new_enum_constants_97">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26258,7 +26423,7 @@ described here.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_85">Issues</h4>
+<h4 id="_issues_86">Issues</h4>
 <div class="paragraph">
 <p>1) Does the spec need to specify which kinds of image formats support the
 color spaces?</p>
@@ -26284,7 +26449,7 @@ described by separate extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_86">Version History</h4>
+<h4 id="_version_history_87">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26332,6 +26497,144 @@ described by separate extension.</p>
 </li>
 <li>
 <p>Clarify DCI-P3 and Display P3 usage.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="VK_EXT_texel_buffer_alignment">VK_EXT_texel_buffer_alignment</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Name String</strong></dt>
+<dd>
+<p><code>VK_EXT_texel_buffer_alignment</code></p>
+</dd>
+<dt class="hdlist1"><strong>Extension Type</strong></dt>
+<dd>
+<p>Device extension</p>
+</dd>
+<dt class="hdlist1"><strong>Registered Extension Number</strong></dt>
+<dd>
+<p>282</p>
+</dd>
+<dt class="hdlist1"><strong>Revision</strong></dt>
+<dd>
+<p>1</p>
+</dd>
+<dt class="hdlist1"><strong>Extension and Version Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Requires Vulkan 1.0</p>
+</li>
+<li>
+<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">VK_KHR_get_physical_device_properties2</a></code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contact</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz <a href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?title=VK_EXT_texel_buffer_alignment:%20&amp;body=@jeffbolznv%20"><span class="icon black"><i class="fa fa-github"></i></span>jeffbolznv</a></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2019-06-06</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This extension adds more expressive alignment requirements for uniform and
+storage texel buffers.
+Some implementations have single texel alignment requirements that can’t be
+expressed via
+<a href="chap36.html#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a>::<code>minTexelBufferOffsetAlignment</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_enum_constants_98">New Enum Constants</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_enums_84">New Enums</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_structures_80">New Structures</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap35.html#VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT">VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT</a></p>
+</li>
+<li>
+<p><a href="chap36.html#VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT">VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_functions_88">New Functions</h4>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_issues_87">Issues</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_version_history_88">Version History</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2019-06-06 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft</p>
 </li>
 </ul>
 </div>
@@ -26474,13 +26777,13 @@ alternative techniques of using the GPU to process and capture vertex data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_71">New Object Types</h4>
+<h4 id="_new_object_types_72">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_97">New Enum Constants</h4>
+<h4 id="_new_enum_constants_99">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26552,7 +26855,7 @@ alternative techniques of using the GPU to process and capture vertex data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_83">New Enums</h4>
+<h4 id="_new_enums_85">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26562,7 +26865,7 @@ alternative techniques of using the GPU to process and capture vertex data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_79">New Structures</h4>
+<h4 id="_new_structures_81">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26599,7 +26902,7 @@ alternative techniques of using the GPU to process and capture vertex data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_87">New Functions</h4>
+<h4 id="_new_functions_89">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26624,7 +26927,7 @@ alternative techniques of using the GPU to process and capture vertex data.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_86">Issues</h4>
+<h4 id="_issues_88">Issues</h4>
 <div class="paragraph">
 <p>1) Should we include pause/resume functionality?</p>
 </div>
@@ -26666,7 +26969,7 @@ with the new <code>vkCmdBeginQueryIndexedEXT</code> and
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_87">Version History</h4>
+<h4 id="_version_history_89">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26760,7 +27063,7 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_72">New Object Types</h4>
+<h4 id="_new_object_types_73">New Object Types</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26770,7 +27073,7 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_98">New Enum Constants</h4>
+<h4 id="_new_enum_constants_100">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26790,7 +27093,7 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_84">New Enums</h4>
+<h4 id="_new_enums_86">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26803,7 +27106,7 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_80">New Structures</h4>
+<h4 id="_new_structures_82">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26816,7 +27119,7 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_88">New Functions</h4>
+<h4 id="_new_functions_90">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26835,13 +27138,13 @@ It contains a <a href="chap8.html#VkValidationCacheEXT">VkValidationCacheEXT</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_87">Issues</h4>
+<h4 id="_issues_89">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_88">Version History</h4>
+<h4 id="_version_history_90">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26953,7 +27256,7 @@ functionality provided in the <code><a href="#VK_EXT_validation_flags">VK_EXT_va
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_99">New Enum Constants</h4>
+<h4 id="_new_enum_constants_101">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26970,7 +27273,7 @@ functionality provided in the <code><a href="#VK_EXT_validation_flags">VK_EXT_va
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_85">New Enums</h4>
+<h4 id="_new_enums_87">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26983,7 +27286,7 @@ functionality provided in the <code><a href="#VK_EXT_validation_flags">VK_EXT_va
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_81">New Structures</h4>
+<h4 id="_new_structures_83">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26993,19 +27296,19 @@ functionality provided in the <code><a href="#VK_EXT_validation_flags">VK_EXT_va
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_89">New Functions</h4>
+<h4 id="_new_functions_91">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_88">Issues</h4>
+<h4 id="_issues_90">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_89">Version History</h4>
+<h4 id="_version_history_91">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27094,7 +27397,7 @@ will be disabled by the validation layers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_100">New Enum Constants</h4>
+<h4 id="_new_enum_constants_102">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27111,7 +27414,7 @@ will be disabled by the validation layers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_86">New Enums</h4>
+<h4 id="_new_enums_88">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27121,7 +27424,7 @@ will be disabled by the validation layers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_82">New Structures</h4>
+<h4 id="_new_structures_84">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27131,19 +27434,19 @@ will be disabled by the validation layers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_90">New Functions</h4>
+<h4 id="_new_functions_92">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_89">Issues</h4>
+<h4 id="_issues_91">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_90">Version History</h4>
+<h4 id="_version_history_92">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27232,13 +27535,13 @@ instanced rendering is enabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_73">New Object Types</h4>
+<h4 id="_new_object_types_74">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_101">New Enum Constants</h4>
+<h4 id="_new_enum_constants_103">New Enum Constants</h4>
 <div class="paragraph">
 <p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
 </div>
@@ -27257,13 +27560,13 @@ instanced rendering is enabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_87">New Enums</h4>
+<h4 id="_new_enums_89">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_83">New Structures</h4>
+<h4 id="_new_structures_85">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27296,13 +27599,13 @@ instanced rendering is enabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_91">New Functions</h4>
+<h4 id="_new_functions_93">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_90">Issues</h4>
+<h4 id="_issues_92">Issues</h4>
 <div class="paragraph">
 <p>1) What is the effect of a non-zero value for <code>firstInstance</code>?</p>
 </div>
@@ -27320,7 +27623,7 @@ A zero divisor means the vertex attribute is repeated for all instances.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_18">Examples</h4>
+<h4 id="_examples_19">Examples</h4>
 <div class="paragraph">
 <p>To create a vertex binding such that the first binding uses instanced
 rendering and the same attribute is used for every 4 draw instances, an
@@ -27360,7 +27663,7 @@ application could use the following set of structures:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_91">Version History</h4>
+<h4 id="_version_history_93">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27469,7 +27772,7 @@ created with multiple array layers, which is otherwise restricted.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_102">New Enum Constants</h4>
+<h4 id="_new_enum_constants_104">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27486,13 +27789,13 @@ created with multiple array layers, which is otherwise restricted.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_88">New Enums</h4>
+<h4 id="_new_enums_90">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_84">New Structures</h4>
+<h4 id="_new_structures_86">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27502,13 +27805,13 @@ created with multiple array layers, which is otherwise restricted.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_92">New Functions</h4>
+<h4 id="_new_functions_94">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_92">Version History</h4>
+<h4 id="_version_history_94">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27601,31 +27904,31 @@ loss.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_74">New Object Types</h4>
+<h4 id="_new_object_types_75">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_103">New Enum Constants</h4>
+<h4 id="_new_enum_constants_105">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_89">New Enums</h4>
+<h4 id="_new_enums_91">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_85">New Structures</h4>
+<h4 id="_new_structures_87">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_93">New Functions</h4>
+<h4 id="_new_functions_95">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27635,13 +27938,13 @@ loss.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_19">Examples</h4>
+<h4 id="_examples_20">Examples</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_93">Version History</h4>
+<h4 id="_version_history_95">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27760,13 +28063,13 @@ native color space in Freesync2 displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_75">New Object Types</h4>
+<h4 id="_new_object_types_76">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_104">New Enum Constants</h4>
+<h4 id="_new_enum_constants_106">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27796,13 +28099,13 @@ native color space in Freesync2 displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_90">New Enums</h4>
+<h4 id="_new_enums_92">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_86">New Structures</h4>
+<h4 id="_new_structures_88">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27815,7 +28118,7 @@ native color space in Freesync2 displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_94">New Functions</h4>
+<h4 id="_new_functions_96">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27825,19 +28128,19 @@ native color space in Freesync2 displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_91">Issues</h4>
+<h4 id="_issues_93">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_20">Examples</h4>
+<h4 id="_examples_21">Examples</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_94">Version History</h4>
+<h4 id="_version_history_96">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27934,7 +28237,7 @@ native color space in Freesync2 displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_95">Version History</h4>
+<h4 id="_version_history_97">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28028,13 +28331,13 @@ platforms.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_76">New Object Types</h4>
+<h4 id="_new_object_types_77">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_105">New Enum Constants</h4>
+<h4 id="_new_enum_constants_107">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28051,7 +28354,7 @@ platforms.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_91">New Enums</h4>
+<h4 id="_new_enums_93">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28061,7 +28364,7 @@ platforms.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_87">New Structures</h4>
+<h4 id="_new_structures_89">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28071,19 +28374,19 @@ platforms.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_95">New Functions</h4>
+<h4 id="_new_functions_97">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_21">Examples</h4>
+<h4 id="_examples_22">Examples</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_96">Version History</h4>
+<h4 id="_version_history_98">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28175,43 +28478,43 @@ number of samples get a corresponding color output.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_77">New Object Types</h4>
+<h4 id="_new_object_types_78">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_106">New Enum Constants</h4>
+<h4 id="_new_enum_constants_108">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_92">New Enums</h4>
+<h4 id="_new_enums_94">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_88">New Structures</h4>
+<h4 id="_new_structures_90">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_96">New Functions</h4>
+<h4 id="_new_functions_98">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_92">Issues</h4>
+<h4 id="_issues_94">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_97">Version History</h4>
+<h4 id="_version_history_99">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28357,13 +28660,13 @@ with a commutative blend operator.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_78">New Object Types</h4>
+<h4 id="_new_object_types_79">New Object Types</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_107">New Enum Constants</h4>
+<h4 id="_new_enum_constants_109">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28380,7 +28683,7 @@ with a commutative blend operator.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_93">New Enums</h4>
+<h4 id="_new_enums_95">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28390,7 +28693,7 @@ with a commutative blend operator.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_89">New Structures</h4>
+<h4 id="_new_structures_91">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28400,13 +28703,13 @@ with a commutative blend operator.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_97">New Functions</h4>
+<h4 id="_new_functions_99">New Functions</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_93">Issues</h4>
+<h4 id="_issues_95">Issues</h4>
 <div class="paragraph">
 <p>1) How is this extension useful to application developers?</p>
 </div>
@@ -28447,19 +28750,19 @@ the repeatability requirement does not apply.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_22">Examples</h4>
+<h4 id="_examples_23">Examples</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_94">Issues</h4>
+<h4 id="_issues_96">Issues</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_98">Version History</h4>
+<h4 id="_version_history_100">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28562,7 +28865,7 @@ the repeatability requirement does not apply.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_99">Version History</h4>
+<h4 id="_version_history_101">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28623,7 +28926,7 @@ the repeatability requirement does not apply.</p>
 </dd>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
 <dd>
-<p>2018-02-15</p>
+<p>2019-06-25</p>
 </dd>
 <dt class="hdlist1"><strong>IP Status</strong></dt>
 <dd>
@@ -28637,7 +28940,7 @@ the repeatability requirement does not apply.</p>
 <p>Martin Dinkov, AMD</p>
 </li>
 <li>
-<p>Matthaeus Chajdas, AMD</p>
+<p>Matthaeus G. Chajdas, AMD</p>
 </li>
 </ul>
 </div>
@@ -28651,13 +28954,13 @@ Please refer to the example below for proper usage.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_79">New Object Types</h4>
+<h4 id="_new_object_types_80">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_108">New Enum Constants</h4>
+<h4 id="_new_enum_constants_110">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28674,13 +28977,13 @@ Please refer to the example below for proper usage.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_94">New Enums</h4>
+<h4 id="_new_enums_96">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_90">New Structures</h4>
+<h4 id="_new_structures_92">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28690,13 +28993,13 @@ Please refer to the example below for proper usage.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_98">New Functions</h4>
+<h4 id="_new_functions_100">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_23">Examples</h4>
+<h4 id="_examples_24">Examples</h4>
 <div class="paragraph">
 <p>This example retrieves the shader core properties for a physical device.</p>
 </div>
@@ -28766,9 +29069,19 @@ printf(<span class="string"><span class="delimiter">&quot;</span><span class="co
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_100">Version History</h4>
+<h4 id="_version_history_102">Version History</h4>
 <div class="ulist">
 <ul>
+<li>
+<p>Revision 2, 2019-06-25 (Matthaeus G. Chajdas)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Clarified the meaning of a few fields.</p>
+</li>
+</ul>
+</div>
+</li>
 <li>
 <p>Revision 1, 2018-02-15 (Martin Dinkov)</p>
 <div class="ulist">
@@ -28866,7 +29179,7 @@ printf(<span class="string"><span class="delimiter">&quot;</span><span class="co
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_101">Version History</h4>
+<h4 id="_version_history_103">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28982,19 +29295,19 @@ function.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_80">New Object Types</h4>
+<h4 id="_new_object_types_81">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_109">New Enum Constants</h4>
+<h4 id="_new_enum_constants_111">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_95">New Enums</h4>
+<h4 id="_new_enums_97">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -29010,19 +29323,19 @@ function.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_91">New Structures</h4>
+<h4 id="_new_structures_93">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_99">New Functions</h4>
+<h4 id="_new_functions_101">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_24">Examples</h4>
+<h4 id="_examples_25">Examples</h4>
 <div class="paragraph">
 <p>This example shows a shader that queries the fragment mask from a
 multisampled compressed surface and uses it to query fragment values.</p>
@@ -29062,7 +29375,7 @@ layout(location = <span class="integer">0</span>) out vec4 fragColor;
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_102">Version History</h4>
+<h4 id="_version_history_104">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29173,7 +29486,7 @@ for GLSL-based source languages.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_103">Version History</h4>
+<h4 id="_version_history_105">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29267,19 +29580,19 @@ information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_81">New Object Types</h4>
+<h4 id="_new_object_types_82">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_110">New Enum Constants</h4>
+<h4 id="_new_enum_constants_112">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_96">New Enums</h4>
+<h4 id="_new_enums_98">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29289,7 +29602,7 @@ information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_92">New Structures</h4>
+<h4 id="_new_structures_94">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29302,7 +29615,7 @@ information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_100">New Functions</h4>
+<h4 id="_new_functions_102">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29312,7 +29625,7 @@ information.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_25">Examples</h4>
+<h4 id="_examples_26">Examples</h4>
 <div class="paragraph">
 <p>This example extracts the register usage of a fragment shader within a
 particular graphics pipeline:</p>
@@ -29376,7 +29689,7 @@ attempting to query and print shader disassembly about the fragment shader:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_104">Version History</h4>
+<h4 id="_version_history_106">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29476,7 +29789,7 @@ attempting to query and print shader disassembly about the fragment shader:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_105">Version History</h4>
+<h4 id="_version_history_107">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29605,13 +29918,13 @@ extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_82">New Object Types</h4>
+<h4 id="_new_object_types_83">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_111">New Enum Constants</h4>
+<h4 id="_new_enum_constants_113">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29628,7 +29941,7 @@ extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_97">New Enums</h4>
+<h4 id="_new_enums_99">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -29644,7 +29957,7 @@ extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_93">New Structures</h4>
+<h4 id="_new_structures_95">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29654,13 +29967,13 @@ extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_101">New Functions</h4>
+<h4 id="_new_functions_103">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_26">Examples</h4>
+<h4 id="_examples_27">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">struct</span> VkTextureLODGatherFormatPropertiesAMD
@@ -29706,7 +30019,7 @@ vkGetPhysicalDeviceImageFormatProperties2(physical_device, &amp;formatInfo, &amp
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_106">Version History</h4>
+<h4 id="_version_history_108">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29830,13 +30143,13 @@ convert them to a known color space.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_83">New Object Types</h4>
+<h4 id="_new_object_types_84">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_112">New Enum Constants</h4>
+<h4 id="_new_enum_constants_114">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29878,7 +30191,7 @@ convert them to a known color space.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_98">New Enums</h4>
+<h4 id="_new_enums_100">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -29909,7 +30222,7 @@ convert them to a known color space.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_102">New Functions</h4>
+<h4 id="_new_functions_104">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29922,7 +30235,7 @@ convert them to a known color space.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_95">Issues</h4>
+<h4 id="_issues_97">Issues</h4>
 <div class="paragraph">
 <p>1) Other external memory objects are represented as weakly-typed handles
 (e.g. Win32 <code>HANDLE</code> or POSIX file descriptor), and require a handle type
@@ -30104,13 +30417,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_84">New Object Types</h4>
+<h4 id="_new_object_types_85">New Object Types</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_113">New Enum Constants</h4>
+<h4 id="_new_enum_constants_115">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30127,13 +30440,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_99">New Enums</h4>
+<h4 id="_new_enums_101">New Enums</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_94">New Structures</h4>
+<h4 id="_new_structures_96">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30143,7 +30456,7 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_103">New Functions</h4>
+<h4 id="_new_functions_105">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30153,13 +30466,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_96">Issues</h4>
+<h4 id="_issues_98">Issues</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_107">Version History</h4>
+<h4 id="_version_history_109">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30252,13 +30565,13 @@ Games Platform frame token with a present operation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_85">New Object Types</h4>
+<h4 id="_new_object_types_86">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_114">New Enum Constants</h4>
+<h4 id="_new_enum_constants_116">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30275,13 +30588,13 @@ Games Platform frame token with a present operation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_100">New Enums</h4>
+<h4 id="_new_enums_102">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_95">New Structures</h4>
+<h4 id="_new_structures_97">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30291,19 +30604,19 @@ Games Platform frame token with a present operation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_104">New Functions</h4>
+<h4 id="_new_functions_106">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_97">Issues</h4>
+<h4 id="_issues_99">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_108">Version History</h4>
+<h4 id="_version_history_110">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30432,13 +30745,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_86">New Object Types</h4>
+<h4 id="_new_object_types_87">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_115">New Enum Constants</h4>
+<h4 id="_new_enum_constants_117">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30455,13 +30768,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_101">New Enums</h4>
+<h4 id="_new_enums_103">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_96">New Structures</h4>
+<h4 id="_new_structures_98">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30471,7 +30784,7 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_105">New Functions</h4>
+<h4 id="_new_functions_107">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30481,13 +30794,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) that re
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_98">Issues</h4>
+<h4 id="_issues_100">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_109">Version History</h4>
+<h4 id="_version_history_111">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30584,13 +30897,13 @@ SPIR-V extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_116">New Enum Constants</h4>
+<h4 id="_new_enum_constants_118">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_97">New Structures</h4>
+<h4 id="_new_structures_99">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -30602,11 +30915,11 @@ SPIR-V extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_99">Issues</h4>
+<h4 id="_issues_101">Issues</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_version_history_110">Version History</h4>
+<h4 id="_version_history_112">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30715,13 +31028,13 @@ fixed-refresh-rate (FRR) displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_87">New Object Types</h4>
+<h4 id="_new_object_types_88">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_117">New Enum Constants</h4>
+<h4 id="_new_enum_constants_119">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30738,13 +31051,13 @@ fixed-refresh-rate (FRR) displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_102">New Enums</h4>
+<h4 id="_new_enums_104">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_98">New Structures</h4>
+<h4 id="_new_structures_100">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30763,7 +31076,7 @@ fixed-refresh-rate (FRR) displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_106">New Functions</h4>
+<h4 id="_new_functions_108">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30776,13 +31089,13 @@ fixed-refresh-rate (FRR) displays.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_100">Issues</h4>
+<h4 id="_issues_102">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_27">Examples</h4>
+<h4 id="_examples_28">Examples</h4>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -30804,7 +31117,7 @@ location (see:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_111">Version History</h4>
+<h4 id="_version_history_113">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30901,13 +31214,13 @@ SPIR-V extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_118">New Enum Constants</h4>
+<h4 id="_new_enum_constants_120">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_99">New Structures</h4>
+<h4 id="_new_structures_101">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -30919,11 +31232,11 @@ SPIR-V extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_101">Issues</h4>
+<h4 id="_issues_103">Issues</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_version_history_112">Version History</h4>
+<h4 id="_version_history_114">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31005,7 +31318,7 @@ using fixed texture sampling functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_119">New Enum Constants</h4>
+<h4 id="_new_enum_constants_121">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31057,7 +31370,7 @@ minification</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_113">Version History</h4>
+<h4 id="_version_history_115">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31150,7 +31463,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_88">New Object Types</h4>
+<h4 id="_new_object_types_89">New Object Types</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31160,7 +31473,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_120">New Enum Constants</h4>
+<h4 id="_new_enum_constants_122">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31205,7 +31518,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_103">New Enums</h4>
+<h4 id="_new_enums_105">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31227,7 +31540,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_100">New Structures</h4>
+<h4 id="_new_structures_102">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31255,7 +31568,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_107">New Functions</h4>
+<h4 id="_new_functions_109">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31289,7 +31602,7 @@ metrics-discovery library to present the data in a human readable way.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_102">Issues</h4>
+<h4 id="_issues_104">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -31432,7 +31745,7 @@ assert(VK_SUCCESS == result);
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_114">Version History</h4>
+<h4 id="_version_history_116">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31528,13 +31841,13 @@ GLSL extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_89">New Object Types</h4>
+<h4 id="_new_object_types_90">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_121">New Enum Constants</h4>
+<h4 id="_new_enum_constants_123">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31551,13 +31864,13 @@ GLSL extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_104">New Enums</h4>
+<h4 id="_new_enums_106">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_101">New Structures</h4>
+<h4 id="_new_structures_103">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31574,7 +31887,7 @@ GLSL extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_108">New Functions</h4>
+<h4 id="_new_functions_110">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -31590,13 +31903,13 @@ GLSL extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_103">Issues</h4>
+<h4 id="_issues_105">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_115">Version History</h4>
+<h4 id="_version_history_117">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31684,13 +31997,13 @@ support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_90">New Object Types</h4>
+<h4 id="_new_object_types_91">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_122">New Enum Constants</h4>
+<h4 id="_new_enum_constants_124">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31707,13 +32020,13 @@ support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_105">New Enums</h4>
+<h4 id="_new_enums_107">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_102">New Structures</h4>
+<h4 id="_new_structures_104">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31723,7 +32036,7 @@ support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_109">New Functions</h4>
+<h4 id="_new_functions_111">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31733,13 +32046,13 @@ support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_104">Issues</h4>
+<h4 id="_issues_106">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_116">Version History</h4>
+<h4 id="_version_history_118">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31838,13 +32151,13 @@ to support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_91">New Object Types</h4>
+<h4 id="_new_object_types_92">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_123">New Enum Constants</h4>
+<h4 id="_new_enum_constants_125">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31861,13 +32174,13 @@ to support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_106">New Enums</h4>
+<h4 id="_new_enums_108">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_103">New Structures</h4>
+<h4 id="_new_structures_105">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31877,7 +32190,7 @@ to support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_110">New Functions</h4>
+<h4 id="_new_functions_112">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -31887,13 +32200,13 @@ to support rendering to the surface using Apple’s Metal framework.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_105">Issues</h4>
+<h4 id="_issues_107">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_117">Version History</h4>
+<h4 id="_version_history_119">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32000,13 +32313,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) associa
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_92">New Object Types</h4>
+<h4 id="_new_object_types_93">New Object Types</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_124">New Enum Constants</h4>
+<h4 id="_new_enum_constants_126">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32023,13 +32336,13 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) associa
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_107">New Enums</h4>
+<h4 id="_new_enums_109">New Enums</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_104">New Structures</h4>
+<h4 id="_new_structures_106">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32039,7 +32352,7 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) associa
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_111">New Functions</h4>
+<h4 id="_new_functions_113">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32049,7 +32362,7 @@ the <code><a href="#VK_KHR_surface">VK_KHR_surface</a></code> extension) associa
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_106">Issues</h4>
+<h4 id="_issues_108">Issues</h4>
 <div class="paragraph">
 <p>1) Does VI need a way to query for compatibility between a particular
 physical device (and queue family?) and a specific VI display?</p>
@@ -32075,7 +32388,7 @@ This prevents its use in C source files.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_118">Version History</h4>
+<h4 id="_version_history_120">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32272,7 +32585,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_93">New Object Types</h4>
+<h4 id="_new_object_types_94">New Object Types</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32298,7 +32611,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_125">New Enum Constants</h4>
+<h4 id="_new_enum_constants_127">New Enum Constants</h4>
 <div class="paragraph">
 <p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
 </div>
@@ -32349,7 +32662,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_108">New Enums</h4>
+<h4 id="_new_enums_110">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32368,7 +32681,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_105">New Structures</h4>
+<h4 id="_new_structures_107">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32417,7 +32730,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_112">New Functions</h4>
+<h4 id="_new_functions_114">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32451,7 +32764,7 @@ etc.).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_107">Issues</h4>
+<h4 id="_issues_109">Issues</h4>
 <div class="paragraph">
 <p>1) How to name this extension ?</p>
 </div>
@@ -32834,7 +33147,7 @@ the following locations:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_119">Version History</h4>
+<h4 id="_version_history_121">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32948,13 +33261,13 @@ This provides no direct functionality itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_94">New Object Types</h4>
+<h4 id="_new_object_types_95">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_126">New Enum Constants</h4>
+<h4 id="_new_enum_constants_128">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32971,13 +33284,13 @@ This provides no direct functionality itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_109">New Enums</h4>
+<h4 id="_new_enums_111">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_106">New Structures</h4>
+<h4 id="_new_structures_108">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32987,7 +33300,7 @@ This provides no direct functionality itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_113">New Functions</h4>
+<h4 id="_new_functions_115">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -32997,13 +33310,13 @@ This provides no direct functionality itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_108">Issues</h4>
+<h4 id="_issues_110">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_120">Version History</h4>
+<h4 id="_version_history_122">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33140,13 +33453,13 @@ per-view viewport mask <strong class="purple">must</strong> not be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_95">New Object Types</h4>
+<h4 id="_new_object_types_96">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_127">New Enum Constants</h4>
+<h4 id="_new_enum_constants_129">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33176,13 +33489,13 @@ per-view viewport mask <strong class="purple">must</strong> not be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_110">New Enums</h4>
+<h4 id="_new_enums_112">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_107">New Structures</h4>
+<h4 id="_new_structures_109">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33192,7 +33505,7 @@ per-view viewport mask <strong class="purple">must</strong> not be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_114">New Functions</h4>
+<h4 id="_new_functions_116">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -33221,13 +33534,13 @@ per-view viewport mask <strong class="purple">must</strong> not be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_109">Issues</h4>
+<h4 id="_issues_111">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_28">Examples</h4>
+<h4 id="_examples_29">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c"><span class="preprocessor">#version</span> <span class="integer">450</span> core
@@ -33250,7 +33563,7 @@ layout(set = <span class="integer">0</span>, binding = <span class="integer">0</
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_121">Version History</h4>
+<h4 id="_version_history_123">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33366,13 +33679,13 @@ resolution will fall off linearly from the center of the image to its edges.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_96">New Object Types</h4>
+<h4 id="_new_object_types_97">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_128">New Enum Constants</h4>
+<h4 id="_new_enum_constants_130">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33399,13 +33712,13 @@ resolution will fall off linearly from the center of the image to its edges.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_111">New Enums</h4>
+<h4 id="_new_enums_113">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_108">New Structures</h4>
+<h4 id="_new_structures_110">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33418,7 +33731,7 @@ resolution will fall off linearly from the center of the image to its edges.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_115">New Functions</h4>
+<h4 id="_new_functions_117">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33428,7 +33741,7 @@ resolution will fall off linearly from the center of the image to its edges.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_110">Issues</h4>
+<h4 id="_issues_112">Issues</h4>
 <div class="paragraph">
 <p>1) Is the pipeline struct name too long?</p>
 </div>
@@ -33443,7 +33756,7 @@ resolution will fall off linearly from the center of the image to its edges.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_29">Examples</h4>
+<h4 id="_examples_30">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">VkViewport viewports[<span class="integer">4</span>];
@@ -33531,7 +33844,7 @@ in vec2 uv;
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_122">Version History</h4>
+<h4 id="_version_history_124">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33629,13 +33942,13 @@ form 4m+{0,1,2,3}.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_97">New Object Types</h4>
+<h4 id="_new_object_types_98">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_129">New Enum Constants</h4>
+<h4 id="_new_enum_constants_131">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33652,13 +33965,13 @@ form 4m+{0,1,2,3}.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_112">New Enums</h4>
+<h4 id="_new_enums_114">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_109">New Structures</h4>
+<h4 id="_new_structures_111">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33668,13 +33981,13 @@ form 4m+{0,1,2,3}.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_116">New Functions</h4>
+<h4 id="_new_functions_118">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capability">New SPIR-V Capability</h4>
+<h4 id="_new_spir_v_capability_2">New SPIR-V Capability</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33687,7 +34000,7 @@ form 4m+{0,1,2,3}.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_111">Issues</h4>
+<h4 id="_issues_113">Issues</h4>
 <div class="paragraph">
 <p>(1) Should we specify that the groups of four shader invocations used for
     derivatives in a compute shader are the same groups of four invocations
@@ -33698,13 +34011,13 @@ form 4m+{0,1,2,3}.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_30">Examples</h4>
+<h4 id="_examples_31">Examples</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_123">Version History</h4>
+<h4 id="_version_history_125">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33805,13 +34118,13 @@ dimensions that are supported by the implementation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_98">New Object Types</h4>
+<h4 id="_new_object_types_99">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_130">New Enum Constants</h4>
+<h4 id="_new_enum_constants_132">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33834,7 +34147,7 @@ dimensions that are supported by the implementation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_113">New Enums</h4>
+<h4 id="_new_enums_115">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33847,7 +34160,7 @@ dimensions that are supported by the implementation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_110">New Structures</h4>
+<h4 id="_new_structures_112">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33877,7 +34190,7 @@ dimensions that are supported by the implementation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_117">New Functions</h4>
+<h4 id="_new_functions_119">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -33897,7 +34210,7 @@ dimensions that are supported by the implementation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_112">Issues</h4>
+<h4 id="_issues_114">Issues</h4>
 <div class="paragraph">
 <p>(1) What matrix properties will be supported in practice?</p>
 </div>
@@ -33926,7 +34239,7 @@ Subgroup</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_124">Version History</h4>
+<h4 id="_version_history_126">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34055,13 +34368,13 @@ even if the adjacent patches use different level-of-detail values.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_99">New Object Types</h4>
+<h4 id="_new_object_types_100">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_131">New Enum Constants</h4>
+<h4 id="_new_enum_constants_133">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34088,13 +34401,13 @@ even if the adjacent patches use different level-of-detail values.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_114">New Enums</h4>
+<h4 id="_new_enums_116">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_111">New Structures</h4>
+<h4 id="_new_structures_113">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34104,7 +34417,7 @@ even if the adjacent patches use different level-of-detail values.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_118">New Functions</h4>
+<h4 id="_new_functions_120">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -34122,7 +34435,7 @@ even if the adjacent patches use different level-of-detail values.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_113">Issues</h4>
+<h4 id="_issues_115">Issues</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -34187,7 +34500,7 @@ usage.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_125">Version History</h4>
+<h4 id="_version_history_127">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34306,13 +34619,13 @@ extensions simultaneously.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_100">New Object Types</h4>
+<h4 id="_new_object_types_101">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_132">New Enum Constants</h4>
+<h4 id="_new_enum_constants_134">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34335,7 +34648,7 @@ extensions simultaneously.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_115">New Enums</h4>
+<h4 id="_new_enums_117">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34348,7 +34661,7 @@ extensions simultaneously.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_112">New Structures</h4>
+<h4 id="_new_structures_114">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34364,7 +34677,7 @@ extensions simultaneously.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_119">New Functions</h4>
+<h4 id="_new_functions_121">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34374,13 +34687,13 @@ extensions simultaneously.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_114">Issues</h4>
+<h4 id="_issues_116">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_126">Version History</h4>
+<h4 id="_version_history_128">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34473,13 +34786,13 @@ must match.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_101">New Object Types</h4>
+<h4 id="_new_object_types_102">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_133">New Enum Constants</h4>
+<h4 id="_new_enum_constants_135">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34496,13 +34809,13 @@ must match.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_116">New Enums</h4>
+<h4 id="_new_enums_118">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_113">New Structures</h4>
+<h4 id="_new_structures_115">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34512,19 +34825,19 @@ must match.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_120">New Functions</h4>
+<h4 id="_new_functions_122">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_115">Issues</h4>
+<h4 id="_issues_117">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_127">Version History</h4>
+<h4 id="_version_history_129">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34623,13 +34936,13 @@ the time and might have caused the failure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_102">New Object Types</h4>
+<h4 id="_new_object_types_103">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_134">New Enum Constants</h4>
+<h4 id="_new_enum_constants_136">New Enum Constants</h4>
 <div class="paragraph">
 <p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
 </div>
@@ -34645,13 +34958,13 @@ the time and might have caused the failure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_117">New Enums</h4>
+<h4 id="_new_enums_119">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_114">New Structures</h4>
+<h4 id="_new_structures_116">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34664,7 +34977,7 @@ the time and might have caused the failure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_121">New Functions</h4>
+<h4 id="_new_functions_123">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34677,13 +34990,13 @@ the time and might have caused the failure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_116">Issues</h4>
+<h4 id="_issues_118">Issues</h4>
 <div class="paragraph">
 <p>None yet!</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_128">Version History</h4>
+<h4 id="_version_history_130">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34766,13 +35079,13 @@ drawn, particularly for a user interface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_103">New Object Types</h4>
+<h4 id="_new_object_types_104">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_135">New Enum Constants</h4>
+<h4 id="_new_enum_constants_137">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34789,31 +35102,31 @@ drawn, particularly for a user interface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_118">New Enums</h4>
+<h4 id="_new_enums_120">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_115">New Structures</h4>
+<h4 id="_new_structures_117">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_122">New Functions</h4>
+<h4 id="_new_functions_124">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_117">Issues</h4>
+<h4 id="_issues_119">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_129">Version History</h4>
+<h4 id="_version_history_131">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34902,13 +35215,13 @@ fragments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_104">New Object Types</h4>
+<h4 id="_new_object_types_105">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_136">New Enum Constants</h4>
+<h4 id="_new_enum_constants_138">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34925,7 +35238,7 @@ fragments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_119">New Enums</h4>
+<h4 id="_new_enums_121">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34935,7 +35248,7 @@ fragments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_116">New Structures</h4>
+<h4 id="_new_structures_118">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -34945,19 +35258,19 @@ fragments.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_123">New Functions</h4>
+<h4 id="_new_functions_125">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_118">Issues</h4>
+<h4 id="_issues_120">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_130">Version History</h4>
+<h4 id="_version_history_132">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35108,13 +35421,13 @@ expected to be decorated with <code>PerVertexNV</code> in SPIR-V.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_105">New Object Types</h4>
+<h4 id="_new_object_types_106">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_137">New Enum Constants</h4>
+<h4 id="_new_enum_constants_139">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35131,19 +35444,19 @@ expected to be decorated with <code>PerVertexNV</code> in SPIR-V.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_120">New Enums</h4>
+<h4 id="_new_enums_122">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_117">New Structures</h4>
+<h4 id="_new_structures_119">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_124">New Functions</h4>
+<h4 id="_new_functions_126">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -35182,7 +35495,7 @@ expected to be decorated with <code>PerVertexNV</code> in SPIR-V.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_119">Issues</h4>
+<h4 id="_issues_121">Issues</h4>
 <div class="paragraph">
 <p>(1) The AMD_shader_explicit_vertex_parameter extension provides similar
     functionality.
@@ -35245,7 +35558,7 @@ modifiers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_131">Version History</h4>
+<h4 id="_version_history_133">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35370,13 +35683,13 @@ covered.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_106">New Object Types</h4>
+<h4 id="_new_object_types_107">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_138">New Enum Constants</h4>
+<h4 id="_new_enum_constants_140">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35393,7 +35706,7 @@ covered.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_121">New Enums</h4>
+<h4 id="_new_enums_123">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35406,7 +35719,7 @@ covered.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_118">New Structures</h4>
+<h4 id="_new_structures_120">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35416,19 +35729,19 @@ covered.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_125">New Functions</h4>
+<h4 id="_new_functions_127">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_120">Issues</h4>
+<h4 id="_issues_122">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_132">Version History</h4>
+<h4 id="_version_history_134">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35561,31 +35874,31 @@ specification.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_107">New Object Types</h4>
+<h4 id="_new_object_types_108">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_139">New Enum Constants</h4>
+<h4 id="_new_enum_constants_141">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_122">New Enums</h4>
+<h4 id="_new_enums_124">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_119">New Structures</h4>
+<h4 id="_new_structures_121">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_126">New Functions</h4>
+<h4 id="_new_functions_128">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -35618,7 +35931,7 @@ specification.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_121">Issues</h4>
+<h4 id="_issues_123">Issues</h4>
 <div class="paragraph">
 <p>1) Should we require or allow a passthrough geometry shader to specify the
 output layout qualifiers for the output primitive type and maximum vertex
@@ -35746,7 +36059,7 @@ layout(passthrough) in Inputs {
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_133">Version History</h4>
+<h4 id="_version_history_135">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35856,13 +36169,13 @@ Vulkan:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_108">New Object Types</h4>
+<h4 id="_new_object_types_109">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_140">New Enum Constants</h4>
+<h4 id="_new_enum_constants_142">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35908,13 +36221,13 @@ Vulkan:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_123">New Enums</h4>
+<h4 id="_new_enums_125">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_120">New Structures</h4>
+<h4 id="_new_structures_122">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -35930,7 +36243,7 @@ Vulkan:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_127">New Functions</h4>
+<h4 id="_new_functions_129">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36025,7 +36338,7 @@ Vulkan:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capability_2">New SPIR-V Capability</h4>
+<h4 id="_new_spir_v_capability_3">New SPIR-V Capability</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36035,7 +36348,7 @@ Vulkan:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_122">Issues</h4>
+<h4 id="_issues_124">Issues</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -36153,7 +36466,7 @@ have avoided this problem.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_134">Version History</h4>
+<h4 id="_version_history_136">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36320,7 +36633,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_109">New Object Types</h4>
+<h4 id="_new_object_types_110">New Object Types</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36330,7 +36643,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_141">New Enum Constants</h4>
+<h4 id="_new_enum_constants_143">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36488,7 +36801,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_124">New Enums</h4>
+<h4 id="_new_enums_126">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36519,7 +36832,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_121">New Structures</h4>
+<h4 id="_new_structures_123">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36562,7 +36875,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_128">New Functions</h4>
+<h4 id="_new_functions_130">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36670,7 +36983,7 @@ items</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_123">Issues</h4>
+<h4 id="_issues_125">Issues</h4>
 <div class="paragraph">
 <p>1) Are there issues?</p>
 </div>
@@ -36708,7 +37021,7 @@ layout(location = <span class="integer">0</span>) rayPayloadNV <span class="pred
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_135">Version History</h4>
+<h4 id="_version_history_137">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36851,13 +37164,13 @@ fragments for a given primitive.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_110">New Object Types</h4>
+<h4 id="_new_object_types_111">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_142">New Enum Constants</h4>
+<h4 id="_new_enum_constants_144">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36877,13 +37190,13 @@ fragments for a given primitive.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_125">New Enums</h4>
+<h4 id="_new_enums_127">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_122">New Structures</h4>
+<h4 id="_new_structures_124">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -36896,13 +37209,13 @@ fragments for a given primitive.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_129">New Functions</h4>
+<h4 id="_new_functions_131">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_124">Issues</h4>
+<h4 id="_issues_126">Issues</h4>
 <div class="paragraph">
 <p>(1) Is the representative fragment test guaranteed to have any effect?</p>
 </div>
@@ -36957,7 +37270,7 @@ derivatives in the fragment shader.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_136">Version History</h4>
+<h4 id="_version_history_138">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37091,31 +37404,31 @@ spec.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_111">New Object Types</h4>
+<h4 id="_new_object_types_112">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_143">New Enum Constants</h4>
+<h4 id="_new_enum_constants_145">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_126">New Enums</h4>
+<h4 id="_new_enums_128">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_123">New Structures</h4>
+<h4 id="_new_structures_125">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_130">New Functions</h4>
+<h4 id="_new_functions_132">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -37148,13 +37461,13 @@ SampleMask</a></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_125">Issues</h4>
+<h4 id="_issues_127">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_137">Version History</h4>
+<h4 id="_version_history_139">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37257,13 +37570,13 @@ fails.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_112">New Object Types</h4>
+<h4 id="_new_object_types_113">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_144">New Enum Constants</h4>
+<h4 id="_new_enum_constants_146">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37293,13 +37606,13 @@ fails.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_127">New Enums</h4>
+<h4 id="_new_enums_129">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_124">New Structures</h4>
+<h4 id="_new_structures_126">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37312,7 +37625,7 @@ fails.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_131">New Functions</h4>
+<h4 id="_new_functions_133">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37334,7 +37647,7 @@ fails.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_126">Issues</h4>
+<h4 id="_issues_128">Issues</h4>
 <div class="paragraph">
 <p>1) For the scissor test, the viewport state must be created with a matching
    number of scissor and viewport rectangles.
@@ -37349,7 +37662,7 @@ test is treated as disabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_138">Version History</h4>
+<h4 id="_version_history_140">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37500,13 +37813,13 @@ instruction will be generated from code using the new
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_113">New Object Types</h4>
+<h4 id="_new_object_types_114">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_145">New Enum Constants</h4>
+<h4 id="_new_enum_constants_147">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37523,13 +37836,13 @@ instruction will be generated from code using the new
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_128">New Enums</h4>
+<h4 id="_new_enums_130">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_125">New Structures</h4>
+<h4 id="_new_structures_127">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37539,13 +37852,13 @@ instruction will be generated from code using the new
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_132">New Functions</h4>
+<h4 id="_new_functions_134">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capability_3">New SPIR-V Capability</h4>
+<h4 id="_new_spir_v_capability_4">New SPIR-V Capability</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37555,7 +37868,7 @@ instruction will be generated from code using the new
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_127">Issues</h4>
+<h4 id="_issues_129">Issues</h4>
 <div class="paragraph">
 <p>(1) The footprint returned by the SPIR-V instruction is a structure that
     includes an anchor, an offset, and a mask that represents a 8x8 or 4x4x4
@@ -37693,13 +38006,13 @@ be updated by a single atomic operation for the entire subgroup.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_31">Examples</h4>
+<h4 id="_examples_32">Examples</h4>
 <div class="paragraph">
 <p>TBD</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_139">Version History</h4>
+<h4 id="_version_history_141">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37821,13 +38134,13 @@ purposes.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_114">New Object Types</h4>
+<h4 id="_new_object_types_115">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_146">New Enum Constants</h4>
+<h4 id="_new_enum_constants_148">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37847,13 +38160,13 @@ purposes.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_129">New Enums</h4>
+<h4 id="_new_enums_131">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_126">New Structures</h4>
+<h4 id="_new_structures_128">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -37866,7 +38179,7 @@ purposes.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_133">New Functions</h4>
+<h4 id="_new_functions_135">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -37901,7 +38214,7 @@ purposes.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_128">Issues</h4>
+<h4 id="_issues_130">Issues</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -37930,7 +38243,7 @@ structures</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_140">Version History</h4>
+<h4 id="_version_history_142">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38017,13 +38330,13 @@ Support for these new operations is advertised via the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_115">New Object Types</h4>
+<h4 id="_new_object_types_116">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_147">New Enum Constants</h4>
+<h4 id="_new_enum_constants_149">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38040,31 +38353,31 @@ Support for these new operations is advertised via the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_130">New Enums</h4>
+<h4 id="_new_enums_132">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_127">New Structures</h4>
+<h4 id="_new_structures_129">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_134">New Functions</h4>
+<h4 id="_new_functions_136">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_129">Issues</h4>
+<h4 id="_issues_131">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_141">Version History</h4>
+<h4 id="_version_history_143">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38205,13 +38518,13 @@ respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_116">New Object Types</h4>
+<h4 id="_new_object_types_117">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_148">New Enum Constants</h4>
+<h4 id="_new_enum_constants_150">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38287,7 +38600,7 @@ respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_131">New Enums</h4>
+<h4 id="_new_enums_133">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38337,7 +38650,7 @@ respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_128">New Structures</h4>
+<h4 id="_new_structures_130">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38356,7 +38669,7 @@ respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_135">New Functions</h4>
+<h4 id="_new_functions_137">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38369,7 +38682,7 @@ respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_130">Issues</h4>
+<h4 id="_issues_132">Issues</h4>
 <div class="paragraph">
 <p>(1) When using shading rates that specify “coarse” fragments covering
     multiple pixels, we will generate a combined coverage mask that combines
@@ -38448,7 +38761,7 @@ don’t have a similar problem.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_142">Version History</h4>
+<h4 id="_version_history_144">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38617,31 +38930,31 @@ specificiation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_117">New Object Types</h4>
+<h4 id="_new_object_types_118">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_149">New Enum Constants</h4>
+<h4 id="_new_enum_constants_151">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_132">New Enums</h4>
+<h4 id="_new_enums_134">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_129">New Structures</h4>
+<h4 id="_new_structures_131">New Structures</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_136">New Functions</h4>
+<h4 id="_new_functions_138">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
@@ -38688,13 +39001,13 @@ specificiation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_131">Issues</h4>
+<h4 id="_issues_133">Issues</h4>
 <div class="paragraph">
 <p>None yet!</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_143">Version History</h4>
+<h4 id="_version_history_145">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38800,13 +39113,13 @@ example in the “Issues” section below.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_118">New Object Types</h4>
+<h4 id="_new_object_types_119">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_150">New Enum Constants</h4>
+<h4 id="_new_enum_constants_152">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38823,7 +39136,7 @@ example in the “Issues” section below.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_133">New Enums</h4>
+<h4 id="_new_enums_135">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38836,7 +39149,7 @@ example in the “Issues” section below.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_130">New Structures</h4>
+<h4 id="_new_structures_132">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -38849,13 +39162,13 @@ example in the “Issues” section below.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_137">New Functions</h4>
+<h4 id="_new_functions_139">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_132">Issues</h4>
+<h4 id="_issues_134">Issues</h4>
 <div class="paragraph">
 <p>1) Where does viewport swizzling occur in the pipeline?</p>
 </div>
@@ -39048,7 +39361,7 @@ test of <code>VK_COMPARE_OP_GREATER</code> instead of <code>VK_COMPARE_OP_LESS</
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_144">Version History</h4>
+<h4 id="_version_history_146">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39169,7 +39482,7 @@ multiple shader invocations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_151">New Enum Constants</h4>
+<h4 id="_new_enum_constants_153">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39186,7 +39499,7 @@ multiple shader invocations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_131">New Structures</h4>
+<h4 id="_new_structures_133">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39224,11 +39537,11 @@ change from version 2.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_133">Issues</h4>
+<h4 id="_issues_135">Issues</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_version_history_145">Version History</h4>
+<h4 id="_version_history_147">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39381,13 +39694,13 @@ external tools.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_119">New Object Types</h4>
+<h4 id="_new_object_types_120">New Object Types</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_152">New Enum Constants</h4>
+<h4 id="_new_enum_constants_154">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39410,13 +39723,13 @@ external tools.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_134">New Enums</h4>
+<h4 id="_new_enums_136">New Enums</h4>
 <div class="paragraph">
 <p>None</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_132">New Structures</h4>
+<h4 id="_new_structures_134">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39432,7 +39745,7 @@ external tools.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_138">New Functions</h4>
+<h4 id="_new_functions_140">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39454,7 +39767,7 @@ external tools.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_32">Examples</h4>
+<h4 id="_examples_33">Examples</h4>
 <div class="paragraph">
 <p><strong>Example 1</strong></p>
 </div>
@@ -39559,7 +39872,7 @@ submitted.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_134">Issues</h4>
+<h4 id="_issues_136">Issues</h4>
 <div class="paragraph">
 <p>1) Should the tag or name for an object be specified using the <code>pNext</code>
 parameter in the object’s <code>Vk*CreateInfo</code> structure?</p>
@@ -39595,7 +39908,7 @@ information in the same commands.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_146">Version History</h4>
+<h4 id="_version_history_148">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39753,7 +40066,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_120">New Object Types</h4>
+<h4 id="_new_object_types_121">New Object Types</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39763,7 +40076,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_153">New Enum Constants</h4>
+<h4 id="_new_enum_constants_155">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39790,7 +40103,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_135">New Enums</h4>
+<h4 id="_new_enums_137">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39803,7 +40116,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_133">New Structures</h4>
+<h4 id="_new_structures_135">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39813,7 +40126,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_139">New Functions</h4>
+<h4 id="_new_functions_141">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -39839,7 +40152,7 @@ to the application for events of interest to the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_33">Examples</h4>
+<h4 id="_examples_34">Examples</h4>
 <div class="paragraph">
 <p><code>VK_EXT_debug_report</code> allows an application to register multiple callbacks
 with the validation layers.
@@ -39951,7 +40264,7 @@ The older enum is still available for backwards compatibility.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_135">Issues</h4>
+<h4 id="_issues_137">Issues</h4>
 <div class="paragraph">
 <p>1) What is the hierarchy / seriousness of the message flags? E.g.
 <code>ERROR</code> &gt; <code>WARN</code> &gt; <code>PERF_WARN</code> …​</p>
@@ -40003,7 +40316,7 @@ could be useful debugging the Vulkan implementation itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_147">Version History</h4>
+<h4 id="_version_history_149">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40202,7 +40515,7 @@ execute them without host intervention.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_140">New Functions</h4>
+<h4 id="_new_functions_142">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40224,7 +40537,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_148">Version History</h4>
+<h4 id="_version_history_150">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40361,7 +40674,7 @@ enabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_149">Version History</h4>
+<h4 id="_version_history_151">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40511,7 +40824,7 @@ enabled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_150">Version History</h4>
+<h4 id="_version_history_152">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40650,7 +40963,7 @@ version 1.1 or later requested in <a href="chap3.html#VkApplicationInfo">VkAppli
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_151">Version History</h4>
+<h4 id="_version_history_153">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40765,13 +41078,13 @@ allocation will be bound to.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_121">New Object Types</h4>
+<h4 id="_new_object_types_122">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_154">New Enum Constants</h4>
+<h4 id="_new_enum_constants_156">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40794,13 +41107,13 @@ allocation will be bound to.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_136">New Enums</h4>
+<h4 id="_new_enums_138">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_134">New Structures</h4>
+<h4 id="_new_structures_136">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -40816,19 +41129,19 @@ allocation will be bound to.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_141">New Functions</h4>
+<h4 id="_new_functions_143">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_136">Issues</h4>
+<h4 id="_issues_138">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_34">Examples</h4>
+<h4 id="_examples_35">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">    <span class="comment">// Create an image with</span>
@@ -40899,7 +41212,7 @@ allocation will be bound to.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_152">Version History</h4>
+<h4 id="_version_history_154">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41012,13 +41325,13 @@ Vulkan instance that created them.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_122">New Object Types</h4>
+<h4 id="_new_object_types_123">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_155">New Enum Constants</h4>
+<h4 id="_new_enum_constants_157">New Enum Constants</h4>
 <div class="paragraph">
 <p>Extending <a href="chap2.html#VkStructureType">VkStructureType</a>:</p>
 </div>
@@ -41034,13 +41347,13 @@ Vulkan instance that created them.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_137">New Enums</h4>
+<h4 id="_new_enums_139">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_135">New Structures</h4>
+<h4 id="_new_structures_137">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41067,13 +41380,13 @@ Vulkan instance that created them.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_142">New Functions</h4>
+<h4 id="_new_functions_144">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_137">Issues</h4>
+<h4 id="_issues_139">Issues</h4>
 <div class="paragraph">
 <p>1) If memory objects are shared between processes and APIs, is this
 considered aliasing according to the rules outlined in the
@@ -41111,7 +41424,7 @@ Both of these are beyond the scope of this extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_35">Examples</h4>
+<h4 id="_examples_36">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">    <span class="comment">// TODO: Write some sample code here.</span></code></pre>
@@ -41119,7 +41432,7 @@ Both of these are beyond the scope of this extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_153">Version History</h4>
+<h4 id="_version_history_155">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41240,19 +41553,19 @@ a given set of use cases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_123">New Object Types</h4>
+<h4 id="_new_object_types_124">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_156">New Enum Constants</h4>
+<h4 id="_new_enum_constants_158">New Enum Constants</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_138">New Enums</h4>
+<h4 id="_new_enums_140">New Enums</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41275,7 +41588,7 @@ a given set of use cases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_143">New Functions</h4>
+<h4 id="_new_functions_145">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41285,7 +41598,7 @@ a given set of use cases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_138">Issues</h4>
+<h4 id="_issues_140">Issues</h4>
 <div class="paragraph">
 <p>1) Why do so many external memory capabilities need to be queried on a
 per-memory-handle-type basis?</p>
@@ -41413,13 +41726,13 @@ created in the Direct3D API to Vulkan memory objects.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_124">New Object Types</h4>
+<h4 id="_new_object_types_125">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_157">New Enum Constants</h4>
+<h4 id="_new_enum_constants_159">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41439,13 +41752,13 @@ created in the Direct3D API to Vulkan memory objects.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_139">New Enums</h4>
+<h4 id="_new_enums_141">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_136">New Structures</h4>
+<h4 id="_new_structures_138">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41472,7 +41785,7 @@ created in the Direct3D API to Vulkan memory objects.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_144">New Functions</h4>
+<h4 id="_new_functions_146">New Functions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41482,7 +41795,7 @@ created in the Direct3D API to Vulkan memory objects.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_139">Issues</h4>
+<h4 id="_issues_141">Issues</h4>
 <div class="paragraph">
 <p>1) If memory objects are shared between processes and APIs, is this
 considered aliasing according to the rules outlined in the
@@ -41533,7 +41846,7 @@ reference to the underlying memory resource.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_36">Examples</h4>
+<h4 id="_examples_37">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">    <span class="comment">//</span>
@@ -41671,7 +41984,7 @@ reference to the underlying memory resource.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_154">Version History</h4>
+<h4 id="_version_history_156">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41765,11 +42078,11 @@ GLSL, and compile it appropriately.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_125">New Object Types</h4>
+<h4 id="_new_object_types_126">New Object Types</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_158">New Enum Constants</h4>
+<h4 id="_new_enum_constants_160">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41786,23 +42099,23 @@ GLSL, and compile it appropriately.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_140">New Enums</h4>
+<h4 id="_new_enums_142">New Enums</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_new_structures_137">New Structures</h4>
+<h4 id="_new_structures_139">New Structures</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_new_functions_145">New Functions</h4>
+<h4 id="_new_functions_147">New Functions</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_issues_140">Issues</h4>
+<h4 id="_issues_142">Issues</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_examples_37">Examples</h4>
+<h4 id="_examples_38">Examples</h4>
 <div class="paragraph">
 <p><strong>Example 1</strong></p>
 </div>
@@ -41831,7 +42144,7 @@ GLSL, and compile it appropriately.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_155">Version History</h4>
+<h4 id="_version_history_157">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41935,13 +42248,13 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_object_types_126">New Object Types</h4>
+<h4 id="_new_object_types_127">New Object Types</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_159">New Enum Constants</h4>
+<h4 id="_new_enum_constants_161">New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41958,13 +42271,13 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enums_141">New Enums</h4>
+<h4 id="_new_enums_143">New Enums</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_138">New Structures</h4>
+<h4 id="_new_structures_140">New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -41981,19 +42294,19 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_functions_146">New Functions</h4>
+<h4 id="_new_functions_148">New Functions</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_141">Issues</h4>
+<h4 id="_issues_143">Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_examples_38">Examples</h4>
+<h4 id="_examples_39">Examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">    <span class="comment">//</span>
@@ -42128,7 +42441,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_156">Version History</h4>
+<h4 id="_version_history_158">Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -42168,7 +42481,7 @@ buffers to a queue.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.112<br>
+Version 1.0.113<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
