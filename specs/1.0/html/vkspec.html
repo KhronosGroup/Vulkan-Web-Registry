@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.114 - A Specification</title>
+<title>Vulkan® 1.0.115 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.114 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.115 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.114,</span>
-<span id="revdate">2019-07-08 03:27:52Z</span>
-<br><span id="revremark">from git branch: github-master commit: 7eb07044df67e19e768080c7f378fc0938ead346</span>
+<span id="revnumber">version 1.0.115,</span>
+<span id="revdate">2019-07-14 13:21:04Z</span>
+<br><span id="revremark">from git branch: github-master commit: 57b7cd572d2d9dafdcc18218175d984019c2c092</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -14551,7 +14551,8 @@ For any element of <code>pDependencies</code>, if the <code>dstSubpass</code> is
 <code>VK_SUBPASS_EXTERNAL</code>, all stage flags included in the
 <code>dstStageMask</code> member of that dependency <strong class="purple">must</strong> be a pipeline stage
 supported by the <a href="#synchronization-pipeline-stages-types">pipeline</a>
-identified by the <code>pipelineBindPoint</code> member of the source subpass</p>
+identified by the <code>pipelineBindPoint</code> member of the destination
+subpass</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-srcSubpass-02517"></a>
@@ -30514,9 +30515,12 @@ If <code>descriptorType</code> specifies a <code>VK_DESCRIPTOR_TYPE_SAMPLER</cod
 <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code> type descriptor, then
 <code>pImmutableSamplers</code> <strong class="purple">can</strong> be used to initialize a set of <em>immutable
 samplers</em>.
-Immutable samplers are permanently bound into the set layout; later
-binding a sampler into an immutable sampler slot in a descriptor set is
-not allowed.
+Immutable samplers are permanently bound into the set layout and <strong class="purple">must</strong>
+not be changed; updating a <code>VK_DESCRIPTOR_TYPE_SAMPLER</code> descriptor
+with immutable samplers is not allowed and updates to a
+<code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code> descriptor with
+immutable samplers does not modify the samplers (the image views are
+updated, but the sampler updates are ignored).
 If <code>pImmutableSamplers</code> is not <code>NULL</code>, then it is considered to be a
 pointer to an array of sampler handles that will be consumed by the set
 layout and used for the corresponding binding.
@@ -32917,6 +32921,12 @@ If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>,
 <code>imageView</code> member of each element of <code>pImageInfo</code> <strong class="purple">must</strong> have
 been created with <code>VK_IMAGE_USAGE_STORAGE_BIT</code> set</p>
 </li>
+<li>
+<p><a id="VUID-VkWriteDescriptorSet-descriptorType-02752"></a>
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code>, then
+<code>dstSet</code> <strong class="purple">must</strong> not have been allocated with a layout that included
+immutable samplers for <code>dstBinding</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -33321,6 +33331,13 @@ If <code>srcSet</code> is equal to <code>dstSet</code>, then the source and
 destination ranges of descriptors <strong class="purple">must</strong> not overlap, where the ranges
 <strong class="purple">may</strong> include array elements from consecutive bindings as described by
 <a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+</li>
+<li>
+<p><a id="VUID-VkCopyDescriptorSet-dstBinding-02753"></a>
+If the descriptor type of the descriptor set binding specified by
+<code>dstBinding</code> is <code>VK_DESCRIPTOR_TYPE_SAMPLER</code>, then <code>dstSet</code>
+<strong class="purple">must</strong> not have been allocated with a layout that included immutable
+samplers for <code>dstBinding</code></p>
 </li>
 </ul>
 </div>
@@ -41203,8 +41220,7 @@ parameters of the sampler, respectively.</p>
 <h4 id="textures-gather">15.9.2. Texel Gathering</h4>
 <div class="paragraph">
 <p>SPIR-V instructions with <code>Gather</code> in the name return a vector derived
-from a 2×2 rectangular region of texels in the base level of the image
-view.
+from 4 texels in the base level of the image view.
 The rules for the <code>VK_FILTER_LINEAR</code> minification filter are applied to
 identify the four selected texels.
 Each texel is then converted to an RGBA value according to
@@ -41212,7 +41228,9 @@ Each texel is then converted to an RGBA value according to
 <a href="#textures-component-swizzle">swizzled</a>.
 A four-component vector is then assembled by taking the component indicated
 by the <code>Component</code> value in the instruction from the swizzled color value
-of the four texels:</p>
+of the four texels.
+If the operation does not use the <code>ConstOffsets</code> image operand then the
+four texels form the 2 × 2 rectangle used for texture filtering:</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -41221,6 +41239,20 @@ of the four texels:</p>
 \tau[G] &amp;= \tau_{i1j1}[level_{base}][comp] \\
 \tau[B] &amp;= \tau_{i1j0}[level_{base}][comp] \\
 \tau[A] &amp;= \tau_{i0j0}[level_{base}][comp]
+\end{aligned}\]
+</div>
+</div>
+<div class="paragraph">
+<p>If the operation does use the <code>ConstOffsets</code> image operand then the
+offsets allow a custom filter to be defined:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{aligned}
+\tau[R] &amp;= \tau_{i0j0 + \Delta_0}[level_{base}][comp] \\
+\tau[G] &amp;= \tau_{i0j0 + \Delta_1}[level_{base}][comp] \\
+\tau[B] &amp;= \tau_{i0j0 + \Delta_2}[level_{base}][comp] \\
+\tau[A] &amp;= \tau_{i0j0 + \Delta_3}[level_{base}][comp]
 \end{aligned}\]
 </div>
 </div>
@@ -41979,7 +42011,7 @@ Occlusion queries and pipeline statistics queries count events - drawn
 samples and pipeline stage invocations, respectively - resulting from
 commands that are recorded between a <a href="#vkCmdBeginQuery">vkCmdBeginQuery</a> command and a
 <a href="#vkCmdEndQuery">vkCmdEndQuery</a> command within a specified command buffer, effectively
-scoping a set of drawing and/or compute commands.
+scoping a set of drawing and/or dispatch commands.
 Timestamp queries write timestamps to a query pool.</p>
 </div>
 <div class="paragraph">
@@ -43047,7 +43079,7 @@ These counters are accumulated by Vulkan for a set of either draw or
 dispatch commands while a pipeline statistics query is active.
 As such, pipeline statistics queries are available on queue families
 supporting either graphics or compute operations.
-Further, the availability of pipeline statistics queries is indicated by the
+The availability of pipeline statistics queries is indicated by the
 <code>pipelineStatisticsQuery</code> member of the <code>VkPhysicalDeviceFeatures</code>
 object (see <code>vkGetPhysicalDeviceFeatures</code> and <code>vkCreateDevice</code> for
 detecting and requesting this query type on a <code>VkDevice</code>).</p>
@@ -73292,13 +73324,15 @@ value for the <code>ConstOffset</code> image operand of any of the
 </li>
 <li>
 <p><a id="limits-minTexelGatherOffset"></a> <code>minTexelGatherOffset</code> is the
-minimum offset value for the <code>Offset</code> or <code>ConstOffsets</code> image
-operands of any of the <code>OpImage</code>*<code>Gather</code> image instructions.</p>
+minimum offset value for the <code>Offset</code>, <code>ConstOffset</code>, or
+<code>ConstOffsets</code> image operands of any of the <code>OpImage</code>*<code>Gather</code>
+image instructions.</p>
 </li>
 <li>
 <p><a id="limits-maxTexelGatherOffset"></a> <code>maxTexelGatherOffset</code> is the
-maximum offset value for the <code>Offset</code> or <code>ConstOffsets</code> image
-operands of any of the <code>OpImage</code>*<code>Gather</code> image instructions.</p>
+maximum offset value for the <code>Offset</code>, <code>ConstOffset</code>, or
+<code>ConstOffsets</code> image operands of any of the <code>OpImage</code>*<code>Gather</code>
+image instructions.</p>
 </li>
 <li>
 <p><a id="limits-minInterpolationOffset"></a> <code>minInterpolationOffset</code> is the
@@ -82883,6 +82917,14 @@ to or modified.</p>
 </div>
 </li>
 <li>
+<p>Any image operation <strong class="purple">must</strong> use at most one of the <code>Offset</code>,
+<code>ConstOffset</code>, and <code>ConstOffsets</code> image operands.</p>
+</li>
+<li>
+<p>Image operand <code>Offset</code> <strong class="purple">must</strong> only be used with
+<code>OpImage</code>*<code>Gather</code> instructions.</p>
+</li>
+<li>
 <p>The &#8220;Component&#8221; operand of <code>OpImageGather</code>, and
 <code>OpImageSparseGather</code> <strong class="purple">must</strong> be the &lt;id&gt; of a constant instruction.</p>
 </li>
@@ -84119,7 +84161,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">114</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">115</span></code></pre>
 </div>
 </div>
 </div>
@@ -86749,7 +86791,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.114<br>
+Version 1.0.115<br>
 Last updated 2019-03-03 21:04:48 -0800
 </div>
 </div>
