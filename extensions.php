@@ -105,6 +105,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_shader_subgroup_ballot"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_shader_viewport_index_layer"> VK_EXT_shader_viewport_index_layer </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_subgroup_size_control"> VK_EXT_subgroup_size_control </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_texel_buffer_alignment"> VK_EXT_texel_buffer_alignment </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_transform_feedback"> VK_EXT_transform_feedback </a> </li>

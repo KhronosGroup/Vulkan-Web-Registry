@@ -789,7 +789,8 @@ a code { color: inherit; }
 <p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
 </li>
 <li>
-<p><code>flags</code> is reserved for future use.</p>
+<p><code>flags</code> is a bitmask of <a href="VkPipelineShaderStageCreateFlagBits.html">VkPipelineShaderStageCreateFlagBits</a>
+specifying how the pipeline shader stage will be generated.</p>
 </li>
 <li>
 <p><code>stage</code> is a <a href="VkShaderStageFlagBits.html">VkShaderStageFlagBits</a> value specifying a single
@@ -958,6 +959,59 @@ specifies a maximum output primitive count, <code>OutputPrimitivesNV</code>,
 that is greater than <code>0</code> and less than or equal to
 <code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxMeshOutputPrimitives</code>.</p>
 </li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02754"></a>
+If a <a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>
+structure is chained to <code>pNext</code>, <code>flags</code> <strong class="purple">must</strong> not have the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>
+flag set.</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02755"></a>
+If a <a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>
+structure is chained to <code>pNext</code>, <code>stage</code> <strong class="purple">must</strong> be a valid bit
+specified in <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#limits-required-subgroup-size-stages"><code>requiredSubgroupSizeStages</code></a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02756"></a>
+If a <a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>
+structure is chained to <code>pNext</code> and <code>stage</code> is
+VK_SHADER_STAGE_COMPUTE_BIT then local workgroup size of the shader
+<strong class="purple">must</strong> be less than or equal to the product of
+<a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>::<code>requiredSubgroupSize</code>
+and
+<a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#limits-max-subgroups-per-workgroup"><code>maxComputeWorkgroupSubgroups</code></a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02757"></a>
+If a <a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>
+structure is chained to <code>pNext</code>, and <code>flags</code> has the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code>
+flag set, the local workgroup size in the X dimension of the pipeline
+<strong class="purple">must</strong> be a multiple of
+<a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>::<code>requiredSubgroupSize</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-flags-02758"></a>
+If <code>flags</code> has both the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code> and
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>
+flags set, the local workgroup size in the X dimension of the pipeline
+<strong class="purple">must</strong> be a multiple of
+<a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#limits-max-subgroup-size"><code>maxSubgroupSize</code></a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-flags-02759"></a>
+If <code>flags</code> has the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code>
+flag set and <code>flags</code> does not have the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>
+flag set and no
+<a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a> structure
+is chained to <code>pNext</code>, the local workgroup size in the X dimension
+of the pipeline <strong class="purple">must</strong> be a multiple of
+<a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#limits-subgroup-size"><code>subgroupSize</code></a>.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -971,10 +1025,10 @@ that is greater than <code>0</code> and less than or equal to
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a></p>
 </li>
 <li>
-<p><a id="VUID-VkPipelineShaderStageCreateInfo-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkPipelineShaderStageCreateFlagBits.html">VkPipelineShaderStageCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-parameter"></a> <code>stage</code> <strong class="purple">must</strong> be a valid <a href="VkShaderStageFlagBits.html">VkShaderStageFlagBits</a> value</p>
@@ -1030,8 +1084,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.115<br>
-Last updated 2019-07-14 06:04:32 -0700
+Version 1.1.116<br>
+Last updated 2019-07-20 01:49:40 -0700
 </div>
 </div>
 
