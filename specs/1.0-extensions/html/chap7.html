@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.116 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.117 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.116 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.117 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.116,</span>
-<span id="revdate">2019-07-20 08:59:43Z</span>
-<br><span id="revremark">from git branch: github-master commit: 7b81afeb9f76ed8b1ca6c2ed9c93d94eee08bfed</span>
+<span id="revnumber">version 1.0.117,</span>
+<span id="revdate">2019-07-29 05:44:16Z</span>
+<br><span id="revremark">from git branch: github-master commit: eb3a78f3ecd3c927f9abaf1e543d6302664fa030</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3615,9 +3615,9 @@ undefined as if the layout of the attachment was transitioned from the
 <code>VK_IMAGE_LAYOUT_UNDEFINED</code> layout.</p>
 </div>
 <div class="paragraph">
-<p>If two subpasses use the same attachment in different layouts, and both
-layouts are read-only, no subpass dependency needs to be specified between
-those subpasses.
+<p>If two subpasses use the same attachment, and both subpasses use the
+attachment in a read-only layout, no subpass dependency needs to be
+specified between those subpasses.
 If an implementation treats those layouts separately, it <strong class="purple">must</strong> insert an
 implicit subpass dependency between those subpasses to separate the uses in
 each layout.
@@ -5143,6 +5143,22 @@ resulting framebuffer object is returned.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCreateFramebuffer-pCreateInfo-02777"></a>
+If <code>pCreateInfo</code>→<code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
+is not <code>0</code>, each element of <code>pCreateInfo</code>→<code>pAttachments</code> <strong class="purple">must</strong>
+have been created on <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -5317,6 +5333,13 @@ subpass <strong class="purple">must</strong> have the same value for
 in <code>renderPass</code></p>
 </li>
 <li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-02778"></a>
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
+is not <code>0</code>, <code>pAttachments</code> must be a valid pointer to an array of
+<code>attachmentCount</code> valid <a href="chap11.html#VkImageView">VkImageView</a> handles</p>
+</li>
+<li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00877"></a>
 If <code>flags</code> does not include
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
@@ -5473,8 +5496,10 @@ If <code>renderPass</code> was specified with non-zero view masks, <code>layers<
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00891"></a>
-Each element of <code>pAttachments</code> that is a 2D or 2D array image view
-taken from a 3D image <strong class="purple">must</strong> not be a depth/stencil format</p>
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>pAttachments</code> that is a 2D or 2D array image view taken from a 3D
+image <strong class="purple">must</strong> not be a depth/stencil format</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-flags-03188"></a>
@@ -5636,9 +5661,6 @@ the <code>pAttachmentImageInfos</code> member of an instance of
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-renderPass-parameter"></a> <code>renderPass</code> <strong class="purple">must</strong> be a valid <code>VkRenderPass</code> handle</p>
-</li>
-<li>
-<p><a id="VUID-VkFramebufferCreateInfo-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <code>VkImageView</code> handles</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-commonparent"></a> Both of <code>renderPass</code>, and the elements of <code>pAttachments</code> that are valid handles <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <code>VkDevice</code></p>
@@ -6178,6 +6200,12 @@ record the commands for the first subpass of that render pass.</p>
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-vkCmdBeginRenderPass2KHR-framebuffer-02779"></a>
+Both the <code>framebuffer</code> and <code>renderPass</code> members of
+<code>pRenderPassBegin</code> <strong class="purple">must</strong> have been created on the same
+<a href="chap4.html#VkDevice">VkDevice</a> that <code>commandBuffer</code> was allocated on</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdBeginRenderPass2KHR-initialLayout-03094"></a>
 If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
 <code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
@@ -6452,13 +6480,6 @@ the <code>renderPass</code> member of the <code>VkFramebufferCreateInfo</code>
 structure specified when creating <code>framebuffer</code>.</p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassBeginInfo-pNext-03206"></a>
-If the <a href="chap35.html#features-imagelessFramebuffer">imageless framebuffer</a> feature
-is not enabled, and the <code>pNext</code> chain includes an instance of
-<a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a>, its <code>attachmentCount</code>
-<strong class="purple">must</strong> be zero</p>
-</li>
-<li>
 <p><a id="VUID-VkRenderPassBeginInfo-framebuffer-03207"></a>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that did not include
@@ -6477,11 +6498,21 @@ the <code>pNext</code> chain <strong class="purple">must</strong> be equal to th
 used to create <code>framebuffer</code></p>
 </li>
 <li>
+<p><a id="VUID-VkRenderPassBeginInfo-framebuffer-02780"></a>
+If <code>framebuffer</code> was created with a
+<a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
+<code>pAttachments</code> member of an instance of
+<a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
+chain <strong class="purple">must</strong> have been created on the same <a href="chap4.html#VkDevice">VkDevice</a> as
+<code>framebuffer</code> and <code>renderPass</code></p>
+</li>
+<li>
 <p><a id="VUID-VkRenderPassBeginInfo-framebuffer-03209"></a>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>flags</code> equal to the <code>flags</code> member of
@@ -6494,7 +6525,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>usage</code> equal to the <code>usage</code> member of
@@ -6507,7 +6538,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> with a width equal to the <code>width</code>
 member of the corresponding element of
@@ -6519,7 +6550,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> with a height equal to the
 <code>height</code> member of the corresponding element of
@@ -6531,7 +6562,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>subresourceRange.pname</code>:layerCount
@@ -6544,7 +6575,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageFormatListCreateInfoKHR">VkImageFormatListCreateInfoKHR</a>::<code>viewFormatCount</code> equal to the
@@ -6557,7 +6588,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a set of
 elements in <a href="chap11.html#VkImageFormatListCreateInfoKHR">VkImageFormatListCreateInfoKHR</a>::<code>pViewFormats</code>
@@ -6571,7 +6602,7 @@ create <code>framebuffer</code></p>
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>format</code> equal to the corresponding
@@ -6582,7 +6613,7 @@ value of <a href="#VkAttachmentDescription">VkAttachmentDescription</a>::<code>f
 If <code>framebuffer</code> was created with a
 <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>flags</code> value that included
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of the
-<code>attachments</code> member of an instance of
+<code>pAttachments</code> member of an instance of
 <a href="#VkRenderPassAttachmentBeginInfoKHR">VkRenderPassAttachmentBeginInfoKHR</a> included in the <code>pNext</code>
 chain <strong class="purple">must</strong> be a <a href="chap11.html#VkImageView">VkImageView</a> of an image created with a value of
 <a href="chap11.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>samples</code> equal to the corresponding value
@@ -7760,8 +7791,8 @@ This command <strong class="purple">must</strong> not be recorded when transform
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.116<br>
-Last updated 2019-03-03 21:04:48 -0800
+Version 1.0.117<br>
+Last updated 2019-07-27 12:54:23 -0700
 </div>
 </div>
 
