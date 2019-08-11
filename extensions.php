@@ -127,9 +127,11 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_memory_overallocation_behavior"> VK_AMD_memory_overallocation_behavior </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_mixed_attachment_samples"> VK_AMD_mixed_attachment_samples </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_negative_viewport_height"> VK_AMD_negative_viewport_height </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_pipeline_compiler_control"> VK_AMD_pipeline_compiler_control </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_rasterization_order"> VK_AMD_rasterization_order </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_ballot"> VK_AMD_shader_ballot </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_core_properties"> VK_AMD_shader_core_properties </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_core_properties2"> VK_AMD_shader_core_properties2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_explicit_vertex_parameter"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_fragment_mask"> VK_AMD_shader_fragment_mask </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_shader_image_load_store_lod"> VK_AMD_shader_image_load_store_lod </a> </li>
