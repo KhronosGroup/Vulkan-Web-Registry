@@ -224,7 +224,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     needed. We also provide a canonical version of these headers
     corresponding to spec updates in the <a href="#vulkan-headers">
     KhronosGroup/Vulkan-Headers</a> repository. These headers also include a
-    C++ header generated from the <a href="vulkan-hpp"> Vulkan-Hpp</a>
+    C++ header generated from the <a href="#vulkan-hpp"> Vulkan-Hpp</a>
     project.</p>
 
 <p> All Vulkan headers provided by Khronos are ultimately generated from the
