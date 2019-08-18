@@ -218,17 +218,27 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h4> <a name="headers"></a> <b>Header Files</b> </h4>
 
-<p> For most developers, the header files provided with a loader and/or
-    driver package, such as the one defined in the <a
-    href="#repo-loader"> loader and validation layers</a> GitHub
-    repository, are all that's needed. </p>
+<p> For most developers, the C header files provided with a loader and/or
+    driver package, such as the one defined in the <a href="#repo-loader">
+    loader and validation layers</a> GitHub repository, are all that's
+    needed. We also provide a canonical version of these headers
+    corresponding to spec updates in the <a href="#vulkan-headers">
+    KhronosGroup/Vulkan-Headers</a> repository. These headers also include a
+    C++ header generated from the <a href="vulkan-hpp"> Vulkan-Hpp</a>
+    project.</p>
 
-<p> However, all Vulkan headers provided by Khronos are ultimately obtained
-    from the <a href="#repo-docs"> Vulkan-Docs</a> repository You may clone
-    this repository and copy the headers from <b>include/vulkan/*.h</b>;
-    or, if you need to generate a customized version of the headers, use the
-    <a href="#apiregistry">API Registry</a> and scripts under
-    <b>xml/</b>. </p>
+<p> All Vulkan headers provided by Khronos are ultimately generated from the
+    <a href="#repo-docs"> Vulkan-Docs</a> repository. If the headers in
+    Vulkan-Headers aren't sufficient, you may clone the Vulkan-Docs
+    repository and generate headers yourself, following instructions there.
+    If you need to generate a customized version of the headers, modify the
+    <a href="#apiregistry">API Registry</a> and scripts under <b>xml/</b>.
+    </p>
+
+<p> Note: there are two static headers included in Vulkan-Docs,
+    <tt>vk_platform.h</tt> and <tt>vulkan.h</tt>. These are not a complete
+    set of Vulkan headers, simply the static files that cannot be generated
+    from the API Registry. </p>
 
 
 <h4> <a name="apiregistry"></a> <b>API Registry</b> </h4>
@@ -261,27 +271,25 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h3> <a name="repo-loader"></a> <b>Loader and Validation Layers Repositories</b> </h3>
 
-<p> There are four additional Khronos Github repositories containing Vulkan
-    source code, libraries, and tools. Originally this material was in the
-    single &quot;Vulkan-LoaderAndValidationLayers&quot; repository:
+<p> There are several additional Khronos Github repositories containing
+    Vulkan source code, libraries, and tools: </p>
 
 <ul>
-<li> The <a href="https://github.com/KhronosGroup/Vulkan-Headers">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Headers" id="vulkan-headers">
      Vulkan-Headers</a> repository contains a copy of the Vulkan XML API
      Registry and scripts for processing it, taken from the latest public
      specification update in the <a href="#repo-docs"> Vulkan-Docs</a>
      project, and the corresponding generated Vulkan API headers. </li>
-<li> The <a href="https://github.com/KhronosGroup/Vulkan-Tools">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Tools" id="vulkan-tools">
      Vulkan-Tools</a> repository contains Khronos official Vulkan Tools and
      Utilities for Windows, Linux, Android, and MacOS. </li>
-<li> The <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers" id="vulkan-layers">
      Vulkan-ValidationLayers</a> repository contains the Khronos official
      Vulkan validation layers for Windows, Linux, Androis, and MacOS. </li>
-<li> The <a href="https://github.com/KhronosGroup/Vulkan-Loader">
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Loader" id="vulkan-loader">
      Vulkan-Loader</a> repository contains the Vulkan loader that is used
      for Linux, Windows, MacOS, and iOS. </li>
 </ul>
-
 
 <h3> <a name="repo-samples"></a> <b>Sample Code Repository</b> </h3>
 
@@ -290,6 +298,17 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Vulkan, contributed by various Khronos members and other authors.
     </p>
 
+<h3> <a name="repo-other"></a> <b>Other Repositories</b> </h3>
+
+<p> Other Khronos repositories containing Vulkan material include: </p>
+
+<ul>
+<li> The <a href="https://github.com/KhronosGroup/Vulkan-Hpp"
+     id="vulkan-hpp"> Vulkan-Hpp</a> repository contains code used to
+     generate <tt>vulkan.hpp</tt>, a C++ binding for Vulkan. A version of
+     <tt>vulkan.hpp</tt> is included in the <a
+     href="#vulkan-headers">Vulkan-Headers</a> repository. </li>
+</ul>
 
 <?php include_once("../../assets/static_pages/khr_page_bottom.php"); ?>
 </body>
