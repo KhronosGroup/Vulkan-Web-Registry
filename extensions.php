@@ -120,6 +120,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_ycbcr_image_arrays"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_buffer_marker"> VK_AMD_buffer_marker </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_device_coherent_memory"> VK_AMD_device_coherent_memory </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_display_native_hdr"> VK_AMD_display_native_hdr </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_draw_indirect_count"> VK_AMD_draw_indirect_count </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_AMD_gcn_shader"> VK_AMD_gcn_shader </a> </li>
