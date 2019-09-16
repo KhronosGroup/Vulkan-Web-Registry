@@ -46,6 +46,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float16_int8"> VK_KHR_shader_float16_int8 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float_controls"> VK_KHR_shader_float_controls </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_subgroup_extended_types"> VK_KHR_shader_subgroup_extended_types </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_storage_buffer_storage_class"> VK_KHR_storage_buffer_storage_class </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface"> VK_KHR_surface </a> </li>
@@ -151,6 +152,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_decorate_string"> VK_GOOGLE_decorate_string </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_display_timing"> VK_GOOGLE_display_timing </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_hlsl_functionality1"> VK_GOOGLE_hlsl_functionality1 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_GOOGLE_user_type"> VK_GOOGLE_user_type </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_filter_cubic"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_IMG_format_pvrtc"> VK_IMG_format_pvrtc </a> </li>
