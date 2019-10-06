@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.123 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.124 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.123 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.124 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.123,</span>
-<span id="revdate">2019-09-15 12:16:54Z</span>
-<br><span id="revremark">from git branch: github-master commit: c5261decf68cb2ef8cd934b8a3e4824bfde81cda</span>
+<span id="revnumber">version 1.1.124,</span>
+<span id="revdate">2019-10-06 19:43:09Z</span>
+<br><span id="revremark">from git branch: github-master commit: 22a5a1459fbe8be546079525c4c9d50bfc20b30b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4387,17 +4387,27 @@ it defines is executed on the device</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueBindSparse-pWaitSemaphores-01116"></a>
-When a semaphore unsignal operation defined by any element of the
-<code>pWaitSemaphores</code> member of any element of <code>pBindInfo</code> executes
-on <code>queue</code>, there <strong class="purple">must</strong> be no other queues waiting on the same
-semaphore.</p>
+When a semaphore wait operation referring to a binary semaphore defined
+by any element of the <code>pWaitSemaphores</code> member of any element of
+<code>pBindInfo</code> executes on <code>queue</code>, there <strong class="purple">must</strong> be no other queues
+waiting on the same semaphore.</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueBindSparse-pWaitSemaphores-01117"></a>
 All elements of the <code>pWaitSemaphores</code> member of all elements of
-<code>pBindInfo</code> <strong class="purple">must</strong> be semaphores that are signaled, or have
+<code>pBindInfo</code> member referring to a binary semaphore <strong class="purple">must</strong> be
+semaphores that are signaled, or have
 <a href="chap6.html#synchronization-semaphores-signaling">semaphore signal operations</a>
 previously submitted for execution.</p>
+</li>
+<li>
+<p><a id="VUID-vkQueueBindSparse-pWaitSemaphores-03245"></a>
+All elements of the <code>pWaitSemaphores</code> of all elements of
+<code>pBindInfo</code> created with a <a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_BINARY_KHR</code> <strong class="purple">must</strong> reference a semaphore signal
+operation that has been submitted for execution and any semaphore signal
+operations on which it depends (if any) <strong class="purple">must</strong> have also been submitted
+for execution.</p>
 </li>
 </ul>
 </div>
@@ -4600,6 +4610,72 @@ If semaphores to be signaled are provided, they define a
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pWaitSemaphores-03246"></a>
+If any element of <code>pWaitSemaphores</code> or <code>pSignalSemaphores</code> was
+created with a <a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> then the <code>pNext</code> chain <strong class="purple">must</strong>
+include an instance of <a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a></p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pNext-03247"></a>
+If the <code>pNext</code> chain of this structure includes an instance of
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a> and any element of
+<code>pWaitSemaphores</code> was created with a <a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> then its
+<code>waitSemaphoreValueCount</code> member <strong class="purple">must</strong> equal
+<code>waitSemaphoreCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pNext-03248"></a>
+If the <code>pNext</code> chain of this structure includes an instance of
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a> and any element of
+<code>pSignalSemaphores</code> was created with a <a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> then its
+<code>signalSemaphoreValueCount</code> member <strong class="purple">must</strong> equal
+<code>signalSemaphoreCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pSignalSemaphores-03249"></a>
+For each element of <code>pSignalSemaphores</code> created with a
+<a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> the
+corresponding element of
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a>::pSignalSemaphoreValues <strong class="purple">must</strong>
+have a value greater than the current value of the semaphore when the
+<a href="chap6.html#synchronization-semaphores-signaling">semaphore signal operation</a> is
+executed</p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pWaitSemaphores-03250"></a>
+For each element of <code>pWaitSemaphores</code> created with a
+<a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> the
+corresponding element of
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a>::pWaitSemaphoreValues <strong class="purple">must</strong> have
+a value which does not differ from the current value of the semaphore or
+from the value of any outstanding semaphore wait or signal operation on
+that semaphore by more than
+<a href="chap36.html#limits-maxTimelineSemaphoreValueDifference"><code>maxTimelineSemaphoreValueDifference</code></a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-pSignalSemaphores-03251"></a>
+For each element of <code>pSignalSemaphores</code> created with a
+<a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> the
+corresponding element of
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a>::pSignalSemaphoreValues <strong class="purple">must</strong>
+have a value which does not differ from the current value of the
+semaphore or from the value of any outstanding semaphore wait or signal
+operation on that semaphore by more than
+<a href="chap36.html#limits-maxTimelineSemaphoreValueDifference"><code>maxTimelineSemaphoreValueDifference</code></a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -4607,7 +4683,10 @@ If semaphores to be signaled are provided, they define a
 <p><a id="VUID-VkBindSparseInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_BIND_SPARSE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkBindSparseInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupBindSparseInfo">VkDeviceGroupBindSparseInfo</a></p>
+<p><a id="VUID-VkBindSparseInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupBindSparseInfo">VkDeviceGroupBindSparseInfo</a> or <a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a></p>
+</li>
+<li>
+<p><a id="VUID-VkBindSparseInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkBindSparseInfo-pWaitSemaphores-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> valid <code>VkSemaphore</code> handles</p>
@@ -4632,6 +4711,13 @@ If semaphores to be signaled are provided, they define a
 </div>
 </div>
 </div>
+</div>
+<div class="paragraph">
+<p>To specify the values to use when waiting for and signaling semaphores
+created with a <a href="chap6.html#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code>, add the
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a> structure to the <code>pNext</code> chain of
+the <a href="#VkBindSparseInfo">VkBindSparseInfo</a> structure.</p>
 </div>
 <div class="openblock">
 <div class="content">
@@ -5014,7 +5100,7 @@ ReleaseQueueOwnership(queue);</code></pre>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.123<br>
+Version 1.1.124<br>
 Last updated 2019-07-27 12:54:23 -0700
 </div>
 </div>

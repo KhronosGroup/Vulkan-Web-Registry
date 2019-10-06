@@ -43,6 +43,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_atomic_int64"> VK_KHR_shader_atomic_int64 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_clock"> VK_KHR_shader_clock </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float16_int8"> VK_KHR_shader_float16_int8 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_float_controls"> VK_KHR_shader_float_controls </a> </li>
@@ -53,6 +54,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_surface_protected_capabilities"> VK_KHR_surface_protected_capabilities </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_swapchain_mutable_format"> VK_KHR_swapchain_mutable_format </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_timeline_semaphore"> VK_KHR_timeline_semaphore </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_uniform_buffer_standard_layout"> VK_KHR_uniform_buffer_standard_layout </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_variable_pointers"> VK_KHR_variable_pointers </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_vulkan_memory_model"> VK_KHR_vulkan_memory_model </a> </li>

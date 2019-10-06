@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.123 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.124 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.123 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.124 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.123,</span>
-<span id="revdate">2019-09-15 12:26:43Z</span>
-<br><span id="revremark">from git branch: github-master commit: c5261decf68cb2ef8cd934b8a3e4824bfde81cda</span>
+<span id="revnumber">version 1.0.124,</span>
+<span id="revdate">2019-10-06 19:52:45Z</span>
+<br><span id="revremark">from git branch: github-master commit: 22a5a1459fbe8be546079525c4c9d50bfc20b30b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3157,6 +3157,95 @@ guarantees based on submission order.</p>
 within a given command also has a loose ordering, dependent only on a single
 command.</p>
 </div>
+<div id="synchronization-signal-operation-order" class="paragraph">
+<p><em>Signal operation order</em> is a fundamental ordering in Vulkan, giving meaning
+to the order in which semaphore and fence signal operations occur when
+submitted to a single queue.
+The signal operation order for queue operations is determined as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The initial order is determined by the order in which
+<a href="chap32.html#vkQueuePresentKHR">vkQueuePresentKHR</a>,
+<a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a>, and <a href="chap31.html#vkQueueBindSparse">vkQueueBindSparse</a> commands are executed
+on the host, for a single queue, from first to last.</p>
+</li>
+<li>
+<p>The order in which <a href="chap5.html#VkSubmitInfo">VkSubmitInfo</a> structures are specified in the
+<code>pSubmits</code> parameter of <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a>, from lowest index to
+highest.</p>
+</li>
+<li>
+<p>The fence signal operation defined by the <code>fence</code> parameter of a
+<a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a> or <a href="chap31.html#vkQueueBindSparse">vkQueueBindSparse</a> command is ordered after
+all semaphore signal operations defined by that command.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Semaphore signal operations defined by a single <a href="chap5.html#VkSubmitInfo">VkSubmitInfo</a> or
+<a href="chap31.html#VkBindSparseInfo">VkBindSparseInfo</a> structure are unordered with respect to other
+semaphore signal operations defined within the same <a href="chap5.html#VkSubmitInfo">VkSubmitInfo</a> or
+<a href="chap31.html#VkBindSparseInfo">VkBindSparseInfo</a> structure.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> command does not execute on a queue but
+instead performs the signal operation from the host.
+The semaphore signal operation defined by executing a
+<a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> command happens-after the
+<a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> command is invoked and happens-before the command
+returns.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When signaling timeline semaphores, it is the responsibility of the client
+to ensure that they are ordered such that the semaphore value is strictly
+increasing.
+Because the first synchronization scope for a semaphore signal operation
+contains all semaphore signal operations which occur earlier in submission
+order, all semaphore signal operations contained in any given batch are
+guaranteed to happen-after all semaphore signal operations contained in any
+previous batches.
+However, no ordering guarantee is provided between the semaphore signal
+operations defined within a single batch.
+This, combined with the requirement that timeline semaphore values strictly
+increase, means that it is invalid to signal the same timeline semaphore
+twice within a single batch.</p>
+</div>
+<div class="paragraph">
+<p>If a client wishes to ensure that some semaphore signal operation
+happens-after some other semaphore signal operation, it can submit a
+separate batch containing only semaphore signal operations, which will
+happen-after the semaphore signal operations in any earlier batches.</p>
+</div>
+<div class="paragraph">
+<p>When signaling a semaphore from the host, the only ordering guarantee is
+that the signal operation happens-after when <a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> is
+called and happens-before it returns.
+Therefore, it is invalid to call <code>vkSignalSemaphoreKHR</code> while there are
+any outstanding signal operations on that semaphore from any queue
+submissions unless those queue submissions have some dependency which
+ensures that they happen-after the host signal operation.
+One example of this would be if the pending signal operation is, itself,
+waiting on the same semaphore at a lower value and the call to
+<code>vkSignalSemaphoreKHR</code> signals that lower value.
+Furthermore, if there are two or more processes or threads signaling the
+same timeline semaphore from the host, the client must ensure that the
+<code>vkSignalSemaphoreKHR</code> with the lower semaphore value returns before
+<code>vkSignalSemaphoreKHR</code> is called with the higher value.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="synchronization-fences">6.3. Fences</h3>
@@ -4302,7 +4391,11 @@ includes every batch submitted in the same <a href="chap4.html#devsandqueues-sub
 submission</a> command.
 Fence signal operations that are defined by <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a> additionally
 include in the first synchronization scope all commands that occur earlier
-in <a href="#synchronization-submission-order">submission order</a>.</p>
+in <a href="#synchronization-submission-order">submission order</a>.
+Fence signal operations that are defined by <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a> or
+<a href="chap31.html#vkQueueBindSparse">vkQueueBindSparse</a> additionally include in the first synchronization
+scope any semaphore and fence signal operations that occur earlier in
+<a href="#synchronization-signal-operation-order">signal operation order</a>.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
@@ -5594,13 +5687,18 @@ more <a href="#VkFenceImportFlagBits">VkFenceImportFlagBits</a>.</p>
 <div class="content">
 <div class="paragraph">
 <p>Semaphores are a synchronization primitive that <strong class="purple">can</strong> be used to insert a
-dependency between batches submitted to queues.
-Semaphores have two states - signaled and unsignaled.
-The state of a semaphore <strong class="purple">can</strong> be signaled after execution of a batch of
-commands is completed.
-A batch <strong class="purple">can</strong> wait for a semaphore to become signaled before it begins
-execution, and the semaphore is also unsignaled before the batch begins
-execution.</p>
+dependency
+between queue operations or between a queue operation and the host.
+<a href="chap46.html#glossary">Binary semaphores</a> have two states - signaled and unsignaled.
+<a href="chap46.html#glossary">Timeline semaphores</a> have a monotonically increasing 64-bit
+unsigned integer payload and are signaled with respect to a particular
+reference value.
+A semaphore <strong class="purple">can</strong> be signaled after execution of a queue operation is
+completed, and a queue operation <strong class="purple">can</strong> wait for a semaphore to become
+signaled before it begins execution.
+A timeline semaphore <strong class="purple">can</strong> additionally be signaled from the host with the
+<a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> command and waited on from the host with the
+<a href="#vkWaitSemaphoresKHR">vkWaitSemaphoresKHR</a> command.</p>
 </div>
 <div id="synchronization-semaphores-payloads" class="paragraph">
 <p>As with most objects in Vulkan, semaphores are an interface to internal data
@@ -5665,9 +5763,6 @@ created.</p>
 semaphore object is returned.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>When created, the semaphore is in the unsignaled state.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5760,7 +5855,7 @@ semaphore object is returned.</p>
 <p><a id="VUID-VkSemaphoreCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSemaphoreCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkExportSemaphoreCreateInfo">VkExportSemaphoreCreateInfo</a> or <a href="#VkExportSemaphoreWin32HandleInfoKHR">VkExportSemaphoreWin32HandleInfoKHR</a></p>
+<p><a id="VUID-VkSemaphoreCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkExportSemaphoreCreateInfo">VkExportSemaphoreCreateInfo</a>, <a href="#VkExportSemaphoreWin32HandleInfoKHR">VkExportSemaphoreWin32HandleInfoKHR</a>, or <a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkSemaphoreCreateInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
@@ -5784,6 +5879,120 @@ semaphore object is returned.</p>
 <div class="paragraph">
 <p><code>VkSemaphoreCreateFlags</code> is a bitmask type for setting a mask, but is
 currently reserved for future use.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To create a semaphore of a specific type, add the
+<a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a> structure to the <code>pNext</code> chain of the
+<a href="#VkSemaphoreCreateInfo">VkSemaphoreCreateInfo</a> structure.
+The <code>VkSemaphoreTypeCreateInfoKHR</code> structure is defined as:</p>
+</div>
+<div id="VkSemaphoreTypeCreateInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreTypeCreateInfoKHR {
+    VkStructureType       sType;
+    <span class="directive">const</span> <span class="directive">void</span>*           pNext;
+    VkSemaphoreTypeKHR    semaphoreType;
+    uint64_t              initialValue;
+} VkSemaphoreTypeCreateInfoKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>semaphoreType</code> is a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> value specifying the
+type of the semaphore.</p>
+</li>
+<li>
+<p><code>initialValue</code> is the initial payload value if <code>semaphoreType</code>
+is <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code>.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreTypeCreateInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreTypeCreateInfoKHR-semaphoreType-parameter"></a> <code>semaphoreType</code> <strong class="purple">must</strong> be a valid <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreTypeCreateInfoKHR-timelineSemaphore-03252"></a>
+If the <a href="chap35.html#features-features-timelineSemaphore"><code>timelineSemaphore</code></a>
+feature is not enabled, <code>semaphoreType</code> <strong class="purple">must</strong> not equal
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreTypeCreateInfoKHR-semaphoreType-03279"></a>
+If <code>semaphoreType</code> is <code>VK_SEMAPHORE_TYPE_BINARY_KHR</code>,
+<code>initialValue</code> <strong class="purple">must</strong> be zero.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If no instance of the <code>VkSemaphoreTypeCreateInfoKHR</code> structure is
+present in the <code>pNext</code> chain of <a href="#VkSemaphoreCreateInfo">VkSemaphoreCreateInfo</a> then the
+created semaphore will have a default <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_BINARY_KHR</code>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values of <a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a>::<code>semaphoreType</code>,
+specifying the type of a semaphore, are:</p>
+</div>
+<div id="VkSemaphoreTypeKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreTypeKHR {
+    VK_SEMAPHORE_TYPE_BINARY_KHR = <span class="integer">0</span>,
+    VK_SEMAPHORE_TYPE_TIMELINE_KHR = <span class="integer">1</span>,
+    VK_SEMAPHORE_TYPE_MAX_ENUM_KHR = <span class="hex">0x7FFFFFFF</span>
+} VkSemaphoreTypeKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SEMAPHORE_TYPE_BINARY_KHR</code> specifies a <em>binary semaphore</em> type
+that has a boolean payload indicating whether the semaphore is currently
+signaled or unsignaled.
+When created, the semaphore is in the unsignaled state.</p>
+</li>
+<li>
+<p><code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> specifies a <em>timeline semaphore</em>
+type that has a monotonically increasing 64-bit unsigned integer payload
+indicating whether the semaphore is signaled with respect to a
+particular reference value.
+When created, the semaphore payload has the value given by the
+<code>initialValue</code> field of <code>VkSemaphoreTypeCreateInfoKHR</code>.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -6365,6 +6574,20 @@ operation</a> pending execution.</p>
 <p><a id="VUID-VkSemaphoreGetFdInfoKHR-handleType-01136"></a>
 <code>handleType</code> <strong class="purple">must</strong> be defined as a POSIX file descriptor handle.</p>
 </li>
+<li>
+<p><a id="VUID-VkSemaphoreGetFdInfoKHR-handleType-03253"></a>
+If <code>handleType</code> refers to a handle type with copy payload
+transference semantics, <code>semaphore</code> <strong class="purple">must</strong> have been created with a
+<a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_BINARY_KHR</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreGetFdInfoKHR-handleType-03254"></a>
+If <code>handleType</code> refers to a handle type with copy payload
+transference semantics, <code>semaphore</code> <strong class="purple">must</strong> have an associated
+semaphore signal operation that has been submitted for execution and any
+semaphore signal operations on which it depends (if any) <strong class="purple">must</strong> have also
+been submitted for execution.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -6487,11 +6710,21 @@ dependency on the batch, and defines <em>semaphore signal operations</em> which 
 the semaphores to the signaled state.</p>
 </div>
 <div class="paragraph">
+<p>In case of semaphores created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> the semaphore is considered signaled
+with respect to the counter value set to be signaled as specified in
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a> or <a href="#VkSemaphoreSignalInfoKHR">VkSemaphoreSignalInfoKHR</a>.</p>
+</div>
+<div class="paragraph">
 <p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
 includes every command submitted in the same batch.
 Semaphore signal operations that are defined by <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a>
 additionally include all commands that occur earlier in
-<a href="#synchronization-submission-order">submission order</a>.</p>
+<a href="#synchronization-submission-order">submission order</a>.
+Semaphore signal operations that are defined by <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a> or
+<a href="chap31.html#vkQueueBindSparse">vkQueueBindSparse</a> additionally include in the first synchronization
+scope any semaphore and fence signal operations that occur earlier in
+<a href="#synchronization-signal-operation-order">signal operation order</a>.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
@@ -6507,13 +6740,25 @@ empty.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="synchronization-semaphores-waiting">6.4.2. Semaphore Waiting &amp; Unsignaling</h4>
+<h4 id="synchronization-semaphores-waiting">6.4.2. Semaphore Waiting</h4>
 <div class="paragraph">
 <p>When a batch is submitted to a queue via a <a href="chap4.html#devsandqueues-submission">queue
 submission</a>, and it includes semaphores to be waited on, it defines a
 memory dependency between prior semaphore signal operations and the batch,
-and defines <em>semaphore unsignal operations</em> which set the semaphores to the
-unsignaled state.</p>
+and defines <em>semaphore wait operations</em>.</p>
+</div>
+<div class="paragraph">
+<p>Such semaphore wait operations set the semaphores
+created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_BINARY_KHR</code>
+to the unsignaled state.
+In case of semaphores created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> a prior semaphore signal operation
+defines a memory dependency with a semaphore wait operation if the value the
+semaphore is signaled with is greater than or equal to the value the
+semaphore is waited with, thus the semaphore will continue to be considered
+signaled with respect to the counter value waited on as specified in
+<a href="chap5.html#VkTimelineSemaphoreSubmitInfoKHR">VkTimelineSemaphoreSubmitInfoKHR</a>.</p>
 </div>
 <div class="paragraph">
 <p>The first synchronization scope includes all semaphore signal operations
@@ -6540,9 +6785,9 @@ empty.</p>
 includes all memory access performed by the device.</p>
 </div>
 <div class="paragraph">
-<p>The semaphore unsignal operation happens-after the first set of operations
-in the execution dependency, and happens-before the second set of operations
-in the execution dependency.</p>
+<p>The semaphore wait operation happens-after the first set of operations in
+the execution dependency, and happens-before the second set of operations in
+the execution dependency.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -6553,12 +6798,14 @@ in the execution dependency.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Unlike fences or events, the act of waiting for a semaphore also unsignals
+<p>Unlike
+timeline semaphores,
+fences or events, the act of waiting for a binary semaphore also unsignals
 that semaphore.
 Applications <strong class="purple">must</strong> ensure that between two such wait operations, the
 semaphore is signaled again, with execution dependencies used to ensure
 these occur in order.
-Semaphore waits and signals should thus occur in discrete 1:1 pairs.</p>
+Binary semaphore waits and signals should thus occur in discrete 1:1 pairs.</p>
 </div>
 </td>
 </tr>
@@ -6641,25 +6888,587 @@ performed in between.</p>
 <div class="paragraph">
 <p>Before waiting on a semaphore, the application <strong class="purple">must</strong> ensure the semaphore is
 in a valid state for a wait operation.
-Specifically, when a <a href="#synchronization-semaphores-waiting">semaphore wait and
-unsignal operation</a> is submitted to a queue:</p>
+Specifically, when a <a href="#synchronization-semaphores-waiting">semaphore wait
+operation</a> is submitted to a queue:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The semaphore <strong class="purple">must</strong> be signaled, or have an associated
+<p>A binary semaphore <strong class="purple">must</strong> be signaled, or have an associated
 <a href="#synchronization-semaphores-signaling">semaphore signal operation</a> that
 is pending execution.</p>
 </li>
 <li>
-<p>There <strong class="purple">must</strong> be no other queue waiting on the same semaphore when the
-operation executes.</p>
+<p>Any <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
+on which the pending binary semaphore signal operation depends <strong class="purple">must</strong>
+also be completed or pending execution.</p>
+</li>
+<li>
+<p>There <strong class="purple">must</strong> be no other queue waiting on the same binary semaphore when
+the operation executes.</p>
 </li>
 </ul>
 </div>
 </div>
 <div class="sect3">
-<h4 id="synchronization-semaphores-importing">6.4.4. Importing Semaphore Payloads</h4>
+<h4 id="synchronization-semaphores-hostops">6.4.4. Host Operations on Semaphores</h4>
+<div class="paragraph">
+<p>In addition to <a href="#synchronization-semaphores-signaling">semaphore signal
+operations</a> and <a href="#synchronization-semaphores-waiting">semaphore wait
+operations</a> submitted to device queues, timeline semaphores support the
+following host operations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Query the current counter value of the semaphore using the
+<a href="#vkGetSemaphoreCounterValueKHR">vkGetSemaphoreCounterValueKHR</a> command.</p>
+</li>
+<li>
+<p>Wait for a set of semaphores to reach particular counter values using
+the <a href="#vkWaitSemaphoresKHR">vkWaitSemaphoresKHR</a> command.</p>
+</li>
+<li>
+<p>Signal the semaphore with a particular counter value from the host using
+the <a href="#vkSignalSemaphoreKHR">vkSignalSemaphoreKHR</a> command.</p>
+</li>
+</ul>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the current counter value of a semaphore created with a
+<a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> from the
+host, call:</p>
+</div>
+<div id="vkGetSemaphoreCounterValueKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetSemaphoreCounterValueKHR(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    uint64_t*                                   pValue);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the semaphore.</p>
+</li>
+<li>
+<p><code>semaphore</code> is the handle of the semaphore to query.</p>
+</li>
+<li>
+<p><code>pValue</code> is a pointer to a 64-bit integer value in which the current
+counter value of the semaphore is returned.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If a <a href="chap4.html#devsandqueues-submission">queue submission</a> command is pending
+execution, then the value returned by this command <strong class="purple">may</strong> immediately be out
+of date.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetSemaphoreCounterValueKHR-semaphore-03255"></a>
+<code>semaphore</code> <strong class="purple">must</strong> have been created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a>
+of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetSemaphoreCounterValueKHR-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetSemaphoreCounterValueKHR-semaphore-parameter"></a> <code>semaphore</code> <strong class="purple">must</strong> be a valid <code>VkSemaphore</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetSemaphoreCounterValueKHR-pValue-parameter"></a> <code>pValue</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint64_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetSemaphoreCounterValueKHR-semaphore-parent"></a> <code>semaphore</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_DEVICE_LOST</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To wait for a set of semaphores created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> to reach particular counter values on
+the host, call:</p>
+</div>
+<div id="vkWaitSemaphoresKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkWaitSemaphoresKHR(
+    VkDevice                                    device,
+    <span class="directive">const</span> VkSemaphoreWaitInfoKHR*               pWaitInfo,
+    uint64_t                                    timeout);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the semaphore.</p>
+</li>
+<li>
+<p><code>pWaitInfo</code> is a pointer to an instance of the
+<a href="#VkSemaphoreWaitInfoKHR">VkSemaphoreWaitInfoKHR</a> structure containing information about the
+wait condition.</p>
+</li>
+<li>
+<p><code>timeout</code> is the timeout period in units of nanoseconds.
+<code>timeout</code> is adjusted to the closest value allowed by the
+implementation-dependent timeout accuracy, which <strong class="purple">may</strong> be substantially
+longer than one nanosecond, and <strong class="purple">may</strong> be longer than the requested
+period.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the condition is satisfied when <code>vkWaitSemaphoresKHR</code> is called, then
+<code>vkWaitSemaphoresKHR</code> returns immediately.
+If the condition is not satisfied at the time <code>vkWaitSemaphoresKHR</code> is
+called, then <code>vkWaitSemaphoresKHR</code> will block and wait up to
+<code>timeout</code> nanoseconds for the condition to become satisfied.</p>
+</div>
+<div class="paragraph">
+<p>If <code>timeout</code> is zero, then <code>vkWaitSemaphoresKHR</code> does not wait, but
+simply returns information about the current state of the semaphore.
+<code>VK_TIMEOUT</code> will be returned in this case if the condition is not
+satisfied, even though no actual wait was performed.</p>
+</div>
+<div class="paragraph">
+<p>If the specified timeout period expires before the condition is satisfied,
+<code>vkWaitSemaphoresKHR</code> returns <code>VK_TIMEOUT</code>.
+If the condition is satisfied before <code>timeout</code> nanoseconds has expired,
+<code>vkWaitSemaphoresKHR</code> returns <code>VK_SUCCESS</code>.</p>
+</div>
+<div class="paragraph">
+<p>If device loss occurs (see <a href="chap4.html#devsandqueues-lost-device">Lost Device</a>) before
+the timeout has expired, <code>vkWaitSemaphoresKHR</code> <strong class="purple">must</strong> return in finite
+time with either <code>VK_SUCCESS</code> or <code>VK_ERROR_DEVICE_LOST</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkWaitSemaphoresKHR-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkWaitSemaphoresKHR-pWaitInfo-parameter"></a> <code>pWaitInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkSemaphoreWaitInfoKHR</code> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_TIMEOUT</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_DEVICE_LOST</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkSemaphoreWaitInfoKHR</code> structure is defined as:</p>
+</div>
+<div id="VkSemaphoreWaitInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreWaitInfoKHR {
+    VkStructureType            sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                pNext;
+    VkSemaphoreWaitFlagsKHR    flags;
+    uint32_t                   semaphoreCount;
+    <span class="directive">const</span> VkSemaphore*         pSemaphores;
+    <span class="directive">const</span> uint64_t*            pValues;
+} VkSemaphoreWaitInfoKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>flags</code> is a bitmask of <a href="#VkSemaphoreWaitFlagBitsKHR">VkSemaphoreWaitFlagBitsKHR</a> specifying
+additional parameters for the semaphore wait operation.</p>
+</li>
+<li>
+<p><code>semaphoreCount</code> is the number of semaphores to wait on.</p>
+</li>
+<li>
+<p><code>pSemaphores</code> is a pointer to an array of <code>semaphoreCount</code>
+semaphore handles to wait on.</p>
+</li>
+<li>
+<p><code>pValues</code> is a pointer to an array of <code>semaphoreCount</code> timeline
+semaphore values.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-pSemaphores-03256"></a>
+All of the elements of <code>pSemaphores</code> <strong class="purple">must</strong> reference a semaphore
+that was created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkSemaphoreWaitFlagBitsKHR">VkSemaphoreWaitFlagBitsKHR</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-pSemaphores-parameter"></a> <code>pSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>semaphoreCount</code> valid <code>VkSemaphore</code> handles</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-pValues-parameter"></a> <code>pValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>semaphoreCount</code> <code>uint64_t</code> values</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreWaitInfoKHR-semaphoreCount-arraylength"></a> <code>semaphoreCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Bits which <strong class="purple">can</strong> be set in <a href="#VkSemaphoreWaitInfoKHR">VkSemaphoreWaitInfoKHR</a>::<code>flags</code>,
+specifying additional parameters of a semaphore wait operation, are:</p>
+</div>
+<div id="VkSemaphoreWaitFlagBitsKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreWaitFlagBitsKHR {
+    VK_SEMAPHORE_WAIT_ANY_BIT_KHR = <span class="hex">0x00000001</span>,
+    VK_SEMAPHORE_WAIT_FLAG_BITS_MAX_ENUM_KHR = <span class="hex">0x7FFFFFFF</span>
+} VkSemaphoreWaitFlagBitsKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SEMAPHORE_WAIT_ANY_BIT_KHR</code> specifies that the semaphore wait
+condition is that at least one of the semaphores in
+<code>VkSemaphoreWaitInfoKHR</code>::<code>pSemaphores</code> has reached the value
+specified by the corresponding element of
+<code>VkSemaphoreWaitInfoKHR</code>::<code>pValues</code>.
+If <code>VK_SEMAPHORE_WAIT_ANY_BIT_KHR</code> is not set, the semaphore wait
+condition is that all of the semaphores in
+<code>VkSemaphoreWaitInfoKHR</code>::<code>pSemaphores</code> have reached the value
+specified by the corresponding element of
+<code>VkSemaphoreWaitInfoKHR</code>::<code>pValues</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkSemaphoreWaitFlagsKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkSemaphoreWaitFlagsKHR;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkSemaphoreWaitFlagsKHR</code> is a bitmask type for setting a mask of zero
+or more <a href="#VkSemaphoreWaitFlagBitsKHR">VkSemaphoreWaitFlagBitsKHR</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To signal a semaphore created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code> with a particular counter value, on the
+host, call:</p>
+</div>
+<div id="vkSignalSemaphoreKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkSignalSemaphoreKHR(
+    VkDevice                                    device,
+    <span class="directive">const</span> VkSemaphoreSignalInfoKHR*             pSignalInfo);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the semaphore.</p>
+</li>
+<li>
+<p><code>pSignalInfo</code> is a pointer to an instance of the
+<a href="#VkSemaphoreSignalInfoKHR">VkSemaphoreSignalInfoKHR</a> structure containing information about
+the signal operation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When <code>vkSignalSemaphoreKHR</code> is executed on the host, it defines and
+immediately executes a <a href="#synchronization-semaphores-signaling"><em>semaphore
+signal operation</em></a> which sets the timeline semaphore to the given value.</p>
+</div>
+<div class="paragraph">
+<p>The first synchronization scope is defined by the host execution model, but
+includes execution of <code>vkSignalSemaphoreKHR</code> on the host and anything
+that happened-before it.</p>
+</div>
+<div class="paragraph">
+<p>The second synchronization scope is empty.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkSignalSemaphoreKHR-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkSignalSemaphoreKHR-pSignalInfo-parameter"></a> <code>pSignalInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkSemaphoreSignalInfoKHR</code> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap2.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkSemaphoreSignalInfoKHR</code> structure is defined as:</p>
+</div>
+<div id="VkSemaphoreSignalInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreSignalInfoKHR {
+    VkStructureType    sType;
+    <span class="directive">const</span> <span class="directive">void</span>*        pNext;
+    VkSemaphore        semaphore;
+    uint64_t           value;
+} VkSemaphoreSignalInfoKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>semaphore</code> is the handle of the semaphore to signal.</p>
+</li>
+<li>
+<p><code>value</code> is the value to signal.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-semaphore-03257"></a>
+<code>semaphore</code> <strong class="purple">must</strong> have been created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a>
+of <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-value-03258"></a>
+<code>value</code> <strong class="purple">must</strong> have a value greater than the current value of the
+semaphore</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-value-03259"></a>
+<code>value</code> <strong class="purple">must</strong> be less than the value of any pending semaphore signal
+operations</p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-value-03260"></a>
+<code>value</code> <strong class="purple">must</strong> have a value which does not differ from the current
+value of the semaphore or the value of any outstanding semaphore wait or
+signal operation on <code>semaphore</code> by more than
+<a href="chap36.html#limits-maxTimelineSemaphoreValueDifference"><code>maxTimelineSemaphoreValueDifference</code></a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSemaphoreSignalInfoKHR-semaphore-parameter"></a> <code>semaphore</code> <strong class="purple">must</strong> be a valid <code>VkSemaphore</code> handle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="synchronization-semaphores-importing">6.4.5. Importing Semaphore Payloads</h4>
 <div class="paragraph">
 <p>Applications <strong class="purple">can</strong> import a semaphore payload into an existing semaphore
 using an external semaphore handle.
@@ -6845,6 +7654,35 @@ operations</a> rules.
 If the external handle provided does not meet these requirements, the
 implementation <strong class="purple">must</strong> fail the semaphore payload import operation with the
 error code <code>VK_ERROR_INVALID_EXTERNAL_HANDLE</code>.</p>
+</div>
+<div class="paragraph">
+<p>In addition, when importing a semaphore payload that is not compatible with
+the payload type corresponding to the <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> the semaphore
+was created with, the implementation <strong class="purple">may</strong> fail the semaphore payload import
+operation with the error code <code>VK_ERROR_INVALID_EXTERNAL_HANDLE</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>As the introduction of the external semaphore handle type
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT</code> predates that of
+timeline semaphores, support for importing semaphore payloads from external
+handles of that type into semaphores created (implicitly or explicitly) with
+a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of <code>VK_SEMAPHORE_TYPE_BINARY_KHR</code> is
+preserved for backwards compatibility.
+However, applications <strong class="purple">should</strong> prefer importing such handle types into
+semaphores created with a <a href="#VkSemaphoreTypeKHR">VkSemaphoreTypeKHR</a> of
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="openblock">
 <div class="content">
@@ -7058,6 +7896,30 @@ If <code>name</code> is not <code>NULL</code>, it <strong class="purple">must</s
 <code>handleType</code> in
 <a href="chap38.html#external-semaphore-handle-types-compatibility">external semaphore
 handle types compatibility</a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreWin32HandleInfoKHR-handleType-03261"></a>
+If <code>handleType</code> is
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT</code> or
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT</code>, the
+<a href="#VkSemaphoreCreateInfo">VkSemaphoreCreateInfo</a>::<code>flags</code> field <strong class="purple">must</strong> match that of the
+semaphore from which <code>handle</code> or <code>name</code> was exported.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreWin32HandleInfoKHR-handleType-03262"></a>
+If <code>handleType</code> is
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT</code> or
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT</code>, the
+<a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a>::<code>semaphoreType</code> field <strong class="purple">must</strong>
+match that of the semaphore from which <code>handle</code> or <code>name</code> was
+exported.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreWin32HandleInfoKHR-flags-03322"></a>
+If <code>flags</code> contains VK_SEMAPHORE_IMPORT_TEMPORARY_BIT, the
+<a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a>::<code>semaphoreType</code> field of the
+semaphore from which <code>handle</code> or <code>name</code> was exported <strong class="purple">must</strong> not
+be <code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code>.</p>
 </li>
 </ul>
 </div>
@@ -7286,6 +8148,27 @@ VkImportSemaphoreFdInfoKHR</a> table.</p>
 <code>fd</code> <strong class="purple">must</strong> obey any requirements listed for <code>handleType</code> in
 <a href="chap38.html#external-semaphore-handle-types-compatibility">external semaphore
 handle types compatibility</a>.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreFdInfoKHR-handleType-03263"></a>
+If <code>handleType</code> is
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT</code>, the
+<a href="#VkSemaphoreCreateInfo">VkSemaphoreCreateInfo</a>::<code>flags</code> field <strong class="purple">must</strong> match that of the
+semaphore from which <code>fd</code> was exported.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreFdInfoKHR-handleType-03264"></a>
+If <code>handleType</code> is
+<code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT</code>, the
+<a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a>::<code>semaphoreType</code> field <strong class="purple">must</strong>
+match that of the semaphore from which <code>fd</code> was exported.</p>
+</li>
+<li>
+<p><a id="VUID-VkImportSemaphoreFdInfoKHR-flags-03323"></a>
+If <code>flags</code> contains VK_SEMAPHORE_IMPORT_TEMPORARY_BIT, the
+<a href="#VkSemaphoreTypeCreateInfoKHR">VkSemaphoreTypeCreateInfoKHR</a>::<code>semaphoreType</code> field of the
+semaphore from which <code>fd</code> was exported <strong class="purple">must</strong> not be
+<code>VK_SEMAPHORE_TYPE_TIMELINE_KHR</code>.</p>
 </li>
 </ul>
 </div>
@@ -10564,7 +11447,7 @@ QueryPerformanceCounter(&amp;counter);
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.123<br>
+Version 1.0.124<br>
 Last updated 2019-07-27 12:54:23 -0700
 </div>
 </div>

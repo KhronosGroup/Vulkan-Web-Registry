@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.123 - A Specification</title>
+<title>Vulkan® 1.0.124 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.123 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.124 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.123,</span>
-<span id="revdate">2019-09-15 12:33:54Z</span>
-<br><span id="revremark">from git branch: github-master commit: c5261decf68cb2ef8cd934b8a3e4824bfde81cda</span>
+<span id="revnumber">version 1.0.124,</span>
+<span id="revdate">2019-10-06 19:59:58Z</span>
+<br><span id="revremark">from git branch: github-master commit: 22a5a1459fbe8be546079525c4c9d50bfc20b30b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -8539,10 +8539,10 @@ it defines is executed on the device</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit-pWaitSemaphores-00068"></a>
-When a semaphore unsignal operation defined by any element of the
-<code>pWaitSemaphores</code> member of any element of <code>pSubmits</code> executes
-on <code>queue</code>, there <strong class="purple">must</strong> be no other queues waiting on the same
-semaphore.</p>
+When a semaphore wait operation referring to a binary semaphore defined
+by any element of the <code>pWaitSemaphores</code> member of any element of
+<code>pSubmits</code> executes on <code>queue</code>, there <strong class="purple">must</strong> be no other queues
+waiting on the same semaphore.</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit-pWaitSemaphores-00069"></a>
@@ -8845,9 +8845,11 @@ Each element of <code>pWaitDstStageMask</code> <strong class="purple">must</stro
 <div class="sect2">
 <h3 id="commandbuffers-submission-progress">5.6. Queue Forward Progress</h3>
 <div class="paragraph">
-<p>The application <strong class="purple">must</strong> ensure that command buffer submissions will be able to
-complete without any subsequent operations by the application on any queue.
-After any call to <code>vkQueueSubmit</code>, for every queued wait on a semaphore
+<p>When using binary semaphores, the application <strong class="purple">must</strong> ensure that command
+buffer submissions will be able to complete without any subsequent
+operations by the application on any queue.
+After any call to <code>vkQueueSubmit</code> (or other queue operation), for every
+queued wait on a semaphore
 there <strong class="purple">must</strong> be a prior signal of that semaphore that will not be consumed by
 a different wait on the semaphore.</p>
 </div>
@@ -10546,6 +10548,37 @@ guarantees based on submission order.</p>
 within a given command also has a loose ordering, dependent only on a single
 command.</p>
 </div>
+<div id="synchronization-signal-operation-order" class="paragraph">
+<p><em>Signal operation order</em> is a fundamental ordering in Vulkan, giving meaning
+to the order in which semaphore and fence signal operations occur when
+submitted to a single queue.
+The signal operation order for queue operations is determined as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The initial order is determined by the order in which
+<a href="#vkQueueSubmit">vkQueueSubmit</a>, and <a href="#vkQueueBindSparse">vkQueueBindSparse</a> commands are executed
+on the host, for a single queue, from first to last.</p>
+</li>
+<li>
+<p>The order in which <a href="#VkSubmitInfo">VkSubmitInfo</a> structures are specified in the
+<code>pSubmits</code> parameter of <a href="#vkQueueSubmit">vkQueueSubmit</a>, from lowest index to
+highest.</p>
+</li>
+<li>
+<p>The fence signal operation defined by the <code>fence</code> parameter of a
+<a href="#vkQueueSubmit">vkQueueSubmit</a> or <a href="#vkQueueBindSparse">vkQueueBindSparse</a> command is ordered after
+all semaphore signal operations defined by that command.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Semaphore signal operations defined by a single <a href="#VkSubmitInfo">VkSubmitInfo</a> or
+<a href="#VkBindSparseInfo">VkBindSparseInfo</a> structure are unordered with respect to other
+semaphore signal operations defined within the same <a href="#VkSubmitInfo">VkSubmitInfo</a> or
+<a href="#VkBindSparseInfo">VkBindSparseInfo</a> structure.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="synchronization-fences">6.3. Fences</h3>
@@ -11080,7 +11113,11 @@ includes every batch submitted in the same <a href="#devsandqueues-submission">q
 submission</a> command.
 Fence signal operations that are defined by <a href="#vkQueueSubmit">vkQueueSubmit</a> additionally
 include in the first synchronization scope all commands that occur earlier
-in <a href="#synchronization-submission-order">submission order</a>.</p>
+in <a href="#synchronization-submission-order">submission order</a>.
+Fence signal operations that are defined by <a href="#vkQueueSubmit">vkQueueSubmit</a> or
+<a href="#vkQueueBindSparse">vkQueueBindSparse</a> additionally include in the first synchronization
+scope any semaphore and fence signal operations that occur earlier in
+<a href="#synchronization-signal-operation-order">signal operation order</a>.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
@@ -11285,13 +11322,12 @@ types</a> for more information.</p>
 <div class="content">
 <div class="paragraph">
 <p>Semaphores are a synchronization primitive that <strong class="purple">can</strong> be used to insert a
-dependency between batches submitted to queues.
+dependency
+between queue operations.
 Semaphores have two states - signaled and unsignaled.
-The state of a semaphore <strong class="purple">can</strong> be signaled after execution of a batch of
-commands is completed.
-A batch <strong class="purple">can</strong> wait for a semaphore to become signaled before it begins
-execution, and the semaphore is also unsignaled before the batch begins
-execution.</p>
+A semaphore <strong class="purple">can</strong> be signaled after execution of a queue operation is
+completed, and a queue operation <strong class="purple">can</strong> wait for a semaphore to become
+signaled before it begins execution.</p>
 </div>
 <div class="paragraph">
 <p>Semaphores are represented by <code>VkSemaphore</code> handles:</p>
@@ -11338,7 +11374,9 @@ semaphore object is returned.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>When created, the semaphore is in the unsignaled state.</p>
+<p>This command creates a <em>binary semaphore</em> that has a boolean payload
+indicating whether the semaphore is currently signaled or unsignaled.
+When created, the semaphore is in the unsignaled state.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -11554,7 +11592,11 @@ the semaphores to the signaled state.</p>
 includes every command submitted in the same batch.
 Semaphore signal operations that are defined by <a href="#vkQueueSubmit">vkQueueSubmit</a>
 additionally include all commands that occur earlier in
-<a href="#synchronization-submission-order">submission order</a>.</p>
+<a href="#synchronization-submission-order">submission order</a>.
+Semaphore signal operations that are defined by <a href="#vkQueueSubmit">vkQueueSubmit</a> or
+<a href="#vkQueueBindSparse">vkQueueBindSparse</a> additionally include in the first synchronization
+scope any semaphore and fence signal operations that occur earlier in
+<a href="#synchronization-signal-operation-order">signal operation order</a>.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
@@ -11570,13 +11612,16 @@ empty.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="synchronization-semaphores-waiting">6.4.2. Semaphore Waiting &amp; Unsignaling</h4>
+<h4 id="synchronization-semaphores-waiting">6.4.2. Semaphore Waiting</h4>
 <div class="paragraph">
 <p>When a batch is submitted to a queue via a <a href="#devsandqueues-submission">queue
 submission</a>, and it includes semaphores to be waited on, it defines a
 memory dependency between prior semaphore signal operations and the batch,
-and defines <em>semaphore unsignal operations</em> which set the semaphores to the
-unsignaled state.</p>
+and defines <em>semaphore wait operations</em>.</p>
+</div>
+<div class="paragraph">
+<p>Such semaphore wait operations set the semaphores
+to the unsignaled state.</p>
 </div>
 <div class="paragraph">
 <p>The first synchronization scope includes all semaphore signal operations
@@ -11603,9 +11648,9 @@ empty.</p>
 includes all memory access performed by the device.</p>
 </div>
 <div class="paragraph">
-<p>The semaphore unsignal operation happens-after the first set of operations
-in the execution dependency, and happens-before the second set of operations
-in the execution dependency.</p>
+<p>The semaphore wait operation happens-after the first set of operations in
+the execution dependency, and happens-before the second set of operations in
+the execution dependency.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -11616,12 +11661,13 @@ in the execution dependency.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Unlike fences or events, the act of waiting for a semaphore also unsignals
+<p>Unlike
+fences or events, the act of waiting for a binary semaphore also unsignals
 that semaphore.
 Applications <strong class="purple">must</strong> ensure that between two such wait operations, the
 semaphore is signaled again, with execution dependencies used to ensure
 these occur in order.
-Semaphore waits and signals should thus occur in discrete 1:1 pairs.</p>
+Binary semaphore waits and signals should thus occur in discrete 1:1 pairs.</p>
 </div>
 </td>
 </tr>
@@ -11633,19 +11679,24 @@ Semaphore waits and signals should thus occur in discrete 1:1 pairs.</p>
 <div class="paragraph">
 <p>Before waiting on a semaphore, the application <strong class="purple">must</strong> ensure the semaphore is
 in a valid state for a wait operation.
-Specifically, when a <a href="#synchronization-semaphores-waiting">semaphore wait and
-unsignal operation</a> is submitted to a queue:</p>
+Specifically, when a <a href="#synchronization-semaphores-waiting">semaphore wait
+operation</a> is submitted to a queue:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The semaphore <strong class="purple">must</strong> be signaled, or have an associated
+<p>A binary semaphore <strong class="purple">must</strong> be signaled, or have an associated
 <a href="#synchronization-semaphores-signaling">semaphore signal operation</a> that
 is pending execution.</p>
 </li>
 <li>
-<p>There <strong class="purple">must</strong> be no other queue waiting on the same semaphore when the
-operation executes.</p>
+<p>Any <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
+on which the pending binary semaphore signal operation depends <strong class="purple">must</strong>
+also be completed or pending execution.</p>
+</li>
+<li>
+<p>There <strong class="purple">must</strong> be no other queue waiting on the same binary semaphore when
+the operation executes.</p>
 </li>
 </ul>
 </div>
@@ -16019,9 +16070,9 @@ the resulting framebuffer object is returned.</p>
 <ul>
 <li>
 <p><a id="VUID-vkCreateFramebuffer-pCreateInfo-02777"></a>
-If <code>pCreateInfo</code>&#8594;<code>flags</code> does not include
+If <code>pCreateInfo</code>-&gt;<code>flags</code> does not include
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
-is not <code>0</code>, each element of <code>pCreateInfo</code>&#8594;<code>pAttachments</code> <strong class="purple">must</strong>
+is not <code>0</code>, each element of <code>pCreateInfo</code>-&gt;<code>pAttachments</code> <strong class="purple">must</strong>
 have been created on <code>device</code></p>
 </li>
 </ul>
@@ -69737,15 +69788,16 @@ it defines is executed on the device</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueBindSparse-pWaitSemaphores-01116"></a>
-When a semaphore unsignal operation defined by any element of the
-<code>pWaitSemaphores</code> member of any element of <code>pBindInfo</code> executes
-on <code>queue</code>, there <strong class="purple">must</strong> be no other queues waiting on the same
-semaphore.</p>
+When a semaphore wait operation referring to a binary semaphore defined
+by any element of the <code>pWaitSemaphores</code> member of any element of
+<code>pBindInfo</code> executes on <code>queue</code>, there <strong class="purple">must</strong> be no other queues
+waiting on the same semaphore.</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueBindSparse-pWaitSemaphores-01117"></a>
 All elements of the <code>pWaitSemaphores</code> member of all elements of
-<code>pBindInfo</code> <strong class="purple">must</strong> be semaphores that are signaled, or have
+<code>pBindInfo</code> member referring to a binary semaphore <strong class="purple">must</strong> be
+semaphores that are signaled, or have
 <a href="#synchronization-semaphores-signaling">semaphore signal operations</a>
 previously submitted for execution.</p>
 </li>
@@ -84151,7 +84203,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">123</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">124</span></code></pre>
 </div>
 </div>
 </div>
@@ -84788,6 +84840,13 @@ functionality defined by the earlier specification, is able to correctly
 run against each version without any modification.
 This assumes no active attempt by that application to not run when it
 detects a different version.</p>
+</dd>
+<dt class="hdlist1">Binary Semaphore</dt>
+<dd>
+<p>A semaphore with a boolean payload indicating whether the semaphore is
+signaled or unsignaled.
+Represented by a <a href="#VkSemaphore">VkSemaphore</a> object
+.</p>
 </dd>
 <dt class="hdlist1">Full Compatibility</dt>
 <dd>
@@ -86795,7 +86854,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.123<br>
+Version 1.0.124<br>
 Last updated 2019-07-27 12:54:23 -0700
 </div>
 </div>
