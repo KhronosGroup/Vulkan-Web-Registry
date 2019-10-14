@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.124 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.125 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.124 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.125 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.124,</span>
-<span id="revdate">2019-10-06 19:43:09Z</span>
-<br><span id="revremark">from git branch: github-master commit: 22a5a1459fbe8be546079525c4c9d50bfc20b30b</span>
+<span id="revnumber">version 1.1.125,</span>
+<span id="revdate">2019-10-14 03:06:14Z</span>
+<br><span id="revremark">from git branch: github-master commit: a5b10770a313a4b1fcf74645c6041c6090630085</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -6121,29 +6121,29 @@ from the created semaphore.</p>
 <p>If this structure is not present, or if <code>pAttributes</code> is set to <code>NULL</code>,
 default security descriptor values will be used, and child processes created
 by the application will not inherit the handle, as described in the MSDN
-documentation for “Synchronization Object Security and Access Rights”<sup>1</sup>.
-Further, if the structure is not present, the access rights will be</p>
+documentation for “Synchronization Object Security and Access Rights”<sup>1</sup>.</p>
 </div>
 <div class="paragraph">
-<p><code>DXGI_SHARED_RESOURCE_READ</code> | <code>DXGI_SHARED_RESOURCE_WRITE</code></p>
-</div>
-<div class="paragraph">
-<p>for handles of the following types:</p>
+<p>For handles of the following types:</p>
 </div>
 <div class="paragraph">
 <p><code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT</code></p>
 </div>
 <div class="paragraph">
-<p>And</p>
+<p>The implementation <strong class="purple">must</strong> ensure the access rights allow both signal and wait
+operations on the semaphore.</p>
 </div>
 <div class="paragraph">
-<p><code>GENERIC_ALL</code></p>
-</div>
-<div class="paragraph">
-<p>for handles of the following types:</p>
+<p>For handles of the following types:</p>
 </div>
 <div class="paragraph">
 <p><code>VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT</code></p>
+</div>
+<div class="paragraph">
+<p>The access rights <strong class="purple">must</strong> be:</p>
+</div>
+<div class="paragraph">
+<p><code>GENERIC_ALL</code></p>
 </div>
 <div class="dlist">
 <dl>
@@ -9363,7 +9363,10 @@ no accesses.</p>
 <p><a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> is used with <a href="#vkCmdSetEvent">vkCmdSetEvent</a> to define a memory
 dependency between two sets of action commands, roughly in the same way as
 pipeline barriers, but split into two commands such that work between the
-two <strong class="purple">may</strong> execute unhindered.</p>
+two <strong class="purple">may</strong> execute unhindered.
+Unlike <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a>, a queue family ownership transfer can’t
+be performed using <a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> since events only support
+host/queue and intra-queue dependencies.</p>
 </div>
 </td>
 </tr>
@@ -9460,6 +9463,12 @@ its <code>dstAccessMask</code> member if that bit is not supported by any of
 the pipeline stages in <code>dstStageMask</code>, as specified in the
 <a href="#synchronization-access-types-supported">table of supported access
 types</a>.</p>
+</li>
+<li>
+<p>[[VUID—​srcQueueFamilyIndex-02803]]
+The <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of
+any element of <code>pBufferMemoryBarriers</code> or <code>pImageMemoryBarriers</code>
+<strong class="purple">must</strong> be equal.</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdWaitEvents-commandBuffer-01167"></a>
@@ -10828,8 +10837,8 @@ range.
 A release operation is defined by executing a
 <a href="#synchronization-buffer-memory-barriers">buffer memory barrier</a> (for a
 buffer range) or an <a href="#synchronization-image-memory-barriers">image memory
-barrier</a> (for an image subresource range), on a queue from the source queue
-family.
+barrier</a> (for an image subresource range) using <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a>,
+on a queue from the source queue family.
 The <code>srcQueueFamilyIndex</code> parameter of the barrier <strong class="purple">must</strong> be set to the
 source queue family index, and the <code>dstQueueFamilyIndex</code> parameter to
 the destination queue family index.
@@ -10845,8 +10854,8 @@ range.
 An acquire operation is defined by executing a
 <a href="#synchronization-buffer-memory-barriers">buffer memory barrier</a> (for a
 buffer range) or an <a href="#synchronization-image-memory-barriers">image memory
-barrier</a> (for an image subresource range), on a queue from the destination
-queue family.
+barrier</a> (for an image subresource range) using <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a>,
+on a queue from the destination queue family.
 The buffer range or image subresource range specified in an acquire
 operation <strong class="purple">must</strong> match exactly that of a previous release operation.
 The <code>srcQueueFamilyIndex</code> parameter of the barrier <strong class="purple">must</strong> be set to the
@@ -10916,6 +10925,25 @@ transferred.
 The contents of any portion of another resource which aliases memory that is
 bound to the transferred buffer or image subresource range are undefined
 after a release or acquire operation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Because <a href="#synchronization-events">Events</a> can’t be used directly for inter-queue
+synchronization, and because <a href="#vkCmdSetEvent">vkCmdSetEvent</a> doesn’t have the queue
+family index or memory barrier parameters needed by a <em>release operation</em>,
+the release and acquire operations of a queue family ownership transfer <strong class="purple">can</strong>
+only be performed using <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -11453,7 +11481,7 @@ QueryPerformanceCounter(&amp;counter);
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.124<br>
+Version 1.1.125<br>
 Last updated 2019-07-27 12:54:23 -0700
 </div>
 </div>
