@@ -42,6 +42,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_separate_depth_stencil_layouts"> VK_KHR_separate_depth_stencil_layouts </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_atomic_int64"> VK_KHR_shader_atomic_int64 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_clock"> VK_KHR_shader_clock </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
