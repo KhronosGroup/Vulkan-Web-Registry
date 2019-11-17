@@ -37,6 +37,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_maintenance2"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_maintenance3"> VK_KHR_maintenance3 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_multiview"> VK_KHR_multiview </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_performance_query"> VK_KHR_performance_query </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_pipeline_executable_properties"> VK_KHR_pipeline_executable_properties </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
