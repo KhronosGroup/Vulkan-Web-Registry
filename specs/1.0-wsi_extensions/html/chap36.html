@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.128 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.129 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.128 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.129 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.128,</span>
-<span id="revdate">2019-11-17 16:00:56Z</span>
-<br><span id="revremark">from git branch: github-master commit: d4b6925d02d0c917403fb8743c0289dd67b027f1</span>
+<span id="revnumber">version 1.0.129,</span>
+<span id="revdate">2019-11-24 13:41:03Z</span>
+<br><span id="revremark">from git branch: github-master commit: 2735ce8edb84539d210651664719edd66ace57d8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -979,6 +979,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="chap13.html#descriptorsets-types">13.1. Descriptor Types</a></li>
 <li><a href="chap13.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
+<li><a href="chap13.html#_physical_storage_buffer_access">13.3. Physical Storage Buffer Access</a></li>
 </ul>
 </li>
 <li><a href="chap14.html#interfaces">14. Shader Interfaces</a>
@@ -1543,7 +1544,12 @@ with that capability.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>RoundingModeRTZ</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap32.html#features-shaderRoundingModeRTZFloat16">shaderRoundingModeRTZFloat16</a>, <a href="chap32.html#features-shaderRoundingModeRTZFloat32">shaderRoundingModeRTZFloat32</a>, <a href="chap32.html#features-shaderRoundingModeRTZFloat64">shaderRoundingModeRTZFloat64</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap32.html#features-shaderRoundingModeRTZFloat16">shaderRoundingModeRTZFloat16</a>, <a href="chap32.html#features-shaderRoundingModeRTZFloat32">shaderRoundingModeRTZFloat32</a>, <a href="chap32.html#features-shaderRoundingModeRTZFloat64">shaderRoundingModeRTZFloat64</a>
+<a id="spirvenv-capabilities-table-physicalstoragebufferaddresses"></a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>PhysicalStorageBufferAddresses</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap31.html#features-bufferDeviceAddress">bufferDeviceAddress</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1579,6 +1585,10 @@ uses the <code>SPV_KHR_storage_buffer_storage_class</code> SPIR-V extension.</p>
 <div class="paragraph">
 <p>The application <strong class="purple">can</strong> pass a SPIR-V module to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> that
 uses the <code>SPV_KHR_vulkan_memory_model</code> SPIR-V extension.</p>
+</div>
+<div class="paragraph">
+<p>The application <strong class="purple">can</strong> pass a SPIR-V module to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> that
+uses the <code>SPV_KHR_physical_storage_buffer</code> SPIR-V extension.</p>
 </div>
 <div class="paragraph">
 <p>The application <strong class="purple">must</strong> not pass a SPIR-V module containing any of the
@@ -1705,6 +1715,9 @@ enabled, <strong>QueueFamilyKHR</strong> <strong class="purple">must</strong> no
 </li>
 <li>
 <p><strong>StorageBuffer</strong></p>
+</li>
+<li>
+<p><strong>PhysicalStorageBuffer</strong></p>
 </li>
 </ul>
 </div>
@@ -1956,6 +1969,8 @@ structure member has no effect.</p>
 <p>the last member of an <code>OpTypeStruct</code>
 that is in the <code>StorageBuffer</code> storage class decorated as
 <code>Block</code>, or
+that is in the <code>PhysicalStorageBuffer</code> storage class decorated as
+<code>Block</code>, or
 that is in the <code>Uniform</code> storage class decorated as
 <code>BufferBlock</code>.</p>
 </li>
@@ -2149,8 +2164,36 @@ following storage classes:</p>
 <code>VariablePointersStorageBuffer</code> is enabled.</p>
 </li>
 <li>
-<p><strong>PhysicalStorageBufferEXT</strong>, if the <code>PhysicalStorageBuffer64EXT</code>
-addressing model is enabled.</p>
+<p><strong>PhysicalStorageBuffer</strong>, if the <code>PhysicalStorageBuffer64</code> addressing
+model is enabled.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Any load or store through a physical pointer type <strong class="purple">must</strong> be aligned to a
+multiple of the size of the largest scalar type in the pointed-to type.</p>
+</li>
+<li>
+<p>All instructions that support memory access operands and that use a
+physical pointer <strong class="purple">must</strong> include the <code>Aligned</code> operand.</p>
+</li>
+<li>
+<p>The pointer value of a memory access instruction must be at least as
+aligned as specified by the <code>Aligned</code> memory access operand.</p>
+</li>
+<li>
+<p>Any access chain instruction that accesses into a <code>RowMajor</code> matrix
+<strong class="purple">must</strong> only be used as the <code>Pointer</code> operand to <code>OpLoad</code> or
+<code>OpStore</code>.</p>
+</li>
+<li>
+<p><code>OpConvertUToPtr</code> and <code>OpConvertPtrToU</code> <strong class="purple">must</strong> use an integer type
+whose <code>Width</code> is 64.</p>
 </li>
 </ul>
 </div>
@@ -2931,7 +2974,7 @@ The compatibile formats are:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.128<br>
+Version 1.0.129<br>
 Last updated 2019-11-17 06:47:49 -0800
 </div>
 </div>

@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>VkBufferDeviceAddressInfoEXT(3)</title>
+<title>VkBufferOpaqueCaptureAddressCreateInfoKHR(3)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -749,10 +749,10 @@ a code { color: inherit; }
 </script></head>
 <body class="manpage">
 <div id="header">
-<h1>VkBufferDeviceAddressInfoEXT(3) Manual Page</h1>
+<h1>VkBufferOpaqueCaptureAddressCreateInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkBufferDeviceAddressInfoEXT - Structure specifying the buffer to query an address for</p>
+<p>VkBufferOpaqueCaptureAddressCreateInfoKHR - Request a specific address for a buffer</p>
 </div>
 </div>
 <div id="content">
@@ -760,15 +760,18 @@ a code { color: inherit; }
 <h2 id="_c_specification">C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>VkBufferDeviceAddressInfoEXT</code> structure is defined as:</p>
+<p>To request a specific device address for a buffer, add a
+<a href="VkBufferOpaqueCaptureAddressCreateInfoKHR.html">VkBufferOpaqueCaptureAddressCreateInfoKHR</a> structure to the <code>pNext</code>
+chain of the <a href="VkBufferCreateInfo.html">VkBufferCreateInfo</a> structure.
+The <code>VkBufferOpaqueCaptureAddressCreateInfoKHR</code> structure is defined as:</p>
 </div>
-<div id="VkBufferDeviceAddressInfoEXT" class="listingblock">
+<div id="VkBufferOpaqueCaptureAddressCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">typedef struct VkBufferDeviceAddressInfoEXT {
+<pre class="highlight"><code class="language-c++" data-lang="c++">typedef struct VkBufferOpaqueCaptureAddressCreateInfoKHR {
     VkStructureType    sType;
     const void*        pNext;
-    VkBuffer           buffer;
-} VkBufferDeviceAddressInfoEXT;</code></pre>
+    uint64_t           opaqueCaptureAddress;
+} VkBufferOpaqueCaptureAddressCreateInfoKHR;</code></pre>
 </div>
 </div>
 </div>
@@ -785,7 +788,8 @@ a code { color: inherit; }
 <p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
 </li>
 <li>
-<p><code>buffer</code> specifies the buffer whose address is being queried.</p>
+<p><code>opaqueCaptureAddress</code> is the opaque capture address requested for
+the buffer.</p>
 </li>
 </ul>
 </div>
@@ -794,26 +798,50 @@ a code { color: inherit; }
 <div class="sect1">
 <h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-02600"></a>
-If <code>buffer</code> is non-sparse and was not created with the
-<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT</code> flag, then
-it <strong class="purple">must</strong> be bound completely and contiguously to a single
-<code>VkDeviceMemory</code> object</p>
-</li>
-<li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-02601"></a>
-<code>buffer</code> <strong class="purple">must</strong> have been created with
-<code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT</code></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>If <code>opaqueCaptureAddress</code> is zero, no specific address is requested.</p>
 </div>
+<div class="paragraph">
+<p>If <code>opaqueCaptureAddress</code> is not zero, then it <strong class="purple">should</strong> be an address
+retrieved from <a href="vkGetBufferOpaqueCaptureAddressKHR.html">vkGetBufferOpaqueCaptureAddressKHR</a> for an identically
+created buffer on the same implementation.</p>
 </div>
+<div class="paragraph">
+<p>If this structure is not present, it is as if <code>opaqueCaptureAddress</code> is
+zero.</p>
+</div>
+<div class="paragraph">
+<p>Apps <strong class="purple">should</strong> avoid creating buffers with app-provided addresses and
+implementation-provided addresses in the same process, to reduce the
+likelihood of <code>VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR</code> errors.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The expected usage for this is that a trace capture/replay tool will add the
+<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR</code> flag to all
+buffers that use <code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_KHR</code>, and
+during capture will save the queried opaque device addresses in the trace.
+During replay, the buffers will be created specifying the original address
+so any address values stored in the trace data will remain valid.</p>
+</div>
+<div class="paragraph">
+<p>Implementations are expected to separate such buffers in the GPU address
+space so normal allocations will avoid using these addresses.
+Apps/tools should avoid mixing app-provided and implementation-provided
+addresses for buffers created with
+<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR</code>, to avoid
+address space allocation conflicts.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -821,13 +849,7 @@ it <strong class="purple">must</strong> be bound completely and contiguously to 
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT</code></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-parameter"></a> <code>buffer</code> <strong class="purple">must</strong> be a valid <code>VkBuffer</code> handle</p>
+<p><a id="VUID-VkBufferOpaqueCaptureAddressCreateInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -839,7 +861,7 @@ it <strong class="purple">must</strong> be bound completely and contiguously to 
 <h2 id="_see_also">See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkBuffer.html">VkBuffer</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkGetBufferDeviceAddressEXT.html">vkGetBufferDeviceAddressEXT</a></p>
+<p><a href="VkStructureType.html">VkStructureType</a></p>
 </div>
 </div>
 </div>
@@ -847,7 +869,7 @@ it <strong class="purple">must</strong> be bound completely and contiguously to 
 <h2 id="_document_notes">Document Notes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VkBufferDeviceAddressInfoEXT" target="_blank" rel="noopener">Vulkan Specification</a></p>
+<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VkBufferOpaqueCaptureAddressCreateInfoKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
 </div>
 <div class="paragraph">
 <p>This page is extracted from the Vulkan Specification.
@@ -868,8 +890,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.128<br>
-Last updated 2019-11-17 07:45:54 -0800
+Version 1.1.129<br>
+Last updated 2019-11-24 05:26:36 -0800
 </div>
 </div>
 

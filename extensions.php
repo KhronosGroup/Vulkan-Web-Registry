@@ -4,6 +4,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_8bit_storage"> VK_KHR_8bit_storage </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_android_surface"> VK_KHR_android_surface </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_bind_memory2"> VK_KHR_bind_memory2 </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_buffer_device_address"> VK_KHR_buffer_device_address </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_create_renderpass2"> VK_KHR_create_renderpass2 </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_KHR_depth_stencil_resolve"> VK_KHR_depth_stencil_resolve </a> </li>

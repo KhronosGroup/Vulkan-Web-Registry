@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.128 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.129 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.128 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.129 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.128,</span>
-<span id="revdate">2019-11-17 15:56:10Z</span>
-<br><span id="revremark">from git branch: github-master commit: d4b6925d02d0c917403fb8743c0289dd67b027f1</span>
+<span id="revnumber">version 1.0.129,</span>
+<span id="revdate">2019-11-24 13:36:31Z</span>
+<br><span id="revremark">from git branch: github-master commit: 2735ce8edb84539d210651664719edd66ace57d8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -7881,11 +7881,21 @@ Compute</p></td>
 <p>To query a 64-bit buffer device address value through which buffer memory
 <strong class="purple">can</strong> be accessed in a shader, call:</p>
 </div>
+<div id="vkGetBufferDeviceAddressKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">VkDeviceAddress vkGetBufferDeviceAddressKHR(
+    VkDevice                                    device,
+    <span class="directive">const</span> VkBufferDeviceAddressInfoKHR*         pInfo);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or the equivalent command</p>
+</div>
 <div id="vkGetBufferDeviceAddressEXT" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++">VkDeviceAddress vkGetBufferDeviceAddressEXT(
     VkDevice                                    device,
-    <span class="directive">const</span> VkBufferDeviceAddressInfoEXT*         pInfo);</code></pre>
+    <span class="directive">const</span> VkBufferDeviceAddressInfoKHR*         pInfo);</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -7894,7 +7904,7 @@ Compute</p></td>
 <p><code>device</code> is the logical device that the buffer was created on.</p>
 </li>
 <li>
-<p><code>pInfo</code> is a pointer to a <a href="#VkBufferDeviceAddressInfoEXT">VkBufferDeviceAddressInfoEXT</a>
+<p><code>pInfo</code> is a pointer to a <a href="#VkBufferDeviceAddressInfoKHR">VkBufferDeviceAddressInfoKHR</a>
 structure specifying the buffer to retrieve an address for.</p>
 </li>
 </ul>
@@ -7904,21 +7914,26 @@ structure specifying the buffer to retrieve an address for.</p>
 <code>pInfo</code>::<code>buffer</code>.
 The address range starting at this value and whose size is the size of the
 buffer <strong class="purple">can</strong> be used in a shader to access the memory bound to that buffer,
-using the <code>SPV_EXT_physical_storage_buffer</code> extension and the
-<code>PhysicalStorageBufferEXT</code> storage class.
+using the
+<code>SPV_KHR_physical_storage_buffer</code> extension
+or the equivalent
+<code>SPV_EXT_physical_storage_buffer</code> extension
+and the <code>PhysicalStorageBuffer</code> storage class.
 For example, this value <strong class="purple">can</strong> be stored in a uniform buffer, and the shader
 <strong class="purple">can</strong> read the value from the uniform buffer and use it to do a dependent
 read/write to this buffer.
 A value of zero is reserved as a “null” pointer and <strong class="purple">must</strong> not be returned
 as a valid buffer device address.
 All loads, stores, and atomics in a shader through
-<code>PhysicalStorageBufferEXT</code> pointers <strong class="purple">must</strong> access addresses in the address
+<code>PhysicalStorageBuffer</code> pointers <strong class="purple">must</strong> access addresses in the address
 range of some buffer.</p>
 </div>
 <div class="paragraph">
 <p>If the buffer was created with a non-zero value of
-<a href="chap11.html#VkBufferDeviceAddressCreateInfoEXT">VkBufferDeviceAddressCreateInfoEXT</a>::<code>deviceAddress</code>, the return
-value will be the same address.</p>
+<a href="chap11.html#VkBufferOpaqueCaptureAddressCreateInfoKHR">VkBufferOpaqueCaptureAddressCreateInfoKHR</a>::<code>opaqueCaptureAddress</code>
+or
+<a href="chap11.html#VkBufferDeviceAddressCreateInfoEXT">VkBufferDeviceAddressCreateInfoEXT</a>::<code>deviceAddress</code>
+the return value will be the same address that was returned at capture time.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -7926,14 +7941,17 @@ value will be the same address.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkGetBufferDeviceAddressEXT-None-02598"></a>
-The <a href="chap35.html#features-bufferDeviceAddress">bufferDeviceAddress</a> feature <strong class="purple">must</strong>
-be enabled</p>
+<p><a id="VUID-vkGetBufferDeviceAddressKHR-bufferDeviceAddress-03324"></a>
+The <a href="chap35.html#features-bufferDeviceAddress">bufferDeviceAddress</a> or
+<a href="chap35.html#features-bufferDeviceAddressEXT"><code>VkPhysicalDeviceBufferDeviceAddressFeaturesEXT</code>::<code>bufferDeviceAddress</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
 </li>
 <li>
-<p><a id="VUID-vkGetBufferDeviceAddressEXT-device-02599"></a>
+<p><a id="VUID-vkGetBufferDeviceAddressKHR-device-03325"></a>
 If <code>device</code> was created with multiple physical devices, then the
 <a href="chap35.html#features-bufferDeviceAddressMultiDevice">bufferDeviceAddressMultiDevice</a>
+or
+<a href="chap35.html#features-bufferDeviceAddressMultiDeviceEXT"><code>VkPhysicalDeviceBufferDeviceAddressFeaturesEXT</code>::<code>bufferDeviceAddressMultiDevice</code></a>
 feature <strong class="purple">must</strong> be enabled</p>
 </li>
 </ul>
@@ -7946,10 +7964,10 @@ feature <strong class="purple">must</strong> be enabled</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkGetBufferDeviceAddressEXT-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+<p><a id="VUID-vkGetBufferDeviceAddressKHR-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkGetBufferDeviceAddressEXT-pInfo-parameter"></a> <code>pInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkBufferDeviceAddressInfoEXT</code> structure</p>
+<p><a id="VUID-vkGetBufferDeviceAddressKHR-pInfo-parameter"></a> <code>pInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkBufferDeviceAddressInfoKHR</code> structure</p>
 </li>
 </ul>
 </div>
@@ -7960,15 +7978,23 @@ feature <strong class="purple">must</strong> be enabled</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <code>VkBufferDeviceAddressInfoEXT</code> structure is defined as:</p>
+<p>The <code>VkBufferDeviceAddressInfoKHR</code> structure is defined as:</p>
 </div>
-<div id="VkBufferDeviceAddressInfoEXT" class="listingblock">
+<div id="VkBufferDeviceAddressInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBufferDeviceAddressInfoEXT {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBufferDeviceAddressInfoKHR {
     VkStructureType    sType;
     <span class="directive">const</span> <span class="directive">void</span>*        pNext;
     VkBuffer           buffer;
-} VkBufferDeviceAddressInfoEXT;</code></pre>
+} VkBufferDeviceAddressInfoKHR;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or the equivalent</p>
+</div>
+<div id="VkBufferDeviceAddressInfoEXT" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkBufferDeviceAddressInfoKHR VkBufferDeviceAddressInfoEXT;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -7990,16 +8016,16 @@ feature <strong class="purple">must</strong> be enabled</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-02600"></a>
+<p><a id="VUID-VkBufferDeviceAddressInfoKHR-buffer-02600"></a>
 If <code>buffer</code> is non-sparse and was not created with the
-<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT</code> flag, then
+<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR</code> flag, then
 it <strong class="purple">must</strong> be bound completely and contiguously to a single
 <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-02601"></a>
+<p><a id="VUID-VkBufferDeviceAddressInfoKHR-buffer-02601"></a>
 <code>buffer</code> <strong class="purple">must</strong> have been created with
-<code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT</code></p>
+<code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -8011,13 +8037,83 @@ it <strong class="purple">must</strong> be bound completely and contiguously to 
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_EXT</code></p>
+<p><a id="VUID-VkBufferDeviceAddressInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p><a id="VUID-VkBufferDeviceAddressInfoKHR-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkBufferDeviceAddressInfoEXT-buffer-parameter"></a> <code>buffer</code> <strong class="purple">must</strong> be a valid <code>VkBuffer</code> handle</p>
+<p><a id="VUID-VkBufferDeviceAddressInfoKHR-buffer-parameter"></a> <code>buffer</code> <strong class="purple">must</strong> be a valid <code>VkBuffer</code> handle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query a 64-bit buffer opaque capture address, call:</p>
+</div>
+<div id="vkGetBufferOpaqueCaptureAddressKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++">uint64_t vkGetBufferOpaqueCaptureAddressKHR(
+    VkDevice                                    device,
+    <span class="directive">const</span> VkBufferDeviceAddressInfoKHR*         pInfo);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that the buffer was created on.</p>
+</li>
+<li>
+<p><code>pInfo</code> is a pointer to an instance of the
+<a href="#VkBufferDeviceAddressInfoKHR">VkBufferDeviceAddressInfoKHR</a> structure specifying the buffer to
+retrieve an address for.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The 64-bit return value is an opaque capture address of the start of
+<code>pInfo</code>::<code>buffer</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the buffer was created with a non-zero value of
+<a href="chap11.html#VkBufferOpaqueCaptureAddressCreateInfoKHR">VkBufferOpaqueCaptureAddressCreateInfoKHR</a>::<code>opaqueCaptureAddress</code>
+the return value <strong class="purple">must</strong> be the same address.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetBufferOpaqueCaptureAddressKHR-None-03326"></a>
+The <a href="chap35.html#features-bufferDeviceAddress">bufferDeviceAddress</a> feature <strong class="purple">must</strong>
+be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkGetBufferOpaqueCaptureAddressKHR-device-03327"></a>
+If <code>device</code> was created with multiple physical devices, then the
+<a href="chap35.html#features-bufferDeviceAddressMultiDevice">bufferDeviceAddressMultiDevice</a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetBufferOpaqueCaptureAddressKHR-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetBufferOpaqueCaptureAddressKHR-pInfo-parameter"></a> <code>pInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkBufferDeviceAddressInfoKHR</code> structure</p>
 </li>
 </ul>
 </div>
@@ -8030,7 +8126,7 @@ it <strong class="purple">must</strong> be bound completely and contiguously to 
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.128<br>
+Version 1.0.129<br>
 Last updated 2019-11-17 06:47:49 -0800
 </div>
 </div>

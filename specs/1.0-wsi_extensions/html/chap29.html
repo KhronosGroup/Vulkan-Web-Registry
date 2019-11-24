@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.128 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.129 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.128 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.129 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.128,</span>
-<span id="revdate">2019-11-17 16:00:56Z</span>
-<br><span id="revremark">from git branch: github-master commit: d4b6925d02d0c917403fb8743c0289dd67b027f1</span>
+<span id="revnumber">version 1.0.129,</span>
+<span id="revdate">2019-11-24 13:41:03Z</span>
+<br><span id="revremark">from git branch: github-master commit: 2735ce8edb84539d210651664719edd66ace57d8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -979,6 +979,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="chap13.html#descriptorsets-types">13.1. Descriptor Types</a></li>
 <li><a href="chap13.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
+<li><a href="chap13.html#_physical_storage_buffer_access">13.3. Physical Storage Buffer Access</a></li>
 </ul>
 </li>
 <li><a href="chap14.html#interfaces">14. Shader Interfaces</a>
@@ -4985,6 +4986,8 @@ supported by the surface on that physical device, even if the capabilities
 taken individually are supported as part of some other parameter
 combinations.</p>
 </div>
+<div class="sect3">
+<h4 id="_surface_capabilities">29.5.1. Surface Capabilities</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -5408,9 +5411,10 @@ describing the capabilities of the specified surface.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>An application queries if a protected VkSurface is displayable on a specific
-windowing system using <code>VkSurfaceProtectedCapabilitiesKHR</code>, which <strong class="purple">can</strong>
-be passed in <code>pNext</code> parameter of <code>VkSurfaceCapabilities2KHR</code>.</p>
+<p>An application queries if a protected <a href="#VkSurfaceKHR">VkSurfaceKHR</a> is displayable on a
+specific windowing system using <code>VkSurfaceProtectedCapabilitiesKHR</code>,
+which <strong class="purple">can</strong> be passed in <code>pNext</code> parameter of
+<code>VkSurfaceCapabilities2KHR</code>.</p>
 </div>
 <div class="paragraph">
 <p>The <code>VkSurfaceProtectedCapabilitiesKHR</code> structure is defined as:</p>
@@ -5658,6 +5662,9 @@ or more <a href="#VkCompositeAlphaFlagBitsKHR">VkCompositeAlphaFlagBitsKHR</a>.<
 </div>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_surface_format_support">29.5.2. Surface Format Support</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -5707,8 +5714,21 @@ written.
 If <code>pSurfaceFormatCount</code> is smaller than the number of format pairs
 supported for the given <code>surface</code>, <code>VK_INCOMPLETE</code> will be returned
 instead of <code>VK_SUCCESS</code> to indicate that not all the available values
-were returned.
-The number of format pairs supported <strong class="purple">must</strong> be greater than or equal to 1.</p>
+were returned.</p>
+</div>
+<div class="paragraph">
+<p>The number of format pairs supported <strong class="purple">must</strong> be greater than or equal to 1.
+<code>pSurfaceFormats</code> <strong class="purple">must</strong> not contain an entry whose value for
+<code>format</code> is <code>VK_FORMAT_UNDEFINED</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pSurfaceFormats</code> includes an entry whose value for <code>colorSpace</code>
+is <code>VK_COLOR_SPACE_SRGB_NONLINEAR_KHR</code> and whose value for <code>format</code>
+is a UNORM (or SRGB) format and the corresponding SRGB (or UNORM) format is
+a color renderable format for <code>VK_IMAGE_TILING_OPTIMAL</code>, then
+<code>pSurfaceFormats</code> <strong class="purple">must</strong> also contain an entry with the same value for
+<code>colorSpace</code> and <code>format</code> equal to the corresponding SRGB (or UNORM)
+format.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5854,6 +5874,11 @@ number of format tuples available or queried, as described below.</p>
 </ul>
 </div>
 <div class="paragraph">
+<p><a href="#vkGetPhysicalDeviceSurfaceFormats2KHR">vkGetPhysicalDeviceSurfaceFormats2KHR</a> behaves similarly to
+<a href="#vkGetPhysicalDeviceSurfaceFormatsKHR">vkGetPhysicalDeviceSurfaceFormatsKHR</a>, with the ability to be extended
+via <code>pNext</code> chains.</p>
+</div>
+<div class="paragraph">
 <p>If <code>pSurfaceFormats</code> is <code>NULL</code>, then the number of format tuples
 supported for the given <code>surface</code> is returned in
 <code>pSurfaceFormatCount</code>.
@@ -5867,8 +5892,7 @@ written.
 If <code>pSurfaceFormatCount</code> is smaller than the number of format tuples
 supported for the surface parameters described in <code>pSurfaceInfo</code>,
 <code>VK_INCOMPLETE</code> will be returned instead of <code>VK_SUCCESS</code> to indicate
-that not all the available values were returned.
-The number of format tuples supported <strong class="purple">must</strong> be greater than or equal to 1.</p>
+that not all the available values were returned.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6027,38 +6051,9 @@ color space.</p>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p>If <code>pSurfaceFormats</code> includes an entry whose value for <code>colorSpace</code>
-is <code>VK_COLOR_SPACE_SRGB_NONLINEAR_KHR</code> and whose value for <code>format</code>
-is a UNORM (or SRGB) format and the corresponding SRGB (or UNORM) format is
-a color renderable format for <code>VK_IMAGE_TILING_OPTIMAL</code>, then
-<code>pSurfaceFormats</code> <strong class="purple">must</strong> also contain an entry with the same value for
-<code>colorSpace</code> and <code>format</code> equal to the corresponding SRGB (or UNORM)
-format.
-<code>pSurfaceFormats</code> <strong class="purple">must</strong> not contain an entry whose value for
-<code>format</code> is <code>VK_FORMAT_UNDEFINED</code>.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>In the initial release of the <code>VK_KHR_surface</code> and <code><a href="chap40.html#VK_KHR_swapchain">VK_KHR_swapchain</a></code>
-extensions, the token <code>VK_COLORSPACE_SRGB_NONLINEAR_KHR</code> was used.
-Starting in the 2016-05-13 updates to the extension branches, matching
-release 1.0.13 of the core API specification,
-<code>VK_COLOR_SPACE_SRGB_NONLINEAR_KHR</code> is used instead for consistency with
-Vulkan naming rules.
-The older enum is still available for backwards compatibility.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
+<div class="sect3">
+<h4 id="_surface_presentation_mode_support">29.5.3. Surface Presentation Mode Support</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -6333,6 +6328,7 @@ equivalent to the behavior of {wgl|glX}SwapBuffers with a swap interval of
 </td>
 </tr>
 </table>
+</div>
 </div>
 </div>
 </div>
@@ -7346,7 +7342,7 @@ Pixels in the presentable images that correspond to regions of the
 target surface obscured by another window on the desktop, or subject to
 some other clipping mechanism will have undefined content when read
 back.
-Pixel shaders <strong class="purple">may</strong> not execute for these pixels, and thus any side
+Fragment shaders <strong class="purple">may</strong> not execute for these pixels, and thus any side
 effects they would have had will not occur.
 <code>VK_TRUE</code> value does not guarantee any clipping will occur, but
 allows more optimal presentation methods to be used on some platforms.</p>
@@ -7371,7 +7367,7 @@ swapchain will own all of the pixels they contain.</p>
 <div class="paragraph">
 <p>Applications <strong class="purple">should</strong> set this value to <code>VK_TRUE</code> if they do not expect
 to read back the content of presentable images before presenting them or
-after reacquiring them, and if their pixel shaders do not have any side
+after reacquiring them, and if their fragment shaders do not have any side
 effects that require them to run for all pixels in the presentable image.</p>
 </div>
 </td>
@@ -9985,7 +9981,7 @@ swapchain as long as the swapchain has not entered a state that causes
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.128<br>
+Version 1.0.129<br>
 Last updated 2019-11-17 06:47:49 -0800
 </div>
 </div>
