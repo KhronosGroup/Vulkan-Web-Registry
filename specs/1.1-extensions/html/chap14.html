@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.129 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.130 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.129 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.130 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.129,</span>
-<span id="revdate">2019-11-24 13:26:36Z</span>
-<br><span id="revremark">from git branch: github-master commit: 2735ce8edb84539d210651664719edd66ace57d8</span>
+<span id="revnumber">version 1.1.130,</span>
+<span id="revdate">2019-12-07 14:23:36Z</span>
+<br><span id="revremark">from git branch: github-master commit: 86113f72290ca5998fcae798ee180bf587eca2a0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1253,6 +1253,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap39.html#debugging-debug-markers">39.2. Debug Markers</a></li>
 <li><a href="chap39.html#debugging-debug-report-callbacks">39.3. Debug Report Callbacks</a></li>
 <li><a href="chap39.html#_device_loss_debugging">39.4. Device Loss Debugging</a></li>
+<li><a href="chap39.html#debugging-tooling-info">39.5. Active Tooling Information</a></li>
 </ul>
 </li>
 <li><a href="chap40.html#spirvenv">Appendix A: Vulkan Environment for SPIR-V</a>
@@ -1417,18 +1418,17 @@ the inputs of the next stage, and shader inputs are matched against the
 outputs of the previous stage.</p>
 </div>
 <div class="paragraph">
-<p>There are two classes of variables that <strong class="purple">can</strong> be matched between shader
-stages, built-in variables and user-defined variables.
-Each class has a different set of matching criteria.
-Generally, when non-shader stages are between shader stages, the
-user-defined variables, and most built-in variables, form an interface
-between the shader stages.</p>
+<p>All the variables forming the shader input and output <em>interfaces</em> are
+listed as operands to the <code>OpEntryPoint</code> instruction and are declared
+with the <code>Input</code> or <code>Output</code> storage classes, respectively, in the
+SPIR-V module.
+These generally form the interfaces between consecutive shader stages,
+regardless of any non-shader stages between the consecutive shader stages.</p>
 </div>
 <div class="paragraph">
-<p>The variables forming the input or output <em>interfaces</em> are listed as
-operands to the <code>OpEntryPoint</code> instruction and are declared with the
-<code>Input</code> or <code>Output</code> storage classes, respectively, in the SPIR-V
-module.</p>
+<p>There are two classes of variables that <strong class="purple">can</strong> be matched between shader
+stages, built-in variables and user-defined variables.
+Each class has a different set of matching criteria.</p>
 </div>
 <div class="paragraph">
 <p><code>Output</code> variables of a shader stage have undefined values until the
@@ -1460,20 +1460,18 @@ They <strong class="purple">must</strong></p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Built-ins only participate in interface matching if they are declared in
-such a block.
-They <strong class="purple">must</strong> not have any <code>Location</code> or <code>Component</code> decorations.</p>
-</div>
-<div class="paragraph">
 <p>There <strong class="purple">must</strong> be no more than one built-in interface block per shader per
 interface.</p>
+</div>
+<div class="paragraph">
+<p>Built-ins <strong class="purple">must</strong> not have any <code>Location</code> or <code>Component</code> decorations.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="interfaces-iointerfaces-user">14.1.2. User-defined Variable Interface</h4>
 <div class="paragraph">
-<p>The remaining variables listed by <code>OpEntryPoint</code> with the <code>Input</code> or
-<code>Output</code> storage class form the <em>user-defined variable interface</em>.
+<p>The non-built-in variables listed by <code>OpEntryPoint</code> with the <code>Input</code>
+or <code>Output</code> storage class form the <em>user-defined variable interface</em>.
 These <strong class="purple">must</strong> have SPIR-V numerical types or, recursively, composite types of
 such types.
 By default, the components of such types have a width of 32 or 64 bits.
@@ -1486,6 +1484,20 @@ also be identified with a <code>Component</code> decoration.</p>
 </div>
 <div class="sect3">
 <h4 id="interfaces-iointerfaces-matching">14.1.3. Interface Matching</h4>
+<div class="paragraph">
+<p>Interface matching rules only apply to built-ins when they are declared as
+members of the built-in interface block.</p>
+</div>
+<div class="paragraph">
+<p>Tessellation control
+and mesh
+shader per-vertex output variables and blocks, and tessellation control,
+tessellation evaluation, and geometry shader per-vertex input variables and
+blocks are required to be declared as arrays, with each element representing
+input or output values for a single vertex of a multi-vertex primitive.
+For the purposes of interface matching, the outermost array dimension of
+such variables and blocks is ignored.</p>
+</div>
 <div class="paragraph">
 <p>A user-defined output variable is considered to match an input variable in
 the subsequent stage if the two variables are declared with the same
@@ -1521,16 +1533,6 @@ type if and only if the structure members match in type, decoration, number,
 and declaration order.
 Variables or block members declared as arrays are considered to match in
 type only if both declarations specify the same element type and size.</p>
-</div>
-<div class="paragraph">
-<p>Tessellation control
-and mesh
-shader per-vertex output variables and blocks, and tessellation control,
-tessellation evaluation, and geometry shader per-vertex input variables and
-blocks are required to be declared as arrays, with each element representing
-input or output values for a single vertex of a multi-vertex primitive.
-For the purposes of interface matching, the outermost array dimension of
-such variables and blocks is ignored.</p>
 </div>
 <div class="paragraph">
 <p>At an interface between two non-fragment shader stages, the built-in
@@ -1578,9 +1580,9 @@ ignored.</p>
 <h4 id="interfaces-iointerfaces-locations">14.1.4. Location Assignment</h4>
 <div class="paragraph">
 <p>This section describes how many locations are consumed by a given type.
-As mentioned above, geometry shader inputs, tessellation control shader
-inputs and outputs, and tessellation evaluation inputs all have an
-additional level of arrayness relative to other shader inputs and outputs.
+<a href="#interfaces-iointerfaces-matching">As mentioned above</a>, some inputs and
+outputs have an additional level of arrayness relative to other shader
+inputs and outputs.
 This outer array level is removed from the type before considering how many
 locations the type consumes.</p>
 </div>
@@ -2802,6 +2804,13 @@ interchangeably with a term equivalent to a variable decorated with that
 particular built-in.
 Built-ins that represent integer values <strong class="purple">can</strong> be declared as either signed or
 unsigned 32-bit integers.</p>
+</div>
+<div class="paragraph">
+<p><a href="#interfaces-iointerfaces-matching">As mentioned above</a>, some inputs and
+outputs have an additional level of arrayness relative to other shader
+inputs and outputs.
+This level of arrayness is not included in the type descriptions below, but
+must be included when declaring the built-in.</p>
 </div>
 <div id="interfaces-builtin-variables-barycoordnv" class="dlist">
 <dl>
@@ -5394,7 +5403,7 @@ values.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.129<br>
+Version 1.1.130<br>
 Last updated 2019-11-17 06:47:49 -0800
 </div>
 </div>

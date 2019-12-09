@@ -826,9 +826,9 @@ In particular, image view creation inherits the implicit parameter
 <code>usage</code> specifying the allowed usages of the image view that, by
 default, takes the value of the corresponding <code>usage</code> parameter
 specified in <code>VkImageCreateInfo</code> at image creation time.
-If the image was has a depth-stencil format and was created with an instance
-of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code> chain of
-<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, the usage is calculated based on the
+If the image was has a depth-stencil format and was created with a
+<a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure included in the <code>pNext</code>
+chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, the usage is calculated based on the
 <code>subresource.aspectMask</code> provided:</p>
 </div>
 <div class="ulist">
@@ -847,8 +847,8 @@ implicit <code>usage</code> is equal to <a href="VkImageCreateInfo.html">VkImage
     <code>usage</code> is equal to the intersection of
     <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>usage</code> and
     <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a>::<code>stencilUsage</code>.
-The implicit <code>usage</code> <strong class="purple">can</strong> be overriden by including an instance of
-<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> structure in the <code>pNext</code> chain.</p>
+The implicit <code>usage</code> <strong class="purple">can</strong> be overriden by adding a
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> structure to the <code>pNext</code> chain.</p>
 </li>
 </ul>
 </div>
@@ -906,7 +906,7 @@ rounded up.</p>
 <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#samplers-YCbCr-conversion" target="_blank" rel="noopener">sampler Y&#8217;C<sub>B</sub>C<sub>R</sub> conversion</a>, an <em>identically
 defined object</em> of type <a href="VkSamplerYcbcrConversion.html">VkSamplerYcbcrConversion</a> to that used to
 create the sampler <strong class="purple">must</strong> be passed to <a href="vkCreateImageView.html">vkCreateImageView</a> in a
-<a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a> added to the <code>pNext</code> chain of
+<a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a> included in the <code>pNext</code> chain of
 <a href="VkImageViewCreateInfo.html">VkImageViewCreateInfo</a>.
 Conversely, if a <a href="VkSamplerYcbcrConversion.html">VkSamplerYcbcrConversion</a> object is passed to
 <a href="vkCreateImageView.html">vkCreateImageView</a>, an identically defined
@@ -1216,47 +1216,46 @@ If <code>image</code> was created with <code>usage</code> containing
 If <code>image</code> is not a 3D image created with
 <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, or <code>viewType</code> is
 not <code>VK_IMAGE_VIEW_TYPE_2D</code> or <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>,
-<code>subresourceRange</code>::<code>baseArrayLayer</code> <strong class="purple">must</strong> be less than the
+<code>subresourceRange.baseArrayLayer</code> <strong class="purple">must</strong> be less than the
 <code>arrayLayers</code> specified in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code>
 was created</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-subresourceRange-01483"></a>
-If <code>subresourceRange</code>::<code>layerCount</code> is not
+If <code>subresourceRange.layerCount</code> is not
 <code>VK_REMAINING_ARRAY_LAYERS</code>, <code>image</code> is not a 3D image created
 with <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, or
 <code>viewType</code> is not <code>VK_IMAGE_VIEW_TYPE_2D</code> or
-<code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>,
-<code>subresourceRange</code>::<code>layerCount</code> <strong class="purple">must</strong> be non-zero and
-<span class="eq"><code>subresourceRange</code>::<code>baseArrayLayer</code> + 
-<code>subresourceRange</code>::<code>layerCount</code></span> <strong class="purple">must</strong> be less than or equal to
-the <code>arrayLayers</code> specified in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when
-<code>image</code> was created</p>
+<code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>, <code>subresourceRange.layerCount</code>
+<strong class="purple">must</strong> be non-zero and <span class="eq"><code>subresourceRange.baseArrayLayer</code> + 
+<code>subresourceRange.layerCount</code></span> <strong class="purple">must</strong> be less than or equal to the
+<code>arrayLayers</code> specified in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-02724"></a>
 If <code>image</code> is a 3D image created with
 <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, and <code>viewType</code> is
 <code>VK_IMAGE_VIEW_TYPE_2D</code> or <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>,
-<code>subresourceRange</code>::<code>baseArrayLayer</code> <strong class="purple">must</strong> be less than the
-depth computed from <code>baseMipLevel</code> and <code>extent.depth</code> specified
-in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code> was created, according to
-the formula defined in <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#resources-image-miplevel-sizing" target="_blank" rel="noopener">Image Miplevel
+<code>subresourceRange.baseArrayLayer</code> <strong class="purple">must</strong> be less than the depth
+computed from <code>baseMipLevel</code> and <code>extent.depth</code> specified in
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code> was created, according to the
+formula defined in <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#resources-image-miplevel-sizing" target="_blank" rel="noopener">Image Miplevel
 Sizing</a>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-subresourceRange-02725"></a>
-If <code>subresourceRange</code>::<code>layerCount</code> is not
+If <code>subresourceRange.layerCount</code> is not
 <code>VK_REMAINING_ARRAY_LAYERS</code>, <code>image</code> is a 3D image created with
 <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</code> set, and <code>viewType</code> is
 <code>VK_IMAGE_VIEW_TYPE_2D</code> or <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>,
-<code>subresourceRange</code>::<code>layerCount</code> <strong class="purple">must</strong> be non-zero and
-<span class="eq"><code>subresourceRange</code>::<code>baseArrayLayer</code> + 
-<code>subresourceRange</code>::<code>layerCount</code></span> <strong class="purple">must</strong> be less than or equal to
-the depth computed from <code>baseMipLevel</code> and <code>extent.depth</code>
-specified in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code> was created,
-according to the formula defined in
-<a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#resources-image-miplevel-sizing" target="_blank" rel="noopener">Image Miplevel Sizing</a>.</p>
+<code>subresourceRange.layerCount</code> <strong class="purple">must</strong> be non-zero and
+<span class="eq"><code>subresourceRange.baseArrayLayer</code> + 
+<code>subresourceRange.layerCount</code></span> <strong class="purple">must</strong> be less than or equal to the
+depth computed from <code>baseMipLevel</code> and <code>extent.depth</code> specified
+in <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> when <code>image</code> was created, according to
+the formula defined in <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#resources-image-miplevel-sizing" target="_blank" rel="noopener">Image Miplevel
+Sizing</a>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01018"></a>
@@ -1325,10 +1324,10 @@ if <code>subresourceRange.aspectMask</code> is <code>VK_IMAGE_ASPECT_COLOR_BIT</
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-01970"></a>
-If the <code>pNext</code> chain contains an instance of
-<a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a> with a <code>conversion</code> value other
-than <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, all members of <code>components</code> <strong class="purple">must</strong> have
-the value <code>VK_COMPONENT_SWIZZLE_IDENTITY</code>.</p>
+If the <code>pNext</code> chain includes a <a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a>
+structure with a <code>conversion</code> value other than <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>,
+all members of <code>components</code> <strong class="purple">must</strong> have the value
+<code>VK_COMPONENT_SWIZZLE_IDENTITY</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-01020"></a>
@@ -1351,9 +1350,9 @@ format</a>, <code>format</code> <strong class="purple">must</strong> be <code>VK
 <p><a id="VUID-VkImageViewCreateInfo-image-02400"></a>
 If <code>image</code> has an
 <a href="https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#memory-external-android-hardware-buffer-external-formats" target="_blank" rel="noopener">external
-format</a>, the <code>pNext</code> chain <strong class="purple">must</strong> contain an instance of
-<a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a> with a <code>conversion</code> object
-created with the same external format as <code>image</code>.</p>
+format</a>, the <code>pNext</code> chain <strong class="purple">must</strong> include a
+<a href="VkSamplerYcbcrConversionInfo.html">VkSamplerYcbcrConversionInfo</a> structure with a <code>conversion</code>
+object created with the same external format as <code>image</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-image-02401"></a>
@@ -1393,35 +1392,37 @@ containing <code>VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</code>,
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02662"></a>
-If the <code>pNext</code> chain includes an instance of
-<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, and <code>image</code> was not created with
-an instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
-chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, its <code>usage</code> member <strong class="purple">must</strong> not
-include any bits that were not set in the <code>usage</code> member of the
-<a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code></p>
+If the <code>pNext</code> chain includes a <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>
+structure, and <code>image</code> was not created with a
+<a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure included in the
+<code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, its <code>usage</code> member
+<strong class="purple">must</strong> not include any bits that were not set in the <code>usage</code> member
+of the <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02663"></a>
-If the <code>pNext</code> chain includes an instance of
-<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
-instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
-chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
-includes <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the <code>usage</code> member of
-the <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> instance <strong class="purple">must</strong> not include any bits
+If the <code>pNext</code> chain includes a <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>
+structure, <code>image</code> was created with a
+<a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure included in the
+<code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and
+<code>subResourceRange.aspectMask</code> includes
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the <code>usage</code> member of the
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> instance <strong class="purple">must</strong> not include any bits
 that were not set in the <code>usage</code> member of the
 <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure used to create
 <code>image</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02664"></a>
-If the <code>pNext</code> chain includes an instance of
-<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>, <code>image</code> was created with an
-instance of <a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> in the <code>pNext</code>
-chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and <code>subResourceRange.aspectMask</code>
-includes bits other than <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the
-<code>usage</code> member of the <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> instance
-<strong class="purple">must</strong> not include any bits that were not set in the <code>usage</code> member
-of the <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code></p>
+If the <code>pNext</code> chain includes a <a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a>
+structure, <code>image</code> was created with a
+<a href="VkImageStencilUsageCreateInfoEXT.html">VkImageStencilUsageCreateInfoEXT</a> structure included in the
+<code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>, and
+<code>subResourceRange.aspectMask</code> includes bits other than
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the <code>usage</code> member of the
+<a href="VkImageViewUsageCreateInfo.html">VkImageViewUsageCreateInfo</a> structure <strong class="purple">must</strong> not include any bits
+that were not set in the <code>usage</code> member of the
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to create <code>image</code></p>
 </li>
 </ul>
 </div>
@@ -1445,7 +1446,7 @@ of the <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to 
 <p><a id="VUID-VkImageViewCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkImageViewCreateFlagBits.html">VkImageViewCreateFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-image-parameter"></a> <code>image</code> <strong class="purple">must</strong> be a valid <code>VkImage</code> handle</p>
+<p><a id="VUID-VkImageViewCreateInfo-image-parameter"></a> <code>image</code> <strong class="purple">must</strong> be a valid <a href="VkImage.html">VkImage</a> handle</p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-viewType-parameter"></a> <code>viewType</code> <strong class="purple">must</strong> be a valid <a href="VkImageViewType.html">VkImageViewType</a> value</p>
@@ -1454,10 +1455,10 @@ of the <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> structure used to 
 <p><a id="VUID-VkImageViewCreateInfo-format-parameter"></a> <code>format</code> <strong class="purple">must</strong> be a valid <a href="VkFormat.html">VkFormat</a> value</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-components-parameter"></a> <code>components</code> <strong class="purple">must</strong> be a valid <code>VkComponentMapping</code> structure</p>
+<p><a id="VUID-VkImageViewCreateInfo-components-parameter"></a> <code>components</code> <strong class="purple">must</strong> be a valid <a href="VkComponentMapping.html">VkComponentMapping</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkImageViewCreateInfo-subresourceRange-parameter"></a> <code>subresourceRange</code> <strong class="purple">must</strong> be a valid <code>VkImageSubresourceRange</code> structure</p>
+<p><a id="VUID-VkImageViewCreateInfo-subresourceRange-parameter"></a> <code>subresourceRange</code> <strong class="purple">must</strong> be a valid <a href="VkImageSubresourceRange.html">VkImageSubresourceRange</a> structure</p>
 </li>
 </ul>
 </div>
@@ -1498,8 +1499,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.129<br>
-Last updated 2019-11-24 05:26:36 -0800
+Version 1.1.130<br>
+Last updated 2019-12-07 06:23:36 -0800
 </div>
 </div>
 

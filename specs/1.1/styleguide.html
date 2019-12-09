@@ -753,9 +753,9 @@ a code { color: inherit; }
 <h1>Vulkan<sup>®</sup> Documentation and Extensions: Procedures and Conventions</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.1.129,</span>
-<span id="revdate">2019-11-24 13:34:27Z</span>
-<br><span id="revremark">from git branch: github-master commit: 2735ce8edb84539d210651664719edd66ace57d8</span>
+<span id="revnumber">version 1.1.130,</span>
+<span id="revdate">2019-12-07 14:31:39Z</span>
+<br><span id="revremark">from git branch: github-master commit: 86113f72290ca5998fcae798ee180bf587eca2a0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3429,9 +3429,9 @@ as:</p>
 <pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">// CORRECT: define interaction with children in parent VkImageCreateInfo
 // structure
 ifdef::VK_NV_external_memory+VK_KHR_external_memory[]
-  * If the pname:pNext chain contains an instance of
-    slink:VkExternalMemoryImageCreateInfoNV, it must: not contain an
-    instance of slink:VkExternalMemoryImageCreateInfoKHR.
+  * If the pname:pNext chain includes a
+    slink:VkExternalMemoryImageCreateInfoNV structure, it must: not include
+    a slink:VkExternalMemoryImageCreateInfoKHR structure.
 endif::VK_NV_external_memory+VK_KHR_external_memory[]</code></pre>
 </div>
 </div>
@@ -3462,8 +3462,8 @@ that structure&#8217;s valid usage:</p>
 <pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">// REWRITTEN CORRECTLY: Define interaction with child in
 // parent VkBufferCreateInfo structure
 ifdef::VK_NV_dedicated_allocation[]
-  * If the pname:pNext chain contains an instance of
-    slink:VkDedicatedAllocationBufferCreateInfoNV, and the
+  * If the pname:pNext chain includes a
+    slink:VkDedicatedAllocationBufferCreateInfoNV structure, and the
     pname:dedicatedAllocation member of the chained structure is
     ename:VK_TRUE, then pname:flags must: not include
     ename:VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
@@ -4247,13 +4247,16 @@ combine the macros separated by two colons, resulting in
 <a href="#VkMemoryHeap">VkMemoryHeap</a>::<code>flags</code>.
 This is often done when referring to a particular parameter or member in a
 part of the document other than the description of the corresponding
-function or structure.</p>
+function or structure.
+When a nested member within the compound name is referred to, use normal C
+markup, escaped as shown in the following examples:</p>
 </div>
 <div class="listingblock">
 <div class="title">Example Markup</div>
 <div class="content">
 <pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">flink:vkCmdBindIndexBuffer::pname:indexType
-slink:VkMemoryHeap::pname:flags</code></pre>
+sname:VkExternalImageFormatProperties::pname:externalMemoryProperties.externalMemoryFeatures
+pname:pAllocateInfo\-&gt;memoryTypeIndex</code></pre>
 </div>
 </div>
 <div class="sect4">
@@ -5683,16 +5686,27 @@ cell separator must be <code>a|</code> instead of just <code>|</code>:</p>
 <h3 id="writing-pNext-chain">5.6. Describing Extension Structure Chains</h3>
 <div class="paragraph">
 <p>When describing an extension structure which is passed to an existing
-command by placing it in the <code>pNext</code> chain of a structure parameter of
+command by including it in the <code>pNext</code> chain of a structure parameter of
 that command, introduce the structure description in this fashion:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">When *performing an operation described by the extension struct*, add
-the slink:VkExtensionStructNameID to the pname:pNext chain of the
+a slink:VkExtensionStructNameID structure to the pname:pNext chain of the
 slink:VkBaseExtensionStructName structure passed to the
 flink:vkBaseFunctionName command *saying what the extension struct
 does*.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When describing properties of a structure included in a <code>pNext</code> chain,
+refer to that structure as &#8220;included in the <code>pNext</code> chain&#8221; rather than
+`"present in`" or other similar terms, in this fashion:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">If the pname:pNext chain includes a slink:VkPhysicalDeviceFeatures2
+structure, then pname:pEnabledFeatures must: be `NULL`</code></pre>
 </div>
 </div>
 </div>
@@ -5770,9 +5784,8 @@ In this case, the anchor is named <code>vkCreateCommandPool</code>.</p>
 <p><code>device</code> is the logical device that the command pool is created on.</p>
 </li>
 <li>
-<p><code>pCreateInfo</code> points to an instance of the
-<a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure containing information used to
-create the command pool.</p>
+<p><code>pCreateInfo</code> points to a <a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure
+containing information used to create the command pool.</p>
 </li>
 <li>
 <p><code>pAllocator</code> controls host memory allocation as described in the
@@ -5825,16 +5838,16 @@ the proper type is used to return the newly created object.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCreateCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <code>VkDevice</code> handle</p>
+<p><a id="VUID-vkCreateCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pCreateInfo-parameter"></a> <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkCommandPoolCreateInfo</code> structure</p>
+<p><a id="VUID-vkCreateCommandPool-pCreateInfo-parameter"></a> <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <code>VkAllocationCallbacks</code> structure</p>
+<p><a id="VUID-vkCreateCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pCommandPool-parameter"></a> <code>pCommandPool</code> <strong class="purple">must</strong> be a valid pointer to a <code>VkCommandPool</code> handle</p>
+<p><a id="VUID-vkCreateCommandPool-pCommandPool-parameter"></a> <code>pCommandPool</code> <strong class="purple">must</strong> be a valid pointer to a <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 </ul>
 </div>
@@ -6754,6 +6767,15 @@ to by the Vulkan Working Group.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2019-11-27 - Expand the <a href="#writing-pNext-chain">Describing Extension
+Structure Chains</a> section and make all spec language consistent with it
+(internal issue 1814).</p>
+</li>
+<li>
+<p>2019-09-09 - Define markup for nested structure members in the
+<a href="#markup-macros-api">API Markup Macros</a> section (internal issue 1765).</p>
+</li>
+<li>
 <p>2019-09-08 - Add language to the end of the
 <a href="#extensions-documenting-extensions">Changes for New Extensions</a> section
 describing how to mark up asciidoctor conditionals (internal issue 1808).</p>
@@ -6974,8 +6996,8 @@ Use American rather than British spelling conventions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.129<br>
-Last updated 2019-10-13 19:44:43 -0700
+Version 1.1.130<br>
+Last updated 2019-12-07 06:21:56 -0800
 </div>
 </div>
 

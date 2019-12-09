@@ -119,6 +119,7 @@
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_swapchain_colorspace"> VK_EXT_swapchain_colorspace </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_texel_buffer_alignment"> VK_EXT_texel_buffer_alignment </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_texture_compression_astc_hdr"> VK_EXT_texture_compression_astc_hdr </a> </li>
+    <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_tooling_info"> VK_EXT_tooling_info </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_transform_feedback"> VK_EXT_transform_feedback </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_cache"> VK_EXT_validation_cache </a> </li>
     <li> <a href="specs/1.1-extensions/html/vkspec.html#VK_EXT_validation_features"> VK_EXT_validation_features </a> </li>
