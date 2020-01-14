@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.130 - A Specification</title>
+<title>Vulkan® 1.0.131 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.130 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.131 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.130,</span>
-<span id="revdate">2019-12-07 14:41:04Z</span>
-<br><span id="revremark">from git branch: github-master commit: 86113f72290ca5998fcae798ee180bf587eca2a0</span>
+<span id="revnumber">version 1.0.131,</span>
+<span id="revdate">2020-01-14 15:33:19Z</span>
+<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1188,9 +1188,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_prefixes">Prefixes</a></li>
 <li><a href="#credits">Appendix G: Credits (Informative)</a>
 <ul class="sectlevel2">
-<li><a href="#_working_group_contributors_to_vulkan_1_1_and_1_0">Working Group Contributors to Vulkan 1.1 and 1.0</a></li>
-<li><a href="#_working_group_contributors_to_vulkan_1_1">Working Group Contributors to Vulkan 1.1</a></li>
-<li><a href="#_working_group_contributors_to_vulkan_1_0">Working Group Contributors to Vulkan 1.0</a></li>
+<li><a href="#_working_group_contributors_to_vulkan">Working Group Contributors to Vulkan</a></li>
 <li><a href="#_other_credits">Other Credits</a></li>
 </ul>
 </li>
@@ -1202,7 +1200,7 @@ table.CodeRay td.code>pre{padding:0}
 <div class="sectionbody">
 <div style="page-break-after: always;"></div>
 <div class="paragraph">
-<p>Copyright 2014-2019 The Khronos Group Inc.</p>
+<p>Copyright 2014-2020 The Khronos Group Inc.</p>
 </div>
 <div class="paragraph">
 <p>This Specification is protected by copyright laws and contains material
@@ -1441,8 +1439,8 @@ IEEE Std 754-2008.
 </div>
 <div class="paragraph">
 <p><a id="data-format"></a> Andrew Garrard.
-<em>Khronos Data Format Specification, version 1.2</em> (March, 2019).
-<a href="https://www.khronos.org/registry/DataFormat/specs/1.2/dataformat.1.2.html" class="bare">https://www.khronos.org/registry/DataFormat/specs/1.2/dataformat.1.2.html</a> .</p>
+<em>Khronos Data Format Specification, version 1.3</em>.
+<a href="https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html" class="bare">https://www.khronos.org/registry/DataFormat/specs/1.3/dataformat.1.3.html</a> .</p>
 </div>
 <div class="paragraph">
 <p><a id="spirv-extended"></a> John Kessenich.
@@ -3162,7 +3160,8 @@ enabled.</p>
 </div>
 <div class="paragraph">
 <p>Each type of valid structure <strong class="purple">must</strong> not appear more than once in a
-<code>pNext</code> chain.</p>
+<code>pNext</code> chain, including any
+<a href="#extendingvulkan-compatibility-aliases">aliases</a>.</p>
 </div>
 <div class="paragraph">
 <p>Any component of the implementation (the loader, any enabled layers, and
@@ -3344,6 +3343,7 @@ The possible codes are:</p>
     VK_ERROR_TOO_MANY_OBJECTS = -<span class="integer">10</span>,
     VK_ERROR_FORMAT_NOT_SUPPORTED = -<span class="integer">11</span>,
     VK_ERROR_FRAGMENTED_POOL = -<span class="integer">12</span>,
+    VK_ERROR_UNKNOWN = -<span class="integer">13</span>,
     VK_RESULT_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkResult;</code></pre>
 </div>
@@ -3423,6 +3423,11 @@ fragmentation of the pool&#8217;s memory.
 This <strong class="purple">must</strong> only be returned if no attempt to allocate host or device
 memory was made to accommodate the new allocation.</p>
 </li>
+<li>
+<p><code>VK_ERROR_UNKNOWN</code> An unknown error has occurred; either the
+application has provided invalid input, or an implementation failure has
+occurred.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -3437,6 +3442,35 @@ except that <code>sType</code> and <code>pNext</code> will be unmodified.</p>
 <p>Out of memory errors do not damage any currently existing Vulkan objects.
 Objects that have already been successfully created <strong class="purple">can</strong> still be used by
 the application.</p>
+</div>
+<div class="paragraph">
+<p><code>VK_ERROR_UNKNOWN</code> will be returned by an implementation when an
+unexpected error occurs that cannot be attributed to valid behavior of the
+application and implementation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If <code>VK_ERROR_UNKNOWN</code> is received, the application should be checked
+against the latest validation layers to verify correct behavior as much as
+possible.
+If no issues are identified it could be an implementation issue, and the
+implementor should be contacted for support.</p>
+</div>
+<div class="paragraph">
+<p>This error should not be expected from any command if application behavior
+is valid, and if the implementation is bug-free, but it can be returned by
+<em>any</em> error returning command when that is not the case.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Performance-critical commands generally do not have return codes.
@@ -6942,7 +6976,7 @@ the created pool is returned.</p>
 <ul>
 <li>
 <p><a id="VUID-vkCreateCommandPool-queueFamilyIndex-01937"></a>
-<code>pCreateInfo</code>-&gt;queueFamilyIndex <strong class="purple">must</strong> be the index of a queue
+<code>pCreateInfo-&gt;queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue
 family available in the logical device <code>device</code>.</p>
 </li>
 </ul>
@@ -8583,7 +8617,7 @@ was created for the same queue family <code>queue</code> belongs to</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit-pSubmits-02207"></a>
-If any element of <code>pSubmits</code>-&gt;pCommandBuffers includes a
+If any element of <code>pSubmits-&gt;pCommandBuffers</code> includes a
 <a href="#synchronization-queue-transfers-acquire">Queue Family Transfer Acquire
 Operation</a>, there <strong class="purple">must</strong> exist a previously submitted
 <a href="#synchronization-queue-transfers-release">Queue Family Transfer Release
@@ -8999,7 +9033,7 @@ index of the subpass which the given command buffer will be executed in</p>
 <p><a id="VUID-vkCmdExecuteCommands-pInheritanceInfo-00098"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, the render passes specified in the
-<code>pBeginInfo</code>-&gt;pInheritanceInfo-&gt;renderPass members of the
+<code>pBeginInfo-&gt;pInheritanceInfo-&gt;renderPass</code> members of the
 <a href="#vkBeginCommandBuffer">vkBeginCommandBuffer</a> commands used to begin recording each element
 of <code>pCommandBuffers</code> <strong class="purple">must</strong> be
 <a href="#renderpass-compatibility">compatible</a> with the current render pass.</p>
@@ -14924,7 +14958,7 @@ be <code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code></p>
 </li>
 <li>
 <p><a id="VUID-VkAttachmentDescription-format-03282"></a>
-If <code>format</code> is a color format, name:finalLayout <strong class="purple">must</strong> not be
+If <code>format</code> is a color format, <code>finalLayout</code> <strong class="purple">must</strong> not be
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code>,
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>,
 <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code>, or
@@ -16183,9 +16217,9 @@ the resulting framebuffer object is returned.</p>
 <ul>
 <li>
 <p><a id="VUID-vkCreateFramebuffer-pCreateInfo-02777"></a>
-If <code>pCreateInfo</code>-&gt;flags does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
-is not <code>0</code>, each element of <code>pCreateInfo</code>-&gt;pAttachments <strong class="purple">must</strong> have
+If <code>pCreateInfo-&gt;flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>attachmentCount</code> is
+not <code>0</code>, each element of <code>pCreateInfo-&gt;pAttachments</code> <strong class="purple">must</strong> have
 been created on <code>device</code></p>
 </li>
 </ul>
@@ -16350,14 +16384,14 @@ in <code>renderPass</code></p>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-flags-02778"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
-is not <code>0</code>, <code>pAttachments</code> must be a valid pointer to an array of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>attachmentCount</code> is
+not <code>0</code>, <code>pAttachments</code> must be a valid pointer to an array of
 <code>attachmentCount</code> valid <a href="#VkImageView">VkImageView</a> handles</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00877"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> that is used as a color attachment or resolve
 attachment by <code>renderPass</code> <strong class="purple">must</strong> have been created with a
 <code>usage</code> value including <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code></p>
@@ -16365,7 +16399,7 @@ attachment by <code>renderPass</code> <strong class="purple">must</strong> have 
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-02633"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> that is used as a depth/stencil attachment by
 <code>renderPass</code> <strong class="purple">must</strong> have been created with a <code>usage</code> value
 including <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
@@ -16373,7 +16407,7 @@ including <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00879"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> that is used as an input attachment by
 <code>renderPass</code> <strong class="purple">must</strong> have been created with a <code>usage</code> value
 including <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code></p>
@@ -16381,7 +16415,7 @@ including <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code></p>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00880"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> <strong class="purple">must</strong> have been created with a <a href="#VkFormat">VkFormat</a> value
 that matches the <a href="#VkFormat">VkFormat</a> specified by the corresponding
 <code>VkAttachmentDescription</code> in <code>renderPass</code></p>
@@ -16389,7 +16423,7 @@ that matches the <a href="#VkFormat">VkFormat</a> specified by the corresponding
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00881"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> <strong class="purple">must</strong> have been created with a <code>samples</code> value
 that matches the <code>samples</code> value specified by the corresponding
 <code>VkAttachmentDescription</code> in <code>renderPass</code></p>
@@ -16397,20 +16431,20 @@ that matches the <code>samples</code> value specified by the corresponding
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00882"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> <strong class="purple">must</strong> have dimensions at least as large as the
 corresponding framebuffer dimension</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00883"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> <strong class="purple">must</strong> only specify a single mip level</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00884"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, each element of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
 <code>pAttachments</code> <strong class="purple">must</strong> have been created with the identity swizzle</p>
 </li>
 <li>
@@ -16443,8 +16477,8 @@ If <code>flags</code> does not include
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-flags-03188"></a>
 If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR</code>, and <code>attachmentCount</code>
-is not 0, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>attachmentCount</code> is
+not 0, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of
 <code>attachmentCount</code> valid <a href="#VkImageView">VkImageView</a> handles</p>
 </li>
 </ul>
@@ -20884,14 +20918,14 @@ equal to the <code>colorAttachmentCount</code> used to create <code>subpass</cod
 If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
 is <code>VK_DYNAMIC_STATE_VIEWPORT</code>, the <code>pViewports</code> member of
 <code>pViewportState</code> <strong class="purple">must</strong> be a valid pointer to an array of
-<code>pViewportState</code>-&gt;viewportCount valid <code>VkViewport</code> structures</p>
+<code>pViewportState-&gt;viewportCount</code> valid <code>VkViewport</code> structures</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-00748"></a>
 If no element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
 is <code>VK_DYNAMIC_STATE_SCISSOR</code>, the <code>pScissors</code> member of
 <code>pViewportState</code> <strong class="purple">must</strong> be a valid pointer to an array of
-<code>pViewportState</code>-&gt;scissorCount <code>VkRect2D</code> structures</p>
+<code>pViewportState-&gt;scissorCount</code> <code>VkRect2D</code> structures</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-00749"></a>
@@ -24081,7 +24115,7 @@ the error <code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code> <strong class="purple">must
 <ul>
 <li>
 <p><a id="VUID-vkAllocateMemory-pAllocateInfo-01713"></a>
-<code>pAllocateInfo</code>-&gt;allocationSize <strong class="purple">must</strong> be less than or equal to
+<code>pAllocateInfo-&gt;allocationSize</code> <strong class="purple">must</strong> be less than or equal to
 <a href="#VkPhysicalDeviceMemoryProperties">VkPhysicalDeviceMemoryProperties</a>::<code>memoryHeaps</code>[memindex].size
 where <code>memindex</code> =
 <a href="#VkPhysicalDeviceMemoryProperties">VkPhysicalDeviceMemoryProperties</a>::<code>memoryTypes</code>[pAllocateInfo-&gt;memoryTypeIndex].heapIndex
@@ -24090,7 +24124,7 @@ as returned by <a href="#vkGetPhysicalDeviceMemoryProperties">vkGetPhysicalDevic
 </li>
 <li>
 <p><a id="VUID-vkAllocateMemory-pAllocateInfo-01714"></a>
-<code>pAllocateInfo</code>-&gt;memoryTypeIndex <strong class="purple">must</strong> be less than
+<code>pAllocateInfo-&gt;memoryTypeIndex</code> <strong class="purple">must</strong> be less than
 <a href="#VkPhysicalDeviceMemoryProperties">VkPhysicalDeviceMemoryProperties</a>::<code>memoryTypeCount</code> as
 returned by <a href="#vkGetPhysicalDeviceMemoryProperties">vkGetPhysicalDeviceMemoryProperties</a> for the
 <a href="#VkPhysicalDevice">VkPhysicalDevice</a> that <code>device</code> was created from.</p>
@@ -71326,6 +71360,39 @@ enabled by <a href="#vkCreateInstance">vkCreateInstance</a> is considered to be 
 <strong class="purple">must</strong> not be returned by <a href="#vkEnumerateDeviceExtensionProperties">vkEnumerateDeviceExtensionProperties</a> for any
 <a href="#VkPhysicalDevice">VkPhysicalDevice</a> child of the instance.</p>
 </div>
+<div class="paragraph">
+<p>If a required extension has been <a href="#extendingvulkan-compatibility-promotion">promoted</a> to another extension or to a core API version, then as a
+<em>general</em> rule, the dependency is also satisfied by the promoted extension
+or core version.
+This will be true so long as any features required by the original extension
+are also required or enabled by the promoted extension or core version.
+However, in some cases an extension is promoted while making some of its
+features optional in the promoted extension or core version.
+In this case, the dependency <strong class="purple">may</strong> not be satisfied.
+The only way to be certain is to look at the descriptions of the original
+dependency and the promoted version in the <a href="#extensions">Layers &amp;
+Extensions</a> and <a href="#versions">Core Revisions</a> appendices.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>There is metadata in <code>vk.xml</code> describing some aspects of promotion,
+especially <code>requires</code>, <code>promotedto</code> and <code>deprecatedby</code> attributes of
+<code>&lt;extension&gt;</code> tags.
+However, the metadata does not yet fully describe this scenario.
+In the future, we may extend the XML schema to describe the full set of
+extensions and versions satisfying a dependency.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_compatibility_guarantees_informative">29.6. Compatibility Guarantees (Informative)</h3>
@@ -71648,6 +71715,37 @@ Features are properties of the physical device.
 Features are <strong class="purple">optional</strong>, and <strong class="purple">must</strong> be explicitly enabled before use.
 Support for features is reported and enabled on a per-feature basis.</p>
 </div>
+<div class="paragraph">
+<p>For convenience, new core versions of Vulkan <strong class="purple">may</strong> introduce new unified
+features structures for features promoted from extensions.
+At the same time, the extension&#8217;s original features structure (if any) is
+also promoted to the core API, and is an alias of the extension&#8217;s structure.
+This results in multiple names for the same feature: in the original
+extension&#8217;s feature structure and the promoted structure alias, in the
+unified feature structure.
+When a feature was implicitly supported and enabled in the extension, but an
+explicit name was added during promotion, then the extension itself acts as
+an alias for the feature as listed in the table below.</p>
+</div>
+<div class="paragraph">
+<p>All aliases of the same feature in the core API <strong class="purple">must</strong> be reported
+consistently: either all <strong class="purple">must</strong> be reported as supported, or none of them.
+When a promoted extension is available, any corresponding feature aliases
+<strong class="purple">must</strong> be supported.</p>
+</div>
+<table id="features-extension-aliases" class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 29. Extension Feature Aliases</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Extension</th>
+<th class="tableblock halign-left valign-top">Feature(s)</th>
+</tr>
+</thead>
+</table>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -72436,14 +72534,112 @@ This also specifies whether shader modules <strong class="purple">can</strong> d
 <li>
 <p><a id="features-shaderStorageImageExtendedFormats"></a>
 <code>shaderStorageImageExtendedFormats</code> specifies whether all the
-extended storage image formats are available in shader code.
-If this feature is enabled then the
-<code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> feature <strong class="purple">must</strong> be supported in
-<code>optimalTilingFeatures</code> for all of the extended formats.
-To query for additional properties, or if the feature is not enabled,
+&#8220;storage image extended formats&#8221; below are supported; if this feature
+is supported, then the <code>VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT</code> <strong class="purple">must</strong>
+be supported in <code>optimalTilingFeatures</code> for the following formats:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_FORMAT_R16G16_SFLOAT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_B10G11R11_UFLOAT_PACK32</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16_SFLOAT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16B16A16_UNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_A2B10G10R10_UNORM_PACK32</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16_UNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8G8_UNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16_UNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8_UNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16B16A16_SNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16_SNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8G8_SNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16_SNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8_SNORM</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16_SINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8G8_SINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16_SINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8_SINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_A2B10G10R10_UINT_PACK32</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16G16_UINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8G8_UINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R16_UINT</code></p>
+</li>
+<li>
+<p><code>VK_FORMAT_R8_UINT</code></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>shaderStorageImageExtendedFormats</code> feature only adds a guarantee of
+format support, which is specified for the whole physical device.
+Therefore enabling or disabling the feature via <a href="#vkCreateDevice">vkCreateDevice</a> has no
+practical effect.</p>
+</div>
+<div class="paragraph">
+<p>To query for additional properties, or if the feature is not supported,
 <a href="#vkGetPhysicalDeviceFormatProperties">vkGetPhysicalDeviceFormatProperties</a> and
 <a href="#vkGetPhysicalDeviceImageFormatProperties">vkGetPhysicalDeviceImageFormatProperties</a> <strong class="purple">can</strong> be used to check for
-supported properties of individual formats as normal.</p>
+supported properties of individual formats, as usual rules allow.</p>
+</div>
+<div class="paragraph">
+<p><code>VK_FORMAT_R32G32_UINT</code>, <code>VK_FORMAT_R32G32_SINT</code>, and
+<code>VK_FORMAT_R32G32_SFLOAT</code> from <code>StorageImageExtendedFormats</code> SPIR-V
+capability, are already covered by core Vulkan
+<a href="#formats-mandatory-features-32bit">mandatory format support</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </li>
 <li>
 <p><a id="features-shaderStorageImageMultisample"></a>
@@ -73807,7 +74003,7 @@ If an implementation supports a feature, the limits reported are the same
 whether or not the feature is enabled.</p>
 </div>
 <table id="limits-types" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 29. Required Limit Types</caption>
+<caption class="title">Table 30. Required Limit Types</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 50%;">
@@ -74354,7 +74550,7 @@ whether or not the feature is enabled.</p>
 </tbody>
 </table>
 <table id="limits-required" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 30. Required Limits</caption>
+<caption class="title">Table 31. Required Limits</caption>
 <colgroup>
 <col style="width: 50.7246%;">
 <col style="width: 13.0434%;">
@@ -76477,7 +76673,7 @@ An X indicates a component that is unused, but <strong class="purple">may</stron
 </div>
 <div style="page-break-after: always;"></div>
 <table id="formats-numericformat" class="tableblock frame-all grid-all" style="width: 95%;">
-<caption class="title">Table 31. Interpretation of Numeric Format</caption>
+<caption class="title">Table 32. Interpretation of Numeric Format</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 20%;">
@@ -76548,7 +76744,7 @@ format, with the representation of multiple pixels encoded interdependently
 within a region.</p>
 </div>
 <table id="formats-compressionscheme" class="tableblock frame-all grid-all" style="width: 95%;">
-<caption class="title">Table 32. Interpretation of Compression Scheme</caption>
+<caption class="title">Table 33. Interpretation of Compression Scheme</caption>
 <colgroup>
 <col style="width: 16.6666%;">
 <col style="width: 83.3334%;">
@@ -76606,7 +76802,7 @@ The in-memory ordering of bytes within a component is determined by the host
 endianness.</p>
 </div>
 <table id="formats-non-packed" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 33. Byte mappings for non-packed/compressed color formats</caption>
+<caption class="title">Table 34. Byte mappings for non-packed/compressed color formats</caption>
 <colgroup>
 <col style="width: 3.8461%;">
 <col style="width: 3.8461%;">
@@ -76753,7 +76949,7 @@ The in-memory ordering of bytes comprising the underlying type is determined
 by the host endianness.</p>
 </div>
 <table id="formats-packed-8-bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 34. Bit mappings for packed 8-bit formats</caption>
+<caption class="title">Table 35. Bit mappings for packed 8-bit formats</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -76800,7 +76996,7 @@ by the host endianness.</p>
 </tbody>
 </table>
 <table id="formats-packed-16-bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 35. Bit mappings for packed 16-bit formats</caption>
+<caption class="title">Table 36. Bit mappings for packed 16-bit formats</caption>
 <colgroup>
 <col style="width: 6.25%;">
 <col style="width: 6.25%;">
@@ -77033,7 +77229,7 @@ by the host endianness.</p>
 </tbody>
 </table>
 <table id="formats-packed-32-bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 36. Bit mappings for packed 32-bit formats</caption>
+<caption class="title">Table 37. Bit mappings for packed 32-bit formats</caption>
 <colgroup>
 <col style="width: 3.125%;">
 <col style="width: 3.125%;">
@@ -77392,7 +77588,7 @@ In the <a href="#formats-compatibility">following</a> table, all the formats in 
 same row are compatible.</p>
 </div>
 <table id="formats-compatibility" class="tableblock frame-all grid-all" style="width: 90%;">
-<caption class="title">Table 37. Compatible Formats</caption>
+<caption class="title">Table 38. Compatible Formats</caption>
 <colgroup>
 <col style="width: 28.5714%;">
 <col style="width: 71.4286%;">
@@ -78099,7 +78295,7 @@ allowed.</p>
 format.</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 70%;">
-<caption class="title">Table 38. Key for format feature tables</caption>
+<caption class="title">Table 39. Key for format feature tables</caption>
 <colgroup>
 <col style="width: 9.0909%;">
 <col style="width: 90.9091%;">
@@ -78115,10 +78311,15 @@ format.</p>
 of the named formats, with more information in the table
 where the symbol appears</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This feature <strong class="purple">must</strong> be supported with some caveats or
+preconditions, with more information in the table where the symbol appears</p></td>
+</tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all" style="width: 70%;">
-<caption class="title">Table 39. Feature bits in <code>optimalTilingFeatures</code></caption>
+<caption class="title">Table 40. Feature bits in <code>optimalTilingFeatures</code></caption>
 <colgroup>
 <col style="width: 100%;">
 </colgroup>
@@ -78153,7 +78354,7 @@ where the symbol appears</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all" style="width: 70%;">
-<caption class="title">Table 40. Feature bits in <code>bufferFeatures</code></caption>
+<caption class="title">Table 41. Feature bits in <code>bufferFeatures</code></caption>
 <colgroup>
 <col style="width: 100%;">
 </colgroup>
@@ -78174,7 +78375,7 @@ where the symbol appears</p></td>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-subbyte" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 41. Mandatory format support: sub-byte channels</caption>
+<caption class="title">Table 42. Mandatory format support: sub-byte channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -78395,7 +78596,7 @@ where the symbol appears</p></td>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-2byte" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 42. Mandatory format support: 1-3 byte-sized channels</caption>
+<caption class="title">Table 43. Mandatory format support: 1-3 byte-sized channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -78473,7 +78674,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78489,7 +78690,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -78537,7 +78738,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78553,7 +78754,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78585,7 +78786,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78601,7 +78802,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -78649,7 +78850,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78665,7 +78866,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -78916,11 +79117,16 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="14"><p class="tableblock">Format features marked with ‡ <strong class="purple">must</strong> be supported for
+<code>optimalTilingFeatures</code> if the <code>VkPhysicalDevice</code> supports the
+<a href="#features-shaderStorageImageExtendedFormats"><code>shaderStorageImageExtendedFormats</code></a> feature.</p></td>
+</tr>
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-4byte" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 43. Mandatory format support: 4 byte-sized channels</caption>
+<caption class="title">Table 44. Mandatory format support: 4 byte-sized channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -79333,7 +79539,7 @@ where the symbol appears</p></td>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-10bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 44. Mandatory format support: 10- and 12-bit channels</caption>
+<caption class="title">Table 45. Mandatory format support: 10- and 12-bit channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -79507,7 +79713,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79571,7 +79777,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79598,11 +79804,16 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="14"><p class="tableblock">Format features marked with ‡ <strong class="purple">must</strong> be supported for
+<code>optimalTilingFeatures</code> if the <code>VkPhysicalDevice</code> supports the
+<a href="#features-shaderStorageImageExtendedFormats"><code>shaderStorageImageExtendedFormats</code></a> feature.</p></td>
+</tr>
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-16bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 45. Mandatory format support: 16-bit channels</caption>
+<caption class="title">Table 46. Mandatory format support: 16-bit channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -79680,7 +79891,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -79696,7 +79907,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -79744,7 +79955,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79760,7 +79971,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79776,7 +79987,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79792,7 +80003,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -79808,7 +80019,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -79856,7 +80067,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79872,7 +80083,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -79888,7 +80099,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
@@ -80016,7 +80227,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -80032,7 +80243,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -80123,11 +80334,16 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="14"><p class="tableblock">Format features marked with ‡ <strong class="purple">must</strong> be supported for
+<code>optimalTilingFeatures</code> if the <code>VkPhysicalDevice</code> supports the
+<a href="#features-shaderStorageImageExtendedFormats"><code>shaderStorageImageExtendedFormats</code></a> feature.</p></td>
+</tr>
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-32bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 46. Mandatory format support: 32-bit channels</caption>
+<caption class="title">Table 47. Mandatory format support: 32-bit channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -80396,7 +80612,7 @@ where the symbol appears</p></td>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-64bit" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 47. Mandatory format support: 64-bit/uneven channels</caption>
+<caption class="title">Table 48. Mandatory format support: 64-bit/uneven channels</caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -80666,7 +80882,7 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">✓</p></td>
-<td class="tableblock halign-center valign-top"></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">‡</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
@@ -80693,11 +80909,16 @@ where the symbol appears</p></td>
 <td class="tableblock halign-center valign-top"></td>
 <td class="tableblock halign-center valign-top"></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="14"><p class="tableblock">Format features marked with ‡ <strong class="purple">must</strong> be supported for
+<code>optimalTilingFeatures</code> if the <code>VkPhysicalDevice</code> supports the
+<a href="#features-shaderStorageImageExtendedFormats"><code>shaderStorageImageExtendedFormats</code></a> feature.</p></td>
+</tr>
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-depth-stencil" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 48. Mandatory format support: depth/stencil with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
+<caption class="title">Table 49. Mandatory format support: depth/stencil with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -80892,7 +81113,7 @@ supported for at least one of <code>VK_FORMAT_X8_D24_UNORM_PACK32</code> and
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-bcn" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 49. Mandatory format support: BC compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code> and <code>VK_IMAGE_TYPE_3D</code></caption>
+<caption class="title">Table 50. Mandatory format support: BC compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code> and <code>VK_IMAGE_TYPE_3D</code></caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -81233,7 +81454,7 @@ one of: this table, <a href="#formats-mandatory-features-etc">Mandatory format s
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-etc" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 50. Mandatory format support: ETC2 and EAC compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
+<caption class="title">Table 51. Mandatory format support: ETC2 and EAC compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -81478,7 +81699,7 @@ one of: this table, <a href="#formats-mandatory-features-bcn">Mandatory format s
 </table>
 <div style="page-break-after: always;"></div>
 <table id="formats-mandatory-features-astc" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 51. Mandatory format support: ASTC LDR compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
+<caption class="title">Table 52. Mandatory format support: ASTC LDR compressed formats with <code>VkImageType</code> <code>VK_IMAGE_TYPE_2D</code></caption>
 <colgroup>
 <col style="width: 48%;">
 <col style="width: 4%;">
@@ -82537,7 +82758,7 @@ type of object through one or more extensions.</p>
 </div>
 </div>
 <table id="debugging-object-types" class="tableblock frame-all grid-all" style="width: 80%;">
-<caption class="title">Table 52. VkObjectType and Vulkan Handle Relationship</caption>
+<caption class="title">Table 53. VkObjectType and Vulkan Handle Relationship</caption>
 <colgroup>
 <col style="width: 60.3448%;">
 <col style="width: 39.6552%;">
@@ -82676,8 +82897,12 @@ shaders.</p>
 <div class="sect2">
 <h3 id="_versions_and_formats">Versions and Formats</h3>
 <div class="paragraph">
-<p>A Vulkan 1.0 implementation <strong class="purple">must</strong> support the 1.0 version of SPIR-V and the
-1.0 version of the SPIR-V Extended Instructions for GLSL.</p>
+<p>A Vulkan
+1.0
+implementation <strong class="purple">must</strong> support the
+1.0
+versions of SPIR-V and the 1.0 version of the SPIR-V Extended Instructions
+for GLSL.</p>
 </div>
 <div class="paragraph">
 <p>A SPIR-V module passed into <a href="#vkCreateShaderModule">vkCreateShaderModule</a> is interpreted as a
@@ -82698,7 +82923,7 @@ Extensions are only listed when there is not also a feature bit associated
 with that capability.</p>
 </div>
 <table id="spirvenv-capabilities-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 53. List of SPIR-V Capabilities and enabling features or extensions</caption>
+<caption class="title">Table 54. List of SPIR-V Capabilities and enabling features or extensions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -83383,7 +83608,7 @@ F_{\mathrm{max}} | \right) \).</p>
 at least as follows, unless decorated with RelaxedPrecision:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 54. Precision of core SPIR-V Instructions</caption>
+<caption class="title">Table 55. Precision of core SPIR-V Instructions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -83438,7 +83663,7 @@ at least as follows, unless decorated with RelaxedPrecision:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 55. Precision of GLSL.std.450 Instructions</caption>
+<caption class="title">Table 56. Precision of GLSL.std.450 Instructions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -83514,7 +83739,7 @@ validation</a>.
 The compatibile formats are:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 56. SPIR-V and Vulkan Image Format Compatibility</caption>
+<caption class="title">Table 57. SPIR-V and Vulkan Image Format Compatibility</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -83693,7 +83918,7 @@ The compatibile formats are:</p>
 <div class="paragraph">
 <p>The compressed texture formats used by Vulkan are described in the
 specifically identified sections of the <a href="#data-format">Khronos Data Format
-Specification</a>, version 1.1.</p>
+Specification</a>, version 1.3.</p>
 </div>
 <div class="paragraph">
 <p>Unless otherwise described, the quantities encoded in these compressed
@@ -83713,8 +83938,16 @@ Specification.</p>
 <div style="page-break-after: always;"></div>
 <div class="sect2">
 <h3 id="appendix-compressedtex-bc">Block-Compressed Image Formats</h3>
+<div class="paragraph">
+<p>BC1, BC2 and BC3 formats are described in &#8220;S3TC Compressed Texture Image
+Formats&#8221; chapter of the <a href="#data-format">Khronos Data Format Specification</a>.
+BC4 and BC5 are described in the &#8220;RGTC Compressed Texture Image Formats&#8221;
+chapter.
+BC6H and BC7 are described in the &#8220;BPTC Compressed Texture Image Formats&#8221;
+chapter.</p>
+</div>
 <table class="tableblock frame-all grid-all" style="width: 90%;">
-<caption class="title">Table 57. Mapping of Vulkan BC formats to descriptions</caption>
+<caption class="title">Table 58. Mapping of Vulkan BC formats to descriptions</caption>
 <colgroup>
 <col style="width: 55.5555%;">
 <col style="width: 44.4445%;">
@@ -83810,7 +84043,7 @@ Specification.</p>
 Formats&#8221; chapter of the <a href="#data-format">Khronos Data Format Specification</a>.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 58. Mapping of Vulkan ETC formats to descriptions</caption>
+<caption class="title">Table 59. Mapping of Vulkan ETC formats to descriptions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -83873,7 +84106,7 @@ Formats&#8221; chapter of the <a href="#data-format">Khronos Data Format Specifi
 chapter of the <a href="#data-format">Khronos Data Format Specification</a>.</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 90%;">
-<caption class="title">Table 59. Mapping of Vulkan ASTC formats to descriptions</caption>
+<caption class="title">Table 60. Mapping of Vulkan ASTC formats to descriptions</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 15%;">
@@ -84314,7 +84547,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">130</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">131</span></code></pre>
 </div>
 </div>
 </div>
@@ -84467,7 +84700,7 @@ preprocessor macros which enable inclusion by <code>vulkan.h</code> are shown in
 <a href="#boilerplate-wsi-header-table">following table</a>.</p>
 </div>
 <table id="boilerplate-wsi-header-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 60. Window System Extensions and Headers</caption>
+<caption class="title">Table 61. Window System Extensions and Headers</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -86306,629 +86539,714 @@ Used to denote the <code>VK_STRUCTURE_TYPE*</code> member of each structure in
 <h2 id="credits">Appendix G: Credits (Informative)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Vulkan 1.1 is the result of contributions from many people and companies
+<p>Vulkan 1.2 is the result of contributions from many people and companies
 participating in the Khronos Vulkan Working Group, as well as input from the
 Vulkan Advisory Panel.</p>
 </div>
 <div class="paragraph">
 <p>Members of the Working Group, including the company that they represented at
 the time of their most recent contribution, are listed in the following
-sections.
+section.
 Some specific contributions made by individuals are listed together with
 their name.</p>
 </div>
 <div class="sect2">
-<h3 id="_working_group_contributors_to_vulkan_1_1_and_1_0">Working Group Contributors to Vulkan 1.1 and 1.0</h3>
+<h3 id="_working_group_contributors_to_vulkan">Working Group Contributors to Vulkan</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Adam Jackson, Red Hat</p>
+<p>Aaron Greig, Codeplay Software Ltd.
+(version 1.1)</p>
 </li>
 <li>
-<p>Alexander Galazin, Arm</p>
+<p>Aaron Hagan, AMD (version 1.1)</p>
 </li>
 <li>
-<p>Alex Bourd, Qualcomm Technologies, Inc.</p>
+<p>Adam Jackson, Red Hat (versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Alon Or-bach, Samsung Electronics (WSI technical sub-group chair)</p>
+<p>Adam Śmigielski, Mobica (version 1.0)</p>
 </li>
 <li>
-<p>Andrew Garrard, Samsung Electronics (format wrangler)</p>
+<p>Aidan Fabius, Core Avionics &amp; Industrial Inc.
+(version 1.2)</p>
 </li>
 <li>
-<p>Andrew Woloszyn, Google</p>
+<p>Alan Baker, Google (versions 1.1, 1.2)</p>
 </li>
 <li>
-<p>Antoine Labour, Google</p>
+<p>Alan Ward, Google (versions 1.1, 1.2)</p>
 </li>
 <li>
-<p>Bill Licea-Kane, Qualcomm Technologies, Inc.</p>
+<p>Alejandro Piñeiro, Igalia (version 1.1)</p>
 </li>
 <li>
-<p>Cass Everitt, Oculus VR</p>
+<p>Alex Bourd, Qualcomm Technologies, Inc.
+(versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Chad Versace, Google</p>
+<p>Alex Crabb, Caster Communications (version 1.2)</p>
 </li>
 <li>
-<p>Christophe Riccio, Unity Technologies</p>
+<p>Alex Walters, Imagination Technologies (version 1.2)</p>
 </li>
 <li>
-<p>Dan Baker, Oxide Games</p>
+<p>Alexander Galazin, Arm (versions 1.0, 1.1, 1.2)</p>
 </li>
 <li>
-<p>Dan Ginsburg, Valve Software</p>
+<p>Allen Hux, Intel (version 1.0)</p>
 </li>
 <li>
-<p>Daniel Johnston, Intel</p>
+<p>Alon Or-bach, Samsung Electronics (versions 1.0, 1.1, 1.2) (WSI
+technical sub-group chair)</p>
 </li>
 <li>
-<p>Daniel Koch, NVIDIA (<a href="#interfaces">Shader Interfaces</a>;
-<a href="#features">Features, Limits, and Formats</a>)</p>
+<p>Anastasia Stulova, Arm (version 1.2)</p>
 </li>
 <li>
-<p>Daniel Rakos, AMD</p>
+<p>Andreas Vasilakis, Think Silicon (version 1.2)</p>
 </li>
 <li>
-<p>David Airlie, Red Hat</p>
+<p>Andres Gomez, Igalia (version 1.1)</p>
 </li>
 <li>
-<p>David Miller, Miller &amp; Mattson (Vulkan reference card)</p>
+<p>Andrew Cox, Samsung Electronics (version 1.0)</p>
 </li>
 <li>
-<p>David Neto, Google</p>
-</li>
-<li>
-<p>Dominik Witczak, AMD</p>
-</li>
-<li>
-<p>Graeme Leese, Broadcom</p>
-</li>
-<li>
-<p>Graham Sellers, AMD</p>
-</li>
-<li>
-<p>Ian Romanick, Intel</p>
-</li>
-<li>
-<p>James Jones, NVIDIA</p>
-</li>
-<li>
-<p>Jan-Harald Fredriksen, Arm</p>
-</li>
-<li>
-<p>Jan Hermes, Continental Corporation</p>
-</li>
-<li>
-<p>Jason Ekstrand, Intel</p>
-</li>
-<li>
-<p>Jeff Bolz, NVIDIA (extensive contributions, exhaustive review and
-rewrites for technical correctness)</p>
-</li>
-<li>
-<p>Jeff Juliano, NVIDIA</p>
-</li>
-<li>
-<p>Jesse Barker, Unity Technologies</p>
-</li>
-<li>
-<p>Jesse Hall, Google</p>
-</li>
-<li>
-<p>Johannes van Waveren, Oculus VR</p>
-</li>
-<li>
-<p>John Kessenich, Google (SPIR-V and GLSL for Vulkan spec author)</p>
-</li>
-<li>
-<p>John McDonald, Valve Software</p>
-</li>
-<li>
-<p>Jonas Gustavsson, Samsung Electronics</p>
-</li>
-<li>
-<p>Jon Ashburn, LunarG</p>
-</li>
-<li>
-<p>Jon Leech, Independent (XML toolchain, normative language, release
+<p>Andrew Garrard, Samsung Electronics (versions 1.0, 1.1, 1.2) (format
 wrangler)</p>
 </li>
 <li>
-<p>Jungwoo Kim, Samsung Electronics</p>
+<p>Andrew Poole, Samsung Electronics (version 1.0)</p>
 </li>
 <li>
-<p>Kathleen Mattson, Miller &amp; Mattson (Vulkan reference card)</p>
+<p>Andrew Rafter, Samsung Electronics (version 1.0)</p>
 </li>
 <li>
-<p>Kenneth Benzie, Codeplay Software Ltd.</p>
+<p>Andrew Richards, Codeplay Software Ltd.
+(version 1.0)</p>
 </li>
 <li>
-<p>Kerch Holt, NVIDIA (SPIR-V technical sub-group chair)</p>
+<p>Andrew Woloszyn, Google (versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Kristian Kristensen, Intel</p>
+<p>Ann Thorsnes, Khronos (version 1.2)</p>
 </li>
 <li>
-<p>Mark Lobodzinski, LunarG</p>
+<p>Antoine Labour, Google (versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Mathias Heyer, NVIDIA</p>
+<p>Aras Pranckevičius, Unity Technologies (version 1.0)</p>
 </li>
 <li>
-<p>Mathias Schott, NVIDIA</p>
+<p>Ashwin Kolhe, NVIDIA (version 1.0)</p>
 </li>
 <li>
-<p>Maurice Ribble, Qualcomm Technologies, Inc.</p>
+<p>Baldur Karlsson, Independent (versions 1.1, 1.2)</p>
 </li>
 <li>
-<p>Michael Worcester, Imagination Technologies</p>
+<p>Barthold Lichtenbelt, NVIDIA (version 1.1)</p>
 </li>
 <li>
-<p>Mika Isojarvi, Google</p>
+<p>Bas Nieuwenhuizen, Google (versions 1.1, 1.2)</p>
 </li>
 <li>
-<p>Mitch Singer, AMD</p>
+<p>Ben Bowman, Imagination Technologies (version 1.0)</p>
 </li>
 <li>
-<p>Neil Henning, Codeplay Software Ltd.</p>
+<p>Benj Lipchak, Unknown (version 1.0)</p>
 </li>
 <li>
-<p>Neil Trevett, NVIDIA</p>
+<p>Bill Hollings, Brenwill (versions 1.0, 1.1, 1.2)</p>
 </li>
 <li>
-<p>Norbert Nopper, Independent</p>
+<p>Bill Licea-Kane, Qualcomm Technologies, Inc.
+(versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Pierre Boudier, NVIDIA</p>
+<p>Blaine Kohl, Khronos (version 1.2)</p>
 </li>
 <li>
-<p>Pierre-Loup Griffais, Valve Software</p>
+<p>Boris Zanin, Mobica (version 1.2)</p>
 </li>
 <li>
-<p>Piers Daniell, NVIDIA (dynamic state, copy commands, memory types)</p>
+<p>Brent E. Insko, Intel (version 1.0)</p>
 </li>
 <li>
-<p>Pyry Haulos, Google (Vulkan conformance test subcommittee chair)</p>
+<p>Brian Ellis, Qualcomm Technologies, Inc.
+(version 1.0)</p>
 </li>
 <li>
-<p>Ray Smith, Arm</p>
+<p>Brian Paul, VMware (version 1.2)</p>
 </li>
 <li>
-<p>Robert Simpson, Qualcomm Technologies, Inc.</p>
+<p>Caio Marcelo de Oliveira Filho, Intel (version 1.2)</p>
 </li>
 <li>
-<p>Rolando Caloca Olivares, Epic Games</p>
+<p>Cass Everitt, Oculus VR (versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Sean Harmer, KDAB Group</p>
+<p>Cemil Azizoglu, Canonical (version 1.0)</p>
 </li>
 <li>
-<p>Shannon Woods, Google</p>
+<p>Chad Versace, Google (versions 1.0, 1.1, 1.2)</p>
 </li>
 <li>
-<p>Slawomir Cygan, Intel</p>
+<p>Chang-Hyo Yu, Samsung Electronics (version 1.0)</p>
 </li>
 <li>
-<p>Slawomir Grajewski, Intel</p>
+<p>Chia-I Wu, LunarG (version 1.0)</p>
 </li>
 <li>
-<p>Stuart Smith, Imagination Technologies</p>
+<p>Chris Frascati, Qualcomm Technologies, Inc.
+(version 1.0)</p>
 </li>
 <li>
-<p>Timothy Lottes, AMD</p>
+<p>Christophe Riccio, Unity Technologies (versions 1.0, 1.1)</p>
 </li>
 <li>
-<p>Tobias Hector, Imagination Technologies (validity language and
+<p>Cody Northrop, LunarG (version 1.0)</p>
+</li>
+<li>
+<p>Colin Riley, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Cort Stratton, Google (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Courtney Goeltzenleuchter, Google (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Craig Davies, Huawei (version 1.2)</p>
+</li>
+<li>
+<p>Dae Kim, Imagination Technologies (version 1.1)</p>
+</li>
+<li>
+<p>Damien Leone, NVIDIA (version 1.0)</p>
+</li>
+<li>
+<p>Dan Baker, Oxide Games (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Dan Ginsburg, Valve Software (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Daniel Johnston, Intel (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Daniel Koch, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Daniel Rakos, AMD (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Daniel Stone, Collabora (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Daniel Vetter, Intel (version 1.2)</p>
+</li>
+<li>
+<p>David Airlie, Red Hat (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>David Mao, AMD (versions 1.0, 1.2)</p>
+</li>
+<li>
+<p>David Miller, Miller &amp; Mattson (versions 1.0, 1.1) (Vulkan reference
+card)</p>
+</li>
+<li>
+<p>David Neto, Google (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>David Wilkinson, AMD (version 1.2)</p>
+</li>
+<li>
+<p>David Yu, Pixar (version 1.0)</p>
+</li>
+<li>
+<p>Dejan Mircevski, Google (version 1.1)</p>
+</li>
+<li>
+<p>Dominik Witczak, AMD (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Donald Scorgie, Imagination Technologies (version 1.2)</p>
+</li>
+<li>
+<p>Dzmitry Malyshau, Mozilla (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Ed Hutchins, Oculus (version 1.2)</p>
+</li>
+<li>
+<p>Emily Stearns, Khronos (version 1.2)</p>
+</li>
+<li>
+<p>Frank (LingJun) Chen, Qualcomm Technologies, Inc.
+(version 1.0)</p>
+</li>
+<li>
+<p>Fred Liao, Mediatek (version 1.0)</p>
+</li>
+<li>
+<p>Gabe Dagani, Freescale (version 1.0)</p>
+</li>
+<li>
+<p>Gabor Sines, AMD (version 1.2)</p>
+</li>
+<li>
+<p>Graeme Leese, Broadcom (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Graham Connor, Imagination Technologies (version 1.0)</p>
+</li>
+<li>
+<p>Graham Sellers, AMD (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Greg Fischer, LunarG (version 1.1)</p>
+</li>
+<li>
+<p>Hai Nguyen, Google (version 1.2)</p>
+</li>
+<li>
+<p>Hans-Kristian Arntzen, Arm (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Henri Verbeet, Codeweavers (version 1.2)</p>
+</li>
+<li>
+<p>Hwanyong Lee, Kyungpook National University (version 1.0)</p>
+</li>
+<li>
+<p>Iago Toral, Igalia (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Ian Elliott, Google (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Ian Romanick, Intel (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>James Hughes, Oculus VR (version 1.0)</p>
+</li>
+<li>
+<p>James Jones, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>James Riordon, Khronos (version 1.2)</p>
+</li>
+<li>
+<p>Jan Hermes, Continental Corporation (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Jan-Harald Fredriksen, Arm (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jason Ekstrand, Intel (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jean-François Roy, Google (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jeff Bolz, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jeff Juliano, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jeff Leger, Qualcomm Technologies, Inc.
+(version 1.1)</p>
+</li>
+<li>
+<p>Jeff Vigil, Samsung Electronics (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jens Owen, Google (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Jeremy Hayes, LunarG (version 1.0)</p>
+</li>
+<li>
+<p>Jesse Barker, Unity Technologies (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jesse Hall, Google (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Joe Davis, Samsung Electronics (version 1.1)</p>
+</li>
+<li>
+<p>Johannes van Waveren, Oculus VR (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>John Kessenich, Google (versions 1.0, 1.1, 1.2) (SPIR-V and GLSL for
+Vulkan spec author)</p>
+</li>
+<li>
+<p>John McDonald, Valve Software (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>John Zulauf, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Jon Ashburn, LunarG (version 1.0)</p>
+</li>
+<li>
+<p>Jon Leech, Independent (versions 1.0, 1.1, 1.2) (XML toolchain,
+normative language, release wrangler)</p>
+</li>
+<li>
+<p>Jonas Gustavsson, Samsung Electronics (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Jonas Meyer, Epic Games (version 1.2)</p>
+</li>
+<li>
+<p>Jonathan Hamilton, Imagination Technologies (version 1.0)</p>
+</li>
+<li>
+<p>Jordan Justen, Intel (version 1.1)</p>
+</li>
+<li>
+<p>Jungwoo Kim, Samsung Electronics (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Jörg Wagner, Arm (version 1.1)</p>
+</li>
+<li>
+<p>Kalle Raita, Google (version 1.1)</p>
+</li>
+<li>
+<p>Karen Ghavam, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Karl Schultz, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Kathleen Mattson, Khronos (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Kaye Mason, Google (version 1.2)</p>
+</li>
+<li>
+<p>Keith Packard, Valve (version 1.2)</p>
+</li>
+<li>
+<p>Kenneth Benzie, Codeplay Software Ltd.
+(versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Kenneth Russell, Google (version 1.1)</p>
+</li>
+<li>
+<p>Kerch Holt, NVIDIA (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Kevin O&#8217;Neil, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Kris Rose, Khronos (version 1.2)</p>
+</li>
+<li>
+<p>Kristian Kristensen, Intel (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Krzysztof Iwanicki, Samsung Electronics (version 1.0)</p>
+</li>
+<li>
+<p>Larry Seiler, Intel (version 1.0)</p>
+</li>
+<li>
+<p>Lauri Ilola, Nokia (version 1.1)</p>
+</li>
+<li>
+<p>Lei Zhang, Google (version 1.2)</p>
+</li>
+<li>
+<p>Lenny Komow, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Lionel Landwerlin, Intel (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Liz Maitral, Khronos (version 1.2)</p>
+</li>
+<li>
+<p>Lutz Latta, Lucasfilm (version 1.0)</p>
+</li>
+<li>
+<p>Maciej Jesionowski, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Mais Alnasser, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Marcin Rogucki, Mobica (version 1.1)</p>
+</li>
+<li>
+<p>Maria Rovatsou, Codeplay Software Ltd.
+(version 1.0)</p>
+</li>
+<li>
+<p>Mark Callow, Independent (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Mark Kilgard, NVIDIA (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Mark Lobodzinski, LunarG (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Mark Young, LunarG (version 1.1)</p>
+</li>
+<li>
+<p>Markus Tavenrath, NVIDIA (version 1.1)</p>
+</li>
+<li>
+<p>Mateusz Przybylski, Intel (version 1.0)</p>
+</li>
+<li>
+<p>Mathias Heyer, NVIDIA (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Mathias Schott, NVIDIA (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Matt Netsch, Qualcomm Technologies, Inc.
+(version 1.1)</p>
+</li>
+<li>
+<p>Matthäus Chajdas, AMD (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Maurice Ribble, Qualcomm Technologies, Inc.
+(versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Maxim Lukyanov, Samsung Electronics (version 1.0)</p>
+</li>
+<li>
+<p>Michael Lentine, Google (version 1.0)</p>
+</li>
+<li>
+<p>Michael O&#8217;Hara, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Michael Phillip, Samsung Electronics (version 1.2)</p>
+</li>
+<li>
+<p>Michael Wong, Codeplay Software Ltd.
+(version 1.1)</p>
+</li>
+<li>
+<p>Michael Worcester, Imagination Technologies (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Michal Pietrasiuk, Intel (version 1.0)</p>
+</li>
+<li>
+<p>Mika Isojarvi, Google (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Mike Schuchardt, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Mike Stroyan, LunarG (version 1.0)</p>
+</li>
+<li>
+<p>Mike Weiblen, LunarG (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Minyoung Son, Samsung Electronics (version 1.0)</p>
+</li>
+<li>
+<p>Mitch Singer, AMD (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Mythri Venugopal, Samsung Electronics (version 1.0)</p>
+</li>
+<li>
+<p>Naveen Leekha, Google (version 1.0)</p>
+</li>
+<li>
+<p>Neil Henning, AMD (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Neil Hickey, Arm (version 1.2)</p>
+</li>
+<li>
+<p>Neil Trevett, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Nick Penwarden, Epic Games (version 1.0)</p>
+</li>
+<li>
+<p>Nicolai Hähnle, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Niklas Smedberg, Unity Technologies (version 1.0)</p>
+</li>
+<li>
+<p>Norbert Nopper, Independent (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Nuno Subtil, NVIDIA (versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Pat Brown, NVIDIA (version 1.0)</p>
+</li>
+<li>
+<p>Patrick Cozzi, Independent (version 1.1)</p>
+</li>
+<li>
+<p>Patrick Doane, Blizzard Entertainment (version 1.0)</p>
+</li>
+<li>
+<p>Peter Lohrmann, AMD (versions 1.0, 1.2)</p>
+</li>
+<li>
+<p>Petros Bantolas, Imagination Technologies (version 1.1)</p>
+</li>
+<li>
+<p>Pierre Boudier, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Pierre-Loup Griffais, Valve Software (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Piers Daniell, NVIDIA (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Piotr Bialecki, Intel (version 1.0)</p>
+</li>
+<li>
+<p>Prabindh Sundareson, Samsung Electronics (version 1.0)</p>
+</li>
+<li>
+<p>Pyry Haulos, Google (versions 1.0, 1.1) (Vulkan conformance test
+subcommittee chair)</p>
+</li>
+<li>
+<p>Rajeev Rao, Qualcomm (version 1.2)</p>
+</li>
+<li>
+<p>Ralph Potter, Codeplay Software Ltd.
+(versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Ray Smith, Arm (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Richard Huddy, Samsung Electronics (version 1.2)</p>
+</li>
+<li>
+<p>Rob Barris, NVIDIA (version 1.1)</p>
+</li>
+<li>
+<p>Rob Stepinski, Transgaming (version 1.0)</p>
+</li>
+<li>
+<p>Robert Simpson, Qualcomm Technologies, Inc.
+(versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Rolando Caloca Olivares, Epic Games (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Roy Ju, Mediatek (version 1.0)</p>
+</li>
+<li>
+<p>Rufus Hamade, Imagination Technologies (version 1.0)</p>
+</li>
+<li>
+<p>Ruihao Zhang, Qualcomm Technologies, Inc.
+(versions 1.1, 1.2)</p>
+</li>
+<li>
+<p>Sean Ellis, Arm (version 1.0)</p>
+</li>
+<li>
+<p>Sean Harmer, KDAB Group (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Shannon Woods, Google (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Slawomir Cygan, Intel (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Slawomir Grajewski, Intel (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Sorel Bosan, AMD (version 1.1)</p>
+</li>
+<li>
+<p>Spencer Fricke, Samsung Electronics (version 1.2)</p>
+</li>
+<li>
+<p>Stefanus Du Toit, Google (version 1.0)</p>
+</li>
+<li>
+<p>Stephen Huang, Mediatek (version 1.1)</p>
+</li>
+<li>
+<p>Steve Hill, Broadcom (versions 1.0, 1.2)</p>
+</li>
+<li>
+<p>Steve Viggers, Core Avionics &amp; Industrial Inc.
+(versions 1.0, 1.2)</p>
+</li>
+<li>
+<p>Stuart Smith, Imagination Technologies (versions 1.0, 1.1, 1.2)</p>
+</li>
+<li>
+<p>Tilmann Scheller, Samsung Electronics (version 1.1)</p>
+</li>
+<li>
+<p>Tim Foley, Intel (version 1.0)</p>
+</li>
+<li>
+<p>Timo Suoranta, AMD (version 1.0)</p>
+</li>
+<li>
+<p>Timothy Lottes, AMD (versions 1.0, 1.1)</p>
+</li>
+<li>
+<p>Tobias Hector, AMD (versions 1.0, 1.1, 1.2) (validity language and
 toolchain)</p>
 </li>
 <li>
-<p>Tom Olson, Arm (working group chair)</p>
+<p>Tobin Ehlis, LunarG (version 1.0)</p>
 </li>
 <li>
-<p>Tony Barbour, LunarG</p>
+<p>Tom Olson, Arm (versions 1.0, 1.1, 1.2) (Working Group chair)</p>
 </li>
 <li>
-<p>Yanjun Zhang, VeriSilicon</p>
+<p>Tomasz Bednarz, Independent (version 1.1)</p>
 </li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_working_group_contributors_to_vulkan_1_1">Working Group Contributors to Vulkan 1.1</h3>
-<div class="ulist">
-<ul>
 <li>
-<p>Aaron Greig, Codeplay Software Ltd.</p>
+<p>Tomasz Kubale, Intel (version 1.0)</p>
 </li>
 <li>
-<p>Aaron Hagan, AMD</p>
+<p>Tony Barbour, LunarG (versions 1.0, 1.1, 1.2)</p>
 </li>
 <li>
-<p>Alan Ward, Google</p>
+<p>Victor Eruhimov, Unknown (version 1.1)</p>
 </li>
 <li>
-<p>Alejandro Piñeiro, Igalia</p>
+<p>Vincent Hindriksen, StreamHPC (version 1.2)</p>
 </li>
 <li>
-<p>Andres Gomez, Igalia</p>
+<p>Wayne Lister, Imagination Technologies (version 1.0)</p>
 </li>
 <li>
-<p>Baldur Karlsson, Independent</p>
+<p>Wolfgang Engel, Unknown (version 1.1)</p>
 </li>
 <li>
-<p>Barthold Lichtenbelt, NVIDIA</p>
-</li>
-<li>
-<p>Bas Nieuwenhuizen, Google</p>
-</li>
-<li>
-<p>Bill Hollings, Brenwill</p>
-</li>
-<li>
-<p>Colin Riley, AMD</p>
-</li>
-<li>
-<p>Cort Stratton, Google</p>
-</li>
-<li>
-<p>Courtney Goeltzenleuchter, Google</p>
-</li>
-<li>
-<p>Dae Kim, Imagination Technologies</p>
-</li>
-<li>
-<p>Daniel Stone, Collabora</p>
-</li>
-<li>
-<p>David Pinedo, LunarG</p>
-</li>
-<li>
-<p>Dejan Mircevski, Google</p>
-</li>
-<li>
-<p>Dzmitry Malyshau, Mozilla</p>
-</li>
-<li>
-<p>Erika Johnson, LunarG</p>
-</li>
-<li>
-<p>Greg Fischer, LunarG</p>
-</li>
-<li>
-<p>Hans-Kristian Arntzen, Arm</p>
-</li>
-<li>
-<p>Iago Toral, Igalia</p>
-</li>
-<li>
-<p>Ian Elliott, Google</p>
-</li>
-<li>
-<p>Jeff Leger, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Jeff Vigil, Samsung Electronics</p>
-</li>
-<li>
-<p>Jens Owen, Google</p>
-</li>
-<li>
-<p>Joe Davis, Samsung Electronics</p>
-</li>
-<li>
-<p>John Zulauf, LunarG</p>
-</li>
-<li>
-<p>Jordan Justen, Intel</p>
-</li>
-<li>
-<p>Jörg Wagner, Arm</p>
-</li>
-<li>
-<p>Kalle Raita, Google</p>
-</li>
-<li>
-<p>Karen Ghavam, LunarG</p>
-</li>
-<li>
-<p>Karl Schultz, LunarG</p>
-</li>
-<li>
-<p>Kenneth Russell, Google</p>
-</li>
-<li>
-<p>Kevin O&#8217;Neil, AMD</p>
-</li>
-<li>
-<p>Lauri Ilola, Nokia</p>
-</li>
-<li>
-<p>Lenny Komow, LunarG</p>
-</li>
-<li>
-<p>Lionel Landwerlin, Intel</p>
-</li>
-<li>
-<p>Maciej Jesionowski, AMD</p>
-</li>
-<li>
-<p>Mais Alnasser, AMD</p>
-</li>
-<li>
-<p>Marcin Rogucki, Mobica</p>
-</li>
-<li>
-<p>Mark Callow, Independent</p>
-</li>
-<li>
-<p>Mark Kilgard, NVIDIA</p>
-</li>
-<li>
-<p>Markus Tavenrath, NVIDIA</p>
-</li>
-<li>
-<p>Mark Young, LunarG</p>
-</li>
-<li>
-<p>Matthäus Chajdas, AMD</p>
-</li>
-<li>
-<p>Matt Netsch, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Michael O&#8217;Hara, AMD</p>
-</li>
-<li>
-<p>Michael Wong, Codeplay Software Ltd.</p>
-</li>
-<li>
-<p>Mike Schuchardt, LunarG</p>
-</li>
-<li>
-<p>Mike Weiblen, LunarG</p>
-</li>
-<li>
-<p>Nicolai Hähnle, AMD</p>
-</li>
-<li>
-<p>Nuno Subtil, NVIDIA</p>
-</li>
-<li>
-<p>Patrick Cozzi, Independent</p>
-</li>
-<li>
-<p>Petros Bantolas, Imagination Technologies</p>
-</li>
-<li>
-<p>Ralph Potter, Codeplay Software Ltd.</p>
-</li>
-<li>
-<p>Rob Barris, NVIDIA</p>
-</li>
-<li>
-<p>Ruihao Zhang, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Sorel Bosan, AMD</p>
-</li>
-<li>
-<p>Stephen Huang, Mediatek</p>
-</li>
-<li>
-<p>Tilmann Scheller, Samsung Electronics</p>
-</li>
-<li>
-<p>Tomasz Bednarz, Independent</p>
-</li>
-<li>
-<p>Victor Eruhimov, ???</p>
-</li>
-<li>
-<p>Wolfgang Engel, ???</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_working_group_contributors_to_vulkan_1_0">Working Group Contributors to Vulkan 1.0</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Adam Śmigielski, Mobica</p>
-</li>
-<li>
-<p>Allen Hux, Intel</p>
-</li>
-<li>
-<p>Andrew Cox, Samsung Electronics</p>
-</li>
-<li>
-<p>Andrew Poole, Samsung Electronics</p>
-</li>
-<li>
-<p>Andrew Rafter, Samsung Electronics</p>
-</li>
-<li>
-<p>Andrew Richards, Codeplay Software Ltd.</p>
-</li>
-<li>
-<p>Aras Pranckevičius, Unity Technologies</p>
-</li>
-<li>
-<p>Ashwin Kolhe, NVIDIA</p>
-</li>
-<li>
-<p>Ben Bowman, Imagination Technologies</p>
-</li>
-<li>
-<p>Benj Lipchak</p>
-</li>
-<li>
-<p>Bill Hollings, The Brenwill Workshop</p>
-</li>
-<li>
-<p>Brent E. Insko, Intel</p>
-</li>
-<li>
-<p>Brian Ellis, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Cemil Azizoglu, Canonical</p>
-</li>
-<li>
-<p>Chang-Hyo Yu, Samsung Electronics</p>
-</li>
-<li>
-<p>Chia-I Wu, LunarG</p>
-</li>
-<li>
-<p>Chris Frascati, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Cody Northrop, LunarG</p>
-</li>
-<li>
-<p>Courtney Goeltzenleuchter, LunarG</p>
-</li>
-<li>
-<p>Damien Leone, NVIDIA</p>
-</li>
-<li>
-<p>David Mao, AMD</p>
-</li>
-<li>
-<p>David Yu, Pixar</p>
-</li>
-<li>
-<p>Frank (LingJun) Chen, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Fred Liao, Mediatek</p>
-</li>
-<li>
-<p>Gabe Dagani, Freescale</p>
-</li>
-<li>
-<p>Graham Connor, Imagination Technologies</p>
-</li>
-<li>
-<p>Hwanyong Lee, Kyungpook National University</p>
-</li>
-<li>
-<p>Ian Elliott, LunarG</p>
-</li>
-<li>
-<p>James Hughes, Oculus VR</p>
-</li>
-<li>
-<p>Jeff Vigil, Qualcomm Technologies, Inc.</p>
-</li>
-<li>
-<p>Jens Owen, LunarG</p>
-</li>
-<li>
-<p>Jeremy Hayes, LunarG</p>
-</li>
-<li>
-<p>Jonathan Hamilton, Imagination Technologies</p>
-</li>
-<li>
-<p>Krzysztof Iwanicki, Samsung Electronics</p>
-</li>
-<li>
-<p>Larry Seiler, Intel</p>
-</li>
-<li>
-<p>Lutz Latta, Lucasfilm</p>
-</li>
-<li>
-<p>Maria Rovatsou, Codeplay Software Ltd.</p>
-</li>
-<li>
-<p>Mark Callow</p>
-</li>
-<li>
-<p>Mateusz Przybylski, Intel</p>
-</li>
-<li>
-<p>Maxim Lukyanov, Samsung Electronics</p>
-</li>
-<li>
-<p>Michael Lentine, Google</p>
-</li>
-<li>
-<p>Michal Pietrasiuk, Intel</p>
-</li>
-<li>
-<p>Mike Stroyan, LunarG</p>
-</li>
-<li>
-<p>Minyoung Son, Samsung Electronics</p>
-</li>
-<li>
-<p>Mythri Venugopal, Samsung Electronics</p>
-</li>
-<li>
-<p>Naveen Leekha, Google</p>
-</li>
-<li>
-<p>Nick Penwarden, Epic Games</p>
-</li>
-<li>
-<p>Niklas Smedberg, Unity Technologies</p>
-</li>
-<li>
-<p>Pat Brown, NVIDIA</p>
-</li>
-<li>
-<p>Patrick Doane, Blizzard Entertainment</p>
-</li>
-<li>
-<p>Peter Lohrmann, Valve Software</p>
-</li>
-<li>
-<p>Piotr Bialecki, Intel</p>
-</li>
-<li>
-<p>Prabindh Sundareson, Samsung Electronics</p>
-</li>
-<li>
-<p>Rob Stepinski, Transgaming</p>
-</li>
-<li>
-<p>Roy Ju, Mediatek</p>
-</li>
-<li>
-<p>Rufus Hamade, Imagination Technologies</p>
-</li>
-<li>
-<p>Sean Ellis, Arm</p>
-</li>
-<li>
-<p>Stefanus Du Toit, Google</p>
-</li>
-<li>
-<p>Steve Hill, Broadcom</p>
-</li>
-<li>
-<p>Steve Viggers, Core Avionics &amp; Industrial Inc.</p>
-</li>
-<li>
-<p>Tim Foley, Intel</p>
-</li>
-<li>
-<p>Timo Suoranta, AMD</p>
-</li>
-<li>
-<p>Tobin Ehlis, LunarG</p>
-</li>
-<li>
-<p>Tomasz Kubale, Intel</p>
-</li>
-<li>
-<p>Wayne Lister, Imagination Technologies</p>
+<p>Yanjun Zhang, VeriSilicon (versions 1.0, 1.1, 1.2)</p>
 </li>
 </ul>
 </div>
@@ -86945,10 +87263,10 @@ changes that have helped improve the quality of the Specification via
 <a href="https://github.com/KhronosGroup/Vulkan-Docs/graphs/contributors">GitHub</a>.</p>
 </div>
 <div class="paragraph">
-<p>Administrative support to the Working Group for Vulkan 1.1 was provided by
-Khronos staff including Angela Cheng, Ann Thorsnes, Emily Stearns, Liz
-Maitral, and Dominic Agoro-Ombaka; and by Alex Crabb of Caster
-Communications.</p>
+<p>Administrative support to the Working Group for Vulkan 1.1 and 1.2 was
+provided by Khronos staff including Angela Cheng, Ann Thorsnes, Blaine Kohl,
+Dominic Agoro-Ombaka, Emily Stearns, Jeff Phillips, Lisie Aartsen, and Liz
+Maitral; and by Alex Crabb of Caster Communications.</p>
 </div>
 <div class="paragraph">
 <p>Administrative support for Vulkan 1.0 was provided by Andrew Riegel,
@@ -86965,8 +87283,8 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.130<br>
-Last updated 2019-11-17 06:47:49 -0800
+Version 1.0.131<br>
+Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>
 
