@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.131 - A Specification</title>
+<title>Vulkan® 1.0.132 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -841,12 +841,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.131 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.132 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.131,</span>
-<span id="revdate">2020-01-14 15:33:19Z</span>
-<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
+<span id="revnumber">version 1.0.132,</span>
+<span id="revdate">2020-01-21 10:59:49Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -929,7 +929,9 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#shaders-compute">8.10. Compute Shaders</a></li>
 <li><a href="#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
 <li><a href="#shaders-staticuse">8.12. Static Use</a></li>
-<li><a href="#shaders-invocationgroups">8.13. Invocation and Derivative Groups</a></li>
+<li><a href="#shaders-scope">8.13. Scope</a></li>
+<li><a href="#shaders-derivative-operations">8.14. Derivative Operations</a></li>
+<li><a href="#_helper_invocations">8.15. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="#pipelines">9. Pipelines</a>
@@ -986,12 +988,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="#texture-derivatives">15.5. Derivative Operations</a></li>
-<li><a href="#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
-<li><a href="#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
-<li><a href="#textures-sample-operations">15.9. Image Sample Operations</a></li>
-<li><a href="#textures-instructions">15.10. Image Operation Steps</a></li>
+<li><a href="#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="#textures-instructions">15.9. Image Operation Steps</a></li>
 </ul>
 </li>
 <li><a href="#queries">16. Queries</a>
@@ -7889,14 +7890,14 @@ recording.</p>
 <ul>
 <li>
 <p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00049"></a>
-<code>commandBuffer</code> <strong class="purple">must</strong> not be in the <a href="#commandbuffers-lifecycle">recording or pending state</a>.</p>
+<code>commandBuffer</code> <strong class="purple">must</strong> not be in the <a href="#commandbuffers-lifecycle">recording or pending state</a></p>
 </li>
 <li>
 <p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00050"></a>
 If <code>commandBuffer</code> was allocated from a <a href="#VkCommandPool">VkCommandPool</a> which
 did not have the <code>VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</code>
 flag set, <code>commandBuffer</code> <strong class="purple">must</strong> be in the
-<a href="#commandbuffers-lifecycle">initial state</a>.</p>
+<a href="#commandbuffers-lifecycle">initial state</a></p>
 </li>
 <li>
 <p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00051"></a>
@@ -7912,6 +7913,13 @@ of <code>pBeginInfo</code> is <code>VK_FALSE</code>, or the precise occlusion qu
 feature is not enabled, the <code>queryFlags</code> member of the
 <code>pInheritanceInfo</code> member <code>pBeginInfo</code> <strong class="purple">must</strong> not contain
 <code>VK_QUERY_CONTROL_PRECISE_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-02840"></a>
+If <code>commandBuffer</code> is a primary command buffer, then
+<code>pBeginInfo-&gt;flags</code> <strong class="purple">must</strong> not set both the
+<code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code> and the
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flags</p>
 </li>
 </ul>
 </div>
@@ -8271,6 +8279,14 @@ feature is not enabled, <code>pipelineStatistics</code> <strong class="purple">m
 </div>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
 <div class="paragraph">
 <p>If <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> was not set when
 creating a command buffer, that command buffer <strong class="purple">must</strong> not be submitted to a
@@ -8279,6 +8295,10 @@ state</a>.
 If <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> is not set on a
 secondary command buffer, that command buffer <strong class="purple">must</strong> not be used more than
 once in a given primary command buffer.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -8964,11 +8984,6 @@ command buffer becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00087"></a>
-<code>commandBuffer</code> <strong class="purple">must</strong> have been allocated with a <code>level</code> of
-<code>VK_COMMAND_BUFFER_LEVEL_PRIMARY</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00088"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been allocated with a
 <code>level</code> of <code>VK_COMMAND_BUFFER_LEVEL_SECONDARY</code></p>
@@ -8976,32 +8991,25 @@ Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00089"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be in the
-<a href="#commandbuffers-lifecycle">pending or executable state</a>.</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00090"></a>
-If any element of <code>pCommandBuffers</code> was not recorded with the
-<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, and it was
-recorded into any other primary command buffer, that primary command
-buffer <strong class="purple">must</strong> not be in the <a href="#commandbuffers-lifecycle">pending state</a></p>
+<a href="#commandbuffers-lifecycle">pending or executable state</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00091"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not be
-in the <a href="#commandbuffers-lifecycle">pending state</a>.</p>
+in the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00092"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not
-have already been recorded to <code>commandBuffer</code>.</p>
+have already been recorded to <code>commandBuffer</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00093"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not
-appear more than once in <code>pCommandBuffers</code>.</p>
+appear more than once in <code>pCommandBuffers</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00094"></a>
@@ -9036,7 +9044,7 @@ instance, the render passes specified in the
 <code>pBeginInfo-&gt;pInheritanceInfo-&gt;renderPass</code> members of the
 <a href="#vkBeginCommandBuffer">vkBeginCommandBuffer</a> commands used to begin recording each element
 of <code>pCommandBuffers</code> <strong class="purple">must</strong> be
-<a href="#renderpass-compatibility">compatible</a> with the current render pass.</p>
+<a href="#renderpass-compatibility">compatible</a> with the current render pass</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00099"></a>
@@ -9633,11 +9641,24 @@ compute shader.</p>
 </li>
 <li>
 <p><a id="synchronization-pipeline-stages-transfer"></a>
-<code>VK_PIPELINE_STAGE_TRANSFER_BIT</code> specifies the execution of copy
-commands.
-This includes the operations resulting from all <a href="#copies">copy
-commands</a>, <a href="#clears">clear commands</a> (with the exception of
-<a href="#vkCmdClearAttachments">vkCmdClearAttachments</a>), and <a href="#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a>.</p>
+<code>VK_PIPELINE_STAGE_TRANSFER_BIT</code> specifies the following commands:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>All <a href="#copies">copy commands</a>, including <a href="#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a></p>
+</li>
+<li>
+<p><a href="#vkCmdBlitImage">vkCmdBlitImage</a></p>
+</li>
+<li>
+<p><a href="#vkCmdResolveImage">vkCmdResolveImage</a></p>
+</li>
+<li>
+<p>All <a href="#clears">clear commands</a>, with the exception of
+<a href="#vkCmdClearAttachments">vkCmdClearAttachments</a></p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> specifies the final stage in
@@ -10557,8 +10578,8 @@ The signal operation order for queue operations is determined as follows:</p>
 <ol class="arabic">
 <li>
 <p>The initial order is determined by the order in which
-<a href="#vkQueueSubmit">vkQueueSubmit</a>, and <a href="#vkQueueBindSparse">vkQueueBindSparse</a> commands are executed
-on the host, for a single queue, from first to last.</p>
+<a href="#vkQueueSubmit">vkQueueSubmit</a> commands are executed on the host, for a single
+queue, from first to last.</p>
 </li>
 <li>
 <p>The order in which <a href="#VkSubmitInfo">VkSubmitInfo</a> structures are specified in the
@@ -14933,6 +14954,93 @@ not improperly reordered against other uses of the same physical memory via
 a different attachment.
 This is described in more detail below.</p>
 </div>
+<div class="paragraph">
+<p>If a render pass uses multiple attachments that alias the same device
+memory, those attachments <strong class="purple">must</strong> each include the
+<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> bit in their attachment
+description flags.
+Attachments aliasing the same memory occurs in multiple ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Multiple attachments being assigned the same image view as part of
+framebuffer creation.</p>
+</li>
+<li>
+<p>Attachments using distinct image views that correspond to the same image
+subresource of an image.</p>
+</li>
+<li>
+<p>Attachments using views of distinct image subresources which are bound
+to overlapping memory ranges.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Render passes <strong class="purple">must</strong> include subpass dependencies (either directly or via a
+subpass dependency chain) between any two subpasses that operate on the same
+attachment or aliasing attachments and those subpass dependencies <strong class="purple">must</strong>
+include execution and memory dependencies separating uses of the aliases, if
+at least one of those subpasses writes to one of the aliases.
+These dependencies <strong class="purple">must</strong> not include the <code>VK_DEPENDENCY_BY_REGION_BIT</code>
+if the aliases are views of distinct image subresources which overlap in
+memory.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Multiple attachments that alias the same memory <strong class="purple">must</strong> not be used in a
+single subpass.
+A given attachment index <strong class="purple">must</strong> not be used multiple times in a single
+subpass, with one exception: two subpass attachments <strong class="purple">can</strong> use the same
+attachment index if at least one use is as an input attachment and neither
+use is as a resolve or preserve attachment.
+In other words, the same view <strong class="purple">can</strong> be used simultaneously as an input and
+color or depth/stencil attachment, but <strong class="purple">must</strong> not be used as multiple color
+or depth/stencil attachments nor as resolve or preserve attachments.
+The precise set of valid scenarios is described in more detail
+<a href="#renderpass-feedbackloop">below</a>.</p>
+</div>
+<div class="paragraph">
+<p>If a set of attachments alias each other, then all except the first to be
+used in the render pass <strong class="purple">must</strong> use an <code>initialLayout</code> of
+<code>VK_IMAGE_LAYOUT_UNDEFINED</code>, since the earlier uses of the other aliases
+make their contents undefined.
+Once an alias has been used and a different alias has been used after it,
+the first alias <strong class="purple">must</strong> not be used in any later subpasses.
+However, an application <strong class="purple">can</strong> assign the same image view to multiple aliasing
+attachment indices, which allows that image view to be used multiple times
+even if other aliases are used in between.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Once an attachment needs the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>
+bit, there <strong class="purple">should</strong> be no additional cost of introducing additional aliases,
+and using these additional aliases <strong class="purple">may</strong> allow more efficient clearing of the
+attachments on multiple uses via <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -15134,31 +15242,6 @@ For attachments with a color format, this uses the access type
 </li>
 </ul>
 </div>
-</div>
-</div>
-<div class="paragraph">
-<p>If a render pass uses multiple attachments that alias the same device
-memory, those attachments <strong class="purple">must</strong> each include the
-<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> bit in their attachment
-description flags.
-Attachments aliasing the same memory occurs in multiple ways:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Multiple attachments being assigned the same image view as part of
-framebuffer creation.</p>
-</li>
-<li>
-<p>Attachments using distinct image views that correspond to the same image
-subresource of an image.</p>
-</li>
-<li>
-<p>Attachments using views of distinct image subresources which are bound
-to overlapping memory ranges.</p>
-</li>
-</ul>
-</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -15168,60 +15251,15 @@ to overlapping memory ranges.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Render passes <strong class="purple">must</strong> include subpass dependencies (either directly or via a
-subpass dependency chain) between any two subpasses that operate on the same
-attachment or aliasing attachments and those subpass dependencies <strong class="purple">must</strong>
-include execution and memory dependencies separating uses of the aliases, if
-at least one of those subpasses writes to one of the aliases.
-These dependencies <strong class="purple">must</strong> not include the <code>VK_DEPENDENCY_BY_REGION_BIT</code>
-if the aliases are views of distinct image subresources which overlap in
-memory.</p>
+<p><code>VK_ATTACHMENT_STORE_OP_DONT_CARE</code> <strong class="purple">can</strong> cause contents generated during
+previous render passes to be discarded before reaching memory, even if no
+write to the attachment occurs during the current render pass.</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Multiple attachments that alias the same memory <strong class="purple">must</strong> not be used in a
-single subpass.
-A given attachment index <strong class="purple">must</strong> not be used multiple times in a single
-subpass, with one exception: two subpass attachments <strong class="purple">can</strong> use the same
-attachment index if at least one use is as an input attachment and neither
-use is as a resolve or preserve attachment.
-In other words, the same view <strong class="purple">can</strong> be used simultaneously as an input and
-color or depth/stencil attachment, but <strong class="purple">must</strong> not be used as multiple color
-or depth/stencil attachments nor as resolve or preserve attachments.
-The precise set of valid scenarios is described in more detail
-<a href="#renderpass-feedbackloop">below</a>.</p>
 </div>
-<div class="paragraph">
-<p>If a set of attachments alias each other, then all except the first to be
-used in the render pass <strong class="purple">must</strong> use an <code>initialLayout</code> of
-<code>VK_IMAGE_LAYOUT_UNDEFINED</code>, since the earlier uses of the other aliases
-make their contents undefined.
-Once an alias has been used and a different alias has been used after it,
-the first alias <strong class="purple">must</strong> not be used in any later subpasses.
-However, an application <strong class="purple">can</strong> assign the same image view to multiple aliasing
-attachment indices, which allows that image view to be used multiple times
-even if other aliases are used in between.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Once an attachment needs the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>
-bit, there <strong class="purple">should</strong> be no additional cost of introducing additional aliases,
-and using these additional aliases <strong class="purple">may</strong> allow more efficient clearing of the
-attachments on multiple uses via <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 <div class="openblock">
 <div class="content">
@@ -16920,8 +16958,7 @@ restricted to the pixels whose x and y coordinates fall within the render
 area on all attachments.
 The render area extends to all layers of <code>framebuffer</code>.
 The application <strong class="purple">must</strong> ensure (using scissor if necessary) that all rendering
-is contained within the render area.
-The render area <strong class="purple">must</strong> be contained within the framebuffer dimensions.</p>
+is contained within the render area.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -16956,7 +16993,29 @@ in <code>renderPass</code> that specifies a <code>loadOp</code> (or
 <p><a id="VUID-VkRenderPassBeginInfo-renderPass-00904"></a>
 <code>renderPass</code> <strong class="purple">must</strong> be <a href="#renderpass-compatibility">compatible</a> with
 the <code>renderPass</code> member of the <code>VkFramebufferCreateInfo</code>
-structure specified when creating <code>framebuffer</code>.</p>
+structure specified when creating <code>framebuffer</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-renderArea-02846"></a>
+<code>renderArea.offset.x</code> <strong class="purple">must</strong> be greater than or equal to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-renderArea-02847"></a>
+<code>renderArea.offset.y</code> <strong class="purple">must</strong> be greater than or equal to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-renderArea-02848"></a>
+<span class="eq"><code>renderArea.offset.x</code> +  <code>renderArea.offset.width</code></span>
+<strong class="purple">must</strong> be less than or equal to
+<a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>width</code> the <code>framebuffer</code> was
+created with</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-renderArea-02849"></a>
+<span class="eq"><code>renderArea.offset.y</code> +  <code>renderArea.offset.height</code></span>
+<strong class="purple">must</strong> be less than or equal to
+<a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>height</code> the <code>framebuffer</code> was
+created with</p>
 </li>
 </ul>
 </div>
@@ -18240,16 +18299,295 @@ present in a shader entry point&#8217;s interface.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="shaders-invocationgroups">8.13. Invocation and Derivative Groups</h3>
+<h3 id="shaders-scope">8.13. Scope</h3>
 <div class="paragraph">
-<p>An <em>invocation group</em> (see the subsection &#8220;Control Flow&#8221; of section 2 of
-the SPIR-V specification) for a compute shader is the set of invocations in
-a single local workgroup.
-For graphics shaders, an invocation group is an implementation-dependent
-subset of the set of shader invocations of a given shader stage which are
-produced by a single drawing command.
+<p>A <em>scope</em> describes a set of shader invocations, where each such set is a
+<em>scope instance</em>.
+Each invocation belongs to one or more scope instances, but belongs to no
+more than one scope instance for each scope.</p>
+</div>
+<div class="paragraph">
+<p>The operations available between invocations in a given scope instance vary,
+with smaller scopes generally able to perform more operations, and with
+greater efficiency.</p>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-cross-device">8.13.1. Cross Device</h4>
+<div class="paragraph">
+<p>All invocations executed in a Vulkan instance fall into a single <em>cross
+device scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>Whilst the <code>CrossDevice</code> scope is defined in SPIR-V, it is disallowed in
+Vulkan.
+API <a href="#synchronization">synchronization</a> commands <strong class="purple">can</strong> be used to
+communicate between devices.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-device">8.13.2. Device</h4>
+<div class="paragraph">
+<p>All invocations executed on a single device form a <em>device scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>There is no method to synchronize the execution of these invocations within
+SPIR-V, and this <strong class="purple">can</strong> only be done with API synchronization primitives.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-queue-family">8.13.3. Queue Family</h4>
+<div class="paragraph">
+<p>Invocations executed by queues in a given queue family form a <em>queue family
+scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>This scope is identified in SPIR-V as the
+<code>Device</code> <code>Scope</code>, which <strong class="purple">can</strong> be used as a <code>Memory</code> <code>Scope</code> for
+barrier and atomic operations.</p>
+</div>
+<div class="paragraph">
+<p>There is no method to synchronize the execution of these invocations within
+SPIR-V, and this <strong class="purple">can</strong> only be done with API synchronization primitives.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a queue family scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-device">device scope instance</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-command">8.13.4. Command</h4>
+<div class="paragraph">
+<p>Any shader invocations executed as the result of a single command such as
+<a href="#vkCmdDispatch">vkCmdDispatch</a> or <a href="#vkCmdDraw">vkCmdDraw</a> form a <em>command scope instance</em>.
 For indirect drawing commands with <code>drawCount</code> greater than one,
-invocations from separate draws are in distinct invocation groups.</p>
+invocations from separate draws are in separate command scope instances.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> for communication across invocations in a
+command scope instance.
+As this has a clear boundary at the API level, coordination here <strong class="purple">can</strong> be
+performed in the API, rather than in SPIR-V.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a command scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-queue-family">queue-family scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>For shaders without defined <a href="#shaders-scope-workgroups">workgroups</a>, this
+set of invocations forms an <em>invocation group</em> as defined in the SPIR-V
+specification (see the subsection “Control Flow” of section 2 of the SPIR-V
+1.00 Revision 4 specification).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-primitive">8.13.5. Primitive</h4>
+<div class="paragraph">
+<p>Any fragment shader invocations executed as the result of rasterization of a
+single primitive form a <em>primitive scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> for communication across invocations in a
+primitive scope instance.</p>
+</div>
+<div class="paragraph">
+<p>Any generated <a href="#helper-invocations">helper invocations</a> are included in
+this scope instance.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a primitive scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-command">command scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Any input variables decorated with <code>Flat</code> are uniform within a primitive
+scope instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-workgroup">8.13.6. Workgroup</h4>
+<div class="paragraph">
+<p>A <em>local workgroup</em> is a set of invocations that can synchronize and share
+data with each other using memory in the <code>Workgroup</code> storage class.</p>
+</div>
+<div class="paragraph">
+<p>The <code>Workgroup</code> <code>Scope</code> can be used as both an <code>Execution</code>
+<code>Scope</code> and <code>Memory</code> <code>Scope</code> for barrier and atomic operations.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a local workgroup <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-command">command scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Only
+compute shaders have defined workgroups - other shader types <strong class="purple">cannot</strong> use
+workgroup functionality.
+For shaders that have defined workgroups, this set of invocations forms an
+<em>invocation group</em> as defined in the SPIR-V specification (see the
+subsection “Control Flow” of section 2 of the SPIR-V 1.00 Revision 4
+specification).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-quad">8.13.7. Quad</h4>
+<div class="paragraph">
+<p>A <em>quad scope instance</em> is formed of four shader invocations.</p>
+</div>
+<div class="paragraph">
+<p>In a fragment shader, each invocation in a quad scope instance is formed of
+invocations in neighboring framebuffer locations <span class="eq">(x<sub>i</sub>, y<sub>i</sub>)</span>, where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq">i</span> is the index of the invocation within the scope instance.</p>
+</li>
+<li>
+<p><span class="eq">x<sub>0</sub> = x<sub>1</sub> - 1 = x<sub>2</sub> = x<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p><span class="eq">y<sub>0</sub> = y<sub>1</sub> = y<sub>2</sub> - 1 = y<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p>Each invocation has the same layer and sample indices.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The specific set of invocations that make up a quad scope instance in other
+shader stages is undefined.</p>
+</div>
+<div class="paragraph">
+<p>In a fragment shader, each invocation in a quad scope instance <strong class="purple">must</strong> be in
+the same <a href="#shaders-scope-primitive">primitive scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>For <a href="#shaders-scope-workgroup">shaders that have defined workgroups</a>, each
+invocation in a quad scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-workgroup">local workgroup</a>.</p>
+</div>
+<div class="paragraph">
+<p>In other shader stages, each invocation in a quad scope instance <strong class="purple">must</strong> be in
+the same <a href="#shaders-scope-device">device scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Fragment
+shaders have defined quad scope instances.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-invocation">8.13.8. Invocation</h4>
+<div class="paragraph">
+<p>The smallest <em>scope</em> is a single invocation; this is represented by the
+<code>Invocation</code> <code>Scope</code> in SPIR-V.</p>
+</div>
+<div class="paragraph">
+<p>Fragment shader invocations <strong class="purple">must</strong> be in a <a href="#shaders-scope-primitive
+primitive scope instance">[shaders-scope-primitive
+primitive scope instance]</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="#shaders-scope-workgroup">shaders that have defined
+workgroups</a> <strong class="purple">must</strong> be in a <a href="#shaders-scope-workgroup">local workgroup</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="#shaders-scope-quad">shaders that have a defined quad
+scope</a> <strong class="purple">must</strong> be in a <a href="#shaders-scope-quad">quad scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>All invocations in all stages <strong class="purple">must</strong> be in a <a href="#shaders-scope-command">command
+scope instance</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="shaders-derivative-operations">8.14. Derivative Operations</h3>
+<div class="paragraph">
+<p>Derivative operations calculate the partial derivative for an expression
+<span class="eq">P</span> as a function of an invocation&#8217;s <span class="eq">x</span> and <span class="eq">y</span> coordinates.</p>
+</div>
+<div class="paragraph">
+<p>Derivative operations operate on a set of invocations known as a <em>derivative
+group</em> as defined in the SPIR-V specification (see the subsection “Control
+Flow” of section 2 of the SPIR-V 1.00 Revision 4 specification).
+A derivative group is equivalent to
+the <a href="#shaders-scope-primitive">primitive scope instance</a> for a fragment
+shader invocation.</p>
+</div>
+<div class="paragraph">
+<p>Derivatives are calculated assuming that <span class="eq">P</span> is piecewise linear and
+continuous within the derivative group.
+All dynamic instances of explicit derivative instructions (<code>OpDPdx</code>*,
+<code>OpDPdy</code>*, and <code>OpFwidth</code>*) <strong class="purple">must</strong> be executed in control flow that is
+uniform within a derivative group.
+For other derivative operations, results are undefined if a dynamic
+instance is executed in control flow is not uniform within the derivative
+group.</p>
+</div>
+<div class="paragraph">
+<p>Fragment shaders that statically execute derivative operations <strong class="purple">must</strong> launch
+sufficient invocations to ensure their correct operation; additional
+<a href="#shaders-helper-invocations">helper invocations</a> are launched for
+framebuffer locations not covered by rasterized fragments if necessary.</p>
+</div>
+<div class="paragraph">
+<p>Derivative operations calculate their results as the difference between the
+result of <span class="eq">P</span> across invocations in the quad.
+For fine derivative operations (<code>OpDPdxFine</code> and <code>OpDPdyFine</code>), the
+values of <span class="eq">DPdx(P<sub>i</sub>)</span> are calculated as</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdx(P<sub>0</sub>) = DPdx(P<sub>1</sub>) = P<sub>1</sub> - P<sub>0</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdx(P<sub>2</sub>) = DPdx(P<sub>3</sub>) = P<sub>3</sub> - P<sub>2</sub></span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>and the values of <span class="eq">DPdy(P<sub>i</sub>)</span> are calculated as</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdy(P<sub>0</sub>) = DPdy(P<sub>2</sub>) = P<sub>2</sub> - P<sub>0</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdy(P<sub>1</sub>) = DPdy(P<sub>3</sub>) = P<sub>3</sub> - P<sub>1</sub></span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">i</span> is the index of each invocation as described in
+<a href="#shaders-scope-quad">Quad</a>.</p>
+</div>
+<div class="paragraph">
+<p>Coarse derivative operations (<code>OpDPdxCoarse</code> and <code>OpDPdyCoarse</code>),
+calculate their results in roughly the same manner, but <strong class="purple">may</strong> only calculate
+two values instead of four (one for each of <span class="eq">DPdx</span> and <span class="eq">DPdy</span>),
+reusing the same result no matter the originating invocation.
+If an implementation does this, it <strong class="purple">should</strong> use the fine derivative
+calculations described for <span class="eq">P<sub>0</sub></span>.</p>
+</div>
+<div class="paragraph">
+<p>The results for <code>OpDPdx</code> and <code>OpDPdy</code> <strong class="purple">may</strong> be calculated as either
+fine or coarse derivatives, with implementations favouring the most
+efficient approach.
+Implementations <strong class="purple">must</strong> choose coarse or fine consistently between the two.</p>
+</div>
+<div class="paragraph">
+<p>Executing <code>OpFwidthFine</code>, <code>OpFwidthCoarse</code>, or <code>OpFwidth</code> is
+equivalent to executing the corresponding <code>OpDPdx</code>* and <code>OpDPdy</code>*
+instructions, taking the absolute value of the results, and summing them.</p>
+</div>
+<div class="paragraph">
+<p>Executing a <code>OpImage</code>*Sample*ImplicitLod instruction is equivalent to
+executing <code>OpDPdx</code>(<code>Coordinate</code>) and <code>OpDPdy</code>(<code>Coordinate</code>), and
+passing the results as the <code>Grad</code> operands <code>dx</code> and <code>dy</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -18260,26 +18598,33 @@ invocations from separate draws are in distinct invocation groups.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Because the partitioning of invocations into invocation groups is
-implementation-dependent and not observable, applications generally need to
-assume the worst case of all invocations in a draw belonging to a single
-invocation group.</p>
+<p>It is expected that using the <code>ImplicitLod</code> variants of sampling
+functions will be substantially more efficient than using the
+<code>ExplicitLod</code> variants with explicitly generated derivatives.</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_helper_invocations">8.15. Helper Invocations</h3>
 <div class="paragraph">
-<p>A <em>derivative group</em> (see the subsection &#8220;Control Flow&#8221; of section 2 of
-the SPIR-V 1.00 Revision 4 specification) is a set of invocations which are
-used together to compute a derivative.
-For a fragment shader, a derivative group is the set of invocations
-generated by a single primitive.</p>
+<p>When performing <a href="#shaders-derivative-operations">derivative</a>
+operations in a fragment shader, additional invocations <strong class="purple">may</strong> be spawned in
+order to ensure correct results.
+These additional invocations are known as <em>helper invocations</em> and <strong class="purple">can</strong> be
+identified by a non-zero value in the <code>HelperInvocation</code> built-in.
+Stores and atomics performed by helper invocations <strong class="purple">must</strong> not have any effect
+on memory, and values returned by atomic instructions in helper invocations
+are undefined.</p>
 </div>
 <div class="paragraph">
-<p>Derivative values are undefined for a sampled image instruction if the
-instruction is in flow control that is not uniform across the derivative
-group.</p>
+<p>Helper invocations <strong class="purple">may</strong> become inactive at any time for any reason, with one
+exception.
+If a helper invocation would be active if it were not a helper invocation,
+it <strong class="purple">must</strong> be active for <a href="#shaders-derivative-operations">derivative</a>
+operations.</p>
 </div>
 </div>
 </div>
@@ -22829,28 +23174,21 @@ parameter:</p>
 <li>
 <p>If the state is not specified as dynamic in the new pipeline object,
 then that command buffer state is overwritten by the state in the new
-pipeline object.</p>
+pipeline object.
+Before any draw or dispatch call with this pipeline there <strong class="purple">must</strong> not have
+been any call to any of the corresponding dynamic state setting commands
+after this pipeline was bound</p>
 </li>
 <li>
-<p>If the state is specified as dynamic in both the new and the previous
-pipeline object, then that command buffer state is not disturbed.</p>
-</li>
-<li>
-<p>If the state is specified as dynamic in the new pipeline object but is
-not specified as dynamic in the previous pipeline object, then that
-command buffer state becomes undefined.
-If the state is an array, then the entire array becomes undefined.</p>
-</li>
-<li>
-<p>If the state is an array specified as dynamic in both the new and the
-previous pipeline object, and the array size is not the same in both
-pipeline objects, then that command buffer state becomes undefined.</p>
+<p>If the state is specified as dynamic in the new pipeline object, then
+that command buffer state is not disturbed.
+Before any draw or dispatch call with this pipeline there <strong class="purple">must</strong> have
+been at least one call to each of the corresponding dynamic state
+setting commands since the command buffer recording was begun, or the
+last bound pipeline object with that state specified as static,
+whichever was the latter</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>Dynamic state setting commands <strong class="purple">must</strong> not be issued for state that is not
-specified as dynamic in the bound pipeline object.</p>
 </div>
 <div class="paragraph">
 <p>Dynamic state that does not affect the result of operations <strong class="purple">can</strong> be left
@@ -24427,9 +24765,23 @@ This pointer minus <code>offset</code> <strong class="purple">must</strong> be a
 </div>
 <div class="paragraph">
 <p>After a successful call to <code>vkMapMemory</code> the memory object <code>memory</code>
-is considered to be currently <em>host mapped</em>.
-It is an application error to call <code>vkMapMemory</code> on a memory object that
-is already host mapped.</p>
+is considered to be currently <em>host mapped</em>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>It is an application error to call <code>vkMapMemory</code> on a memory object that
+is already <em>host mapped</em>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -39886,603 +40238,13 @@ format is undefined.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="texture-derivatives">15.5. Derivative Operations</h3>
-<div class="paragraph">
-<p>SPIR-V derivative instructions include <code>OpDPdx</code>, <code>OpDPdy</code>,
-<code>OpDPdxFine</code>, <code>OpDPdyFine</code>, <code>OpDPdxCoarse</code>, and <code>OpDPdyCoarse</code>.
-Derivative instructions are only available in
-fragment shaders.</p>
-</div>
-<div class="imageblock text-center">
-<div class="content">
-<svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="316.03922"
-   height="316.03922"
-   viewBox="0 0 83.618714 83.618707"
-   version="1.1"
-   id="svg8"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="vulkantexture2-ll.svg">
-  <defs
-     id="defs2">
-    <marker
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Lend-0"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         inkscape:connector-curvature="0"
-         id="path977-6"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
-    </marker>
-    <marker
-       inkscape:isstock="true"
-       style="overflow:visible"
-       id="marker1483-7"
-       refX="0"
-       refY="0"
-       orient="auto"
-       inkscape:stockid="Arrow1Lend">
-      <path
-         inkscape:connector-curvature="0"
-         transform="matrix(-0.8,0,0,-0.8,-10,0)"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         id="path1481-0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow2Sstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Sstart-2"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1056-6"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(0.3,0,0,0.3,-0.69,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Send"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Send-6"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1041-8"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.00000003pt;stroke-opacity:1"
-         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow2Sstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Sstart-2-0"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1056-6-3"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(0.3,0,0,0.3,-0.69,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Send"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Send-6-3"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1041-8-6"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.00000003pt;stroke-opacity:1"
-         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow2Sstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Sstart-2-5"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1056-6-0"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(0.3,0,0,0.3,-0.69,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Send"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Send-6-2"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1041-8-9"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.00000003pt;stroke-opacity:1"
-         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow2Sstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Sstart-2-5-6"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1056-6-0-6"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(0.3,0,0,0.3,-0.69,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-    <marker
-       inkscape:stockid="Arrow1Send"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow1Send-6-2-9"
-       style="overflow:visible"
-       inkscape:isstock="true"
-       inkscape:collect="always">
-      <path
-         id="path1041-8-9-7"
-         d="M 0,0 5,-5 -12.5,0 5,5 Z"
-         style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#ff0000;stroke-width:1.00000003pt;stroke-opacity:1"
-         transform="matrix(-0.2,0,0,-0.2,-1.2,0)"
-         inkscape:connector-curvature="0" />
-    </marker>
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="162.12843"
-     inkscape:cy="160.27895"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="true"
-     inkscape:snap-object-midpoints="true"
-     inkscape:snap-text-baseline="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1057"
-     inkscape:window-x="1928"
-     inkscape:window-y="31"
-     inkscape:window-maximized="0"
-     fit-margin-top="1"
-     fit-margin-right="1"
-     fit-margin-bottom="1"
-     fit-margin-left="1"
-     units="px"
-     inkscape:snap-center="true">
-    <inkscape:grid
-       type="xygrid"
-       id="grid12"
-       originx="-44.673178"
-       originy="-42.027352"
-       dotted="false" />
-  </sodipodi:namedview>
-  <metadata
-     id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-52.423029,41.958581)">
-    <g
-       id="g1463"
-       transform="matrix(3.5000002,0,0,3.5000002,-68.979321,-98.562563)"
-       style="stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none">
-      <g
-         id="g3211">
-        <circle
-           style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path4517"
-           cx="42.333332"
-           cy="21.833345"
-           r="0.52778977"
-           d="m 42.861122,21.833345 c 0,0.291491 -0.2363,0.52779 -0.52779,0.52779 -0.29149,0 -0.52779,-0.236299 -0.52779,-0.52779 0,-0.29149 0.2363,-0.527789 0.52779,-0.527789 0.29149,0 0.52779,0.236299 0.52779,0.527789 z" />
-        <circle
-           style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path4517-7"
-           cx="52.916668"
-           cy="21.833345"
-           r="0.52778977"
-           d="m 53.444458,21.833345 c 0,0.291491 -0.2363,0.52779 -0.52779,0.52779 -0.29149,0 -0.52779,-0.236299 -0.52779,-0.52779 0,-0.29149 0.2363,-0.527789 0.52779,-0.527789 0.29149,0 0.52779,0.236299 0.52779,0.527789 z" />
-        <path
-           style="fill:none;stroke:#808080;stroke-width:0.15119047;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           d="m 37.041666,16.541679 21.166656,-4e-6 5e-6,21.166664 -21.166661,4e-6 V 16.541679 m 10.583334,0 -10e-7,21.166664 m 10.583323,-10.583334 -21.166655,4e-6"
-           id="path1171"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="ccccccccc" />
-        <circle
-           style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path4517-6"
-           cx="42.333332"
-           cy="32.416679"
-           r="0.52778977"
-           d="m 42.861122,32.416679 c 0,0.291491 -0.2363,0.52779 -0.52779,0.52779 -0.29149,0 -0.52779,-0.236299 -0.52779,-0.52779 0,-0.29149 0.2363,-0.527789 0.52779,-0.527789 0.29149,0 0.52779,0.236299 0.52779,0.527789 z" />
-        <circle
-           style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path4517-7-3"
-           cx="52.916668"
-           cy="32.416679"
-           r="0.52778977"
-           d="m 53.444458,32.416679 c 0,0.291491 -0.2363,0.52779 -0.52779,0.52779 -0.29149,0 -0.52779,-0.236299 -0.52779,-0.52779 0,-0.29149 0.2363,-0.527789 0.52779,-0.527789 0.29149,0 0.52779,0.236299 0.52779,0.527789 z" />
-      </g>
-    </g>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.5291667px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend-0)"
-       d="m 60.666509,38.708309 34.395846,1e-5 m 5.291665,0 34.39583,-1e-5"
-       id="path972-8"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <text
-       xml:space="preserve"
-       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333358999999998px;line-height:30%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664000000002"
-       x="97.724724"
-       y="39.86277"
-       id="text121-3-7-3-3-5"
-       sodipodi:linespacing="30%"><tspan
-         sodipodi:role="line"
-         id="tspan3044">X</tspan></text>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.5291667px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483-7)"
-       d="m 55.374849,33.416642 5e-6,-34.39582401 m 0,-5.29166679 -5e-6,-34.3958442"
-       id="path1607-6"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <text
-       id="text1611-4"
-       y="-2.1615388"
-       x="55.153679"
-       style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333358999999998px;line-height:30%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664000000002"
-       xml:space="preserve"
-       sodipodi:linespacing="30%"><tspan
-         sodipodi:role="line"
-         id="tspan3046">Y</tspan></text>
-    <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Sstart-2);marker-end:url(#Arrow1Send-6)"
-       d="M 81.833183,-22.145859 H 113.58318"
-       id="path8722-9"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Sstart-2-0);marker-end:url(#Arrow1Send-6-3)"
-       d="M 81.833183,14.895812 H 113.58318"
-       id="path8722-9-3"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Sstart-2-5);marker-end:url(#Arrow1Send-6-2)"
-       d="m 79.187349,-19.500023 v 31.75"
-       id="path8722-9-0"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.5291667;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Sstart-2-5-6);marker-end:url(#Arrow1Send-6-2-9)"
-       d="m 116.22902,-19.500025 v 31.75"
-       id="path8722-9-0-3"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <g
-       id="g1020"
-       transform="matrix(0.26458334,0,0,0.26458334,84.872125,-22.011222)">
-      <g
-         id="g5766"
-         transform="translate(-33.403644,-1.4186198)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664"
-           x="59.062431"
-           y="-5.2611041"
-           id="text5070-2-2-0"><tspan
-             sodipodi:role="line"
-             id="tspan5068-0-3-1"
-             x="59.062431"
-             y="-5.2611041"
-             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#f40000;fill-opacity:1;stroke-width:0.52916664">dPdx</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.25;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'"
-           x="97.567635"
-           y="-0.92451537"
-           id="text12872-4"><tspan
-             sodipodi:role="line"
-             id="tspan12870-45"
-             x="97.567635"
-             y="-0.92451537"
-             style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ff0000;fill-opacity:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'">1</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g1020-3"
-       transform="matrix(0.26458334,0,0,0.26458334,84.872125,20.322112)">
-      <g
-         id="g5766-4"
-         transform="translate(-33.403644,-1.4186198)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664"
-           x="59.062431"
-           y="-5.2611041"
-           id="text5070-2-2-0-8"><tspan
-             sodipodi:role="line"
-             id="tspan5068-0-3-1-1"
-             x="59.062431"
-             y="-5.2611041"
-             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#f40000;fill-opacity:1;stroke-width:0.52916664">dPdx</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.25;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'"
-           x="97.567635"
-           y="-0.92451537"
-           id="text12872-4-0"><tspan
-             sodipodi:role="line"
-             id="tspan12870-45-9"
-             x="97.567635"
-             y="-0.92451537"
-             style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ff0000;fill-opacity:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'">0</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g1020-2"
-       transform="matrix(0,-0.26458334,0.26458334,0,121.65532,9.2110479)">
-      <g
-         id="g5766-8"
-         transform="translate(-33.403644,-1.4186198)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664"
-           x="59.062431"
-           y="-5.2611041"
-           id="text5070-2-2-0-7"><tspan
-             sodipodi:role="line"
-             id="tspan5068-0-3-1-3"
-             x="59.062431"
-             y="-5.2611041"
-             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#f40000;fill-opacity:1;stroke-width:0.52916664">dPdy</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.25;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'"
-           x="97.567635"
-           y="-0.92451537"
-           id="text12872-4-9"><tspan
-             sodipodi:role="line"
-             id="tspan12870-45-2"
-             x="97.567635"
-             y="-0.92451537"
-             style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ff0000;fill-opacity:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'">1</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g1020-2-0"
-       transform="matrix(0,-0.26458334,0.26458334,0,79.321981,9.2110479)">
-      <g
-         id="g5766-8-2"
-         transform="translate(-33.403644,-1.4186198)">
-        <text
-           xml:space="preserve"
-           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.52916664"
-           x="59.062431"
-           y="-5.2611041"
-           id="text5070-2-2-0-7-5"><tspan
-             sodipodi:role="line"
-             id="tspan5068-0-3-1-3-5"
-             x="59.062431"
-             y="-5.2611041"
-             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#f40000;fill-opacity:1;stroke-width:0.52916664">dPdy</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:1.25;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'"
-           x="97.567635"
-           y="-0.92451537"
-           id="text12872-4-9-8"><tspan
-             sodipodi:role="line"
-             id="tspan12870-45-2-3"
-             x="97.567635"
-             y="-0.92451537"
-             style="font-size:10.66666698px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ff0000;fill-opacity:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic'">0</tspan></text>
-      </g>
-    </g>
-    <g
-       id="g3134">
-      <g
-         transform="translate(0.52916672,1.0142766e-6)"
-         id="g3645">
-        <text
-           sodipodi:linespacing="30.000001%"
-           id="text121"
-           y="-27.69998"
-           x="77.357597"
-           style="font-size:4.23333311px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:30.00000119%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal'"
-           xml:space="preserve"><tspan
-             y="-27.69998"
-             x="77.357597"
-             id="tspan4363"
-             sodipodi:role="line"
-             style="font-size:4.23333359px">2</tspan></text>
-        <text
-           sodipodi:linespacing="30.000001%"
-           id="text121-6"
-           y="-27.699984"
-           x="114.39923"
-           style="font-size:4.23333311px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:30.00000119%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal'"
-           xml:space="preserve"
-           inkscape:transform-center-x="94.092779"
-           inkscape:transform-center-y="27.815922"><tspan
-             y="-27.699984"
-             x="114.39923"
-             id="tspan4363-4"
-             sodipodi:role="line"
-             style="font-size:4.23333359px">3</tspan></text>
-      </g>
-      <g
-         id="g3645-0"
-         transform="translate(0.52916672,50.800011)">
-        <text
-           sodipodi:linespacing="30.000001%"
-           id="text121-3"
-           y="-26.641645"
-           x="77.357597"
-           style="font-size:4.23333311px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:30.00000119%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal'"
-           xml:space="preserve"><tspan
-             y="-26.641645"
-             x="77.357597"
-             id="tspan4363-5"
-             sodipodi:role="line"
-             style="font-size:4.23333359px">0</tspan></text>
-        <text
-           sodipodi:linespacing="30.000001%"
-           id="text121-6-8"
-           y="-26.641649"
-           x="114.39923"
-           style="font-size:4.23333311px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:30.00000119%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal'"
-           xml:space="preserve"
-           inkscape:transform-center-x="94.092779"
-           inkscape:transform-center-y="27.815922"><tspan
-             y="-26.641649"
-             x="114.39923"
-             id="tspan4363-4-5"
-             sodipodi:role="line"
-             style="font-size:4.23333359px">1</tspan></text>
-      </g>
-    </g>
-  </g>
-</svg>
-</div>
-<div class="title">Figure 5. Implicit Derivatives</div>
-</div>
-<div class="paragraph">
-<p>Derivatives are computed as if there is a 2×2 neighborhood of
-fragments for each fragment shader invocation.
-These neighboring fragments are used to compute derivatives with the
-assumption that the values of P in the neighborhood are piecewise linear.
-It is further assumed that the values of P in the neighborhood are locally
-continuous.
-Applications <strong class="purple">must</strong> not use derivative instructions in non-uniform control
-flow.</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{aligned}
-dPdx_0 &amp; = P_{i_1,j_0} - P_{i_0,j_0}  \\
-dPdx_1 &amp; = P_{i_1,j_1} - P_{i_0,j_1}  \\
-\\
-dPdy_0 &amp; = P_{i_0,j_1} - P_{i_0,j_0}  \\
-dPdy_1 &amp; = P_{i_1,j_1} - P_{i_1,j_0}
-\end{aligned}\]
-</div>
-</div>
-<div class="paragraph">
-<p>For a 2×2 neighborhood, for the four fragments labled 0, 1, 2 and 3,
-the <code>Fine</code> derivative instructions <strong class="purple">must</strong> return:</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{aligned}
-dPdx &amp; =
-  \begin{cases}
-    dPdx_0 &amp; \text{for fragments labeled 0 and 1}\\
-    dPdx_1 &amp; \text{for fragments labeled 2 and 3}
-  \end{cases} \\
-dPdy &amp; =
-  \begin{cases}
-    dPdy_0 &amp; \text{for fragments labeled 0 and 2}\\
-    dPdy_1 &amp; \text{for fragments labeled 1 and 3}
-  \end{cases}
-\end{aligned}\]
-</div>
-</div>
-<div class="paragraph">
-<p>Coarse derivatives <strong class="purple">may</strong> return only two values.
-In this case, the values <strong class="purple">should</strong> be:</p>
-</div>
-<div class="stemblock">
-<div class="content">
-\[\begin{aligned}
-dPdx &amp; =
-  \begin{cases}
-    dPdx_0 &amp; \text{preferred}\\
-    dPdx_1
-  \end{cases} \\
-dPdy &amp; =
-  \begin{cases}
-    dPdy_0 &amp; \text{preferred}\\
-    dPdy_1
-  \end{cases}
-\end{aligned}\]
-</div>
-</div>
-<div class="paragraph">
-<p><code>OpDPdx</code> and <code>OpDPdy</code> <strong class="purple">must</strong> return the same result as either
-<code>OpDPdxFine</code> or <code>OpDPdxCoarse</code> and either <code>OpDPdyFine</code> or
-<code>OpDPdyCoarse</code>, respectively.
-Implementations <strong class="purple">must</strong> make the same choice of either coarse or fine for both
-<code>OpDPdx</code> and <code>OpDPdy</code>, and implementations <strong class="purple">should</strong> make the choice
-that is more efficient to compute.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</h3>
+<h3 id="textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</h3>
 <div class="paragraph">
 <p>If the image sampler instruction provides normalized texel coordinates, some
 of the following operations are performed.</p>
 </div>
 <div class="sect3">
-<h4 id="textures-projection">15.6.1. Projection Operation</h4>
+<h4 id="textures-projection">15.5.1. Projection Operation</h4>
 <div class="paragraph">
 <p>For <code>Proj</code> image operations, the normalized texel coordinates
 <span class="eq">(s,t,r,q,a)</span> and (if present) the <span class="eq">D<sub>ref</sub></span> coordinate are
@@ -40503,7 +40265,7 @@ D_{\textit{ref}} &amp; = \frac{D_{\textit{ref}}}{q}, &amp; \text{if provided}
 </div>
 </div>
 <div class="sect3">
-<h4 id="textures-derivative-image-operations">15.6.2. Derivative Image Operations</h4>
+<h4 id="textures-derivative-image-operations">15.5.2. Derivative Image Operations</h4>
 <div class="paragraph">
 <p>Derivatives are used for LOD selection.
 These derivatives are either implicit (in an <code>ImplicitLod</code> image
@@ -40512,8 +40274,8 @@ to the image instruction in any shader).</p>
 </div>
 <div class="paragraph">
 <p>For implicit derivatives image instructions, the derivatives of texel
-coordinates are calculated in the same manner as derivative operations
-above.
+coordinates are calculated in the same manner as
+<a href="#shaders-derivative-operations">derivative operations</a>.
 That is:</p>
 </div>
 <div class="stemblock">
@@ -40543,16 +40305,9 @@ scale factor operation is skipped.
 Instead, the floating point scalar coordinate is directly assigned to
 <span class="eq">λ<sub>base</sub></span> as described in <a href="#textures-level-of-detail-operation">Level-of-Detail Operation</a>.</p>
 </div>
-<div class="paragraph">
-<p>For implicit derivative image instructions, the partial derivative values
-<strong class="purple">may</strong> be computed by linear approximation using a 2×2 neighborhood of
-shader invocations (known as a <em>quad</em>), as described above.
-If the instruction is in control flow that is not uniform across the quad,
-then the derivative values and hence the implicit LOD values are undefined.</p>
-</div>
 </div>
 <div class="sect3">
-<h4 id="_cube_map_face_selection_and_transformations">15.6.3. Cube Map Face Selection and Transformations</h4>
+<h4 id="_cube_map_face_selection_and_transformations">15.5.3. Cube Map Face Selection and Transformations</h4>
 <div class="paragraph">
 <p>For cube map image instructions, the <span class="eq">(s,t,r)</span> coordinates are treated
 as a direction vector <span class="eq">(r<sub>x</sub>,r<sub>y</sub>,r<sub>z</sub>)</span>.
@@ -40563,7 +40318,7 @@ derivatives to per-face derivatives.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cube_map_face_selection">15.6.4. Cube Map Face Selection</h4>
+<h4 id="_cube_map_face_selection">15.5.4. Cube Map Face Selection</h4>
 <div class="paragraph">
 <p>The direction vector selects one of the cube map&#8217;s faces based on the
 largest magnitude coordinate direction (the major axis direction).
@@ -40735,7 +40490,7 @@ following two tables.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_cube_map_coordinate_transformation">15.6.5. Cube Map Coordinate Transformation</h4>
+<h4 id="_cube_map_coordinate_transformation">15.5.5. Cube Map Coordinate Transformation</h4>
 <div class="stemblock">
 <div class="content">
 \[\begin{aligned}
@@ -40748,7 +40503,7 @@ t_{\textit{face}} &amp; =
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cube_map_derivative_transformation">15.6.6. Cube Map Derivative Transformation</h4>
+<h4 id="_cube_map_derivative_transformation">15.5.6. Cube Map Derivative Transformation</h4>
 <div class="stemblock">
 <div class="content">
 \[\begin{aligned}
@@ -40801,7 +40556,7 @@ t_{\textit{face}} &amp; =
 </div>
 </div>
 <div class="sect3">
-<h4 id="_scale_factor_operation_level_of_detail_operation_and_image_levels_selection">15.6.7. Scale Factor Operation, Level-of-Detail Operation and Image Level(s) Selection</h4>
+<h4 id="_scale_factor_operation_level_of_detail_operation_and_image_levels_selection">15.5.7. Scale Factor Operation, Level-of-Detail Operation and Image Level(s) Selection</h4>
 <div class="paragraph">
 <p>LOD selection <strong class="purple">can</strong> be either explicit (provided explicitly by the image
 instruction) or implicit (determined from a scale factor calculated from the
@@ -41146,7 +40901,7 @@ d_{lo} &amp; = min( d_{hi} + 1, q ) \\
 </div>
 </div>
 <div class="sect3">
-<h4 id="textures-normalized-to-unnormalized">15.6.8. (s,t,r,q,a) to (u,v,w,a) Transformation</h4>
+<h4 id="textures-normalized-to-unnormalized">15.5.8. (s,t,r,q,a) to (u,v,w,a) Transformation</h4>
 <div class="paragraph">
 <p>The normalized texel coordinates are scaled by the image level dimensions
 and the array layer is selected.</p>
@@ -41209,9 +40964,9 @@ taken from the image instruction if it includes a <code>ConstOffset</code> or
 </div>
 </div>
 <div class="sect2">
-<h3 id="_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</h3>
+<h3 id="_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</h3>
 <div class="sect3">
-<h4 id="textures-unnormalized-to-integer">15.7.1. (u,v,w,a) to (i,j,k,l,n) Transformation And Array Layer Selection</h4>
+<h4 id="textures-unnormalized-to-integer">15.6.1. (u,v,w,a) to (i,j,k,l,n) Transformation And Array Layer Selection</h4>
 <div class="paragraph">
 <p>The unnormalized texel coordinates are transformed to integer texel
 coordinates relative to the selected mipmap level.</p>
@@ -41325,7 +41080,7 @@ k_1 &amp;= k_0 + 1
 </div>
 </div>
 <div class="sect2">
-<h3 id="textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</h3>
+<h3 id="textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</h3>
 <div class="paragraph">
 <p>The <code>OpImageFetch</code> and <code>OpImageFetchSparse</code> SPIR-V instructions <strong class="purple">may</strong>
 supply a LOD from which texels are to be fetched using the optional SPIR-V
@@ -41354,9 +41109,9 @@ undefined.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="textures-sample-operations">15.9. Image Sample Operations</h3>
+<h3 id="textures-sample-operations">15.8. Image Sample Operations</h3>
 <div class="sect3">
-<h4 id="textures-wrapping-operation">15.9.1. Wrapping Operation</h4>
+<h4 id="textures-wrapping-operation">15.8.1. Wrapping Operation</h4>
 <div class="paragraph">
 <p><code>Cube</code> images ignore the wrap modes specified in the sampler.
 Instead, if <code>VK_FILTER_NEAREST</code> is used within a mip level then
@@ -41405,7 +41160,7 @@ parameters of the sampler, respectively.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="textures-gather">15.9.2. Texel Gathering</h4>
+<h4 id="textures-gather">15.8.2. Texel Gathering</h4>
 <div class="paragraph">
 <p>SPIR-V instructions with <code>Gather</code> in the name return a vector derived
 from 4 texels in the base level of the image view.
@@ -41463,7 +41218,7 @@ comp &amp; \,\text{from SPIR-V operand Component}
 </div>
 </div>
 <div class="sect3">
-<h4 id="textures-texel-filtering">15.9.3. Texel Filtering</h4>
+<h4 id="textures-texel-filtering">15.8.3. Texel Filtering</h4>
 <div class="paragraph">
 <p>Texel filtering is first performed for each level (either <span class="eq">d</span> or
 <span class="eq">d<sub>hi</sub></span> and <span class="eq">d<sub>lo</sub></span>).</p>
@@ -41625,7 +41380,7 @@ The sum <span class="eq">τ<sub>2Daniso</sub></span> is defined using the single
 </div>
 </div>
 <div class="sect2">
-<h3 id="textures-instructions">15.10. Image Operation Steps</h3>
+<h3 id="textures-instructions">15.9. Image Operation Steps</h3>
 <div class="paragraph">
 <p>Each step described in this chapter is performed by a subset of the image
 instructions:</p>
@@ -42116,6 +41871,10 @@ unavailable.</p>
 <p><a id="VUID-vkCmdResetQueryPool-firstQuery-00797"></a>
 The sum of <code>firstQuery</code> and <code>queryCount</code> <strong class="purple">must</strong> be less than or
 equal to the number of queries in <code>queryPool</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdResetQueryPool-None-02841"></a>
+All queries used by the command <strong class="purple">must</strong> not be active</p>
 </li>
 </ul>
 </div>
@@ -55536,7 +55295,15 @@ command</p>
 <p><a id="VUID-vkCmdDraw-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDraw-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDraw-None-02702"></a>
@@ -55808,7 +55575,15 @@ command</p>
 <p><a id="VUID-vkCmdDrawIndexed-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexed-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexed-None-02702"></a>
@@ -56069,7 +55844,15 @@ command</p>
 <p><a id="VUID-vkCmdDrawIndirect-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndirect-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirect-None-02702"></a>
@@ -56436,7 +56219,15 @@ command</p>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-02702"></a>
@@ -58341,7 +58132,7 @@ The domain space has an upper-left origin.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 6. Domain parameterization for tessellation primitive modes (upper-left origin)</div>
+<div class="title">Figure 5. Domain parameterization for tessellation primitive modes (upper-left origin)</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -59147,7 +58938,7 @@ Tessellation</a>.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 7. Inner Triangle Tessellation</div>
+<div class="title">Figure 6. Inner Triangle Tessellation</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -59966,7 +59757,7 @@ Tessellation</a>.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 8. Inner Quad Tessellation</div>
+<div class="title">Figure 7. Inner Quad Tessellation</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -60882,11 +60673,6 @@ replace the current state for the viewport index <span class="eq"><code>firstVie
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-vkCmdSetViewport-None-01221"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_VIEWPORT</code> dynamic state enabled</p>
-</li>
 <li>
 <p><a id="VUID-vkCmdSetViewport-firstViewport-01222"></a>
 <code>firstViewport</code> <strong class="purple">must</strong> be less than
@@ -61987,11 +61773,6 @@ recorded.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetLineWidth-None-00787"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_LINE_WIDTH</code> dynamic state enabled</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdSetLineWidth-lineWidth-00788"></a>
 If the <a href="#features-wideLines">wide lines</a> feature is not enabled,
 <code>lineWidth</code> <strong class="purple">must</strong> be <code>1.0</code></p>
@@ -62433,7 +62214,7 @@ attributes.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 9. Non strict lines</div>
+<div class="title">Figure 8. Non strict lines</div>
 </div>
 </div>
 </div>
@@ -62890,11 +62671,6 @@ floating-point representation.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetDepthBias-None-00789"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_DEPTH_BIAS</code> dynamic state enabled</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdSetDepthBias-depthBiasClamp-00790"></a>
 If the <a href="#features-depthBiasClamp">depth bias clamping</a> feature is not
 enabled, <code>depthBiasClamp</code> <strong class="purple">must</strong> be <code>0.0</code></p>
@@ -63089,11 +62865,6 @@ values determining the size in pixels.</p>
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-vkCmdSetScissor-None-00590"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_SCISSOR</code> dynamic state enabled</p>
-</li>
 <li>
 <p><a id="VUID-vkCmdSetScissor-firstScissor-00591"></a>
 <code>firstScissor</code> <strong class="purple">must</strong> be less than
@@ -63579,11 +63350,6 @@ used in the depth bounds test.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetDepthBounds-None-00599"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic state enabled</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdSetDepthBounds-minDepthBounds-02508"></a>
 <code>minDepthBounds</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
 </li>
@@ -63819,20 +63585,6 @@ the set of stencil state for which to update the compare mask.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetStencilCompareMask-None-00602"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK</code> dynamic state enabled</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -63986,20 +63738,6 @@ described above for <a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompare
 </div>
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetStencilWriteMask-None-00603"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_STENCIL_WRITE_MASK</code> dynamic state enabled</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -64099,20 +63837,6 @@ described above for <a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompare
 <p><code>reference</code> is the new value to use as the stencil reference value.</p>
 </li>
 </ul>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetStencilReference-None-00604"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_STENCIL_REFERENCE</code> dynamic state enabled</p>
-</li>
-</ul>
-</div>
-</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -64966,20 +64690,6 @@ blending, depending on the <a href="#framebuffer-blendfactors">blend factor</a>.
 </div>
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetBlendConstants-None-00612"></a>
-The bound graphics pipeline <strong class="purple">must</strong> have been created with the
-<code>VK_DYNAMIC_STATE_BLEND_CONSTANTS</code> dynamic state enabled</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -65567,7 +65277,15 @@ command</p>
 <p><a id="VUID-vkCmdDispatch-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDispatch-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDispatch-None-02702"></a>
@@ -65787,7 +65505,15 @@ command</p>
 <p><a id="VUID-vkCmdDispatchIndirect-commandBuffer-02701"></a>
 If the <code>VkPipeline</code> object bound to the pipeline bind point used by
 this command requires any dynamic state, that state <strong class="purple">must</strong> have been set
-for <code>commandBuffer</code></p>
+for <code>commandBuffer</code>, and done so after any previously bound pipeline
+with the corresponding state not specified as dynamic</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDispatchIndirect-None-02859"></a>
+There <strong class="purple">must</strong> not have been any calls to dynamic state setting commands
+for any state not specified as dynamic in the <code>VkPipeline</code> object
+bound to the pipeline bind point used by this command, since that
+pipeline was bound</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDispatchIndirect-None-02702"></a>
@@ -66729,7 +66455,7 @@ requirements.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 10. Sparse Image</div>
+<div class="title">Figure 9. Sparse Image</div>
 </div>
 <div class="paragraph">
 <p>In the absence of <code>VK_SPARSE_IMAGE_FORMAT_ALIGNED_MIP_SIZE_BIT</code> and
@@ -67097,7 +66823,7 @@ block size in bytes allocated in memory.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 11. Sparse Image with Single Mip Tail</div>
+<div class="title">Figure 10. Sparse Image with Single Mip Tail</div>
 </div>
 <div class="paragraph">
 <p>When <code>VK_SPARSE_IMAGE_FORMAT_SINGLE_MIPTAIL_BIT</code> is present all array
@@ -67397,7 +67123,7 @@ layers will share a single mip tail region.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 12. Sparse Image with Aligned Mip Size</div>
+<div class="title">Figure 11. Sparse Image with Aligned Mip Size</div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -67687,7 +67413,7 @@ block basis.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 13. Sparse Image with Aligned Mip Size and Single Mip Tail</div>
+<div class="title">Figure 12. Sparse Image with Aligned Mip Size and Single Mip Tail</div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -68246,7 +67972,7 @@ See the figure below:</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 14. Multiple Aspect Sparse Image</div>
+<div class="title">Figure 13. Multiple Aspect Sparse Image</div>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -71033,9 +70759,24 @@ Architecture Overview&#8221;</a> document for additional information.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
+<p>To enable an instance extension, the name of the extension <strong class="purple">can</strong> be added to
+the <code>ppEnabledExtensionNames</code> member of <a href="#VkInstanceCreateInfo">VkInstanceCreateInfo</a> when
+creating a <code>VkInstance</code>.</p>
+</div>
+<div class="paragraph">
+<p>To enable a device extension, the name of the extension <strong class="purple">can</strong> be added to the
+<code>ppEnabledExtensionNames</code> member of <a href="#VkDeviceCreateInfo">VkDeviceCreateInfo</a> when
+creating a <code>VkDevice</code>.</p>
+</div>
+<div class="paragraph">
+<p>Enabling an extension does not change the behavior of functionality exposed
+by the core Vulkan API or any other extension, other than making valid the
+use of the commands, enums and structures defined by that extension.</p>
+</div>
+<div class="paragraph">
 <p>Valid Usage sections for individual commands and structures do not currently
 contain which extensions have to be enabled in order to make their use
-valid, although it might do so in the future.
+valid, although they might do so in the future.
 It is defined only in the <a href="#fundamentals-validusage-extensions">Valid Usage for Extensions</a> section.</p>
 </div>
 </td>
@@ -71168,28 +70909,6 @@ be enabled against the advertised version.</p>
 </div>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p>To enable an instance extension, the name of the extension <strong class="purple">should</strong> be added
-to the <code>ppEnabledExtensionNames</code> member of <a href="#VkInstanceCreateInfo">VkInstanceCreateInfo</a>
-when creating a <code>VkInstance</code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Enabling an extension does not change behavior of functionality exposed by
-the core Vulkan API or any other extension, other than making valid the use
-of the commands, enums and structures defined by that extension.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -83512,6 +83231,12 @@ Signaling <span class="eq">NaN</span> <strong class="purple">may</strong> be con
 any floating point instruction.</p>
 </li>
 <li>
+<p>By default, the implementation <strong class="purple">may</strong> perform optimizations on half,
+single, or double-precision floating-point instructions that ignore sign
+of a zero, or assume that arguments and results are not NaNs or
+infinities.</p>
+</li>
+<li>
 <p>The following instructions <strong class="purple">must</strong> not flush denormalized values:
 <code>OpConstant</code>, <code>OpConstantComposite</code>, <code>OpSpecConstant</code>,
 <code>OpSpecConstantComposite</code>, <code>OpLoad</code>, <code>OpStore</code>, <code>OpBitcast</code>,
@@ -84547,7 +84272,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">131</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">132</span></code></pre>
 </div>
 </div>
 </div>
@@ -87283,7 +87008,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.131<br>
+Version 1.0.132<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

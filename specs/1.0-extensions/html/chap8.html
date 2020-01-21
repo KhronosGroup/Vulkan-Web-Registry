@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.131 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.132 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.131 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.132 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.131,</span>
-<span id="revdate">2020-01-14 15:25:39Z</span>
-<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
+<span id="revnumber">version 1.0.132,</span>
+<span id="revdate">2020-01-21 10:52:24Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -944,9 +944,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#shaders-miss">8.18. Miss Shaders</a></li>
 <li><a href="#shaders-callable">8.19. Callable Shaders</a></li>
 <li><a href="#shaders-staticuse">8.20. Static Use</a></li>
-<li><a href="#shaders-invocationgroups">8.21. Invocation and Derivative Groups</a></li>
-<li><a href="#_cooperative_matrices">8.22. Cooperative Matrices</a></li>
-<li><a href="#shaders-validation-cache">8.23. Validation Cache</a></li>
+<li><a href="#shaders-scope">8.21. Scope</a></li>
+<li><a href="#shaders-derivative-operations">8.22. Derivative Operations</a></li>
+<li><a href="#_helper_invocations">8.23. Helper Invocations</a></li>
+<li><a href="#_cooperative_matrices">8.24. Cooperative Matrices</a></li>
+<li><a href="#shaders-validation-cache">8.25. Validation Cache</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -1013,13 +1015,12 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap15.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="chap15.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="chap15.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="chap15.html#texture-derivatives">15.5. Derivative Operations</a></li>
-<li><a href="chap15.html#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-sample-operations">15.9. Image Sample Operations</a></li>
-<li><a href="chap15.html#textures-footprint">15.10. Texel Footprint Evaluation</a></li>
-<li><a href="chap15.html#textures-instructions">15.11. Image Operation Steps</a></li>
+<li><a href="chap15.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="chap15.html#textures-footprint">15.9. Texel Footprint Evaluation</a></li>
+<li><a href="chap15.html#textures-instructions">15.10. Image Operation Steps</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#fragmentdensitymapops">16. Fragment Density Map Operations</a>
@@ -2542,16 +2543,345 @@ present in a shader entry point’s interface.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="shaders-invocationgroups">8.21. Invocation and Derivative Groups</h3>
+<h3 id="shaders-scope">8.21. Scope</h3>
 <div class="paragraph">
-<p>An <em>invocation group</em> (see the subsection “Control Flow” of section 2 of
-the SPIR-V specification) for a compute shader is the set of invocations in
-a single local workgroup.
-For graphics shaders, an invocation group is an implementation-dependent
-subset of the set of shader invocations of a given shader stage which are
-produced by a single drawing command.
+<p>A <em>scope</em> describes a set of shader invocations, where each such set is a
+<em>scope instance</em>.
+Each invocation belongs to one or more scope instances, but belongs to no
+more than one scope instance for each scope.</p>
+</div>
+<div class="paragraph">
+<p>The operations available between invocations in a given scope instance vary,
+with smaller scopes generally able to perform more operations, and with
+greater efficiency.</p>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-cross-device">8.21.1. Cross Device</h4>
+<div class="paragraph">
+<p>All invocations executed in a Vulkan instance fall into a single <em>cross
+device scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>Whilst the <code>CrossDevice</code> scope is defined in SPIR-V, it is disallowed in
+Vulkan.
+API <a href="chap6.html#synchronization">synchronization</a> commands <strong class="purple">can</strong> be used to
+communicate between devices.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-device">8.21.2. Device</h4>
+<div class="paragraph">
+<p>All invocations executed on a single device form a <em>device scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>If the <a href="chap35.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> and
+<a href="chap35.html#features-vulkanMemoryModelDeviceScope"><code>vulkanMemoryModelDeviceScope</code></a> features are enabled, this scope is
+represented in SPIR-V by the <code>Device</code> <code>Scope</code>, which <strong class="purple">can</strong> be used as a
+<code>Memory</code> <code>Scope</code> for barrier and atomic operations.</p>
+</div>
+<div class="paragraph">
+<p>There is no method to synchronize the execution of these invocations within
+SPIR-V, and this <strong class="purple">can</strong> only be done with API synchronization primitives.</p>
+</div>
+<div class="paragraph">
+<p>Invocations executing on different devices in a device group operate in
+separate device scope instances.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-queue-family">8.21.3. Queue Family</h4>
+<div class="paragraph">
+<p>Invocations executed by queues in a given queue family form a <em>queue family
+scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>This scope is identified in SPIR-V as the
+<code>QueueFamily</code> <code>Scope</code> if the
+<a href="chap35.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> feature is enabled,
+or if not, the
+<code>Device</code> <code>Scope</code>, which <strong class="purple">can</strong> be used as a <code>Memory</code> <code>Scope</code> for
+barrier and atomic operations.</p>
+</div>
+<div class="paragraph">
+<p>There is no method to synchronize the execution of these invocations within
+SPIR-V, and this <strong class="purple">can</strong> only be done with API synchronization primitives.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a queue family scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-device">device scope instance</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-command">8.21.4. Command</h4>
+<div class="paragraph">
+<p>Any shader invocations executed as the result of a single command such as
+<a href="chap29.html#vkCmdDispatch">vkCmdDispatch</a> or <a href="chap20.html#vkCmdDraw">vkCmdDraw</a> form a <em>command scope instance</em>.
 For indirect drawing commands with <code>drawCount</code> greater than one,
-invocations from separate draws are in distinct invocation groups.</p>
+invocations from separate draws are in separate command scope instances.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> for communication across invocations in a
+command scope instance.
+As this has a clear boundary at the API level, coordination here <strong class="purple">can</strong> be
+performed in the API, rather than in SPIR-V.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a command scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-queue-family">queue-family scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>For shaders without defined <a href="#shaders-scope-workgroups">workgroups</a>, this
+set of invocations forms an <em>invocation group</em> as defined in the SPIR-V
+specification (see the subsection “Control Flow” of section 2 of the SPIR-V
+1.00 Revision 4 specification).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-primitive">8.21.5. Primitive</h4>
+<div class="paragraph">
+<p>Any fragment shader invocations executed as the result of rasterization of a
+single primitive form a <em>primitive scope instance</em>.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> for communication across invocations in a
+primitive scope instance.</p>
+</div>
+<div class="paragraph">
+<p>Any generated <a href="#helper-invocations">helper invocations</a> are included in
+this scope instance.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a primitive scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-command">command scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Any input variables decorated with <code>Flat</code> are uniform within a primitive
+scope instance.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-workgroup">8.21.6. Workgroup</h4>
+<div class="paragraph">
+<p>A <em>local workgroup</em> is a set of invocations that can synchronize and share
+data with each other using memory in the <code>Workgroup</code> storage class.</p>
+</div>
+<div class="paragraph">
+<p>The <code>Workgroup</code> <code>Scope</code> can be used as both an <code>Execution</code>
+<code>Scope</code> and <code>Memory</code> <code>Scope</code> for barrier and atomic operations.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a local workgroup <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-command">command scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Only
+task, mesh, and
+compute shaders have defined workgroups - other shader types <strong class="purple">cannot</strong> use
+workgroup functionality.
+For shaders that have defined workgroups, this set of invocations forms an
+<em>invocation group</em> as defined in the SPIR-V specification (see the
+subsection “Control Flow” of section 2 of the SPIR-V 1.00 Revision 4
+specification).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-quad">8.21.7. Quad</h4>
+<div class="paragraph">
+<p>A <em>quad scope instance</em> is formed of four shader invocations.</p>
+</div>
+<div class="paragraph">
+<p>In a fragment shader, each invocation in a quad scope instance is formed of
+invocations in neighboring framebuffer locations <span class="eq">(x<sub>i</sub>, y<sub>i</sub>)</span>, where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq">i</span> is the index of the invocation within the scope instance.</p>
+</li>
+<li>
+<p><span class="eq">x<sub>0</sub> = x<sub>1</sub> - 1 = x<sub>2</sub> = x<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p><span class="eq">y<sub>0</sub> = y<sub>1</sub> = y<sub>2</sub> - 1 = y<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p>Each invocation has the same layer and sample indices.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In a compute shader, if the <code>DerivativeGroupQuadsNV</code> execution mode is
+specified, each invocation in a quad scope instance is formed of invocations
+with adjacent local invocation IDs <span class="eq">(x<sub>i</sub>, y<sub>i</sub>)</span>, where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq">i</span> is the index of the invocation within the quad scope instance.</p>
+</li>
+<li>
+<p><span class="eq">x<sub>0</sub> = x<sub>1</sub> - 1 = x<sub>2</sub> = x<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p><span class="eq">y<sub>0</sub> = y<sub>1</sub> = y<sub>2</sub> - 1 = y<sub>3</sub> - 1</span></p>
+</li>
+<li>
+<p><span class="eq">x<sub>0</sub></span> and <span class="eq">y<sub>0</sub></span> are integer multiples of 2.</p>
+</li>
+<li>
+<p>Each invocation has the same <span class="eq">z</span> coordinate.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In a compute shader, if the <code>DerivativeGroupLinearNV</code> execution mode is
+specified, each invocation in a quad scope instance is formed of invocations
+with adjacent local invocation indices <span class="eq">(l<sub>i</sub>)</span>, where:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq">i</span> is the index of the invocation within the quad scope instance.</p>
+</li>
+<li>
+<p><span class="eq">l<sub>0</sub> = l<sub>1</sub> - 1 = l<sub>2</sub> - 2 = l<sub>3</sub> - 3</span></p>
+</li>
+<li>
+<p><span class="eq">l<sub>0</sub></span> is an integer multiple of 4.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The specific set of invocations that make up a quad scope instance in other
+shader stages is undefined.</p>
+</div>
+<div class="paragraph">
+<p>In a fragment shader, each invocation in a quad scope instance <strong class="purple">must</strong> be in
+the same <a href="#shaders-scope-primitive">primitive scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>For <a href="#shaders-scope-workgroup">shaders that have defined workgroups</a>, each
+invocation in a quad scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-workgroup">local workgroup</a>.</p>
+</div>
+<div class="paragraph">
+<p>In other shader stages, each invocation in a quad scope instance <strong class="purple">must</strong> be in
+the same <a href="#shaders-scope-device">device scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Fragment
+and compute
+shaders have defined quad scope instances.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-fragment-interlock">8.21.8. Fragment Interlock</h4>
+<div class="paragraph">
+<p>A <em>fragment interlock scope instance</em> is formed of fragment shader
+invocations based on their framebuffer locations <span class="eq">(x,y,layer,sample)</span>,
+executed by commands inside a single <a href="chap7.html#renderpass">subpass</a>.</p>
+</div>
+<div class="paragraph">
+<p>The specific set of invocations included varies based on the execution mode
+as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>SampleInterlockOrderedEXT</code> or
+<code>SampleInterlockUnorderedEXT</code> execution modes are used, only
+invocations with identical framebuffer locations
+<span class="eq">(x,y,layer,sample)</span> are included.</p>
+</li>
+<li>
+<p>If the <code>PixelInterlockOrderedEXT</code> or <code>PixelInterlockUnorderedEXT</code>
+execution modes are used, fragments with different sample ids are also
+included.</p>
+</li>
+<li>
+<p>If the <code>ShadingRateInterlockOrderedEXT</code> or
+<code>ShadingRateInterlockUnorderedEXT</code> execution modes are used,
+fragments from neighbouring framebuffer locations are also included, as
+<a href="chap26.html#primsrast-shading-rate-image">determined by the shading rate</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only fragment shaders with one of the above execution modes have defined
+fragment interlock scope instances.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> value for communication across invocations
+in a fragment interlock scope instance.
+However, this is implicitly used as a memory scope by
+<code>OpBeginInvocationInterlockEXT</code> and <code>OpEndInvocationInterlockEXT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a fragment interlock scope instance <strong class="purple">must</strong> be in the same
+<a href="#shaders-scope-queue-family">queue family scope instance</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-invocation">8.21.9. Invocation</h4>
+<div class="paragraph">
+<p>The smallest <em>scope</em> is a single invocation; this is represented by the
+<code>Invocation</code> <code>Scope</code> in SPIR-V.</p>
+</div>
+<div class="paragraph">
+<p>Fragment shader invocations <strong class="purple">must</strong> be in a <a href="#shaders-scope-primitive
+primitive scope instance">[shaders-scope-primitive
+primitive scope instance]</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="#shaders-scope-fragment-interlock">fragment shaders that
+have a defined fragment interlock scope</a> <strong class="purple">must</strong> be in a
+<a href="#shaders-scope-fragment-interlock">fragment interlock scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="#shaders-scope-workgroup">shaders that have defined
+workgroups</a> <strong class="purple">must</strong> be in a <a href="#shaders-scope-workgroup">local workgroup</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="#shaders-scope-quad">shaders that have a defined quad
+scope</a> <strong class="purple">must</strong> be in a <a href="#shaders-scope-quad">quad scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>All invocations in all stages <strong class="purple">must</strong> be in a <a href="#shaders-scope-command">command
+scope instance</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="shaders-derivative-operations">8.22. Derivative Operations</h3>
+<div class="paragraph">
+<p>Derivative operations calculate the partial derivative for an expression
+<span class="eq">P</span> as a function of an invocation’s <span class="eq">x</span> and <span class="eq">y</span> coordinates.</p>
+</div>
+<div class="paragraph">
+<p>Derivative operations operate on a set of invocations known as a <em>derivative
+group</em> as defined in the SPIR-V specification (see the subsection “Control
+Flow” of section 2 of the SPIR-V 1.00 Revision 4 specification).
+A derivative group is equivalent to
+the <a href="#shaders-scope-workgroup">local workgroup</a> for a compute shader
+invocation, or
+the <a href="#shaders-scope-primitive">primitive scope instance</a> for a fragment
+shader invocation.</p>
+</div>
+<div class="paragraph">
+<p>Derivatives are calculated assuming that <span class="eq">P</span> is piecewise linear and
+continuous within the derivative group.
+All dynamic instances of explicit derivative instructions (<code>OpDPdx</code>*,
+<code>OpDPdy</code>*, and <code>OpFwidth</code>*) <strong class="purple">must</strong> be executed in control flow that is
+uniform within a derivative group.
+For other derivative operations, results are undefined if a dynamic
+instance is executed in control flow is not uniform within the derivative
+group.</p>
+</div>
+<div class="paragraph">
+<p>Fragment shaders that statically execute derivative operations <strong class="purple">must</strong> launch
+sufficient invocations to ensure their correct operation; additional
+<a href="#shaders-helper-invocations">helper invocations</a> are launched for
+framebuffer locations not covered by rasterized fragments if necessary.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2562,35 +2892,122 @@ invocations from separate draws are in distinct invocation groups.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Because the partitioning of invocations into invocation groups is
-implementation-dependent and not observable, applications generally need to
-assume the worst case of all invocations in a draw belonging to a single
-invocation group.</p>
+<p>In a compute shader, it is the application’s responsibility to ensure that
+sufficient invocations are launched.</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>A <em>derivative group</em> (see the subsection “Control Flow” of section 2 of
-the SPIR-V 1.00 Revision 4 specification) is a set of invocations which are
-used together to compute a derivative.
-For a fragment shader, a derivative group is the set of invocations
-generated by a single primitive.
-A derivative group for a compute shader is a single local workgroup.</p>
+<p>Derivative operations calculate their results as the difference between the
+result of <span class="eq">P</span> across invocations in the quad.
+For fine derivative operations (<code>OpDPdxFine</code> and <code>OpDPdyFine</code>), the
+values of <span class="eq">DPdx(P<sub>i</sub>)</span> are calculated as</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdx(P<sub>0</sub>) = DPdx(P<sub>1</sub>) = P<sub>1</sub> - P<sub>0</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdx(P<sub>2</sub>) = DPdx(P<sub>3</sub>) = P<sub>3</sub> - P<sub>2</sub></span></p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
-<p>Derivative values are undefined for a sampled image instruction if the
-instruction is in flow control that is not uniform across the derivative
-group.</p>
+<p>and the values of <span class="eq">DPdy(P<sub>i</sub>)</span> are calculated as</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdy(P<sub>0</sub>) = DPdy(P<sub>2</sub>) = P<sub>2</sub> - P<sub>0</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">DPdy(P<sub>1</sub>) = DPdy(P<sub>3</sub>) = P<sub>3</sub> - P<sub>1</sub></span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">i</span> is the index of each invocation as described in
+<a href="#shaders-scope-quad">Quad</a>.</p>
+</div>
+<div class="paragraph">
+<p>Coarse derivative operations (<code>OpDPdxCoarse</code> and <code>OpDPdyCoarse</code>),
+calculate their results in roughly the same manner, but <strong class="purple">may</strong> only calculate
+two values instead of four (one for each of <span class="eq">DPdx</span> and <span class="eq">DPdy</span>),
+reusing the same result no matter the originating invocation.
+If an implementation does this, it <strong class="purple">should</strong> use the fine derivative
+calculations described for <span class="eq">P<sub>0</sub></span>.</p>
+</div>
+<div class="paragraph">
+<p>The results for <code>OpDPdx</code> and <code>OpDPdy</code> <strong class="purple">may</strong> be calculated as either
+fine or coarse derivatives, with implementations favouring the most
+efficient approach.
+Implementations <strong class="purple">must</strong> choose coarse or fine consistently between the two.</p>
+</div>
+<div class="paragraph">
+<p>Executing <code>OpFwidthFine</code>, <code>OpFwidthCoarse</code>, or <code>OpFwidth</code> is
+equivalent to executing the corresponding <code>OpDPdx</code>* and <code>OpDPdy</code>*
+instructions, taking the absolute value of the results, and summing them.</p>
+</div>
+<div class="paragraph">
+<p>Executing a <code>OpImage</code>*Sample*ImplicitLod instruction is equivalent to
+executing <code>OpDPdx</code>(<code>Coordinate</code>) and <code>OpDPdy</code>(<code>Coordinate</code>), and
+passing the results as the <code>Grad</code> operands <code>dx</code> and <code>dy</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>It is expected that using the <code>ImplicitLod</code> variants of sampling
+functions will be substantially more efficient than using the
+<code>ExplicitLod</code> variants with explicitly generated derivatives.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cooperative_matrices">8.22. Cooperative Matrices</h3>
+<h3 id="_helper_invocations">8.23. Helper Invocations</h3>
+<div class="paragraph">
+<p>When performing <a href="#shaders-derivative-operations">derivative</a>
+operations in a fragment shader, additional invocations <strong class="purple">may</strong> be spawned in
+order to ensure correct results.
+These additional invocations are known as <em>helper invocations</em> and <strong class="purple">can</strong> be
+identified by a non-zero value in the <code>HelperInvocation</code> built-in.
+Stores and atomics performed by helper invocations <strong class="purple">must</strong> not have any effect
+on memory, and values returned by atomic instructions in helper invocations
+are undefined.</p>
+</div>
+<div class="paragraph">
+<p>Helper invocations <strong class="purple">may</strong> become inactive at any time for any reason, with one
+exception.
+If a helper invocation would be active if it were not a helper invocation,
+it <strong class="purple">must</strong> be active for <a href="#shaders-derivative-operations">derivative</a>
+operations.</p>
+</div>
+<div class="paragraph">
+<p>Helper invocations <strong class="purple">may</strong> become permanently inactive if all invocations in a
+quad scope instance become helper invocations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cooperative_matrices">8.24. Cooperative Matrices</h3>
 <div class="paragraph">
 <p>A <em>cooperative matrix</em> type is a SPIR-V type where the storage for and
-computations performed on the matrix are spread across a set of invocations
-such as a subgroup.
+computations performed on the matrix are spread across the invocations in a
+scope instance.
 These types give the implementation freedom in how to optimize matrix
 multiplies.</p>
 </div>
@@ -2932,7 +3349,7 @@ scope.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="shaders-validation-cache">8.23. Validation Cache</h3>
+<h3 id="shaders-validation-cache">8.25. Validation Cache</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3623,7 +4040,7 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.131<br>
+Version 1.0.132<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

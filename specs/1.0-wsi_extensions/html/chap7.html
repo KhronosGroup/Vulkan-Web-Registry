@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.131 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.132 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.131 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.132 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.131,</span>
-<span id="revdate">2020-01-14 15:30:24Z</span>
-<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
+<span id="revnumber">version 1.0.132,</span>
+<span id="revdate">2020-01-21 10:56:58Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -935,7 +935,9 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap8.html#shaders-compute">8.10. Compute Shaders</a></li>
 <li><a href="chap8.html#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
 <li><a href="chap8.html#shaders-staticuse">8.12. Static Use</a></li>
-<li><a href="chap8.html#shaders-invocationgroups">8.13. Invocation and Derivative Groups</a></li>
+<li><a href="chap8.html#shaders-scope">8.13. Scope</a></li>
+<li><a href="chap8.html#shaders-derivative-operations">8.14. Derivative Operations</a></li>
+<li><a href="chap8.html#_helper_invocations">8.15. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -998,12 +1000,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap15.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="chap15.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="chap15.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="chap15.html#texture-derivatives">15.5. Derivative Operations</a></li>
-<li><a href="chap15.html#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-sample-operations">15.9. Image Sample Operations</a></li>
-<li><a href="chap15.html#textures-instructions">15.10. Image Operation Steps</a></li>
+<li><a href="chap15.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="chap15.html#textures-instructions">15.9. Image Operation Steps</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#queries">16. Queries</a>
@@ -2056,6 +2057,93 @@ not improperly reordered against other uses of the same physical memory via
 a different attachment.
 This is described in more detail below.</p>
 </div>
+<div class="paragraph">
+<p>If a render pass uses multiple attachments that alias the same device
+memory, those attachments <strong class="purple">must</strong> each include the
+<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> bit in their attachment
+description flags.
+Attachments aliasing the same memory occurs in multiple ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Multiple attachments being assigned the same image view as part of
+framebuffer creation.</p>
+</li>
+<li>
+<p>Attachments using distinct image views that correspond to the same image
+subresource of an image.</p>
+</li>
+<li>
+<p>Attachments using views of distinct image subresources which are bound
+to overlapping memory ranges.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Render passes <strong class="purple">must</strong> include subpass dependencies (either directly or via a
+subpass dependency chain) between any two subpasses that operate on the same
+attachment or aliasing attachments and those subpass dependencies <strong class="purple">must</strong>
+include execution and memory dependencies separating uses of the aliases, if
+at least one of those subpasses writes to one of the aliases.
+These dependencies <strong class="purple">must</strong> not include the <code>VK_DEPENDENCY_BY_REGION_BIT</code>
+if the aliases are views of distinct image subresources which overlap in
+memory.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Multiple attachments that alias the same memory <strong class="purple">must</strong> not be used in a
+single subpass.
+A given attachment index <strong class="purple">must</strong> not be used multiple times in a single
+subpass, with one exception: two subpass attachments <strong class="purple">can</strong> use the same
+attachment index if at least one use is as an input attachment and neither
+use is as a resolve or preserve attachment.
+In other words, the same view <strong class="purple">can</strong> be used simultaneously as an input and
+color or depth/stencil attachment, but <strong class="purple">must</strong> not be used as multiple color
+or depth/stencil attachments nor as resolve or preserve attachments.
+The precise set of valid scenarios is described in more detail
+<a href="#renderpass-feedbackloop">below</a>.</p>
+</div>
+<div class="paragraph">
+<p>If a set of attachments alias each other, then all except the first to be
+used in the render pass <strong class="purple">must</strong> use an <code>initialLayout</code> of
+<code>VK_IMAGE_LAYOUT_UNDEFINED</code>, since the earlier uses of the other aliases
+make their contents undefined.
+Once an alias has been used and a different alias has been used after it,
+the first alias <strong class="purple">must</strong> not be used in any later subpasses.
+However, an application <strong class="purple">can</strong> assign the same image view to multiple aliasing
+attachment indices, which allows that image view to be used multiple times
+even if other aliases are used in between.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Once an attachment needs the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>
+bit, there <strong class="purple">should</strong> be no additional cost of introducing additional aliases,
+and using these additional aliases <strong class="purple">may</strong> allow more efficient clearing of the
+attachments on multiple uses via <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -2217,158 +2305,6 @@ stencil aspect, <code>finalLayout</code> <strong class="purple">must</strong> no
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To specify which aspects of an input attachment <strong class="purple">can</strong> be read, add a
-<a href="#VkRenderPassInputAttachmentAspectCreateInfo">VkRenderPassInputAttachmentAspectCreateInfo</a> structure to the
-<code>pNext</code> chain of the <a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> structure:</p>
-</div>
-<div class="paragraph">
-<p>The <code>VkRenderPassInputAttachmentAspectCreateInfo</code> structure is defined
-as:</p>
-</div>
-<div id="VkRenderPassInputAttachmentAspectCreateInfo" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkRenderPassInputAttachmentAspectCreateInfo {
-    VkStructureType                            sType;
-    <span class="directive">const</span> <span class="directive">void</span>*                                pNext;
-    uint32_t                                   aspectReferenceCount;
-    <span class="directive">const</span> VkInputAttachmentAspectReference*    pAspectReferences;
-} VkRenderPassInputAttachmentAspectCreateInfo;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>or the equivalent</p>
-</div>
-<div id="VkRenderPassInputAttachmentAspectCreateInfoKHR" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkRenderPassInputAttachmentAspectCreateInfo VkRenderPassInputAttachmentAspectCreateInfoKHR;</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>sType</code> is the type of this structure.</p>
-</li>
-<li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
-</li>
-<li>
-<p><code>aspectReferenceCount</code> is the number of elements in the
-<code>pAspectReferences</code> array.</p>
-</li>
-<li>
-<p><code>pAspectReferences</code> is a pointer to an array of
-<code>aspectReferenceCount</code> <a href="#VkInputAttachmentAspectReference">VkInputAttachmentAspectReference</a>
-structures describing which aspect(s) <strong class="purple">can</strong> be accessed for a given input
-attachment within a given subpass.</p>
-</li>
-</ul>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO</code></p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-pAspectReferences-parameter"></a> <code>pAspectReferences</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>aspectReferenceCount</code> valid <a href="#VkInputAttachmentAspectReference">VkInputAttachmentAspectReference</a> structures</p>
-</li>
-<li>
-<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-aspectReferenceCount-arraylength"></a> <code>aspectReferenceCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>The <code>VkInputAttachmentAspectReference</code> structure specifies an aspect
-mask for a specific input attachment of a specific subpass in the render
-pass.</p>
-</div>
-<div class="paragraph">
-<p><code>subpass</code> and <code>inputAttachmentIndex</code> index into the render pass as:</p>
-</div>
-<div class="paragraph">
-<p><code>pCreateInfo-&gt;pSubpasses</code>[subpass].pInputAttachments[inputAttachmentIndex]</p>
-</div>
-<div id="VkInputAttachmentAspectReference" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkInputAttachmentAspectReference {
-    uint32_t              subpass;
-    uint32_t              inputAttachmentIndex;
-    VkImageAspectFlags    aspectMask;
-} VkInputAttachmentAspectReference;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>or the equivalent</p>
-</div>
-<div id="VkInputAttachmentAspectReferenceKHR" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkInputAttachmentAspectReference VkInputAttachmentAspectReferenceKHR;</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>subpass</code> is an index into the <code>pSubpasses</code> array of the parent
-<code>VkRenderPassCreateInfo</code> structure.</p>
-</li>
-<li>
-<p><code>inputAttachmentIndex</code> is an index into the <code>pInputAttachments</code>
-of the specified subpass.</p>
-</li>
-<li>
-<p><code>aspectMask</code> is a mask of which aspect(s) <strong class="purple">can</strong> be accessed within
-the specified subpass.</p>
-</li>
-</ul>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-01964"></a>
-<code>aspectMask</code> <strong class="purple">must</strong> not include <code>VK_IMAGE_ASPECT_METADATA_BIT</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-parameter"></a> <code>aspectMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap11.html#VkImageAspectFlagBits">VkImageAspectFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-requiredbitmask"></a> <code>aspectMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="paragraph">
-<p>An application <strong class="purple">must</strong> only access the specified aspect(s).</p>
-</div>
-<div class="paragraph">
-<p>An application <strong class="purple">can</strong> access any aspect of an input attachment that does not
-have a specified aspect mask.</p>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
 <p>Bits which <strong class="purple">can</strong> be set in <a href="#VkAttachmentDescription">VkAttachmentDescription</a>::<code>flags</code>
 describing additional properties of the attachment are:</p>
 </div>
@@ -2489,94 +2425,175 @@ For attachments with a color format, this uses the access type
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>VK_ATTACHMENT_STORE_OP_DONT_CARE</code> <strong class="purple">can</strong> cause contents generated during
+previous render passes to be discarded before reaching memory, even if no
+write to the attachment occurs during the current render pass.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To specify which aspects of an input attachment <strong class="purple">can</strong> be read, add a
+<a href="#VkRenderPassInputAttachmentAspectCreateInfo">VkRenderPassInputAttachmentAspectCreateInfo</a> structure to the
+<code>pNext</code> chain of the <a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> structure:</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkRenderPassInputAttachmentAspectCreateInfo</code> structure is defined
+as:</p>
+</div>
+<div id="VkRenderPassInputAttachmentAspectCreateInfo" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkRenderPassInputAttachmentAspectCreateInfo {
+    VkStructureType                            sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                                pNext;
+    uint32_t                                   aspectReferenceCount;
+    <span class="directive">const</span> VkInputAttachmentAspectReference*    pAspectReferences;
+} VkRenderPassInputAttachmentAspectCreateInfo;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If a render pass uses multiple attachments that alias the same device
-memory, those attachments <strong class="purple">must</strong> each include the
-<code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> bit in their attachment
-description flags.
-Attachments aliasing the same memory occurs in multiple ways:</p>
+<p>or the equivalent</p>
+</div>
+<div id="VkRenderPassInputAttachmentAspectCreateInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkRenderPassInputAttachmentAspectCreateInfo VkRenderPassInputAttachmentAspectCreateInfoKHR;</code></pre>
+</div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Multiple attachments being assigned the same image view as part of
-framebuffer creation.</p>
+<p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p>Attachments using distinct image views that correspond to the same image
-subresource of an image.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
 </li>
 <li>
-<p>Attachments using views of distinct image subresources which are bound
-to overlapping memory ranges.</p>
+<p><code>aspectReferenceCount</code> is the number of elements in the
+<code>pAspectReferences</code> array.</p>
+</li>
+<li>
+<p><code>pAspectReferences</code> is a pointer to an array of
+<code>aspectReferenceCount</code> <a href="#VkInputAttachmentAspectReference">VkInputAttachmentAspectReference</a>
+structures containing a mask describing which aspect(s) <strong class="purple">can</strong> be accessed
+for a given input attachment within a given subpass.</p>
 </li>
 </ul>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
 <div class="paragraph">
-<p>Render passes <strong class="purple">must</strong> include subpass dependencies (either directly or via a
-subpass dependency chain) between any two subpasses that operate on the same
-attachment or aliasing attachments and those subpass dependencies <strong class="purple">must</strong>
-include execution and memory dependencies separating uses of the aliases, if
-at least one of those subpasses writes to one of the aliases.
-These dependencies <strong class="purple">must</strong> not include the <code>VK_DEPENDENCY_BY_REGION_BIT</code>
-if the aliases are views of distinct image subresources which overlap in
-memory.</p>
+<p>An application <strong class="purple">can</strong> access any aspect of an input attachment that does not
+have a specified aspect mask in the <code>pAspectReferences</code> array.
+Otherwise, an application <strong class="purple">must</strong> not access aspect(s) of an input attachment
+other than those in its specified aspect mask.</p>
 </div>
-</td>
-</tr>
-</table>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-pAspectReferences-parameter"></a> <code>pAspectReferences</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>aspectReferenceCount</code> valid <a href="#VkInputAttachmentAspectReference">VkInputAttachmentAspectReference</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassInputAttachmentAspectCreateInfo-aspectReferenceCount-arraylength"></a> <code>aspectReferenceCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
-<p>Multiple attachments that alias the same memory <strong class="purple">must</strong> not be used in a
-single subpass.
-A given attachment index <strong class="purple">must</strong> not be used multiple times in a single
-subpass, with one exception: two subpass attachments <strong class="purple">can</strong> use the same
-attachment index if at least one use is as an input attachment and neither
-use is as a resolve or preserve attachment.
-In other words, the same view <strong class="purple">can</strong> be used simultaneously as an input and
-color or depth/stencil attachment, but <strong class="purple">must</strong> not be used as multiple color
-or depth/stencil attachments nor as resolve or preserve attachments.
-The precise set of valid scenarios is described in more detail
-<a href="#renderpass-feedbackloop">below</a>.</p>
+<p>The <code>VkInputAttachmentAspectReference</code> structure specifies an aspect
+mask for a specific input attachment of a specific subpass in the render
+pass.</p>
 </div>
 <div class="paragraph">
-<p>If a set of attachments alias each other, then all except the first to be
-used in the render pass <strong class="purple">must</strong> use an <code>initialLayout</code> of
-<code>VK_IMAGE_LAYOUT_UNDEFINED</code>, since the earlier uses of the other aliases
-make their contents undefined.
-Once an alias has been used and a different alias has been used after it,
-the first alias <strong class="purple">must</strong> not be used in any later subpasses.
-However, an application <strong class="purple">can</strong> assign the same image view to multiple aliasing
-attachment indices, which allows that image view to be used multiple times
-even if other aliases are used in between.</p>
+<p><code>subpass</code> and <code>inputAttachmentIndex</code> index into the render pass as:</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
 <div class="paragraph">
-<p>Once an attachment needs the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code>
-bit, there <strong class="purple">should</strong> be no additional cost of introducing additional aliases,
-and using these additional aliases <strong class="purple">may</strong> allow more efficient clearing of the
-attachments on multiple uses via <code>VK_ATTACHMENT_LOAD_OP_CLEAR</code>.</p>
+<p><code>pCreateInfo-&gt;pSubpasses</code>[subpass].pInputAttachments[inputAttachmentIndex]</p>
 </div>
-</td>
-</tr>
-</table>
+<div id="VkInputAttachmentAspectReference" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkInputAttachmentAspectReference {
+    uint32_t              subpass;
+    uint32_t              inputAttachmentIndex;
+    VkImageAspectFlags    aspectMask;
+} VkInputAttachmentAspectReference;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or the equivalent</p>
+</div>
+<div id="VkInputAttachmentAspectReferenceKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkInputAttachmentAspectReference VkInputAttachmentAspectReferenceKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>subpass</code> is an index into the <code>pSubpasses</code> array of the parent
+<code>VkRenderPassCreateInfo</code> structure.</p>
+</li>
+<li>
+<p><code>inputAttachmentIndex</code> is an index into the <code>pInputAttachments</code>
+of the specified subpass.</p>
+</li>
+<li>
+<p><code>aspectMask</code> is a mask of which aspect(s) <strong class="purple">can</strong> be accessed within
+the specified subpass.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-01964"></a>
+<code>aspectMask</code> <strong class="purple">must</strong> not include <code>VK_IMAGE_ASPECT_METADATA_BIT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-parameter"></a> <code>aspectMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap11.html#VkImageAspectFlagBits">VkImageAspectFlagBits</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkInputAttachmentAspectReference-aspectMask-requiredbitmask"></a> <code>aspectMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="openblock">
 <div class="content">
@@ -6117,6 +6134,37 @@ created with a <code>usage</code> value including
 <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
+<p><a id="VUID-vkCmdBeginRenderPass-initialLayout-02842"></a>
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code> then the corresponding
+attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass-stencilInitialLayout-02843"></a>
+If any of the <code>stencilInitialLayout</code> or <code>stencilFinalLayout</code>
+member of the <code>VkAttachmentDescriptionStencilLayout</code> structures or
+the <code>stencilLayout</code> member of the
+<code>VkAttachmentReferenceStencilLayout</code> structures specified when
+creating the render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code> then the corresponding
+attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdBeginRenderPass-initialLayout-00897"></a>
 If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
 <code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
@@ -6343,6 +6391,37 @@ created with a <code>usage</code> value including
 <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
+<p><a id="VUID-vkCmdBeginRenderPass2-initialLayout-02844"></a>
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code> then the corresponding
+attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass2-stencilInitialLayout-02845"></a>
+If any of the <code>stencilInitialLayout</code> or <code>stencilFinalLayout</code>
+member of the <code>VkAttachmentDescriptionStencilLayout</code> structures or
+the <code>stencilLayout</code> member of the
+<code>VkAttachmentReferenceStencilLayout</code> structures specified when
+creating the render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code> then the corresponding
+attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdBeginRenderPass2-initialLayout-03097"></a>
 If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
 <code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
@@ -6547,8 +6626,7 @@ restricted to the pixels whose x and y coordinates fall within the render
 area on all attachments.
 The render area extends to all layers of <code>framebuffer</code>.
 The application <strong class="purple">must</strong> ensure (using scissor if necessary) that all rendering
-is contained within the render area.
-The render area <strong class="purple">must</strong> be contained within the framebuffer dimensions.</p>
+is contained within the render area.</p>
 </div>
 <div class="paragraph">
 <p>When multiview is enabled, the resolve operation at the end of a subpass
@@ -6587,7 +6665,71 @@ in <code>renderPass</code> that specifies a <code>loadOp</code> (or
 <p><a id="VUID-VkRenderPassBeginInfo-renderPass-00904"></a>
 <code>renderPass</code> <strong class="purple">must</strong> be <a href="#renderpass-compatibility">compatible</a> with
 the <code>renderPass</code> member of the <code>VkFramebufferCreateInfo</code>
-structure specified when creating <code>framebuffer</code>.</p>
+structure specified when creating <code>framebuffer</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02850"></a>
+If the <code>pNext</code> chain does not contain
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a> or its
+<code>deviceRenderAreaCount</code> member is equal to 0,
+<code>renderArea.offset.x</code> <strong class="purple">must</strong> be greater than or equal to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02851"></a>
+If the <code>pNext</code> chain does not contain
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a> or its
+<code>deviceRenderAreaCount</code> member is equal to 0,
+<code>renderArea.offset.y</code> <strong class="purple">must</strong> be greater than or equal to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02852"></a>
+If the <code>pNext</code> chain does not contain
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a> or its
+<code>deviceRenderAreaCount</code> member is equal to 0,
+<span class="eq"><code>renderArea.offset.x</code> +  <code>renderArea.offset.width</code></span>
+<strong class="purple">must</strong> be less than or equal to
+<a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>width</code> the <code>framebuffer</code> was
+created with</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02853"></a>
+If the <code>pNext</code> chain does not contain
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a> or its
+<code>deviceRenderAreaCount</code> member is equal to 0,
+<span class="eq"><code>renderArea.offset.y</code> +  <code>renderArea.offset.height</code></span>
+<strong class="purple">must</strong> be less than or equal to
+<a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>height</code> the <code>framebuffer</code> was
+created with</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02854"></a>
+If the <code>pNext</code> chain contains
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, the <code>offset.x</code> member of
+each element of <code>pDeviceRenderAreas</code> <strong class="purple">must</strong> be greater than or equal
+to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02855"></a>
+If the <code>pNext</code> chain contains
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, the <code>offset.y</code> member of
+each element of <code>pDeviceRenderAreas</code> <strong class="purple">must</strong> be greater than or equal
+to 0</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02856"></a>
+If the <code>pNext</code> chain contains
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, <span class="eq"><code>offset.x</code> + 
+<code>offset.width</code></span> of each element of <code>pDeviceRenderAreas</code> <strong class="purple">must</strong> be
+less than or equal to <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>width</code> the
+<code>framebuffer</code> was created with</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02857"></a>
+If the <code>pNext</code> chain contains
+<a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, <span class="eq"><code>offset.y</code> + 
+<code>offset.height</code></span> of each element of <code>pDeviceRenderAreas</code> <strong class="purple">must</strong>
+be less than or equal to <a href="#VkFramebufferCreateInfo">VkFramebufferCreateInfo</a>::<code>height</code> the
+<code>framebuffer</code> was created with</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-framebuffer-03207"></a>
@@ -7689,7 +7831,7 @@ the render pass minus one</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.131<br>
+Version 1.0.132<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

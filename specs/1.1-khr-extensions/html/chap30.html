@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.131 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.132 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.131 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.132 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.131,</span>
-<span id="revdate">2020-01-14 15:20:29Z</span>
-<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
+<span id="revnumber">version 1.1.132,</span>
+<span id="revdate">2020-01-21 10:47:24Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -935,8 +935,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap8.html#shaders-compute">8.10. Compute Shaders</a></li>
 <li><a href="chap8.html#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
 <li><a href="chap8.html#shaders-staticuse">8.12. Static Use</a></li>
-<li><a href="chap8.html#shaders-invocationgroups">8.13. Invocation and Derivative Groups</a></li>
-<li><a href="chap8.html#shaders-subgroup">8.14. Subgroups</a></li>
+<li><a href="chap8.html#shaders-scope">8.13. Scope</a></li>
+<li><a href="chap8.html#shaders-group-operations">8.14. Group Operations</a></li>
+<li><a href="chap8.html#shaders-quad-operations">8.15. Quad Group Operations</a></li>
+<li><a href="chap8.html#shaders-derivative-operations">8.16. Derivative Operations</a></li>
+<li><a href="chap8.html#_helper_invocations">8.17. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -999,12 +1002,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap15.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="chap15.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="chap15.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="chap15.html#texture-derivatives">15.5. Derivative Operations</a></li>
-<li><a href="chap15.html#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-sample-operations">15.9. Image Sample Operations</a></li>
-<li><a href="chap15.html#textures-instructions">15.10. Image Operation Steps</a></li>
+<li><a href="chap15.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="chap15.html#textures-instructions">15.9. Image Operation Steps</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#queries">16. Queries</a>
@@ -1873,9 +1875,29 @@ Architecture Overview”</a> document for additional information.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
+<p>To enable an instance extension, the name of the extension <strong class="purple">can</strong> be added to
+the <code>ppEnabledExtensionNames</code> member of <a href="chap3.html#VkInstanceCreateInfo">VkInstanceCreateInfo</a> when
+creating a <code>VkInstance</code>.</p>
+</div>
+<div class="paragraph">
+<p>To enable a device extension, the name of the extension <strong class="purple">can</strong> be added to the
+<code>ppEnabledExtensionNames</code> member of <a href="chap4.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> when
+creating a <code>VkDevice</code>.</p>
+</div>
+<div class="paragraph">
+<p>Physical-Device-Level functionality does not have any enabling mechanism and
+<strong class="purple">can</strong> be used as long as the <a href="chap4.html#VkPhysicalDevice">VkPhysicalDevice</a> supports the device
+extension as determined by <a href="#vkEnumerateDeviceExtensionProperties">vkEnumerateDeviceExtensionProperties</a>.</p>
+</div>
+<div class="paragraph">
+<p>Enabling an extension does not change the behavior of functionality exposed
+by the core Vulkan API or any other extension, other than making valid the
+use of the commands, enums and structures defined by that extension.</p>
+</div>
+<div class="paragraph">
 <p>Valid Usage sections for individual commands and structures do not currently
 contain which extensions have to be enabled in order to make their use
-valid, although it might do so in the future.
+valid, although they might do so in the future.
 It is defined only in the <a href="chap2.html#fundamentals-validusage-extensions">Valid Usage for Extensions</a> section.</p>
 </div>
 </td>
@@ -2008,28 +2030,6 @@ be enabled against the advertised version.</p>
 </div>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p>To enable an instance extension, the name of the extension <strong class="purple">should</strong> be added
-to the <code>ppEnabledExtensionNames</code> member of <a href="chap3.html#VkInstanceCreateInfo">VkInstanceCreateInfo</a>
-when creating a <code>VkInstance</code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Enabling an extension does not change behavior of functionality exposed by
-the core Vulkan API or any other extension, other than making valid the use
-of the commands, enums and structures defined by that extension.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -2547,7 +2547,7 @@ write the appropriate command name to an output log, for instance.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.131<br>
+Version 1.1.132<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

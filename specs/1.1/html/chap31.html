@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.131 - A Specification</title>
+<title>Vulkan® 1.1.132 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -844,12 +844,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.131 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.132 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.131,</span>
-<span id="revdate">2020-01-14 15:23:30Z</span>
-<br><span id="revremark">from git branch: github-master commit: ec1c5a0f6a10309a10cb636c67ba4b085ac437d4</span>
+<span id="revnumber">version 1.1.132,</span>
+<span id="revdate">2020-01-21 10:50:20Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -935,8 +935,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap8.html#shaders-compute">8.10. Compute Shaders</a></li>
 <li><a href="chap8.html#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
 <li><a href="chap8.html#shaders-staticuse">8.12. Static Use</a></li>
-<li><a href="chap8.html#shaders-invocationgroups">8.13. Invocation and Derivative Groups</a></li>
-<li><a href="chap8.html#shaders-subgroup">8.14. Subgroups</a></li>
+<li><a href="chap8.html#shaders-scope">8.13. Scope</a></li>
+<li><a href="chap8.html#shaders-group-operations">8.14. Group Operations</a></li>
+<li><a href="chap8.html#shaders-quad-operations">8.15. Quad Group Operations</a></li>
+<li><a href="chap8.html#shaders-derivative-operations">8.16. Derivative Operations</a></li>
+<li><a href="chap8.html#_helper_invocations">8.17. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -997,12 +1000,11 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap15.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
 <li><a href="chap15.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
 <li><a href="chap15.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="chap15.html#texture-derivatives">15.5. Derivative Operations</a></li>
-<li><a href="chap15.html#textures-normalized-operations">15.6. Normalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.7. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-integer-coordinate-operations">15.8. Integer Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-sample-operations">15.9. Image Sample Operations</a></li>
-<li><a href="chap15.html#textures-instructions">15.10. Image Operation Steps</a></li>
+<li><a href="chap15.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="chap15.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="chap15.html#textures-instructions">15.9. Image Operation Steps</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#queries">16. Queries</a>
@@ -2467,24 +2469,28 @@ support <code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code>.
 <code>subgroupSize</code> is a power-of-two.</p>
 </li>
 <li>
-<p><code>supportedStages</code> is a bitfield of <a href="chap9.html#VkShaderStageFlagBits">VkShaderStageFlagBits</a>
-describing the shader stages that subgroup operations are supported in.
+<p><a id="limits-subgroup-supportedStages"></a> <code>supportedStages</code> is a bitfield
+of <a href="chap9.html#VkShaderStageFlagBits">VkShaderStageFlagBits</a> describing the shader stages that
+<a href="chap8.html#shaders-group-operations">group operations</a> with
+<a href="chap8.html#shaders-scope-subgroup">subgroup scope</a> are supported in.
 <code>supportedStages</code> will have the <code>VK_SHADER_STAGE_COMPUTE_BIT</code>
 bit set if any of the physical device’s queues support
 <code>VK_QUEUE_COMPUTE_BIT</code>.</p>
 </li>
 <li>
-<p><code>supportedOperations</code> is a bitmask of
-<a href="#VkSubgroupFeatureFlagBits">VkSubgroupFeatureFlagBits</a> specifying the sets of subgroup
-operations supported on this device.
+<p><a id="limits-subgroupSupportedOperations"></a> <code>supportedOperations</code> is a
+bitmask of <a href="#VkSubgroupFeatureFlagBits">VkSubgroupFeatureFlagBits</a> specifying the sets of
+<a href="chap8.html#shaders-group-operations">group operations</a> with
+<a href="chap8.html#shaders-scope-subgroup">subgroup scope</a> supported on this device.
 <code>supportedOperations</code> will have the
 <code>VK_SUBGROUP_FEATURE_BASIC_BIT</code> bit set if any of the physical
 device’s queues support <code>VK_QUEUE_GRAPHICS_BIT</code> or
 <code>VK_QUEUE_COMPUTE_BIT</code>.</p>
 </li>
 <li>
-<p><code>quadOperationsInAllStages</code> is a boolean specifying whether
-<a href="#features-subgroup-quad">quad subgroup operations</a> are available in all
+<p><a id="limits-subgroup-quadOperationsInAllStages"></a>
+<code>quadOperationsInAllStages</code> is a boolean specifying whether
+<a href="chap8.html#shaders-quad-operations">quad group operations</a> are available in all
 stages, or are restricted to fragment and compute stages.</p>
 </li>
 </ul>
@@ -2493,6 +2499,10 @@ stages, or are restricted to fragment and compute stages.</p>
 <p>If the <code>VkPhysicalDeviceSubgroupProperties</code> structure is included in the
 <code>pNext</code> chain of <a href="chap4.html#VkPhysicalDeviceProperties2">VkPhysicalDeviceProperties2</a>, it is filled with
 the implementation-dependent limits.</p>
+</div>
+<div class="paragraph">
+<p>If <code>supportedOperations</code> includes <a href="#features-subgroup-quad"><code>VK_SUBGROUP_FEATURE_QUAD_BIT</code></a>, <code>subgroupSize</code> <strong class="purple">must</strong> be greater
+than or equal to 4.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2513,7 +2523,8 @@ the implementation-dependent limits.</p>
 <div class="paragraph">
 <p>Bits which <strong class="purple">can</strong> be set in
 <a href="#VkPhysicalDeviceSubgroupProperties">VkPhysicalDeviceSubgroupProperties</a>::<code>supportedOperations</code>
-to specify supported subgroup operations are:</p>
+to specify supported <a href="chap8.html#shaders-group-operations">group operations</a> with
+<a href="chap8.html#shaders-scope-subgroup">subgroup scope</a> are:</p>
 </div>
 <div id="VkSubgroupFeatureFlagBits" class="listingblock">
 <div class="content">
@@ -4028,7 +4039,7 @@ control, tessellation evaluation, geometry, fragment, compute).</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.131<br>
+Version 1.1.132<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>
