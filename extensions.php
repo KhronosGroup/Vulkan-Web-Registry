@@ -50,6 +50,7 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shader_draw_parameters"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shader_float16_int8"> VK_KHR_shader_float16_int8 </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shader_float_controls"> VK_KHR_shader_float_controls </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shader_non_semantic_info"> VK_KHR_shader_non_semantic_info </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shader_subgroup_extended_types"> VK_KHR_shader_subgroup_extended_types </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_shared_presentable_image"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_spirv_1_4"> VK_KHR_spirv_1_4 </a> </li>

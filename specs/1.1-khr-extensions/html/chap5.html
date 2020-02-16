@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.132 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.133 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -726,6 +726,13 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
+/* Make VUID anchor handles*/
+li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
+li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
+li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
+li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
+li > p > a[id^="VUID-"].link:hover { color: black; }
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -844,12 +851,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.132 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.133 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.132,</span>
-<span id="revdate">2020-01-21 10:47:24Z</span>
-<br><span id="revremark">from git branch: github-master commit: 3a774a05786d65cc18bc58694d6bfe24f5b21d69</span>
+<span id="revnumber">version 1.1.133,</span>
+<span id="revdate">2020-02-16 01:48:38Z</span>
+<br><span id="revremark">from git branch: github-master commit: c31cf1823ace0812c2fcc4681714fbfe5f067b09</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1264,7 +1271,7 @@ table.CodeRay td.code>pre{padding:0}
 <div class="searchbox"><label for="searchbox">Search: </label><input id="searchbox" type="text" disabled="disabled" value="Loading Search Data"><div id="resultsdiv"><ol id="results"></ol></div></div>
 </div>
 <div id="content"><div class="sect1">
-<h2 id="commandbuffers">5. Command Buffers</h2>
+<h2 id="commandbuffers"><a class="anchor" href="#commandbuffers"></a>5. Command Buffers</h2>
 <div class="sectionbody">
 <div class="openblock">
 <div class="content">
@@ -1322,7 +1329,7 @@ See <a href="chap6.html#synchronization">the synchronization chapter</a> for inf
 commands.</p>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-lifecycle">5.1. Command Buffer Lifecycle</h3>
+<h3 id="commandbuffers-lifecycle"><a class="anchor" href="#commandbuffers-lifecycle"></a>5.1. Command Buffer Lifecycle</h3>
 <div class="paragraph">
 <p>Each command buffer is always in one of the following states:</p>
 </div>
@@ -1332,8 +1339,8 @@ commands.</p>
 <dd>
 <p>When a command buffer is <a href="#vkAllocateCommandBuffers">allocated</a>, it is
 in the <em>initial state</em>.
-Some commands are able to <em>reset</em> a command buffer, or a set of command
-buffers, back to this state from any of the executable, recording or
+Some commands are able to <em>reset</em> a command buffer (or a set of command
+buffers) back to this state from any of the executable, recording or
 invalid state.
 Command buffers in the initial state <strong class="purple">can</strong> only be moved to the recording
 state, or freed.</p>
@@ -1360,9 +1367,10 @@ changes the state of a command buffer from the executable state to the
 Whilst in the pending state, applications <strong class="purple">must</strong> not attempt to modify
 the command buffer in any way - as the device <strong class="purple">may</strong> be processing the
 commands recorded to it.
-Once execution of a command buffer completes, the command buffer reverts
-back to either the <em>executable state</em>, or the <em>invalid state</em> if it was
-recorded with <code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code>.
+Once execution of a command buffer completes, the command buffer either
+reverts back to the <em>executable state</em>, or if it was recorded with
+<code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code>, it moves to the
+<em>invalid state</em>.
 A <a href="chap6.html#synchronization">synchronization</a> command <strong class="purple">should</strong> be used to detect
 when this occurs.</p>
 </dd>
@@ -1468,30 +1476,48 @@ usage constraints for that command.</p>
 </div>
 <div class="paragraph">
 <p>Resetting a command buffer is an operation that discards any previously
-recorded commands and puts a command buffer in the initial state.
+recorded commands and puts a command buffer in the <em>initial state</em>.
 Resetting occurs as a result of <a href="#vkResetCommandBuffer">vkResetCommandBuffer</a> or
 <a href="#vkResetCommandPool">vkResetCommandPool</a>, or as part of <a href="#vkBeginCommandBuffer">vkBeginCommandBuffer</a> (which
-additionally puts the command buffer in the recording state).</p>
+additionally puts the command buffer in the <em>recording state</em>).</p>
 </div>
 <div class="paragraph">
 <p><a href="#commandbuffers-secondary">Secondary command buffers</a> <strong class="purple">can</strong> be recorded to
 a primary command buffer via <a href="#vkCmdExecuteCommands">vkCmdExecuteCommands</a>.
 This partially ties the lifecycle of the two command buffers together - if
 the primary is submitted to a queue, both the primary and any secondaries
-recorded to it move to the pending state.
-Once execution of the primary completes, so does any secondary recorded
-within it, and once all executions of each command buffer complete, they
-move to the executable state.
-If a secondary moves to any other state whilst it is recorded to another
-command buffer, the primary moves to the invalid state.
-A primary moving to any other state does not affect the state of the
-secondary.
-Resetting or freeing a primary command buffer removes the linkage to any
-secondary command buffers that were recorded to it.</p>
+recorded to it move to the <em>pending state</em>.
+Once execution of the primary completes, so it does for any secondary
+recorded within it.
+After all executions of each command buffer complete, they each move to
+their appropriate completion state (either to the <em>execution state</em> or the
+<em>invalid state</em>, as specified above).</p>
+</div>
+<div class="paragraph">
+<p>If a secondary moves to the <em>invalid state</em> or the <em>initial state</em>, then all
+primary buffers it is recorded in move to the <em>invalid state</em>.
+A primary moving to any other state does not affect the state of a secondary
+recorded in it.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Resetting or freeing a primary command buffer removes the lifecycle linkage
+to all secondary command buffers that were recorded into it.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-pools">5.2. Command Pools</h3>
+<h3 id="commandbuffers-pools"><a class="anchor" href="#commandbuffers-pools"></a>5.2. Command Pools</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -1553,7 +1579,7 @@ the created pool is returned.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCreateCommandPool-queueFamilyIndex-01937"></a>
+<p><a id="VUID-vkCreateCommandPool-queueFamilyIndex-01937" href="#VUID-vkCreateCommandPool-queueFamilyIndex-01937"></a>
 <code>pCreateInfo-&gt;queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue
 family available in the logical device <code>device</code>.</p>
 </li>
@@ -1567,16 +1593,16 @@ family available in the logical device <code>device</code>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCreateCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkCreateCommandPool-device-parameter" href="#VUID-vkCreateCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pCreateInfo-parameter"></a> <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure</p>
+<p><a id="VUID-vkCreateCommandPool-pCreateInfo-parameter" href="#VUID-vkCreateCommandPool-pCreateInfo-parameter"></a> <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandPoolCreateInfo">VkCommandPoolCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+<p><a id="VUID-vkCreateCommandPool-pAllocator-parameter" href="#VUID-vkCreateCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkCreateCommandPool-pCommandPool-parameter"></a> <code>pCommandPool</code> <strong class="purple">must</strong> be a valid pointer to a <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-vkCreateCommandPool-pCommandPool-parameter" href="#VUID-vkCreateCommandPool-pCommandPool-parameter"></a> <code>pCommandPool</code> <strong class="purple">must</strong> be a valid pointer to a <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 </ul>
 </div>
@@ -1653,17 +1679,32 @@ on queues from the same queue family.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCommandPoolCreateInfo-flags-02860" href="#VUID-VkCommandPoolCreateInfo-flags-02860"></a>
+If the protected memory feature is not enabled, the
+<code>VK_COMMAND_POOL_CREATE_PROTECTED_BIT</code> bit of <code>flags</code> <strong class="purple">must</strong> not
+be set.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandPoolCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO</code></p>
+<p><a id="VUID-VkCommandPoolCreateInfo-sType-sType" href="#VUID-VkCommandPoolCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandPoolCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p><a id="VUID-VkCommandPoolCreateInfo-pNext-pNext" href="#VUID-VkCommandPoolCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandPoolCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandPoolCreateFlagBits">VkCommandPoolCreateFlagBits</a> values</p>
+<p><a id="VUID-VkCommandPoolCreateInfo-flags-parameter" href="#VUID-VkCommandPoolCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandPoolCreateFlagBits">VkCommandPoolCreateFlagBits</a> values</p>
 </li>
 </ul>
 </div>
@@ -1707,10 +1748,7 @@ not be called for any command buffer allocated from that pool.</p>
 </li>
 <li>
 <p><code>VK_COMMAND_POOL_CREATE_PROTECTED_BIT</code> specifies that command
-buffers allocated from the pool are protected command buffers.
-If the protected memory feature is not enabled, the
-<code>VK_COMMAND_POOL_CREATE_PROTECTED_BIT</code> bit of <code>flags</code> <strong class="purple">must</strong> not
-be set.</p>
+buffers allocated from the pool are protected command buffers.</p>
 </li>
 </ul>
 </div>
@@ -1830,16 +1868,16 @@ cost of trimming is “worth” it.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkTrimCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkTrimCommandPool-device-parameter" href="#VUID-vkTrimCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkTrimCommandPool-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-vkTrimCommandPool-commandPool-parameter" href="#VUID-vkTrimCommandPool-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkTrimCommandPool-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+<p><a id="VUID-vkTrimCommandPool-flags-zerobitmask" href="#VUID-vkTrimCommandPool-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-vkTrimCommandPool-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+<p><a id="VUID-vkTrimCommandPool-commandPool-parent" href="#VUID-vkTrimCommandPool-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -1925,7 +1963,7 @@ into it, becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkResetCommandPool-commandPool-00040"></a>
+<p><a id="VUID-vkResetCommandPool-commandPool-00040" href="#VUID-vkResetCommandPool-commandPool-00040"></a>
 All <code>VkCommandBuffer</code> objects allocated from <code>commandPool</code> <strong class="purple">must</strong>
 not be in the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
@@ -1939,16 +1977,16 @@ not be in the <a href="#commandbuffers-lifecycle">pending state</a></p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkResetCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkResetCommandPool-device-parameter" href="#VUID-vkResetCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkResetCommandPool-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-vkResetCommandPool-commandPool-parameter" href="#VUID-vkResetCommandPool-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkResetCommandPool-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandPoolResetFlagBits">VkCommandPoolResetFlagBits</a> values</p>
+<p><a id="VUID-vkResetCommandPool-flags-parameter" href="#VUID-vkResetCommandPool-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandPoolResetFlagBits">VkCommandPoolResetFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-vkResetCommandPool-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+<p><a id="VUID-vkResetCommandPool-commandPool-parent" href="#VUID-vkResetCommandPool-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -2081,17 +2119,17 @@ into it, becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-commandPool-00041"></a>
+<p><a id="VUID-vkDestroyCommandPool-commandPool-00041" href="#VUID-vkDestroyCommandPool-commandPool-00041"></a>
 All <code>VkCommandBuffer</code> objects allocated from <code>commandPool</code> <strong class="purple">must</strong>
 not be in the <a href="#commandbuffers-lifecycle">pending state</a>.</p>
 </li>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-commandPool-00042"></a>
+<p><a id="VUID-vkDestroyCommandPool-commandPool-00042" href="#VUID-vkDestroyCommandPool-commandPool-00042"></a>
 If <code>VkAllocationCallbacks</code> were provided when <code>commandPool</code> was
 created, a compatible set of callbacks <strong class="purple">must</strong> be provided here</p>
 </li>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-commandPool-00043"></a>
+<p><a id="VUID-vkDestroyCommandPool-commandPool-00043" href="#VUID-vkDestroyCommandPool-commandPool-00043"></a>
 If no <code>VkAllocationCallbacks</code> were provided when <code>commandPool</code>
 was created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
@@ -2105,16 +2143,16 @@ was created, <code>pAllocator</code> <strong class="purple">must</strong> be <co
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkDestroyCommandPool-device-parameter" href="#VUID-vkDestroyCommandPool-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-commandPool-parameter"></a> If <code>commandPool</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-vkDestroyCommandPool-commandPool-parameter" href="#VUID-vkDestroyCommandPool-commandPool-parameter"></a> If <code>commandPool</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+<p><a id="VUID-vkDestroyCommandPool-pAllocator-parameter" href="#VUID-vkDestroyCommandPool-pAllocator-parameter"></a> If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkDestroyCommandPool-commandPool-parent"></a> If <code>commandPool</code> is a valid handle, it <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+<p><a id="VUID-vkDestroyCommandPool-commandPool-parent" href="#VUID-vkDestroyCommandPool-commandPool-parent"></a> If <code>commandPool</code> is a valid handle, it <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -2136,7 +2174,7 @@ was created, <code>pAllocator</code> <strong class="purple">must</strong> be <co
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffer-allocation">5.3. Command Buffer Allocation and Management</h3>
+<h3 id="commandbuffer-allocation"><a class="anchor" href="#commandbuffer-allocation"></a>5.3. Command Buffer Allocation and Management</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2186,16 +2224,16 @@ return the error.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkAllocateCommandBuffers-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkAllocateCommandBuffers-device-parameter" href="#VUID-vkAllocateCommandBuffers-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkAllocateCommandBuffers-pAllocateInfo-parameter"></a> <code>pAllocateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandBufferAllocateInfo">VkCommandBufferAllocateInfo</a> structure</p>
+<p><a id="VUID-vkAllocateCommandBuffers-pAllocateInfo-parameter" href="#VUID-vkAllocateCommandBuffers-pAllocateInfo-parameter"></a> <code>pAllocateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandBufferAllocateInfo">VkCommandBufferAllocateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkAllocateCommandBuffers-pCommandBuffers-parameter"></a> <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pAllocateInfo</code>::commandBufferCount <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
+<p><a id="VUID-vkAllocateCommandBuffers-pCommandBuffers-parameter" href="#VUID-vkAllocateCommandBuffers-pCommandBuffers-parameter"></a> <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pAllocateInfo</code>::commandBufferCount <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-vkAllocateCommandBuffers-pAllocateInfo::commandBufferCount-arraylength"></a> The value referenced by <code>pAllocateInfo</code>::<code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+<p><a id="VUID-vkAllocateCommandBuffers-pAllocateInfo::commandBufferCount-arraylength" href="#VUID-vkAllocateCommandBuffers-pAllocateInfo::commandBufferCount-arraylength"></a> The value referenced by <code>pAllocateInfo</code>::<code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -2291,7 +2329,7 @@ from the pool.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferAllocateInfo-commandBufferCount-00044"></a>
+<p><a id="VUID-VkCommandBufferAllocateInfo-commandBufferCount-00044" href="#VUID-VkCommandBufferAllocateInfo-commandBufferCount-00044"></a>
 <code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 </ul>
@@ -2304,16 +2342,16 @@ from the pool.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferAllocateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO</code></p>
+<p><a id="VUID-VkCommandBufferAllocateInfo-sType-sType" href="#VUID-VkCommandBufferAllocateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferAllocateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p><a id="VUID-VkCommandBufferAllocateInfo-pNext-pNext" href="#VUID-VkCommandBufferAllocateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferAllocateInfo-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-VkCommandBufferAllocateInfo-commandPool-parameter" href="#VUID-VkCommandBufferAllocateInfo-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferAllocateInfo-level-parameter"></a> <code>level</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBufferLevel">VkCommandBufferLevel</a> value</p>
+<p><a id="VUID-VkCommandBufferAllocateInfo-level-parameter" href="#VUID-VkCommandBufferAllocateInfo-level-parameter"></a> <code>level</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBufferLevel">VkCommandBufferLevel</a> value</p>
 </li>
 </ul>
 </div>
@@ -2386,11 +2424,11 @@ it, becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkResetCommandBuffer-commandBuffer-00045"></a>
+<p><a id="VUID-vkResetCommandBuffer-commandBuffer-00045" href="#VUID-vkResetCommandBuffer-commandBuffer-00045"></a>
 <code>commandBuffer</code> <strong class="purple">must</strong> not be in the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkResetCommandBuffer-commandBuffer-00046"></a>
+<p><a id="VUID-vkResetCommandBuffer-commandBuffer-00046" href="#VUID-vkResetCommandBuffer-commandBuffer-00046"></a>
 <code>commandBuffer</code> <strong class="purple">must</strong> have been allocated from a pool that was
 created with the <code>VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</code></p>
 </li>
@@ -2404,10 +2442,10 @@ created with the <code>VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</code></p
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkResetCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+<p><a id="VUID-vkResetCommandBuffer-commandBuffer-parameter" href="#VUID-vkResetCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkResetCommandBuffer-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandBufferResetFlagBits">VkCommandBufferResetFlagBits</a> values</p>
+<p><a id="VUID-vkResetCommandBuffer-flags-parameter" href="#VUID-vkResetCommandBuffer-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandBufferResetFlagBits">VkCommandBufferResetFlagBits</a> values</p>
 </li>
 </ul>
 </div>
@@ -2544,12 +2582,12 @@ recorded into it, becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-00047"></a>
+<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-00047" href="#VUID-vkFreeCommandBuffers-pCommandBuffers-00047"></a>
 All elements of <code>pCommandBuffers</code> <strong class="purple">must</strong> not be in the
 <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-00048"></a>
+<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-00048" href="#VUID-vkFreeCommandBuffers-pCommandBuffers-00048"></a>
 <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of
 <code>commandBufferCount</code> <code>VkCommandBuffer</code> handles, each element of
 which <strong class="purple">must</strong> either be a valid handle or <code>NULL</code></p>
@@ -2564,19 +2602,19 @@ which <strong class="purple">must</strong> either be a valid handle or <code>NUL
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
+<p><a id="VUID-vkFreeCommandBuffers-device-parameter" href="#VUID-vkFreeCommandBuffers-device-parameter"></a> <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkDevice">VkDevice</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
+<p><a id="VUID-vkFreeCommandBuffers-commandPool-parameter" href="#VUID-vkFreeCommandBuffers-commandPool-parameter"></a> <code>commandPool</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandPool">VkCommandPool</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-commandBufferCount-arraylength"></a> <code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+<p><a id="VUID-vkFreeCommandBuffers-commandBufferCount-arraylength" href="#VUID-vkFreeCommandBuffers-commandBufferCount-arraylength"></a> <code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+<p><a id="VUID-vkFreeCommandBuffers-commandPool-parent" href="#VUID-vkFreeCommandBuffers-commandPool-parent"></a> <code>commandPool</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
 </li>
 <li>
-<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-parent"></a> Each element of <code>pCommandBuffers</code> that is a valid handle <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>commandPool</code></p>
+<p><a id="VUID-vkFreeCommandBuffers-pCommandBuffers-parent" href="#VUID-vkFreeCommandBuffers-pCommandBuffers-parent"></a> Each element of <code>pCommandBuffers</code> that is a valid handle <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>commandPool</code></p>
 </li>
 </ul>
 </div>
@@ -2601,7 +2639,7 @@ which <strong class="purple">must</strong> either be a valid handle or <code>NUL
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-recording">5.4. Command Buffer Recording</h3>
+<h3 id="commandbuffers-recording"><a class="anchor" href="#commandbuffers-recording"></a>5.4. Command Buffer Recording</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2633,24 +2671,24 @@ recording.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00049"></a>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00049" href="#VUID-vkBeginCommandBuffer-commandBuffer-00049"></a>
 <code>commandBuffer</code> <strong class="purple">must</strong> not be in the <a href="#commandbuffers-lifecycle">recording or pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00050"></a>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00050" href="#VUID-vkBeginCommandBuffer-commandBuffer-00050"></a>
 If <code>commandBuffer</code> was allocated from a <a href="#VkCommandPool">VkCommandPool</a> which
 did not have the <code>VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT</code>
 flag set, <code>commandBuffer</code> <strong class="purple">must</strong> be in the
 <a href="#commandbuffers-lifecycle">initial state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00051"></a>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00051" href="#VUID-vkBeginCommandBuffer-commandBuffer-00051"></a>
 If <code>commandBuffer</code> is a secondary command buffer, the
 <code>pInheritanceInfo</code> member of <code>pBeginInfo</code> <strong class="purple">must</strong> be a valid
 <code>VkCommandBufferInheritanceInfo</code> structure</p>
 </li>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00052"></a>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-00052" href="#VUID-vkBeginCommandBuffer-commandBuffer-00052"></a>
 If <code>commandBuffer</code> is a secondary command buffer and either the
 <code>occlusionQueryEnable</code> member of the <code>pInheritanceInfo</code> member
 of <code>pBeginInfo</code> is <code>VK_FALSE</code>, or the precise occlusion queries
@@ -2659,7 +2697,7 @@ feature is not enabled, the <code>queryFlags</code> member of the
 <code>VK_QUERY_CONTROL_PRECISE_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-02840"></a>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-02840" href="#VUID-vkBeginCommandBuffer-commandBuffer-02840"></a>
 If <code>commandBuffer</code> is a primary command buffer, then
 <code>pBeginInfo-&gt;flags</code> <strong class="purple">must</strong> not set both the
 <code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code> and the
@@ -2675,10 +2713,10 @@ If <code>commandBuffer</code> is a primary command buffer, then
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+<p><a id="VUID-vkBeginCommandBuffer-commandBuffer-parameter" href="#VUID-vkBeginCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkBeginCommandBuffer-pBeginInfo-parameter"></a> <code>pBeginInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandBufferBeginInfo">VkCommandBufferBeginInfo</a> structure</p>
+<p><a id="VUID-vkBeginCommandBuffer-pBeginInfo-parameter" href="#VUID-vkBeginCommandBuffer-pBeginInfo-parameter"></a> <code>pBeginInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkCommandBufferBeginInfo">VkCommandBufferBeginInfo</a> structure</p>
 </li>
 </ul>
 </div>
@@ -2774,21 +2812,21 @@ If this is a primary command buffer, then this value is ignored.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-flags-00053"></a>
+<p><a id="VUID-VkCommandBufferBeginInfo-flags-00053" href="#VUID-VkCommandBufferBeginInfo-flags-00053"></a>
 If <code>flags</code> contains
 <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>, the
 <code>renderPass</code> member of <code>pInheritanceInfo</code> <strong class="purple">must</strong> be a valid
 <code>VkRenderPass</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-flags-00054"></a>
+<p><a id="VUID-VkCommandBufferBeginInfo-flags-00054" href="#VUID-VkCommandBufferBeginInfo-flags-00054"></a>
 If <code>flags</code> contains
 <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>, the
 <code>subpass</code> member of <code>pInheritanceInfo</code> <strong class="purple">must</strong> be a valid subpass
 index within the <code>renderPass</code> member of <code>pInheritanceInfo</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-flags-00055"></a>
+<p><a id="VUID-VkCommandBufferBeginInfo-flags-00055" href="#VUID-VkCommandBufferBeginInfo-flags-00055"></a>
 If <code>flags</code> contains
 <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>, the
 <code>framebuffer</code> member of <code>pInheritanceInfo</code> <strong class="purple">must</strong> be either
@@ -2805,13 +2843,16 @@ with the <code>renderPass</code> member of <code>pInheritanceInfo</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO</code></p>
+<p><a id="VUID-VkCommandBufferBeginInfo-sType-sType" href="#VUID-VkCommandBufferBeginInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupCommandBufferBeginInfo">VkDeviceGroupCommandBufferBeginInfo</a></p>
+<p><a id="VUID-VkCommandBufferBeginInfo-pNext-pNext" href="#VUID-VkCommandBufferBeginInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupCommandBufferBeginInfo">VkDeviceGroupCommandBufferBeginInfo</a></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferBeginInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandBufferUsageFlagBits">VkCommandBufferUsageFlagBits</a> values</p>
+<p><a id="VUID-VkCommandBufferBeginInfo-sType-unique" href="#VUID-VkCommandBufferBeginInfo-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+</li>
+<li>
+<p><a id="VUID-VkCommandBufferBeginInfo-flags-parameter" href="#VUID-VkCommandBufferBeginInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkCommandBufferUsageFlagBits">VkCommandBufferUsageFlagBits</a> values</p>
 </li>
 </ul>
 </div>
@@ -2973,29 +3014,29 @@ query <strong class="purple">must</strong> not be from a query pool that counts 
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-occlusionQueryEnable-00056"></a>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-occlusionQueryEnable-00056" href="#VUID-VkCommandBufferInheritanceInfo-occlusionQueryEnable-00056"></a>
 If the <a href="chap31.html#features-inheritedQueries">inherited queries</a> feature is not
 enabled, <code>occlusionQueryEnable</code> <strong class="purple">must</strong> be <code>VK_FALSE</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-queryFlags-00057"></a>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-queryFlags-00057" href="#VUID-VkCommandBufferInheritanceInfo-queryFlags-00057"></a>
 If the <a href="chap31.html#features-inheritedQueries">inherited queries</a> feature is
 enabled, <code>queryFlags</code> <strong class="purple">must</strong> be a valid combination of
 <a href="chap16.html#VkQueryControlFlagBits">VkQueryControlFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-queryFlags-02788"></a>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-queryFlags-02788" href="#VUID-VkCommandBufferInheritanceInfo-queryFlags-02788"></a>
 If the <a href="chap31.html#features-inheritedQueries">inherited queries</a> feature is not
 enabled, <code>queryFlags</code> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-02789"></a>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-02789" href="#VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-02789"></a>
 If the <a href="chap31.html#features-pipelineStatisticsQuery">pipeline statistics queries</a>
 feature is enabled, <code>pipelineStatistics</code> <strong class="purple">must</strong> be a valid
 combination of <a href="chap16.html#VkQueryPipelineStatisticFlagBits">VkQueryPipelineStatisticFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-00058"></a>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-00058" href="#VUID-VkCommandBufferInheritanceInfo-pipelineStatistics-00058"></a>
 If the <a href="chap31.html#features-pipelineStatisticsQuery">pipeline statistics queries</a>
 feature is not enabled, <code>pipelineStatistics</code> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
@@ -3009,40 +3050,19 @@ feature is not enabled, <code>pipelineStatistics</code> <strong class="purple">m
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO</code></p>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-sType-sType" href="#VUID-VkCommandBufferInheritanceInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-pNext-pNext" href="#VUID-VkCommandBufferInheritanceInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCommandBufferInheritanceInfo-commonparent"></a> Both of <code>framebuffer</code>, and <code>renderPass</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
+<p><a id="VUID-VkCommandBufferInheritanceInfo-commonparent" href="#VUID-VkCommandBufferInheritanceInfo-commonparent"></a> Both of <code>framebuffer</code>, and <code>renderPass</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>If <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> was not set when
-creating a command buffer, that command buffer <strong class="purple">must</strong> not be submitted to a
-queue whilst it is already in the <a href="#commandbuffers-lifecycle">pending
-state</a>.
-If <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> is not set on a
-secondary command buffer, that command buffer <strong class="purple">must</strong> not be used more than
-once in a given primary command buffer.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -3108,16 +3128,16 @@ The command buffer <strong class="purple">must</strong> have been in the <a href
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00059"></a>
+<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00059" href="#VUID-vkEndCommandBuffer-commandBuffer-00059"></a>
 <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a>.</p>
 </li>
 <li>
-<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00060"></a>
+<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00060" href="#VUID-vkEndCommandBuffer-commandBuffer-00060"></a>
 If <code>commandBuffer</code> is a primary command buffer, there <strong class="purple">must</strong> not be
 an active render pass instance</p>
 </li>
 <li>
-<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00061"></a>
+<p><a id="VUID-vkEndCommandBuffer-commandBuffer-00061" href="#VUID-vkEndCommandBuffer-commandBuffer-00061"></a>
 All queries made <a href="chap16.html#queries-operation-active">active</a> during the
 recording of <code>commandBuffer</code> <strong class="purple">must</strong> have been made inactive</p>
 </li>
@@ -3131,7 +3151,7 @@ recording of <code>commandBuffer</code> <strong class="purple">must</strong> hav
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkEndCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+<p><a id="VUID-vkEndCommandBuffer-commandBuffer-parameter" href="#VUID-vkEndCommandBuffer-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
 </li>
 </ul>
 </div>
@@ -3192,7 +3212,7 @@ queue for execution.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-submission">5.5. Command Buffer Submission</h3>
+<h3 id="commandbuffers-submission"><a class="anchor" href="#commandbuffers-submission"></a>5.5. Command Buffer Submission</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3277,8 +3297,8 @@ Once execution of all submissions of a command buffer complete, it moves
 from the <a href="#commandbuffers-lifecycle">pending state</a>, back to the
 <a href="#commandbuffers-lifecycle">executable state</a>.
 If a command buffer was recorded with the
-<code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code> flag, it instead moves
-back to the <a href="#commandbuffers-lifecycle">invalid state</a>.</p>
+<code>VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT</code> flag, it instead moves to
+the <a href="#commandbuffers-lifecycle">invalid state</a>.</p>
 </div>
 <div class="paragraph">
 <p>If <code>vkQueueSubmit</code> fails, it <strong class="purple">may</strong> return
@@ -3298,18 +3318,18 @@ See <a href="chap4.html#devsandqueues-lost-device">Lost Device</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkQueueSubmit-fence-00063"></a>
+<p><a id="VUID-vkQueueSubmit-fence-00063" href="#VUID-vkQueueSubmit-fence-00063"></a>
 If <code>fence</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> be
 unsignaled</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-fence-00064"></a>
+<p><a id="VUID-vkQueueSubmit-fence-00064" href="#VUID-vkQueueSubmit-fence-00064"></a>
 If <code>fence</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> not be
 associated with any other queue command that has not yet completed
 execution on that queue</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00065"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00065" href="#VUID-vkQueueSubmit-pCommandBuffers-00065"></a>
 Any calls to <a href="chap6.html#vkCmdSetEvent">vkCmdSetEvent</a>, <a href="chap6.html#vkCmdResetEvent">vkCmdResetEvent</a> or
 <a href="chap6.html#vkCmdWaitEvents">vkCmdWaitEvents</a> that have been recorded into any of the command
 buffer elements of the <code>pCommandBuffers</code> member of any element of
@@ -3318,7 +3338,7 @@ by any of those commands in a command buffer that has been submitted to
 another queue and is still in the <em>pending state</em></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pWaitDstStageMask-00066"></a>
+<p><a id="VUID-vkQueueSubmit-pWaitDstStageMask-00066" href="#VUID-vkQueueSubmit-pWaitDstStageMask-00066"></a>
 Any stage flag included in any element of the <code>pWaitDstStageMask</code>
 member of any element of <code>pSubmits</code> <strong class="purple">must</strong> be a pipeline stage
 supported by one of the capabilities of <code>queue</code>, as specified in the
@@ -3326,20 +3346,20 @@ supported by one of the capabilities of <code>queue</code>, as specified in the
 stages</a></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pSignalSemaphores-00067"></a>
+<p><a id="VUID-vkQueueSubmit-pSignalSemaphores-00067" href="#VUID-vkQueueSubmit-pSignalSemaphores-00067"></a>
 Each element of the <code>pSignalSemaphores</code> member of any element of
 <code>pSubmits</code> <strong class="purple">must</strong> be unsignaled when the semaphore signal operation
 it defines is executed on the device</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pWaitSemaphores-00068"></a>
+<p><a id="VUID-vkQueueSubmit-pWaitSemaphores-00068" href="#VUID-vkQueueSubmit-pWaitSemaphores-00068"></a>
 When a semaphore wait operation referring to a binary semaphore defined
 by any element of the <code>pWaitSemaphores</code> member of any element of
 <code>pSubmits</code> executes on <code>queue</code>, there <strong class="purple">must</strong> be no other queues
 waiting on the same semaphore</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pWaitSemaphores-03238"></a>
+<p><a id="VUID-vkQueueSubmit-pWaitSemaphores-03238" href="#VUID-vkQueueSubmit-pWaitSemaphores-03238"></a>
 All elements of the <code>pWaitSemaphores</code> member of all elements of
 <code>pSubmits</code> created with a <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of
 <code>VK_SEMAPHORE_TYPE_BINARY</code> <strong class="purple">must</strong> reference a semaphore signal
@@ -3348,27 +3368,27 @@ operations on which it depends (if any) <strong class="purple">must</strong> hav
 for execution</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00070"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00070" href="#VUID-vkQueueSubmit-pCommandBuffers-00070"></a>
 Each element of the <code>pCommandBuffers</code> member of each element of
 <code>pSubmits</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">pending or
 executable state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00071"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00071" href="#VUID-vkQueueSubmit-pCommandBuffers-00071"></a>
 If any element of the <code>pCommandBuffers</code> member of any element of
 <code>pSubmits</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>, it <strong class="purple">must</strong> not be in
 the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00072"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00072" href="#VUID-vkQueueSubmit-pCommandBuffers-00072"></a>
 Any <a href="#commandbuffers-secondary">secondary command buffers recorded</a>
 into any element of the <code>pCommandBuffers</code> member of any element of
 <code>pSubmits</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">pending or
 executable state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00073"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00073" href="#VUID-vkQueueSubmit-pCommandBuffers-00073"></a>
 If any <a href="#commandbuffers-secondary">secondary command buffers recorded</a>
 into any element of the <code>pCommandBuffers</code> member of any element of
 <code>pSubmits</code> was not recorded with the
@@ -3376,13 +3396,13 @@ into any element of the <code>pCommandBuffers</code> member of any element of
 the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00074"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-00074" href="#VUID-vkQueueSubmit-pCommandBuffers-00074"></a>
 Each element of the <code>pCommandBuffers</code> member of each element of
 <code>pSubmits</code> <strong class="purple">must</strong> have been allocated from a <code>VkCommandPool</code> that
 was created for the same queue family <code>queue</code> belongs to</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pSubmits-02207"></a>
+<p><a id="VUID-vkQueueSubmit-pSubmits-02207" href="#VUID-vkQueueSubmit-pSubmits-02207"></a>
 If any element of <code>pSubmits-&gt;pCommandBuffers</code> includes a
 <a href="chap6.html#synchronization-queue-transfers-acquire">Queue Family Transfer Acquire
 Operation</a>, there <strong class="purple">must</strong> exist a previously submitted
@@ -3392,7 +3412,7 @@ operation, with parameters matching the acquire operation as defined in
 the definition of such <a href="chap6.html#synchronization-queue-transfers-acquire">acquire operations</a>, and which happens before the acquire operation</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pCommandBuffers-03220"></a>
+<p><a id="VUID-vkQueueSubmit-pCommandBuffers-03220" href="#VUID-vkQueueSubmit-pCommandBuffers-03220"></a>
 If a command recorded into any element of <code>pCommandBuffers</code> was a
 <a href="chap16.html#vkCmdBeginQuery">vkCmdBeginQuery</a> whose <code>queryPool</code> was created with a
 <code>queryType</code> of <code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, the
@@ -3401,7 +3421,7 @@ the <code>VkDevice</code> that <code>queue</code> was retrieved from, throughout
 recording of those command buffers</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pSubmits-02808"></a>
+<p><a id="VUID-vkQueueSubmit-pSubmits-02808" href="#VUID-vkQueueSubmit-pSubmits-02808"></a>
 Any resource created with <code>VK_SHARING_MODE_EXCLUSIVE</code> that is read
 by an operation specified by <code>pSubmits</code> <strong class="purple">must</strong> not be owned by any
 queue family other than the one which <code>queue</code> belongs to, at the
@@ -3417,16 +3437,16 @@ time it is executed</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkQueueSubmit-queue-parameter"></a> <code>queue</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkQueue">VkQueue</a> handle</p>
+<p><a id="VUID-vkQueueSubmit-queue-parameter" href="#VUID-vkQueueSubmit-queue-parameter"></a> <code>queue</code> <strong class="purple">must</strong> be a valid <a href="chap4.html#VkQueue">VkQueue</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-pSubmits-parameter"></a> If <code>submitCount</code> is not <code>0</code>, <code>pSubmits</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>submitCount</code> valid <a href="#VkSubmitInfo">VkSubmitInfo</a> structures</p>
+<p><a id="VUID-vkQueueSubmit-pSubmits-parameter" href="#VUID-vkQueueSubmit-pSubmits-parameter"></a> If <code>submitCount</code> is not <code>0</code>, <code>pSubmits</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>submitCount</code> valid <a href="#VkSubmitInfo">VkSubmitInfo</a> structures</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-fence-parameter"></a> If <code>fence</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkFence">VkFence</a> handle</p>
+<p><a id="VUID-vkQueueSubmit-fence-parameter" href="#VUID-vkQueueSubmit-fence-parameter"></a> If <code>fence</code> is not <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkFence">VkFence</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkQueueSubmit-commonparent"></a> Both of <code>fence</code>, and <code>queue</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
+<p><a id="VUID-vkQueueSubmit-commonparent" href="#VUID-vkQueueSubmit-commonparent"></a> Both of <code>fence</code>, and <code>queue</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -3592,37 +3612,37 @@ otherwise execute out of order.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkSubmitInfo-pCommandBuffers-00075"></a>
+<p><a id="VUID-VkSubmitInfo-pCommandBuffers-00075" href="#VUID-VkSubmitInfo-pCommandBuffers-00075"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not have been allocated with
 <code>VK_COMMAND_BUFFER_LEVEL_SECONDARY</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00076"></a>
+<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00076" href="#VUID-VkSubmitInfo-pWaitDstStageMask-00076"></a>
 If the <a href="chap31.html#features-geometryShader">geometry shaders</a> feature is not
 enabled, each element of <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00077"></a>
+<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00077" href="#VUID-VkSubmitInfo-pWaitDstStageMask-00077"></a>
 If the <a href="chap31.html#features-tessellationShader">tessellation shaders</a> feature is
 not enabled, each element of <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT</code> or
 <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00078"></a>
+<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-00078" href="#VUID-VkSubmitInfo-pWaitDstStageMask-00078"></a>
 Each element of <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not include
 <code>VK_PIPELINE_STAGE_HOST_BIT</code>.</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-03239"></a>
+<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-03239" href="#VUID-VkSubmitInfo-pWaitSemaphores-03239"></a>
 If any element of <code>pWaitSemaphores</code> or <code>pSignalSemaphores</code> was
 created with a <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of
 <code>VK_SEMAPHORE_TYPE_TIMELINE</code>, then the <code>pNext</code> chain <strong class="purple">must</strong>
 include a <a href="#VkTimelineSemaphoreSubmitInfo">VkTimelineSemaphoreSubmitInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pNext-03240"></a>
+<p><a id="VUID-VkSubmitInfo-pNext-03240" href="#VUID-VkSubmitInfo-pNext-03240"></a>
 If the <code>pNext</code> chain of this structure includes a
 <a href="#VkTimelineSemaphoreSubmitInfo">VkTimelineSemaphoreSubmitInfo</a> structure and any element of
 <code>pWaitSemaphores</code> was created with a <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of
@@ -3630,7 +3650,7 @@ If the <code>pNext</code> chain of this structure includes a
 member <strong class="purple">must</strong> equal <code>waitSemaphoreCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pNext-03241"></a>
+<p><a id="VUID-VkSubmitInfo-pNext-03241" href="#VUID-VkSubmitInfo-pNext-03241"></a>
 If the <code>pNext</code> chain of this structure includes a
 <a href="#VkTimelineSemaphoreSubmitInfo">VkTimelineSemaphoreSubmitInfo</a> structure and any element of
 <code>pSignalSemaphores</code> was created with a <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of
@@ -3639,7 +3659,7 @@ If the <code>pNext</code> chain of this structure includes a
 <code>signalSemaphoreCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-03242"></a>
+<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-03242" href="#VUID-VkSubmitInfo-pSignalSemaphores-03242"></a>
 For each element of <code>pSignalSemaphores</code> created with a
 <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE</code> the
 corresponding element of
@@ -3649,7 +3669,7 @@ value greater than the current value of the semaphore when the
 executed</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-03243"></a>
+<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-03243" href="#VUID-VkSubmitInfo-pWaitSemaphores-03243"></a>
 For each element of <code>pWaitSemaphores</code> created with a
 <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE</code> the
 corresponding element of
@@ -3659,7 +3679,7 @@ the value of any outstanding semaphore wait or signal operation on that
 semaphore by more than <a href="chap32.html#limits-maxTimelineSemaphoreValueDifference"><code>maxTimelineSemaphoreValueDifference</code></a>.</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-03244"></a>
+<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-03244" href="#VUID-VkSubmitInfo-pSignalSemaphores-03244"></a>
 For each element of <code>pSignalSemaphores</code> created with a
 <a href="chap6.html#VkSemaphoreType">VkSemaphoreType</a> of <code>VK_SEMAPHORE_TYPE_TIMELINE</code> the
 corresponding element of
@@ -3678,31 +3698,31 @@ semaphore by more than <a href="chap32.html#limits-maxTimelineSemaphoreValueDiff
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SUBMIT_INFO</code></p>
+<p><a id="VUID-VkSubmitInfo-sType-sType" href="#VUID-VkSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SUBMIT_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkD3D12FenceSubmitInfoKHR">VkD3D12FenceSubmitInfoKHR</a>, <a href="#VkDeviceGroupSubmitInfo">VkDeviceGroupSubmitInfo</a>, <a href="#VkPerformanceQuerySubmitInfoKHR">VkPerformanceQuerySubmitInfoKHR</a>, <a href="#VkProtectedSubmitInfo">VkProtectedSubmitInfo</a>, <a href="#VkTimelineSemaphoreSubmitInfo">VkTimelineSemaphoreSubmitInfo</a>, or <a href="#VkWin32KeyedMutexAcquireReleaseInfoKHR">VkWin32KeyedMutexAcquireReleaseInfoKHR</a></p>
+<p><a id="VUID-VkSubmitInfo-pNext-pNext" href="#VUID-VkSubmitInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkD3D12FenceSubmitInfoKHR">VkD3D12FenceSubmitInfoKHR</a>, <a href="#VkDeviceGroupSubmitInfo">VkDeviceGroupSubmitInfo</a>, <a href="#VkPerformanceQuerySubmitInfoKHR">VkPerformanceQuerySubmitInfoKHR</a>, <a href="#VkProtectedSubmitInfo">VkProtectedSubmitInfo</a>, <a href="#VkTimelineSemaphoreSubmitInfo">VkTimelineSemaphoreSubmitInfo</a>, or <a href="#VkWin32KeyedMutexAcquireReleaseInfoKHR">VkWin32KeyedMutexAcquireReleaseInfoKHR</a></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-sType-unique"></a> Each <code>sType</code> member in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+<p><a id="VUID-VkSubmitInfo-sType-unique" href="#VUID-VkSubmitInfo-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> valid <a href="chap6.html#VkSemaphore">VkSemaphore</a> handles</p>
+<p><a id="VUID-VkSubmitInfo-pWaitSemaphores-parameter" href="#VUID-VkSubmitInfo-pWaitSemaphores-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> valid <a href="chap6.html#VkSemaphore">VkSemaphore</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitDstStageMask</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> valid combinations of <a href="chap6.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
+<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-parameter" href="#VUID-VkSubmitInfo-pWaitDstStageMask-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitDstStageMask</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> valid combinations of <a href="chap6.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-requiredbitmask"></a> Each element of <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+<p><a id="VUID-VkSubmitInfo-pWaitDstStageMask-requiredbitmask" href="#VUID-VkSubmitInfo-pWaitDstStageMask-requiredbitmask"></a> Each element of <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pCommandBuffers-parameter"></a> If <code>commandBufferCount</code> is not <code>0</code>, <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
+<p><a id="VUID-VkSubmitInfo-pCommandBuffers-parameter" href="#VUID-VkSubmitInfo-pCommandBuffers-parameter"></a> If <code>commandBufferCount</code> is not <code>0</code>, <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-parameter"></a> If <code>signalSemaphoreCount</code> is not <code>0</code>, <code>pSignalSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreCount</code> valid <a href="chap6.html#VkSemaphore">VkSemaphore</a> handles</p>
+<p><a id="VUID-VkSubmitInfo-pSignalSemaphores-parameter" href="#VUID-VkSubmitInfo-pSignalSemaphores-parameter"></a> If <code>signalSemaphoreCount</code> is not <code>0</code>, <code>pSignalSemaphores</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreCount</code> valid <a href="chap6.html#VkSemaphore">VkSemaphore</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-VkSubmitInfo-commonparent"></a> Each of the elements of <code>pCommandBuffers</code>, the elements of <code>pSignalSemaphores</code>, and the elements of <code>pWaitSemaphores</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
+<p><a id="VUID-VkSubmitInfo-commonparent" href="#VUID-VkSubmitInfo-commonparent"></a> Each of the elements of <code>pCommandBuffers</code>, the elements of <code>pSignalSemaphores</code>, and the elements of <code>pWaitSemaphores</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -3783,13 +3803,13 @@ in the <code>pWaitSemaphoreValues</code> or <code>pSignalSemaphoreValues</code> 
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO</code></p>
+<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-sType-sType" href="#VUID-VkTimelineSemaphoreSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-pWaitSemaphoreValues-parameter"></a> If <code>waitSemaphoreValueCount</code> is not <code>0</code>, and <code>pWaitSemaphoreValues</code> is not <code>NULL</code>, <code>pWaitSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreValueCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-pWaitSemaphoreValues-parameter" href="#VUID-VkTimelineSemaphoreSubmitInfo-pWaitSemaphoreValues-parameter"></a> If <code>waitSemaphoreValueCount</code> is not <code>0</code>, and <code>pWaitSemaphoreValues</code> is not <code>NULL</code>, <code>pWaitSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreValueCount</code> <code>uint64_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-pSignalSemaphoreValues-parameter"></a> If <code>signalSemaphoreValueCount</code> is not <code>0</code>, and <code>pSignalSemaphoreValues</code> is not <code>NULL</code>, <code>pSignalSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreValueCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkTimelineSemaphoreSubmitInfo-pSignalSemaphoreValues-parameter" href="#VUID-VkTimelineSemaphoreSubmitInfo-pSignalSemaphoreValues-parameter"></a> If <code>signalSemaphoreValueCount</code> is not <code>0</code>, and <code>pSignalSemaphoreValues</code> is not <code>NULL</code>, <code>pSignalSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreValueCount</code> <code>uint64_t</code> values</p>
 </li>
 </ul>
 </div>
@@ -3886,14 +3906,14 @@ waiting for and signaling such semaphores.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079"></a>
+<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079" href="#VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079"></a>
 <code>waitSemaphoreValuesCount</code> <strong class="purple">must</strong> be the same value as
 <code>VkSubmitInfo</code>::<code>waitSemaphoreCount</code>, where <code>VkSubmitInfo</code>
 is in the <code>pNext</code> chain of this <code>VkD3D12FenceSubmitInfoKHR</code>
 structure.</p>
 </li>
 <li>
-<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080"></a>
+<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080" href="#VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080"></a>
 <code>signalSemaphoreValuesCount</code> <strong class="purple">must</strong> be the same value as
 <code>VkSubmitInfo</code>::<code>signalSemaphoreCount</code>, where <code>VkSubmitInfo</code>
 is in the <code>pNext</code> chain of this <code>VkD3D12FenceSubmitInfoKHR</code>
@@ -3909,13 +3929,13 @@ structure.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR</code></p>
+<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-sType-sType" href="#VUID-VkD3D12FenceSubmitInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-pWaitSemaphoreValues-parameter"></a> If <code>waitSemaphoreValuesCount</code> is not <code>0</code>, and <code>pWaitSemaphoreValues</code> is not <code>NULL</code>, <code>pWaitSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreValuesCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-pWaitSemaphoreValues-parameter" href="#VUID-VkD3D12FenceSubmitInfoKHR-pWaitSemaphoreValues-parameter"></a> If <code>waitSemaphoreValuesCount</code> is not <code>0</code>, and <code>pWaitSemaphoreValues</code> is not <code>NULL</code>, <code>pWaitSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreValuesCount</code> <code>uint64_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-pSignalSemaphoreValues-parameter"></a> If <code>signalSemaphoreValuesCount</code> is not <code>0</code>, and <code>pSignalSemaphoreValues</code> is not <code>NULL</code>, <code>pSignalSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreValuesCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkD3D12FenceSubmitInfoKHR-pSignalSemaphoreValues-parameter" href="#VUID-VkD3D12FenceSubmitInfoKHR-pSignalSemaphoreValues-parameter"></a> If <code>signalSemaphoreValuesCount</code> is not <code>0</code>, and <code>pSignalSemaphoreValues</code> is not <code>NULL</code>, <code>pSignalSemaphoreValues</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreValuesCount</code> <code>uint64_t</code> values</p>
 </li>
 </ul>
 </div>
@@ -4000,7 +4020,7 @@ entries in <code>pReleaseSyncs</code>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-00081"></a>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-00081" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-00081"></a>
 Each member of <code>pAcquireSyncs</code> and <code>pReleaseSyncs</code> <strong class="purple">must</strong> be a
 device memory object imported by setting
 <a href="chap10.html#VkImportMemoryWin32HandleInfoKHR">VkImportMemoryWin32HandleInfoKHR</a>::<code>handleType</code> to
@@ -4017,25 +4037,25 @@ device memory object imported by setting
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR</code></p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-sType-sType" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireSyncs</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> valid <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> handles</p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-parameter" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireSyncs-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireSyncs</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> valid <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireKeys-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireKeys</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireKeys-parameter" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireKeys-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireKeys</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> <code>uint64_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireTimeouts-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireTimeouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> <code>uint32_t</code> values</p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireTimeouts-parameter" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pAcquireTimeouts-parameter"></a> If <code>acquireCount</code> is not <code>0</code>, <code>pAcquireTimeouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>acquireCount</code> <code>uint32_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseSyncs-parameter"></a> If <code>releaseCount</code> is not <code>0</code>, <code>pReleaseSyncs</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>releaseCount</code> valid <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> handles</p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseSyncs-parameter" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseSyncs-parameter"></a> If <code>releaseCount</code> is not <code>0</code>, <code>pReleaseSyncs</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>releaseCount</code> valid <a href="chap10.html#VkDeviceMemory">VkDeviceMemory</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseKeys-parameter"></a> If <code>releaseCount</code> is not <code>0</code>, <code>pReleaseKeys</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>releaseCount</code> <code>uint64_t</code> values</p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseKeys-parameter" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-pReleaseKeys-parameter"></a> If <code>releaseCount</code> is not <code>0</code>, <code>pReleaseKeys</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>releaseCount</code> <code>uint64_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-commonparent"></a> Both of the elements of <code>pAcquireSyncs</code>, and the elements of <code>pReleaseSyncs</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
+<p><a id="VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-commonparent" href="#VUID-VkWin32KeyedMutexAcquireReleaseInfoKHR-commonparent"></a> Both of the elements of <code>pAcquireSyncs</code>, and the elements of <code>pReleaseSyncs</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -4077,22 +4097,22 @@ structure, the batch is unprotected.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01816"></a>
+<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01816" href="#VUID-VkProtectedSubmitInfo-protectedSubmit-01816"></a>
 If the protected memory feature is not enabled, <code>protectedSubmit</code>
 <strong class="purple">must</strong> not be <code>VK_TRUE</code>.</p>
 </li>
 <li>
-<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01817"></a>
+<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01817" href="#VUID-VkProtectedSubmitInfo-protectedSubmit-01817"></a>
 If <code>protectedSubmit</code> is <code>VK_TRUE</code>, then each element of the
 <code>pCommandBuffers</code> array <strong class="purple">must</strong> be a protected command buffer.</p>
 </li>
 <li>
-<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01818"></a>
+<p><a id="VUID-VkProtectedSubmitInfo-protectedSubmit-01818" href="#VUID-VkProtectedSubmitInfo-protectedSubmit-01818"></a>
 If <code>protectedSubmit</code> is <code>VK_FALSE</code>, then each element of the
 <code>pCommandBuffers</code> array <strong class="purple">must</strong> be an unprotected command buffer.</p>
 </li>
 <li>
-<p><a id="VUID-VkProtectedSubmitInfo-pNext-01819"></a>
+<p><a id="VUID-VkProtectedSubmitInfo-pNext-01819" href="#VUID-VkProtectedSubmitInfo-pNext-01819"></a>
 If the <code>VkSubmitInfo</code>::<code>pNext</code> chain does not include a
 <code>VkProtectedSubmitInfo</code> structure, then each element of the command
 buffer of the <code>pCommandBuffers</code> array <strong class="purple">must</strong> be an unprotected
@@ -4108,7 +4128,7 @@ command buffer.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkProtectedSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO</code></p>
+<p><a id="VUID-VkProtectedSubmitInfo-sType-sType" href="#VUID-VkProtectedSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO</code></p>
 </li>
 </ul>
 </div>
@@ -4201,27 +4221,27 @@ execute on device index zero.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-waitSemaphoreCount-00082"></a>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-waitSemaphoreCount-00082" href="#VUID-VkDeviceGroupSubmitInfo-waitSemaphoreCount-00082"></a>
 <code>waitSemaphoreCount</code> <strong class="purple">must</strong> equal
 <a href="#VkSubmitInfo">VkSubmitInfo</a>::<code>waitSemaphoreCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-commandBufferCount-00083"></a>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-commandBufferCount-00083" href="#VUID-VkDeviceGroupSubmitInfo-commandBufferCount-00083"></a>
 <code>commandBufferCount</code> <strong class="purple">must</strong> equal
 <a href="#VkSubmitInfo">VkSubmitInfo</a>::<code>commandBufferCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-signalSemaphoreCount-00084"></a>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-signalSemaphoreCount-00084" href="#VUID-VkDeviceGroupSubmitInfo-signalSemaphoreCount-00084"></a>
 <code>signalSemaphoreCount</code> <strong class="purple">must</strong> equal
 <a href="#VkSubmitInfo">VkSubmitInfo</a>::<code>signalSemaphoreCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-00085"></a>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-00085" href="#VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-00085"></a>
 All elements of <code>pWaitSemaphoreDeviceIndices</code> and
 <code>pSignalSemaphoreDeviceIndices</code> <strong class="purple">must</strong> be valid device indices</p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-00086"></a>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-00086" href="#VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-00086"></a>
 All elements of <code>pCommandBufferDeviceMasks</code> <strong class="purple">must</strong> be valid device
 masks</p>
 </li>
@@ -4235,16 +4255,16 @@ masks</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO</code></p>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-sType-sType" href="#VUID-VkDeviceGroupSubmitInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitSemaphoreDeviceIndices</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> <code>uint32_t</code> values</p>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-parameter" href="#VUID-VkDeviceGroupSubmitInfo-pWaitSemaphoreDeviceIndices-parameter"></a> If <code>waitSemaphoreCount</code> is not <code>0</code>, <code>pWaitSemaphoreDeviceIndices</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>waitSemaphoreCount</code> <code>uint32_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-parameter"></a> If <code>commandBufferCount</code> is not <code>0</code>, <code>pCommandBufferDeviceMasks</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> <code>uint32_t</code> values</p>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-parameter" href="#VUID-VkDeviceGroupSubmitInfo-pCommandBufferDeviceMasks-parameter"></a> If <code>commandBufferCount</code> is not <code>0</code>, <code>pCommandBufferDeviceMasks</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> <code>uint32_t</code> values</p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupSubmitInfo-pSignalSemaphoreDeviceIndices-parameter"></a> If <code>signalSemaphoreCount</code> is not <code>0</code>, <code>pSignalSemaphoreDeviceIndices</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreCount</code> <code>uint32_t</code> values</p>
+<p><a id="VUID-VkDeviceGroupSubmitInfo-pSignalSemaphoreDeviceIndices-parameter" href="#VUID-VkDeviceGroupSubmitInfo-pSignalSemaphoreDeviceIndices-parameter"></a> If <code>signalSemaphoreCount</code> is not <code>0</code>, <code>pSignalSemaphoreDeviceIndices</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>signalSemaphoreCount</code> <code>uint32_t</code> values</p>
 </li>
 </ul>
 </div>
@@ -4294,7 +4314,7 @@ structure, the batch defaults to use counter pass index 0.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkPerformanceQuerySubmitInfoKHR-counterPassIndex-03221"></a>
+<p><a id="VUID-VkPerformanceQuerySubmitInfoKHR-counterPassIndex-03221" href="#VUID-VkPerformanceQuerySubmitInfoKHR-counterPassIndex-03221"></a>
 <code>counterPassIndex</code> <strong class="purple">must</strong> be less than the number of counter passes
 required by any queries within the batch.
 The required number of counter passes for a performance query is
@@ -4311,7 +4331,7 @@ obtained by calling
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkPerformanceQuerySubmitInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR</code></p>
+<p><a id="VUID-VkPerformanceQuerySubmitInfoKHR-sType-sType" href="#VUID-VkPerformanceQuerySubmitInfoKHR-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -4321,7 +4341,7 @@ obtained by calling
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-submission-progress">5.6. Queue Forward Progress</h3>
+<h3 id="commandbuffers-submission-progress"><a class="anchor" href="#commandbuffers-submission-progress"></a>5.6. Queue Forward Progress</h3>
 <div class="paragraph">
 <p>When using binary semaphores, the application <strong class="purple">must</strong> ensure that command
 buffer submissions will be able to complete without any subsequent
@@ -4369,7 +4389,7 @@ this is defined outside of the scope of Vulkan.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-secondary">5.7. Secondary Command Buffer Execution</h3>
+<h3 id="commandbuffers-secondary"><a class="anchor" href="#commandbuffers-secondary"></a>5.7. Secondary Command Buffer Execution</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -4416,61 +4436,61 @@ command buffer becomes <a href="#commandbuffers-lifecycle">invalid</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00088"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00088" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00088"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been allocated with a
 <code>level</code> of <code>VK_COMMAND_BUFFER_LEVEL_SECONDARY</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00089"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00089" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00089"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be in the
 <a href="#commandbuffers-lifecycle">pending or executable state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00091"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00091" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00091"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not be
 in the <a href="#commandbuffers-lifecycle">pending state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00092"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00092" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00092"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not
 have already been recorded to <code>commandBuffer</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00093"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00093" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00093"></a>
 If any element of <code>pCommandBuffers</code> was not recorded with the
 <code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> flag, it <strong class="purple">must</strong> not
 appear more than once in <code>pCommandBuffers</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00094"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00094" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00094"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been allocated from a
 <code>VkCommandPool</code> that was created for the same queue family as the
 <code>VkCommandPool</code> from which <code>commandBuffer</code> was allocated</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-contents-00095"></a>
+<p><a id="VUID-vkCmdExecuteCommands-contents-00095" href="#VUID-vkCmdExecuteCommands-contents-00095"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, that render pass instance <strong class="purple">must</strong> have been begun with the
 <code>contents</code> parameter of <code>vkCmdBeginRenderPass</code> set to
 <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00096"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00096" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00096"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded
 with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00097"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00097" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00097"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded
 with <code>VkCommandBufferInheritanceInfo</code>::<code>subpass</code> set to the
 index of the subpass which the given command buffer will be executed in</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pInheritanceInfo-00098"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pInheritanceInfo-00098" href="#VUID-vkCmdExecuteCommands-pInheritanceInfo-00098"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, the render passes specified in the
 <code>pBeginInfo-&gt;pInheritanceInfo-&gt;renderPass</code> members of the
@@ -4479,7 +4499,7 @@ of <code>pCommandBuffers</code> <strong class="purple">must</strong> be
 <a href="chap7.html#renderpass-compatibility">compatible</a> with the current render pass</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00099"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00099" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00099"></a>
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, and any element of <code>pCommandBuffers</code> was recorded with
 <a href="#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a>::<code>framebuffer</code> not equal to
@@ -4487,19 +4507,19 @@ instance, and any element of <code>pCommandBuffers</code> was recorded with
 <code>VkFramebuffer</code> used in the current render pass instance</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00100"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00100" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00100"></a>
 If <code>vkCmdExecuteCommands</code> is not being called within a render pass
 instance, each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not have been
 recorded with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00101"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00101" href="#VUID-vkCmdExecuteCommands-commandBuffer-00101"></a>
 If the <a href="chap31.html#features-inheritedQueries">inherited queries</a> feature is not
 enabled, <code>commandBuffer</code> <strong class="purple">must</strong> not have any queries
 <a href="chap16.html#queries-operation-active">active</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00102"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00102" href="#VUID-vkCmdExecuteCommands-commandBuffer-00102"></a>
 If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
 <a href="chap16.html#queries-operation-active">active</a>, then each element of
 <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded with
@@ -4507,7 +4527,7 @@ If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
 <code>VK_TRUE</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00103"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00103" href="#VUID-vkCmdExecuteCommands-commandBuffer-00103"></a>
 If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
 <a href="chap16.html#queries-operation-active">active</a>, then each element of
 <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded with
@@ -4515,7 +4535,7 @@ If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_OCCLUSION</code> query
 set that are set for the query</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00104"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-00104" href="#VUID-vkCmdExecuteCommands-commandBuffer-00104"></a>
 If <code>commandBuffer</code> has a <code>VK_QUERY_TYPE_PIPELINE_STATISTICS</code>
 query <a href="chap16.html#queries-operation-active">active</a>, then each element of
 <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded with
@@ -4523,17 +4543,17 @@ query <a href="chap16.html#queries-operation-active">active</a>, then each eleme
 all bits set that are set in the <code>VkQueryPool</code> the query uses</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00105"></a>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00105" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-00105"></a>
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not begin any query types
 that are <a href="chap16.html#queries-operation-active">active</a> in <code>commandBuffer</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-01820"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-01820" href="#VUID-vkCmdExecuteCommands-commandBuffer-01820"></a>
 If <code>commandBuffer</code> is a protected command buffer, then each element
 of <code>pCommandBuffers</code> <strong class="purple">must</strong> be a protected command buffer</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-01821"></a>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-01821" href="#VUID-vkCmdExecuteCommands-commandBuffer-01821"></a>
 If <code>commandBuffer</code> is an unprotected command buffer, then each
 element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be an unprotected command buffer</p>
 </li>
@@ -4547,25 +4567,25 @@ element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be 
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-parameter" href="#VUID-vkCmdExecuteCommands-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-parameter"></a> <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-parameter" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-parameter"></a> <code>pCommandBuffers</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>commandBufferCount</code> valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handles</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-recording" href="#VUID-vkCmdExecuteCommands-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support transfer, graphics, or compute operations</p>
+<p><a id="VUID-vkCmdExecuteCommands-commandBuffer-cmdpool" href="#VUID-vkCmdExecuteCommands-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support transfer, graphics, or compute operations</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-bufferlevel"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
+<p><a id="VUID-vkCmdExecuteCommands-bufferlevel" href="#VUID-vkCmdExecuteCommands-bufferlevel"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commandBufferCount-arraylength"></a> <code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+<p><a id="VUID-vkCmdExecuteCommands-commandBufferCount-arraylength" href="#VUID-vkCmdExecuteCommands-commandBufferCount-arraylength"></a> <code>commandBufferCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteCommands-commonparent"></a> Both of <code>commandBuffer</code>, and the elements of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
+<p><a id="VUID-vkCmdExecuteCommands-commonparent" href="#VUID-vkCmdExecuteCommands-commonparent"></a> Both of <code>commandBuffer</code>, and the elements of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -4621,7 +4641,7 @@ Compute</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-devicemask">5.8. Command Buffer Device Mask</h3>
+<h3 id="commandbuffers-devicemask"><a class="anchor" href="#commandbuffers-devicemask"></a>5.8. Command Buffer Device Mask</h3>
 <div class="paragraph">
 <p>Each command buffer has a piece of state storing the current device mask of
 the command buffer.
@@ -4702,11 +4722,11 @@ when the command buffer begins recording.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00106"></a>
+<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00106" href="#VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00106"></a>
 <code>deviceMask</code> <strong class="purple">must</strong> be a valid device mask value</p>
 </li>
 <li>
-<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00107"></a>
+<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00107" href="#VUID-VkDeviceGroupCommandBufferBeginInfo-deviceMask-00107"></a>
 <code>deviceMask</code> <strong class="purple">must</strong> not be zero</p>
 </li>
 </ul>
@@ -4719,7 +4739,7 @@ when the command buffer begins recording.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO</code></p>
+<p><a id="VUID-VkDeviceGroupCommandBufferBeginInfo-sType-sType" href="#VUID-VkDeviceGroupCommandBufferBeginInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO</code></p>
 </li>
 </ul>
 </div>
@@ -4776,21 +4796,21 @@ beginning the corresponding render pass instance.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00108"></a>
+<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00108" href="#VUID-vkCmdSetDeviceMask-deviceMask-00108"></a>
 <code>deviceMask</code> <strong class="purple">must</strong> be a valid device mask value</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00109"></a>
+<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00109" href="#VUID-vkCmdSetDeviceMask-deviceMask-00109"></a>
 <code>deviceMask</code> <strong class="purple">must</strong> not be zero</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00110"></a>
+<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00110" href="#VUID-vkCmdSetDeviceMask-deviceMask-00110"></a>
 <code>deviceMask</code> <strong class="purple">must</strong> not include any set bits that were not in the
 <a href="#VkDeviceGroupCommandBufferBeginInfo">VkDeviceGroupCommandBufferBeginInfo</a>::<code>deviceMask</code> value when
 the command buffer began recording.</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00111"></a>
+<p><a id="VUID-vkCmdSetDeviceMask-deviceMask-00111" href="#VUID-vkCmdSetDeviceMask-deviceMask-00111"></a>
 If <code>vkCmdSetDeviceMask</code> is called inside a render pass instance,
 <code>deviceMask</code> <strong class="purple">must</strong> not include any set bits that were not in the
 <a href="chap7.html#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>::<code>deviceMask</code> value when the
@@ -4806,13 +4826,13 @@ render pass instance began recording.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-parameter" href="#VUID-vkCmdSetDeviceMask-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="#VkCommandBuffer">VkCommandBuffer</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
+<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-recording" href="#VUID-vkCmdSetDeviceMask-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics, compute, or transfer operations</p>
+<p><a id="VUID-vkCmdSetDeviceMask-commandBuffer-cmdpool" href="#VUID-vkCmdSetDeviceMask-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics, compute, or transfer operations</p>
 </li>
 </ul>
 </div>
@@ -4872,7 +4892,7 @@ Transfer</p></td>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.132<br>
+Version 1.1.133<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>
