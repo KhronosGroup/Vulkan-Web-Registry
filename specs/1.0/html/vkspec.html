@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.133 - A Specification</title>
+<title>Vulkan® 1.0.134 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -848,12 +848,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.133 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.134 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.133,</span>
-<span id="revdate">2020-02-16 02:01:01Z</span>
-<br><span id="revremark">from git branch: github-master commit: c31cf1823ace0812c2fcc4681714fbfe5f067b09</span>
+<span id="revnumber">version 1.0.134,</span>
+<span id="revdate">2020-03-06 14:30:05Z</span>
+<br><span id="revremark">from git branch: github-master commit: b27536168823d5e8b025fc5622eab7df54008589</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4169,7 +4169,7 @@ first parameter) that is <code>device</code> or a child of <code>device</code>.<
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">device</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">enabled device extension device-level commands</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enabled extension device-level commands</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">fp<sup>2</sup></p></td>
 </tr>
 <tr>
@@ -7026,8 +7026,8 @@ the created pool is returned.</p>
 <ul>
 <li>
 <p><a id="VUID-vkCreateCommandPool-queueFamilyIndex-01937" href="#VUID-vkCreateCommandPool-queueFamilyIndex-01937"></a>
-<code>pCreateInfo-&gt;queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue
-family available in the logical device <code>device</code>.</p>
+<code>pCreateInfo-&gt;queueFamilyIndex</code> <strong class="purple">must</strong> be the index of a queue family
+available in the logical device <code>device</code>.</p>
 </li>
 </ul>
 </div>
@@ -8677,7 +8677,7 @@ Operation</a>, there <strong class="purple">must</strong> exist a previously sub
 <a href="#synchronization-queue-transfers-release">Queue Family Transfer Release
 Operation</a> on a queue in the queue family identified by the acquire
 operation, with parameters matching the acquire operation as defined in
-the definition of such <a href="#synchronization-queue-transfers-acquire">acquire operations</a>, and which happens before the acquire operation</p>
+the definition of such <a href="#synchronization-queue-transfers-acquire">acquire operations</a>, and which happens-before the acquire operation</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit-pSubmits-02808" href="#VUID-vkQueueSubmit-pSubmits-02808"></a>
@@ -11767,10 +11767,10 @@ between the host and a queue.
 Events <strong class="purple">must</strong> not be used to insert a dependency between commands submitted
 to different queues.
 Events have two states - signaled and unsignaled.
-An application <strong class="purple">can</strong> signal an event, or unsignal it, on either the host or
-the device.
-A device <strong class="purple">can</strong> wait for an event to become signaled before executing further
-operations.
+An application <strong class="purple">can</strong> signal or unsignal an event either on the host or on the
+device.
+A device <strong class="purple">can</strong> be made to wait for an event to become signaled before
+executing further operations.
 No command exists to wait for an event to become signaled on the host, but
 the current state of an event <strong class="purple">can</strong> be queried.</p>
 </div>
@@ -14187,12 +14187,13 @@ These masks <strong class="purple">should</strong> be set to 0.</p>
 <p>If the transfer is via an image memory barrier, and an
 <a href="#synchronization-image-layout-transitions">image layout transition</a> is
 desired, then the values of <code>oldLayout</code> and <code>newLayout</code> in the
-release memory barrier <strong class="purple">must</strong> be equal to values of <code>oldLayout</code> and
-<code>newLayout</code> in the acquire memory barrier.
+<em>release operation</em>'s memory barrier <strong class="purple">must</strong> be equal to values of
+<code>oldLayout</code> and <code>newLayout</code> in the <em>acquire operation</em>'s memory
+barrier.
 Although the image layout transition is submitted twice, it will only be
 executed once.
-A layout transition specified in this way happens-after the release
-operation and happens-before the acquire operation.</p>
+A layout transition specified in this way happens-after the <em>release
+operation</em> and happens-before the <em>acquire operation</em>.</p>
 </div>
 <div class="paragraph">
 <p>If the values of <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> are
@@ -15928,6 +15929,8 @@ If <code>srcSubpass</code> equals <code>dstSubpass</code>, and <code>srcStageMas
 <p>If there is no subpass dependency from <code>VK_SUBPASS_EXTERNAL</code> to the
 first subpass that uses an attachment, then an implicit subpass dependency
 exists from <code>VK_SUBPASS_EXTERNAL</code> to the first subpass it is used in.
+The implicit subpass dependency only exists if there exists an automatic
+layout transition away from <code>initialLayout</code>.
 The subpass dependency operates as if defined with the following parameters:</p>
 </div>
 <div class="listingblock">
@@ -15952,6 +15955,8 @@ The subpass dependency operates as if defined with the following parameters:</p>
 an attachment to <code>VK_SUBPASS_EXTERNAL</code>, then an implicit subpass
 dependency exists from the last subpass it is used in to
 <code>VK_SUBPASS_EXTERNAL</code>.
+The implicit subpass dependency only exists if there exists an automatic
+layout transition into <code>finalLayout</code>.
 The subpass dependency operates as if defined with the following parameters:</p>
 </div>
 <div class="listingblock">
@@ -16291,8 +16296,8 @@ the resulting framebuffer object is returned.</p>
 <p><a id="VUID-vkCreateFramebuffer-pCreateInfo-02777" href="#VUID-vkCreateFramebuffer-pCreateInfo-02777"></a>
 If <code>pCreateInfo-&gt;flags</code> does not include
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>attachmentCount</code> is
-not <code>0</code>, each element of <code>pCreateInfo-&gt;pAttachments</code> <strong class="purple">must</strong> have
-been created on <code>device</code></p>
+not <code>0</code>, each element of <code>pCreateInfo-&gt;pAttachments</code> <strong class="purple">must</strong> have been
+created on <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -16992,7 +16997,8 @@ restricted to the pixels whose x and y coordinates fall within the render
 area on all attachments.
 The render area extends to all layers of <code>framebuffer</code>.
 The application <strong class="purple">must</strong> ensure (using scissor if necessary) that all rendering
-is contained within the render area.</p>
+is contained within the render area.
+The render area <strong class="purple">must</strong> be contained within the framebuffer dimensions.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -39325,7 +39331,7 @@ sharedexp_{max} &amp; = \frac{(2^N-1)}{2^N} \times 2^{(E_{max}-B)}
 <div class="paragraph">
 <p><span class="eq">NaN</span>, if supported, is handled as in <a href="#ieee-754">IEEE 754-2008</a>
 <code>minNum()</code> and <code>maxNum()</code>.
-That is the result is a <span class="eq">NaN</span> is mapped to zero.</p>
+This results in any <span class="eq">NaN</span> being mapped to zero.</p>
 </div>
 </td>
 </tr>
@@ -41910,13 +41916,6 @@ equal to the number of queries in <code>queryPool</code></p>
 <li>
 <p><a id="VUID-vkCmdResetQueryPool-None-02841" href="#VUID-vkCmdResetQueryPool-None-02841"></a>
 All queries used by the command <strong class="purple">must</strong> not be active</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdResetQueryPool-firstQuery-02862" href="#VUID-vkCmdResetQueryPool-firstQuery-02862"></a>
-This command <strong class="purple">must</strong> not be recorded in a command buffer that, either
-directly or through secondary command buffers, also contains, begin
-commands for a query from the set of queries <span class="eq">[<code>firstQuery</code>,
-<code>firstQuery</code> +  <code>queryCount</code> - 1]</span></p>
 </li>
 </ul>
 </div>
@@ -44881,6 +44880,14 @@ buffers <strong class="purple">must</strong> have been created with the
 <div class="paragraph">
 <p>All copy commands are treated as &#8220;transfer&#8221; operations for the purposes of
 synchronization barriers.</p>
+</div>
+<div class="paragraph">
+<p>All copy commands that have a source format with an X component in its
+format description read undefined values from those bits.</p>
+</div>
+<div class="paragraph">
+<p>All copy commands that have a destination format with an X component in its
+format description write undefined values to those bits.</p>
 </div>
 </div>
 <div class="sect2">
@@ -57538,9 +57545,9 @@ attribAddress = bufferBindingAddress + vertexOffset + attribDesc.offset;</code><
 <div id="fxvertex-input-extraction" class="paragraph">
 <p>For each attribute, raw data is extracted starting at <code>attribAddress</code> and is
 converted from the <code>VkVertexInputAttributeDescription</code>&#8217;s <code>format</code> to
-either to floating-point, unsigned integer, or signed integer based on the
-base type of the format; the base type of the format <strong class="purple">must</strong> match the base
-type of the input variable in the shader.
+either floating-point, unsigned integer, or signed integer based on the base
+type of the format; the base type of the format <strong class="purple">must</strong> match the base type of
+the input variable in the shader.
 If <code>format</code> is a packed format, <code>attribAddress</code> <strong class="purple">must</strong> be a multiple of
 the size in bytes of the whole attribute data type as described in
 <a href="#formats-packed">Packed Formats</a>.
@@ -71224,7 +71231,7 @@ obsoleted or removed.</p>
 <p>The specification&#8217;s minor version is strictly increasing for a given major
 version of the specification; any change to a specification as described
 above will result in the minor version being increased by 1.
-Changes that can be accomodated in a patch version will not increase the
+Changes that can be accommodated in a patch version will not increase the
 minor version.</p>
 </div>
 <div class="paragraph">
@@ -71249,7 +71256,7 @@ functionality.</p>
 <p>The specification&#8217;s major version is monotonically increasing; any change to
 the specification as described above will result in the major version being
 increased.
-Changes that can be accomodated in a patch or minor version will not
+Changes that can be accommodated in a patch or minor version will not
 increase the major version.</p>
 </div>
 <div class="paragraph">
@@ -71431,7 +71438,7 @@ specification instead identifies the identical commands and types as
 Each alias is mentioned together with the definition it aliases, with the
 older aliases marked as &#8220;equivalents&#8221;.
 Each alias of the same command has identical behavior, and each alias of the
-same type has identical meaning - they can be used interchangably in an
+same type has identical meaning - they can be used interchangeably in an
 application with no compatibility issues.</p>
 </div>
 <div class="admonitionblock note">
@@ -84314,7 +84321,31 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">133</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">134</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_HEADER_VERSION_COMPLETE</code> is the complete version number of the
+<code>vulkan_core.h</code> header, comprising the major, minor, and patch versions.
+The major/minor values are kept synchronized with the complete version of
+the released Specification.
+This value is intended for use by automated tools to identify exactly which
+version of the header was used during their generation.</p>
+</div>
+<div class="paragraph">
+<p>Applications should not use this value as their
+<a href="#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code>.
+Instead applications should explicitly select a specific fixed major/minor
+API version using, for example, one of the <code>VK_API_VERSION_</code>*_* values.</p>
+</div>
+<div id="VK_HEADER_VERSION_COMPLETE" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Complete version of this file</span>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION_COMPLETE VK_MAKE_VERSION(<span class="integer">1</span>, <span class="integer">2</span>, VK_HEADER_VERSION)</code></pre>
 </div>
 </div>
 </div>
@@ -85427,7 +85458,7 @@ command.</p>
 <p>An opaque integer or pointer value used to refer to a Vulkan object.
 Each object type has a unique handle type.</p>
 </dd>
-<dt class="hdlist1">Happen-after</dt>
+<dt class="hdlist1">Happen-after, happens-after</dt>
 <dd>
 <p>A transitive, irreflexive and antisymmetric ordering relation between
 operations.
@@ -85435,7 +85466,7 @@ An execution dependency with a source of <strong>A</strong> and a destination of
 enforces that <strong>B</strong> happens-after <strong>A</strong>.
 The inverse relation of happens-before.</p>
 </dd>
-<dt class="hdlist1">Happen-before</dt>
+<dt class="hdlist1">Happen-before, happens-before</dt>
 <dd>
 <p>A transitive, irreflexive and antisymmetric ordering relation between
 operations.
@@ -87050,7 +87081,7 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.133<br>
+Version 1.0.134<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

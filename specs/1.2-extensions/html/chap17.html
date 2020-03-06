@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.133 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.134 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -851,12 +851,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.133 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.134 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.133,</span>
-<span id="revdate">2020-02-16 01:33:08Z</span>
-<br><span id="revremark">from git branch: github-master commit: c31cf1823ace0812c2fcc4681714fbfe5f067b09</span>
+<span id="revnumber">version 1.2.134,</span>
+<span id="revdate">2020-03-06 14:02:32Z</span>
+<br><span id="revremark">from git branch: github-master commit: b27536168823d5e8b025fc5622eab7df54008589</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1131,7 +1131,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap25.html#vertexpostproc-clipping-shader-outputs">25.5. Clipping Shader Outputs</a></li>
 <li><a href="chap25.html#vertexpostproc-viewportwscaling">25.6. Controlling Viewport W Scaling</a></li>
 <li><a href="chap25.html#vertexpostproc-coord-transform">25.7. Coordinate Transformations</a></li>
-<li><a href="chap25.html#vertexpostproc-viewport">25.8. Controlling the Viewport</a></li>
+<li><a href="chap25.html#vertexpostproc-renderpass-transform">25.8. Render Pass Transform</a></li>
+<li><a href="chap25.html#vertexpostproc-viewport">25.9. Controlling the Viewport</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#primsrast">26. Rasterization</a>
@@ -1570,7 +1571,7 @@ If <code>queryType</code> is <code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, t
 <p><a id="VUID-VkQueryPoolCreateInfo-sType-sType" href="#VUID-VkQueryPoolCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkQueryPoolCreateInfo-pNext-pNext" href="#VUID-VkQueryPoolCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="#VkQueryPoolPerformanceCreateInfoKHR">VkQueryPoolPerformanceCreateInfoKHR</a></p>
+<p><a id="VUID-VkQueryPoolCreateInfo-pNext-pNext" href="#VUID-VkQueryPoolCreateInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkQueryPoolCreateInfoINTEL">VkQueryPoolCreateInfoINTEL</a> or <a href="#VkQueryPoolPerformanceCreateInfoKHR">VkQueryPoolPerformanceCreateInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkQueryPoolCreateInfo-sType-unique" href="#VUID-VkQueryPoolCreateInfo-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
@@ -2018,10 +2019,12 @@ All queries used by the command <strong class="purple">must</strong> not be acti
 </li>
 <li>
 <p><a id="VUID-vkCmdResetQueryPool-firstQuery-02862" href="#VUID-vkCmdResetQueryPool-firstQuery-02862"></a>
-This command <strong class="purple">must</strong> not be recorded in a command buffer that, either
-directly or through secondary command buffers, also contains, begin
-commands for a query from the set of queries <span class="eq">[<code>firstQuery</code>,
-<code>firstQuery</code> +  <code>queryCount</code> - 1]</span></p>
+If <code>queryPool</code> was created with
+<code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, this command <strong class="purple">must</strong> not be
+recorded in a command buffer that, either directly or through secondary
+command buffers, also contains begin commands for a query from the set
+of queries <span class="eq">[<code>firstQuery</code>, <code>firstQuery</code> + 
+<code>queryCount</code> - 1]</span></p>
 </li>
 </ul>
 </div>
@@ -2414,9 +2417,11 @@ feature <strong class="purple">must</strong> be enabled</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginQuery-None-02863" href="#VUID-vkCmdBeginQuery-None-02863"></a>
-This command <strong class="purple">must</strong> not be recorded in a command buffer that, either
-directly or through secondary command buffers, also contains a
-<code>vkCmdResetQueryPool</code> command affecting the same query.</p>
+If <code>queryPool</code> was created with a <code>queryType</code> of
+<code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, this command <strong class="purple">must</strong> not be
+recorded in a command buffer that, either directly or through secondary
+command buffers, also contains a <code>vkCmdResetQueryPool</code> command
+affecting the same query.</p>
 </li>
 </ul>
 </div>
@@ -2667,9 +2672,11 @@ feature <strong class="purple">must</strong> be enabled</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginQueryIndexedEXT-None-02863" href="#VUID-vkCmdBeginQueryIndexedEXT-None-02863"></a>
-This command <strong class="purple">must</strong> not be recorded in a command buffer that, either
-directly or through secondary command buffers, also contains a
-<code>vkCmdResetQueryPool</code> command affecting the same query.</p>
+If <code>queryPool</code> was created with a <code>queryType</code> of
+<code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, this command <strong class="purple">must</strong> not be
+recorded in a command buffer that, either directly or through secondary
+command buffers, also contains a <code>vkCmdResetQueryPool</code> command
+affecting the same query.</p>
 </li>
 </ul>
 </div>
@@ -5169,9 +5176,6 @@ should be captured.</p>
 <p><a id="VUID-VkQueryPoolCreateInfoINTEL-sType-sType" href="#VUID-VkQueryPoolCreateInfoINTEL-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO_INTEL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkQueryPoolCreateInfoINTEL-pNext-pNext" href="#VUID-VkQueryPoolCreateInfoINTEL-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
 <p><a id="VUID-VkQueryPoolCreateInfoINTEL-performanceCountersSampling-parameter" href="#VUID-VkQueryPoolCreateInfoINTEL-performanceCountersSampling-parameter"></a> <code>performanceCountersSampling</code> <strong class="purple">must</strong> be a valid <a href="#VkQueryPoolSamplingModeINTEL">VkQueryPoolSamplingModeINTEL</a> value</p>
 </li>
 </ul>
@@ -6126,7 +6130,7 @@ submitted while the configuration was set are in
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.133<br>
+Version 1.2.134<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

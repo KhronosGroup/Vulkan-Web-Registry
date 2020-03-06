@@ -206,4 +206,6 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_device_generated_commands"> VK_NVX_device_generated_commands </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_image_view_handle"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_multiview_per_view_attributes"> VK_NVX_multiview_per_view_attributes </a> </li>
+    <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_QCOM_render_pass_transform"> VK_QCOM_render_pass_transform </a> </li>
 </ul>

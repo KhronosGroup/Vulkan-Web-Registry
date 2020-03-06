@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.133 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.134 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -851,12 +851,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.133 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.134 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.133,</span>
-<span id="revdate">2020-02-16 01:53:36Z</span>
-<br><span id="revremark">from git branch: github-master commit: c31cf1823ace0812c2fcc4681714fbfe5f067b09</span>
+<span id="revnumber">version 1.0.134,</span>
+<span id="revdate">2020-03-06 14:22:41Z</span>
+<br><span id="revremark">from git branch: github-master commit: b27536168823d5e8b025fc5622eab7df54008589</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1129,7 +1129,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#vertexpostproc-clipping-shader-outputs">25.5. Clipping Shader Outputs</a></li>
 <li><a href="#vertexpostproc-viewportwscaling">25.6. Controlling Viewport W Scaling</a></li>
 <li><a href="#vertexpostproc-coord-transform">25.7. Coordinate Transformations</a></li>
-<li><a href="#vertexpostproc-viewport">25.8. Controlling the Viewport</a></li>
+<li><a href="#vertexpostproc-renderpass-transform">25.8. Render Pass Transform</a></li>
+<li><a href="#vertexpostproc-viewport">25.9. Controlling the Viewport</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#primsrast">26. Rasterization</a>
@@ -2907,7 +2908,134 @@ w_c
 </div>
 </div>
 <div class="sect2">
-<h3 id="vertexpostproc-viewport"><a class="anchor" href="#vertexpostproc-viewport"></a>25.8. Controlling the Viewport</h3>
+<h3 id="vertexpostproc-renderpass-transform"><a class="anchor" href="#vertexpostproc-renderpass-transform"></a>25.8. Render Pass Transform</h3>
+<div class="paragraph">
+<p>A <em>render pass transform</em> <strong class="purple">can</strong> be can be enabled for render pass instances.
+The clip coordinates <span class="eq">(x<sub>c</sub>, y<sub>c</sub>)</span> that result from vertex shader
+execution are transformed by a rotation of of 0, 90, 180, or 270 degrees in
+the XY plane, centered at the origin.</p>
+</div>
+<div class="paragraph">
+<p>When <em>Render pass transform</em> is enabled, the transform applies to all
+primitives for all subpasses of the render pass.
+The transformed vertex in in clip coordinates has a position given by</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left(
+        \begin{array}{c}
+                x_{c_{trans}} \\
+                y_{c_{trans}} \\
+                z_{c_{trans}}
+        \end{array}
+\right) =
+\left(
+        \begin{array}{c}
+                x_{c} \cos \theta - y_{c} \sin \theta \\
+                x_{c} \sin \theta + y_{c} \cos \theta \\
+                z_c
+        \end{array}
+\right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>where</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><em><span class="eq">θ</span></em> is 0 degrees for VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</p>
+</li>
+<li>
+<p><em><span class="eq">θ</span></em> is 90 degrees for VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR</p>
+</li>
+<li>
+<p><em><span class="eq">θ</span></em> is 180 degrees for
+VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR</p>
+</li>
+<li>
+<p><em><span class="eq">θ</span></em> is 270 degrees for
+VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The transformed vertex’s normalized device coordinates are</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left(
+        \begin{array}{c}
+                x_d \\
+                y_d \\
+                z_d
+        \end{array}
+\right) =
+\left(
+        \begin{array}{c}
+                \frac{x_{c_{trans}}}{w_c} \\
+                \frac{y_{c_{trans}}}{w_c} \\
+                \frac{z_{c_{trans}}}{w_c}
+        \end{array}
+\right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>When render pass transform is enabled for a renderpass instance, the
+following additional features are enabled:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Each <a href="#VkViewport">VkViewport</a> specified by either
+<a href="#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a>::<code>pViewports</code> or
+<a href="#vkCmdSetViewport">vkCmdSetViewport</a> will have its width/height <span class="eq">(p<sub>x</sub>, p<sub>y</sub>)</span> and
+its center <span class="eq">(o<sub>x</sub>, o<sub>y</sub>)</span> similarly transformed by the
+implementation.</p>
+</li>
+<li>
+<p>Each scissor specified by
+<a href="#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a>::<code>pScissors</code> or
+<a href="chap27.html#vkCmdSetScissor">vkCmdSetScissor</a> will have it’s <span class="eq">(offset<sub>x</sub>, offset<sub>y</sub>)</span> and
+<span class="eq">(extent<sub>x</sub>, extent<sub>y</sub>)</span> similarly transformed by the
+implementation.</p>
+</li>
+<li>
+<p>The <code>renderArea</code> specified in
+<a href="chap5.html#VkCommandBufferInheritanceRenderPassTransformInfoQCOM">VkCommandBufferInheritanceRenderPassTransformInfoQCOM</a> and
+sink:VkRenderPassBeginInfo will be similarly transformed by the
+implementation.</p>
+</li>
+<li>
+<p>The <span class="eq">(x, y)</span> components of shader variables with built-in
+decorations <code>FragCoord</code>, <code>SamplePosition</code>, or <code>PointCoord</code> will
+be similarly transformed by the implementation.</p>
+</li>
+<li>
+<p>The <span class="eq">(x,y)</span> components of the <code>offset</code> operand of the
+<code>InterpolateAtOffset</code> extended instruction will be similarly
+transformed by the implementation.</p>
+</li>
+<li>
+<p>The values returned by SPIR-V <a href="#texture-derivatives">derivative
+instructions</a> <code>OpDPdx</code>, <code>OpDPdy</code>, <code>OpDPdxCourse</code>,
+<code>OpDPdyCourse</code>, <code>OpDPdxFine</code>, <code>OpDPdyFine</code> will be similarly
+transformed by the implementation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The net result of the above, is that applications <strong class="purple">can</strong> act as if the
+rendering to a framebuffer oriented with the
+<a href="chap32.html#VkSurfaceCapabilitiesKHR">VkSurfaceCapabilitiesKHR</a>::<code>currentTransform</code>, as if the
+presentation engine will performing the transformation of the swapchain
+image after rendering and prior to presentation to the user.
+In fact, the transformation of the various items cited above are being
+handled by the implementation as the rendering takes place.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="vertexpostproc-viewport"><a class="anchor" href="#vertexpostproc-viewport"></a>25.9. Controlling the Viewport</h3>
 <div class="paragraph">
 <p>The viewport transformation is determined by the selected viewport’s width
 and height in pixels, <span class="eq">p<sub>x</sub></span> and <span class="eq">p<sub>y</sub></span>, respectively, and its
@@ -3340,6 +3468,12 @@ values as</p>
 </dl>
 </div>
 <div class="paragraph">
+<p>If a render pass transform is enabled, the values <span class="eq">(p<sub>x</sub>,p<sub>y</sub>)</span> and
+<span class="eq">(o<sub>x</sub>, o<sub>y</sub>)</span> defining the viewport are transformed as described in
+<a href="#vertexpostproc-renderpass-transform">render pass transform</a> before
+participating in the viewport transform.</p>
+</div>
+<div class="paragraph">
 <p>The application <strong class="purple">can</strong> specify a negative term for <code>height</code>, which has the
 effect of negating the y coordinate in clip space before performing the
 transform.
@@ -3426,7 +3560,7 @@ Unless <code><a href="chap44.html#VK_EXT_depth_range_unrestricted">VK_EXT_depth_
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.133<br>
+Version 1.0.134<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.133 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.134 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -851,12 +851,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.133 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.134 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.133,</span>
-<span id="revdate">2020-02-16 01:33:08Z</span>
-<br><span id="revremark">from git branch: github-master commit: c31cf1823ace0812c2fcc4681714fbfe5f067b09</span>
+<span id="revnumber">version 1.2.134,</span>
+<span id="revdate">2020-03-06 14:02:32Z</span>
+<br><span id="revremark">from git branch: github-master commit: b27536168823d5e8b025fc5622eab7df54008589</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1131,7 +1131,8 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="chap25.html#vertexpostproc-clipping-shader-outputs">25.5. Clipping Shader Outputs</a></li>
 <li><a href="chap25.html#vertexpostproc-viewportwscaling">25.6. Controlling Viewport W Scaling</a></li>
 <li><a href="chap25.html#vertexpostproc-coord-transform">25.7. Coordinate Transformations</a></li>
-<li><a href="chap25.html#vertexpostproc-viewport">25.8. Controlling the Viewport</a></li>
+<li><a href="chap25.html#vertexpostproc-renderpass-transform">25.8. Render Pass Transform</a></li>
+<li><a href="chap25.html#vertexpostproc-viewport">25.9. Controlling the Viewport</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#primsrast">26. Rasterization</a>
@@ -1599,7 +1600,7 @@ the resulting render pass object is returned.</p>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
 </li>
 <li>
-<p><code>flags</code> is reserved for future use.</p>
+<p><code>flags</code> is a bitmask of <a href="#VkRenderPassCreateFlagBits">VkRenderPassCreateFlagBits</a></p>
 </li>
 <li>
 <p><code>attachmentCount</code> is the number of attachments used by this render
@@ -1821,7 +1822,7 @@ be less than <code>subpassCount</code></p>
 <p><a id="VUID-VkRenderPassCreateInfo-sType-unique" href="#VUID-VkRenderPassCreateInfo-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassCreateInfo-flags-zerobitmask" href="#VUID-VkRenderPassCreateInfo-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+<p><a id="VUID-VkRenderPassCreateInfo-flags-parameter" href="#VUID-VkRenderPassCreateInfo-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkRenderPassCreateFlagBits">VkRenderPassCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo-pAttachments-parameter" href="#VUID-VkRenderPassCreateInfo-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <a href="#VkAttachmentDescription">VkAttachmentDescription</a> structures</p>
@@ -1843,14 +1844,26 @@ be less than <code>subpassCount</code></p>
 </div>
 <div class="openblock">
 <div class="content">
-<div id="VkRenderPassCreateFlags" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkRenderPassCreateFlags;</code></pre>
-</div>
-</div>
 <div class="paragraph">
-<p><code>VkRenderPassCreateFlags</code> is a bitmask type for setting a mask, but is
-currently reserved for future use.</p>
+<p>Bits which <strong class="purple">can</strong> be set in <a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a>::<code>flags</code>
+describing additional properties of the render pass are:</p>
+</div>
+<div id="VkRenderPassCreateFlagBits" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkRenderPassCreateFlagBits {
+    VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM = <span class="hex">0x00000002</span>,
+    VK_RENDER_PASS_CREATE_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
+} VkRenderPassCreateFlagBits;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM</code> specifies that the
+created renderpass is compatible with
+<a href="chap25.html#vertexpostproc-renderpass-transform">render pass transform</a>.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -2924,7 +2937,9 @@ If the <code>attachment</code> member of any element of <code>pInputAttachments<
 <code>VK_ATTACHMENT_UNUSED</code>, the application <strong class="purple">must</strong> not read from the
 corresponding input attachment index.
 Fragment shaders <strong class="purple">can</strong> use subpass input variables to access the contents of
-an input attachment at the fragment’s (x, y, layer) framebuffer coordinates.</p>
+an input attachment at the fragment’s (x, y, layer) framebuffer coordinates.
+Input attachments <strong class="purple">must</strong> not be used by any subpasses within a renderpass
+that enables <a href="chap25.html#vertexpostproc-renderpass-transform">render pass transform</a>.</p>
 </div>
 <div class="paragraph">
 <p>Each element of the <code>pColorAttachments</code> array corresponds to an output
@@ -3125,6 +3140,12 @@ member, then each use <strong class="purple">must</strong> use the same <code>la
 If <code>flags</code> includes
 <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX</code>, it <strong class="purple">must</strong>
 also include <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-pInputAttachments-02868" href="#VUID-VkSubpassDescription-pInputAttachments-02868"></a>
+If the render pass is created with
+<code>VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM</code> each of the elements of
+<code>pInputAttachments</code> <strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code>.</p>
 </li>
 </ul>
 </div>
@@ -3617,6 +3638,8 @@ included (either directly or via some intermediate subpasses) between them.</p>
 <p>If there is no subpass dependency from <code>VK_SUBPASS_EXTERNAL</code> to the
 first subpass that uses an attachment, then an implicit subpass dependency
 exists from <code>VK_SUBPASS_EXTERNAL</code> to the first subpass it is used in.
+The implicit subpass dependency only exists if there exists an automatic
+layout transition away from <code>initialLayout</code>.
 The subpass dependency operates as if defined with the following parameters:</p>
 </div>
 <div class="listingblock">
@@ -3641,6 +3664,8 @@ The subpass dependency operates as if defined with the following parameters:</p>
 an attachment to <code>VK_SUBPASS_EXTERNAL</code>, then an implicit subpass
 dependency exists from the last subpass it is used in to
 <code>VK_SUBPASS_EXTERNAL</code>.
+The implicit subpass dependency only exists if there exists an automatic
+layout transition into <code>finalLayout</code>.
 The subpass dependency operates as if defined with the following parameters:</p>
 </div>
 <div class="listingblock">
@@ -4176,7 +4201,7 @@ be less than <code>subpassCount</code></p>
 <p><a id="VUID-VkRenderPassCreateInfo2-sType-unique" href="#VUID-VkRenderPassCreateInfo2-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassCreateInfo2-flags-zerobitmask" href="#VUID-VkRenderPassCreateInfo2-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+<p><a id="VUID-VkRenderPassCreateInfo2-flags-parameter" href="#VUID-VkRenderPassCreateInfo2-flags-parameter"></a> <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkRenderPassCreateFlagBits">VkRenderPassCreateFlagBits</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassCreateInfo2-pAttachments-parameter" href="#VUID-VkRenderPassCreateInfo2-pAttachments-parameter"></a> If <code>attachmentCount</code> is not <code>0</code>, <code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid <a href="#VkAttachmentDescription2">VkAttachmentDescription2</a> structures</p>
@@ -5726,8 +5751,8 @@ the resulting framebuffer object is returned.</p>
 <p><a id="VUID-vkCreateFramebuffer-pCreateInfo-02777" href="#VUID-vkCreateFramebuffer-pCreateInfo-02777"></a>
 If <code>pCreateInfo-&gt;flags</code> does not include
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>attachmentCount</code> is
-not <code>0</code>, each element of <code>pCreateInfo-&gt;pAttachments</code> <strong class="purple">must</strong> have
-been created on <code>device</code></p>
+not <code>0</code>, each element of <code>pCreateInfo-&gt;pAttachments</code> <strong class="purple">must</strong> have been
+created on <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -7096,7 +7121,18 @@ restricted to the pixels whose x and y coordinates fall within the render
 area on all attachments.
 The render area extends to all layers of <code>framebuffer</code>.
 The application <strong class="purple">must</strong> ensure (using scissor if necessary) that all rendering
-is contained within the render area.</p>
+is contained within the render area.
+The render area, after any transform specified by
+<a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a>::<code>transform</code> is applied, <strong class="purple">must</strong>
+be contained within the framebuffer dimensions.</p>
+</div>
+<div class="paragraph">
+<p>If <a href="chap25.html#vertexpostproc-renderpass-transform">render pass transform</a> is
+enabled, then <code>renderArea</code> must equal the framebuffer pre-transformed
+dimensions.
+After <code>renderArea</code> has been transformed by
+<a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a>::<code>transform</code>, the resulting
+render area <strong class="purple">must</strong> be equal to the framebuffer dimensions.</p>
 </div>
 <div class="paragraph">
 <p>When multiview is enabled, the resolve operation at the end of a subpass
@@ -7335,6 +7371,19 @@ of an image created with a value of
 <a href="chap11.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>samples</code> equal to the corresponding value
 of <a href="#VkAttachmentDescription">VkAttachmentDescription</a>::<code>samples</code> in <code>renderPass</code></p>
 </li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02869" href="#VUID-VkRenderPassBeginInfo-pNext-02869"></a>
+If the <code>pNext</code> chain includes
+<a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a>, <code>renderArea</code>::<code>offset</code>
+<strong class="purple">must</strong> equal (0,0).</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-02870" href="#VUID-VkRenderPassBeginInfo-pNext-02870"></a>
+If the <code>pNext</code> chain includes
+<a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a>, <code>renderArea</code>::<code>extent</code>
+transformed by <a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a>::<code>transform</code>
+<strong class="purple">must</strong> equal the <code>framebuffer</code> dimensions.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -7348,7 +7397,7 @@ of <a href="#VkAttachmentDescription">VkAttachmentDescription</a>::<code>samples
 <p><a id="VUID-VkRenderPassBeginInfo-sType-sType" href="#VUID-VkRenderPassBeginInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRenderPassBeginInfo-pNext-pNext" href="#VUID-VkRenderPassBeginInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, <a href="#VkRenderPassAttachmentBeginInfo">VkRenderPassAttachmentBeginInfo</a>, or <a href="#VkRenderPassSampleLocationsBeginInfoEXT">VkRenderPassSampleLocationsBeginInfoEXT</a></p>
+<p><a id="VUID-VkRenderPassBeginInfo-pNext-pNext" href="#VUID-VkRenderPassBeginInfo-pNext-pNext"></a> Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="#VkDeviceGroupRenderPassBeginInfo">VkDeviceGroupRenderPassBeginInfo</a>, <a href="#VkRenderPassAttachmentBeginInfo">VkRenderPassAttachmentBeginInfo</a>, <a href="#VkRenderPassSampleLocationsBeginInfoEXT">VkRenderPassSampleLocationsBeginInfoEXT</a>, or <a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a></p>
 </li>
 <li>
 <p><a id="VUID-VkRenderPassBeginInfo-sType-unique" href="#VUID-VkRenderPassBeginInfo-sType-unique"></a> The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
@@ -7590,6 +7639,76 @@ in <a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> the render pass 
 <ul>
 <li>
 <p><a id="VUID-VkSubpassSampleLocationsEXT-sampleLocationsInfo-parameter" href="#VUID-VkSubpassSampleLocationsEXT-sampleLocationsInfo-parameter"></a> <code>sampleLocationsInfo</code> <strong class="purple">must</strong> be a valid <a href="chap26.html#VkSampleLocationsInfoEXT">VkSampleLocationsInfoEXT</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To begin a renderpass instance with <a href="chap25.html#vertexpostproc-renderpass-transform">render pass transform</a> enabled, add the
+<a href="#VkRenderPassTransformBeginInfoQCOM">VkRenderPassTransformBeginInfoQCOM</a> to the <code>pNext</code> chain of
+<a href="#VkRenderPassBeginInfo">VkRenderPassBeginInfo</a> structure passed to the
+<a href="#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a> command specifying the renderpass transform.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkRenderPassTransformBeginInfoQCOM</code> structure is defined as:</p>
+</div>
+<div id="VkRenderPassTransformBeginInfoQCOM" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkRenderPassTransformBeginInfoQCOM {
+    VkStructureType                  sType;
+    <span class="directive">void</span>*                            pNext;
+    VkSurfaceTransformFlagBitsKHR    transform;
+} VkRenderPassTransformBeginInfoQCOM;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>transform</code> is a VkSurfaceTransformFlagBitsKHR value describing the
+transform to be applied applied to rasterization.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkRenderPassTransformBeginInfoQCOM-transform-02871" href="#VUID-VkRenderPassTransformBeginInfoQCOM-transform-02871"></a>
+<code>transform</code> <strong class="purple">must</strong> be VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
+VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR,
+VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR, or
+VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR.</p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassTransformBeginInfoQCOM-flags-02872" href="#VUID-VkRenderPassTransformBeginInfoQCOM-flags-02872"></a>
+The renderpass must have been created with
+<a href="#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a>::<code>flags</code> containing
+VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkRenderPassTransformBeginInfoQCOM-sType-sType" href="#VUID-VkRenderPassTransformBeginInfoQCOM-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM</code></p>
 </li>
 </ul>
 </div>
@@ -8549,7 +8668,7 @@ This command <strong class="purple">must</strong> not be recorded when transform
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.133<br>
+Version 1.2.134<br>
 Last updated 2020-01-14 06:59:09 -0800
 </div>
 </div>
