@@ -7,6 +7,7 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_buffer_device_address"> VK_KHR_buffer_device_address </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_create_renderpass2"> VK_KHR_create_renderpass2 </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_dedicated_allocation"> VK_KHR_dedicated_allocation </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_deferred_host_operations"> VK_KHR_deferred_host_operations </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_depth_stencil_resolve"> VK_KHR_depth_stencil_resolve </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_descriptor_update_template"> VK_KHR_descriptor_update_template </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_device_group"> VK_KHR_device_group </a> </li>
@@ -40,7 +41,9 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_multiview"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_performance_query"> VK_KHR_performance_query </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_pipeline_executable_properties"> VK_KHR_pipeline_executable_properties </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_pipeline_library"> VK_KHR_pipeline_library </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_push_descriptor"> VK_KHR_push_descriptor </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_ray_tracing"> VK_KHR_ray_tracing </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_relaxed_block_layout"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_sampler_mirror_clamp_to_edge"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_KHR_sampler_ycbcr_conversion"> VK_KHR_sampler_ycbcr_conversion </a> </li>
@@ -104,6 +107,7 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_memory_priority"> VK_EXT_memory_priority </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_metal_surface"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_pci_bus_info"> VK_EXT_pci_bus_info </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_pipeline_creation_cache_control"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_pipeline_creation_feedback"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_post_depth_coverage"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_EXT_queue_family_foreign"> VK_EXT_queue_family_foreign </a> </li>
@@ -181,6 +185,8 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_dedicated_allocation"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_dedicated_allocation_image_aliasing"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_device_diagnostic_checkpoints"> VK_NV_device_diagnostic_checkpoints </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_device_diagnostics_config"> VK_NV_device_diagnostics_config </a> </li>
+    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_device_generated_commands"> VK_NV_device_generated_commands </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_external_memory"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_external_memory_capabilities"> VK_NV_external_memory_capabilities </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_external_memory_win32"> VK_NV_external_memory_win32 </a> </li>
@@ -203,7 +209,6 @@
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_viewport_swizzle"> VK_NV_viewport_swizzle </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NV_win32_keyed_mutex"> VK_NV_win32_keyed_mutex </a> </li>
     <li> <b>  NVX Extensions (NVIDIA Corporation)  </b> </li>
-    <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_device_generated_commands"> VK_NVX_device_generated_commands </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_image_view_handle"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.2-extensions/html/vkspec.html#VK_NVX_multiview_per_view_attributes"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>

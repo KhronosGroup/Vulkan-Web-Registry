@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.134 - A Specification</title>
+<title>Vulkan® 1.0.135 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -848,12 +848,12 @@ table.CodeRay td.code>pre{padding:0}
 </script></head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.134 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.135 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.134,</span>
-<span id="revdate">2020-03-06 14:30:05Z</span>
-<br><span id="revremark">from git branch: github-master commit: b27536168823d5e8b025fc5622eab7df54008589</span>
+<span id="revnumber">version 1.0.135,</span>
+<span id="revdate">2020-03-17 11:44:25Z</span>
+<br><span id="revremark">from git branch: github-master commit: 18caa8e0b823981992e6df876ec56d4cfa8bc89f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1181,6 +1181,7 @@ table.CodeRay td.code>pre{padding:0}
 <ul class="sectlevel2">
 <li><a href="#boilerplate-headers">Vulkan Header Files</a></li>
 <li><a href="#boilerplate-wsi-header">Window System-Specific Header Control (Informative)</a></li>
+<li><a href="#boilerplate-provisional-header">Provisional Extension Header Control (Informative)</a></li>
 </ul>
 </li>
 <li><a href="#invariance">Appendix F: Invariance</a>
@@ -2286,13 +2287,6 @@ These types of objects never need external synchronization, except that they
 <strong class="purple">must</strong> not be destroyed while they are in use on another thread.
 In certain special cases mutable object parameters are internally
 synchronized, making external synchronization unnecessary.
-One example of this is the use of a <code>VkPipelineCache</code> in
-<code>vkCreateGraphicsPipelines</code> and <code>vkCreateComputePipelines</code>, where
-external synchronization around such a heavyweight command would be
-impractical.
-The implementation <strong class="purple">must</strong> internally synchronize the cache in this example,
-and <strong class="purple">may</strong> be able to do so in the form of a much finer-grained mutex around
-the command.
 Any command parameters that are not labeled as externally synchronized are
 either not mutated by the command or are internally synchronized.
 Additionally, certain objects related to a command&#8217;s parameters (e.g.
@@ -4410,6 +4404,9 @@ inherent to classes of applications.
 <p><code>ppEnabledLayerNames</code> is a pointer to an array of
 <code>enabledLayerCount</code> null-terminated UTF-8 strings containing the
 names of layers to enable for the created instance.
+The layers are loaded in the order they are listed in this array, with
+the first array element being the closest to the application, and the
+last array element being the closest to the driver.
 See the <a href="#extendingvulkan-layers">Layers</a> section for further details.</p>
 </li>
 <li>
@@ -13996,6 +13993,12 @@ components, then the <code>aspectMask</code> member of <code>subresourceRange</c
 <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageMemoryBarrier-image-02902" href="#VUID-VkImageMemoryBarrier-image-02902"></a>
+If <code>image</code> has a color format, then the <code>aspectMask</code> member of
+<code>subresourceRange</code> <strong class="purple">must</strong> only include
+<code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01208" href="#VUID-VkImageMemoryBarrier-oldLayout-01208"></a>
 If either <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
@@ -18680,7 +18683,8 @@ work to be performed, while others specify state controlling how objects are
 handled by the various pipeline stages, or control data transfer between
 memory organized as images and buffers.
 Commands are effectively sent through a processing pipeline, either a
-<em>graphics pipeline</em> or a <em>compute pipeline</em>.</p>
+<em>graphics pipeline</em>,
+or a <em>compute pipeline</em>.</p>
 </div>
 <div class="paragraph">
 <p>The first stage of the <a href="#pipelines-graphics">graphics pipeline</a>
@@ -20243,8 +20247,8 @@ another.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>Compute and graphics pipelines are each represented by <code>VkPipeline</code>
-handles:</p>
+<p>Compute,
+and graphics pipelines are each represented by <code>VkPipeline</code> handles:</p>
 </div>
 <div id="VkPipeline" class="listingblock">
 <div class="content">
@@ -21453,8 +21457,9 @@ If <code>pStages</code> includes a vertex shader stage,
 <div class="content">
 <div class="paragraph">
 <p>Possible values of the <code>flags</code> member of
-<a href="#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a> and <a href="#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a>,
-specifying how a pipeline is created, are:</p>
+<a href="#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a>,
+and <a href="#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a>, specifying how a pipeline is created,
+are:</p>
 </div>
 <div id="VkPipelineCreateFlagBits" class="listingblock">
 <div class="content">
@@ -45286,16 +45291,6 @@ images, but both images <strong class="purple">must</strong> have the same numbe
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdCopyImage-pRegions-00122" href="#VUID-vkCmdCopyImage-pRegions-00122"></a>
-The source region specified by each element of <code>pRegions</code> <strong class="purple">must</strong> be a
-region that is contained within <code>srcImage</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdCopyImage-pRegions-00123" href="#VUID-vkCmdCopyImage-pRegions-00123"></a>
-The destination region specified by each element of <code>pRegions</code> <strong class="purple">must</strong>
-be a region that is contained within <code>dstImage</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdCopyImage-pRegions-00124" href="#VUID-vkCmdCopyImage-pRegions-00124"></a>
 The union of all source regions, and the union of all destination
 regions, specified by the elements of <code>pRegions</code>, <strong class="purple">must</strong> not overlap
@@ -62407,9 +62402,10 @@ polygons <strong class="purple">must</strong> result in a covered sample for tha
 rasterization.
 As for the data associated with each fragment produced by rasterizing a
 polygon, we begin by specifying how these values are produced for fragments
-in a triangle.
-Define <em>barycentric coordinates</em> for a triangle.
-Barycentric coordinates are a set of three numbers, <span class="eq">a</span>, <span class="eq">b</span>, and
+in a triangle.</p>
+</div>
+<div id="primsrast-polygon-barycentrics" class="paragraph">
+<p><em>Barycentric coordinates</em> are a set of three numbers, <span class="eq">a</span>, <span class="eq">b</span>, and
 <span class="eq">c</span>, each in the range <span class="eq">[0,1]</span>, with <span class="eq">a +  b +  c = 1</span>.
 These coordinates uniquely specify any point <span class="eq">p</span> within the triangle or
 on the triangle&#8217;s boundary as</p>
@@ -63493,12 +63489,12 @@ attachment at location <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> (fo
 reference value.
 The stencil test also updates the value in the stencil attachment, depending
 on the test state, the stencil value and the stencil write masks.
-The test is enabled or disabled by the <code>stencilTestEnable</code> member of
-<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>.</p>
+The stencil test is enabled or disabled by the <code>stencilTestEnable</code>
+member of <a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>.</p>
 </div>
 <div class="paragraph">
-<p>When disabled, the stencil test and associated modifications are not made,
-and the sample&#8217;s coverage is not modified.</p>
+<p>When stencil test is disabled, the stencil test and associated modifications
+are not made, and the sample&#8217;s coverage is not modified.</p>
 </div>
 <div class="paragraph">
 <p>The stencil test is controlled by the <code>front</code> and <code>back</code> members of
@@ -69461,6 +69457,11 @@ The <code>subresource.arrayLayer</code> member of each element of <code>pBinds</
 <strong class="purple">must</strong> be less than the <code>arrayLayers</code> specified in
 <a href="#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code> was created</p>
 </li>
+<li>
+<p><a id="VUID-VkSparseImageMemoryBindInfo-image-02901" href="#VUID-VkSparseImageMemoryBindInfo-image-02901"></a>
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT</code> set</p>
+</li>
 </ul>
 </div>
 </div>
@@ -70628,10 +70629,14 @@ enabling specific layers.
 Layers enabled through such a mechanism are <em>implicitly enabled</em>, while
 layers enabled by including the layer name in the <code>ppEnabledLayerNames</code>
 member of <a href="#VkInstanceCreateInfo">VkInstanceCreateInfo</a> are <em>explicitly enabled</em>.
+Implicitly enabled layers are loaded before explicitly enabled layers, such
+that implicitly enabled layers are closer to the application, and explicitly
+enabled layers are closer to the driver.
 Except where otherwise specified, implicitly enabled and explicitly enabled
-layers differ only in the way they are enabled.
-Explicitly enabling a layer that is implicitly enabled has no additional
-effect.</p>
+layers differ only in the way they are enabled, and the order in which they
+are loaded.
+Explicitly enabling a layer that is implicitly enabled results in this layer
+being loaded as an implicitly enabled layer; it has no additional effect.</p>
 </div>
 <div class="sect3">
 <h4 id="extendingvulkan-layers-devicelayerdeprecation"><a class="anchor" href="#extendingvulkan-layers-devicelayerdeprecation"></a>29.3.1. Device Layer Deprecation</h4>
@@ -74977,8 +74982,8 @@ whether or not the feature is enabled.</p>
 <dt class="hdlist1">1</dt>
 <dd>
 <p>The <strong>Limit Type</strong> column specifies the limit is either the minimum limit
-all implementations <strong class="purple">must</strong> support or the maximum limit all
-implementations <strong class="purple">must</strong> support.
+all implementations <strong class="purple">must</strong> support, the maximum limit all implementations
+<strong class="purple">must</strong> support, or the exact value all implementations <strong class="purple">must</strong> support.
 For bitmasks a minimum limit is the least bits all implementations <strong class="purple">must</strong>
 set, but they <strong class="purple">may</strong> have additional bits set beyond this minimum.</p>
 </dd>
@@ -82666,11 +82671,8 @@ shaders.</p>
 <h3 id="_versions_and_formats"><a class="anchor" href="#_versions_and_formats"></a>Versions and Formats</h3>
 <div class="paragraph">
 <p>A Vulkan
-1.0
-implementation <strong class="purple">must</strong> support the
-1.0
-versions of SPIR-V and the 1.0 version of the SPIR-V Extended Instructions
-for GLSL.</p>
+1.0 implementation <strong class="purple">must</strong> support the 1.0 version
+of SPIR-V and the 1.0 version of the SPIR-V Extended Instructions for GLSL.</p>
 </div>
 <div class="paragraph">
 <p>A SPIR-V module passed into <a href="#vkCreateShaderModule">vkCreateShaderModule</a> is interpreted as a
@@ -82880,7 +82882,8 @@ following rules:</p>
 contain cycles.</p>
 </li>
 <li>
-<p>The <strong>Logical</strong> addressing model <strong class="purple">must</strong> be selected.</p>
+<p>The <strong>Logical</strong>
+addressing model <strong class="purple">must</strong> be selected.</p>
 </li>
 <li>
 <p><strong>Scope</strong> for execution <strong class="purple">must</strong> be limited to:</p>
@@ -84211,14 +84214,17 @@ platform-specific macros and headers.</p>
 </li>
 <li>
 <p><a href="#boilerplate-vulkan-core"><code>vulkan_core.h</code></a>, defining APIs for the
-Vulkan core and all registered extensions <em>other</em> than window
-system-specific extensions.</p>
+Vulkan core and all registered extensions <em>other</em> than
+<a href="#boilerplate-wsi-header">window system-specific</a> and
+<a href="#boilerplate-provisional-header">provisional</a> extensions, which are
+included in separate header files.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
 <p>In addition, specific preprocessor macros defined at the time <code>vulkan.h</code> is
-included cause header files for the corresponding <a href="#boilerplate-wsi-header">window system-specific extension interfaces</a> to be included.</p>
+included cause header files for the corresponding window system-specific and
+provisional interfaces to be included, as described below.</p>
 </div>
 </div>
 <div class="sect3">
@@ -84321,7 +84327,7 @@ Specification.</p>
 <div id="VK_HEADER_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">134</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">135</span></code></pre>
 </div>
 </div>
 </div>
@@ -84571,6 +84577,79 @@ specific underlying functionality of the window system extensions
 themselves.
 Each extension name will only link to a description of that extension when
 viewing a specification built with that extension included.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="boilerplate-provisional-header"><a class="anchor" href="#boilerplate-provisional-header"></a>Provisional Extension Header Control (Informative)</h3>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><em>Provisional</em> extensions <strong class="purple">should</strong> not be used in production applications.
+The functionality defined by such extensions <strong class="purple">may</strong> change in ways that break
+backwards compatibility between revisions, and before final release of a
+non-provisional version of that extension.</p>
+</div>
+<div class="paragraph">
+<p>Provisional extensions are defined in a separate <em>provisional header</em>,
+<code>vulkan_beta.h</code>, allowing applications to decide whether or not to include
+them.
+The mechanism is similar to <a href="#boilerplate-wsi-header">window system-specific
+headers</a>: before including <code>vulkan_beta.h</code>, applications <strong class="purple">must</strong> include
+<code>vulkan_core.h</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Sometimes a provisional extension will include a subset of its interfaces in
+<code>vulkan_core.h</code>.
+This may occur if the provisional extension is promoted from an existing
+vendor or EXT extension and some of the existing interfaces are defined as
+aliases of the provisional extension interfaces.
+All other interfaces of that provisional extension which are not aliased
+will be included in <code>vulkan_beta.h</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>As a convenience for applications, <code>vulkan.h</code> conditionally includes
+<code>vulkan_beta.h</code>.
+Applications <strong class="purple">can</strong> control inclusion of <code>vulkan_beta.h</code> by #defining the
+macro <code>VK_ENABLE_BETA_EXTENSIONS</code> before including <code>vulkan.h</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This section describes the purpose of the provisional header independently
+of the specific provisional extensions which are contained in that header at
+any given time.
+The extension appendices for provisional extensions note their provisional
+status, and link back to this section for more information.
+Provisional extensions are intended to provide early access for
+bleeding-edge developers, with the understanding that extension interfaces
+may change in response to developer feedback.
+Provisional extensions are very likely to eventually be updated and released
+as non-provisional extensions, but there is no guarantee this will happen,
+or how long it will take if it does happen.</p>
 </div>
 </td>
 </tr>
@@ -87081,8 +87160,8 @@ and OpenGL.org.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.134<br>
-Last updated 2020-01-14 06:59:09 -0800
+Version 1.0.135<br>
+Last updated 2020-03-17 04:12:51 -0700
 </div>
 </div>
 

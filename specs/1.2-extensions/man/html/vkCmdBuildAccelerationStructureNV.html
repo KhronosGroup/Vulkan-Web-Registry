@@ -777,8 +777,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
     VkBuffer                                    instanceData,
     VkDeviceSize                                instanceOffset,
     VkBool32                                    update,
-    VkAccelerationStructureNV                   dst,
-    VkAccelerationStructureNV                   src,
+    VkAccelerationStructureKHR                  dst,
+    VkAccelerationStructureKHR                  src,
     VkBuffer                                    scratch,
     VkDeviceSize                                scratchOffset);</code></pre>
 </div>
@@ -799,9 +799,9 @@ recorded.</p>
 structure&#8217;s structure.</p>
 </li>
 <li>
-<p><code>instanceData</code> is the buffer containing instance data that will be
-used to build the acceleration structure as described in
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#acceleration-structure-instance" target="_blank" rel="noopener">Accelerator structure instances.</a>
+<p><code>instanceData</code> is the buffer containing an array of
+<a href="VkAccelerationStructureInstanceKHR.html">VkAccelerationStructureInstanceKHR</a> structures defining
+acceleration structures.
 This parameter <strong class="purple">must</strong> be <code>NULL</code> for bottom level acceleration structures.</p>
 </li>
 <li>
@@ -870,7 +870,7 @@ with <code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV</code> set in
 </li>
 <li>
 <p><a id="VUID-vkCmdBuildAccelerationStructureNV-update-02491"></a>
-If <code>update</code> is <code>VK_FALSE</code>, The <code>size</code> member of the
+If <code>update</code> is <code>VK_FALSE</code>, the <code>size</code> member of the
 <a href="VkMemoryRequirements.html">VkMemoryRequirements</a> structure returned from a call to
 <a href="vkGetAccelerationStructureMemoryRequirementsNV.html">vkGetAccelerationStructureMemoryRequirementsNV</a> with
 <a href="VkAccelerationStructureMemoryRequirementsInfoNV.html">VkAccelerationStructureMemoryRequirementsInfoNV</a>::<code>accelerationStructure</code>
@@ -882,7 +882,7 @@ set to <code>dst</code> and
 </li>
 <li>
 <p><a id="VUID-vkCmdBuildAccelerationStructureNV-update-02492"></a>
-If <code>update</code> is <code>VK_TRUE</code>, The <code>size</code> member of the
+If <code>update</code> is <code>VK_TRUE</code>, the <code>size</code> member of the
 <a href="VkMemoryRequirements.html">VkMemoryRequirements</a> structure returned from a call to
 <a href="vkGetAccelerationStructureMemoryRequirementsNV.html">vkGetAccelerationStructureMemoryRequirementsNV</a> with
 <a href="VkAccelerationStructureMemoryRequirementsInfoNV.html">VkAccelerationStructureMemoryRequirementsInfoNV</a>::<code>accelerationStructure</code>
@@ -891,6 +891,35 @@ set to <code>dst</code> and
 <code>VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_NV</code>
 <strong class="purple">must</strong> be less than or equal to the size of <code>scratch</code> minus
 <code>scratchOffset</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-scratch-03522"></a>
+<code>scratch</code> <strong class="purple">must</strong> have been created with
+<code>VK_BUFFER_USAGE_RAY_TRACING_BIT_NV</code> usage flag</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-instanceData-03523"></a>
+If <code>instanceData</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>instanceData</code>
+<strong class="purple">must</strong> have been created with <code>VK_BUFFER_USAGE_RAY_TRACING_BIT_NV</code>
+usage flag</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-update-03524"></a>
+If <code>update</code> is <code>VK_TRUE</code>, then objects that were previously
+active <strong class="purple">must</strong> not be made inactive as per
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#acceleration-structure-inactive-prims" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#acceleration-structure-inactive-prims</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-update-03525"></a>
+If <code>update</code> is <code>VK_TRUE</code>, then objects that were previously
+inactive <strong class="purple">must</strong> not be made active as per
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#acceleration-structure-inactive-prims" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#acceleration-structure-inactive-prims</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-update-03526"></a>
+If <code>update</code> is <code>VK_TRUE</code>, the <code>src</code> and <code>dst</code> objects
+<strong class="purple">must</strong> either be the same object or not have any
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#resources-memory-aliasing" target="_blank" rel="noopener">memory aliasing</a></p>
 </li>
 </ul>
 </div>
@@ -911,10 +940,10 @@ set to <code>dst</code> and
 <p><a id="VUID-vkCmdBuildAccelerationStructureNV-instanceData-parameter"></a> If <code>instanceData</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>instanceData</code> <strong class="purple">must</strong> be a valid <a href="VkBuffer.html">VkBuffer</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBuildAccelerationStructureNV-dst-parameter"></a> <code>dst</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureNV.html">VkAccelerationStructureNV</a> handle</p>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-dst-parameter"></a> <code>dst</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBuildAccelerationStructureNV-src-parameter"></a> If <code>src</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>src</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureNV.html">VkAccelerationStructureNV</a> handle</p>
+<p><a id="VUID-vkCmdBuildAccelerationStructureNV-src-parameter"></a> If <code>src</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>src</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBuildAccelerationStructureNV-scratch-parameter"></a> <code>scratch</code> <strong class="purple">must</strong> be a valid <a href="VkBuffer.html">VkBuffer</a> handle</p>
@@ -983,7 +1012,7 @@ Secondary</p></td>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkAccelerationStructureInfoNV.html">VkAccelerationStructureInfoNV</a>, <a href="VkAccelerationStructureNV.html">VkAccelerationStructureNV</a>, <code>VkBool32</code>, <a href="VkBuffer.html">VkBuffer</a>, <a href="VkCommandBuffer.html">VkCommandBuffer</a>, <code>VkDeviceSize</code></p>
+<p><a href="VkAccelerationStructureInfoNV.html">VkAccelerationStructureInfoNV</a>, <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a>, <code>VkBool32</code>, <a href="VkBuffer.html">VkBuffer</a>, <a href="VkCommandBuffer.html">VkCommandBuffer</a>, <code>VkDeviceSize</code></p>
 </div>
 </div>
 </div>
@@ -1012,8 +1041,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.134<br>
-Last updated 2020-03-06 06:02:33 -0800
+Version 1.2.135<br>
+Last updated 2020-03-17 04:15:18 -0700
 </div>
 </div>
 
