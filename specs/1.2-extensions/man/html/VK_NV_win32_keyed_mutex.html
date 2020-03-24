@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_NV_win32_keyed_mutex"> VK_NV_win32_keyed_mutex</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,7 +788,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_NV_external_memory_win32">[VK_NV_external_memory_win32]</a></code></p>
+<p>Requires <code><a href="VK_NV_external_memory_win32.html">VK_NV_external_memory_win32</a></code></p>
 </li>
 </ul>
 </div>
@@ -809,10 +801,278 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <ul>
 <li>
 <p><em>Promoted</em> to
-<code><a href="#VK_KHR_win32_keyed_mutex">[VK_KHR_win32_keyed_mutex]</a></code>
+<code><a href="VK_KHR_win32_keyed_mutex.html">VK_KHR_win32_keyed_mutex</a></code>
 extension</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2016-08-19</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>James Jones, NVIDIA</p>
+</li>
+<li>
+<p>Carsten Rohde, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>Applications that wish to import Direct3D 11 memory objects into the Vulkan
+API may wish to use the native keyed mutex mechanism to synchronize access
+to the memory between Vulkan and Direct3D.
+This extension provides a way for an application to access the keyed mutex
+associated with an imported Vulkan memory object when submitting command
+buffers to a queue.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkSubmitInfo.html">VkSubmitInfo</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkWin32KeyedMutexAcquireReleaseInfoNV.html">VkWin32KeyedMutexAcquireReleaseInfoNV</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">    //
+    // Import a memory object from Direct3D 11, and synchronize
+    // access to it in Vulkan using keyed mutex objects.
+    //
+
+    extern VkPhysicalDevice physicalDevice;
+    extern VkDevice device;
+    extern HANDLE sharedNtHandle;
+
+    static const VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
+    static const VkExternalMemoryHandleTypeFlagsNV handleType =
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV;
+
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    VkExternalImageFormatPropertiesNV properties;
+    VkExternalMemoryImageCreateInfoNV externalMemoryImageCreateInfo;
+    VkImageCreateInfo imageCreateInfo;
+    VkImage image;
+    VkMemoryRequirements imageMemoryRequirements;
+    uint32_t numMemoryTypes;
+    uint32_t memoryType;
+    VkImportMemoryWin32HandleInfoNV importMemoryInfo;
+    VkMemoryAllocateInfo memoryAllocateInfo;
+    VkDeviceMemory mem;
+    VkResult result;
+
+    // Figure out how many memory types the device supports
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice,
+                                        &amp;memoryProperties);
+    numMemoryTypes = memoryProperties.memoryTypeCount;
+
+    // Check the external handle type capabilities for the chosen format
+    // Importable 2D image support with at least 1 mip level, 1 array
+    // layer, and VK_SAMPLE_COUNT_1_BIT using optimal tiling and supporting
+    // texturing and color rendering is required.
+    result = vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
+        physicalDevice,
+        format,
+        VK_IMAGE_TYPE_2D,
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_SAMPLED_BIT |
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        0,
+        handleType,
+        &amp;properties);
+
+    if ((result != VK_SUCCESS) ||
+        !(properties.externalMemoryFeatures &amp;
+          VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV)) {
+        abort();
+    }
+
+    // Set up the external memory image creation info
+    memset(&amp;externalMemoryImageCreateInfo,
+           0, sizeof(externalMemoryImageCreateInfo));
+    externalMemoryImageCreateInfo.sType =
+        VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV;
+    externalMemoryImageCreateInfo.handleTypes = handleType;
+    // Set up the  core image creation info
+    memset(&amp;imageCreateInfo, 0, sizeof(imageCreateInfo));
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.pNext = &amp;externalMemoryImageCreateInfo;
+    imageCreateInfo.format = format;
+    imageCreateInfo.extent.width = 64;
+    imageCreateInfo.extent.height = 64;
+    imageCreateInfo.extent.depth = 1;
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT |
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    vkCreateImage(device, &amp;imageCreateInfo, NULL, &amp;image);
+    vkGetImageMemoryRequirements(device,
+                                 image,
+                                 &amp;imageMemoryRequirements);
+
+    // For simplicity, just pick the first compatible memory type.
+    for (memoryType = 0; memoryType &lt; numMemoryTypes; memoryType++) {
+        if ((1 &lt;&lt; memoryType) &amp; imageMemoryRequirements.memoryTypeBits) {
+            break;
+        }
+    }
+
+    // At least one memory type must be supported given the prior external
+    // handle capability check.
+    assert(memoryType &lt; numMemoryTypes);
+
+    // Allocate the external memory object.
+    memset(&amp;exportMemoryAllocateInfo, 0, sizeof(exportMemoryAllocateInfo));
+    exportMemoryAllocateInfo.sType =
+        VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV;
+    importMemoryInfo.handleTypes = handleType;
+    importMemoryInfo.handle = sharedNtHandle;
+
+    memset(&amp;memoryAllocateInfo, 0, sizeof(memoryAllocateInfo));
+    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memoryAllocateInfo.pNext = &amp;exportMemoryAllocateInfo;
+    memoryAllocateInfo.allocationSize = imageMemoryRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = memoryType;
+
+    vkAllocateMemory(device, &amp;memoryAllocateInfo, NULL, &amp;mem);
+
+    vkBindImageMemory(device, image, mem, 0);
+
+    ...
+
+    const uint64_t acquireKey = 1;
+    const uint32_t timeout = INFINITE;
+    const uint64_t releaseKey = 2;
+
+    VkWin32KeyedMutexAcquireReleaseInfoNV keyedMutex =
+        { VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV };
+    keyedMutex.acquireCount = 1;
+    keyedMutex.pAcquireSyncs = &amp;mem;
+    keyedMutex.pAcquireKeys = &amp;acquireKey;
+    keyedMutex.pAcquireTimeoutMilliseconds = &amp;timeout;
+    keyedMutex.releaseCount = 1;
+    keyedMutex.pReleaseSyncs = &amp;mem;
+    keyedMutex.pReleaseKeys = &amp;releaseKey;
+
+    VkSubmitInfo submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO, &amp;keyedMutex };
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &amp;cmd_buf;
+    vkQueueSubmit(queue, 1, &amp;submit_info, VK_NULL_HANDLE);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 2, 2016-08-11 (James Jones)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Updated sample code based on the NV external memory extensions.</p>
+</li>
+<li>
+<p>Renamed from NVX to NV extension.</p>
+</li>
+<li>
+<p>Added Overview and Description sections.</p>
+</li>
+<li>
+<p>Updated sample code to use the NV external memory extensions.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 1, 2016-06-14 (Carsten Rohde)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -849,8 +1109,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

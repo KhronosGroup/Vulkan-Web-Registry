@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_NV_device_generated_commands"> VK_NV_device_generated_commands</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,716 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.1</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2020-02-20</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>This extension requires Vulkan 1.1</p>
+</li>
+<li>
+<p>This extension requires <code>VK_EXT_buffer_device_address</code> or
+<code>VK_KHR_buffer_device_address</code> or Vulkan 1.2 for the ability to bind
+vertex and index buffers on the device.</p>
+</li>
+<li>
+<p>This extension interacts with <code>VK_NV_mesh_shader</code>.
+If the latter extension is not supported, remove the command token to
+initiate mesh tasks drawing in this extension.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Christoph Kubisch, NVIDIA</p>
+</li>
+<li>
+<p>Pierre Boudier, NVIDIA</p>
+</li>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+<li>
+<p>Eric Werness, NVIDIA</p>
+</li>
+<li>
+<p>Yuriy O&#8217;Donnell, Epic Games</p>
+</li>
+<li>
+<p>Baldur Karlsson, Valve</p>
+</li>
+<li>
+<p>Mathias Schott, NVIDIA</p>
+</li>
+<li>
+<p>Tyson Smith, NVIDIA</p>
+</li>
+<li>
+<p>Ingo Esser, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension allows the device to generate a number of critical graphics
+commands for command buffers.</p>
+</div>
+<div class="paragraph">
+<p>When rendering a large number of objects, the device can be leveraged to
+implement a number of critical functions, like updating matrices, or
+implementing occlusion culling, frustum culling, front to back sorting, etc.
+Implementing those on the device does not require any special extension,
+since an application is free to define its own data structures, and just
+process them using shaders.</p>
+</div>
+<div class="paragraph">
+<p>However, if the application desires to quickly kick off the rendering of the
+final stream of objects, then unextended Vulkan forces the application to
+read back the processed stream and issue graphics command from the host.
+For very large scenes, the synchronization overhead and cost to generate the
+command buffer can become the bottleneck.
+This extension allows an application to generate a device side stream of
+state changes and commands, and convert it efficiently into a command buffer
+without having to read it back to the host.</p>
+</div>
+<div class="paragraph">
+<p>Furthermore, it allows incremental changes to such command buffers by
+manipulating only partial sections of a command stream&#8201;&#8212;&#8201;for example
+pipeline bindings.
+Unextended Vulkan requires re-creation of entire command buffers in such a
+scenario, or updates synchronized on the host.</p>
+</div>
+<div class="paragraph">
+<p>The intended usage for this extension is for the application to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>create <code>VkBuffer</code> objects and retrieve physical addresses from them
+via <a href="vkGetBufferDeviceAddressEXT.html">vkGetBufferDeviceAddressEXT</a></p>
+</li>
+<li>
+<p>create a graphics pipeline using
+<code>VkGraphicsPipelineShaderGroupsCreateInfoNV</code> for the ability to
+change shaders on the device.</p>
+</li>
+<li>
+<p>create a <a href="VkIndirectCommandsLayoutNV.html">VkIndirectCommandsLayoutNV</a>, which lists the
+<a href="VkIndirectCommandsTokenTypeNV.html">VkIndirectCommandsTokenTypeNV</a> it wants to dynamically execute as
+an atomic command sequence.
+This step likely involves some internal device code compilation, since
+the intent is for the GPU to generate the command buffer in the
+pipeline.</p>
+</li>
+<li>
+<p>fill the input stream buffers with the data for each of the inputs it
+needs.
+Each input is an array that will be filled with token-dependent data.</p>
+</li>
+<li>
+<p>set up a preprocess <code>VkBuffer</code> that uses memory according to the
+information retrieved via
+<a href="vkGetGeneratedCommandsMemoryRequirementsNV.html">vkGetGeneratedCommandsMemoryRequirementsNV</a>.</p>
+</li>
+<li>
+<p>optionally preprocess the generated content using
+<a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a>, for example on an asynchronous
+compute queue, or for the purpose of re-using the data in multiple
+executions.</p>
+</li>
+<li>
+<p>call <a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a> to create and execute the
+actual device commands for all sequences based on the inputs provided.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For each draw in a sequence, the following can be specified:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a different shader group</p>
+</li>
+<li>
+<p>a number of vertex buffer bindings</p>
+</li>
+<li>
+<p>a different index buffer, with an optional dynamic offset and index type</p>
+</li>
+<li>
+<p>a number of different push constants</p>
+</li>
+<li>
+<p>a flag that encodes the primitive winding</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While the GPU can be faster than a CPU to generate the commands, it will not
+happen asynchronously to the device, therefore the primary use-case is
+generating &#8220;less&#8221; total work (occlusion culling, classification to use
+specialized shaders, etc.).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkIndirectCommandsLayoutNV.html">VkIndirectCommandsLayoutNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_flag_types"><a class="anchor" href="#_new_flag_types"></a>New Flag Types</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkIndirectCommandsLayoutUsageFlagsNV.html">VkIndirectCommandsLayoutUsageFlagsNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectStateFlagsNV.html">VkIndirectStateFlagsNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkPipelineCreateFlagBits.html">VkPipelineCreateFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkPipelineStageFlagBits.html">VkPipelineStageFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkAccessFlagBits.html">VkAccessFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV</code></p>
+</li>
+<li>
+<p><code>VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkObjectType.html">VkObjectType</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkIndirectStateFlagBitsNV.html">VkIndirectStateFlagBitsNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsLayoutUsageFlagBitsNV.html">VkIndirectCommandsLayoutUsageFlagBitsNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsTokenTypeNV.html">VkIndirectCommandsTokenTypeNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV.html">VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV.html">VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV</a></p>
+</li>
+<li>
+<p><a href="VkGraphicsShaderGroupCreateInfoNV.html">VkGraphicsShaderGroupCreateInfoNV</a></p>
+</li>
+<li>
+<p><a href="VkGraphicsPipelineShaderGroupsCreateInfoNV.html">VkGraphicsPipelineShaderGroupsCreateInfoNV</a></p>
+</li>
+<li>
+<p><a href="VkBindShaderGroupIndirectCommandNV.html">VkBindShaderGroupIndirectCommandNV</a></p>
+</li>
+<li>
+<p><a href="VkBindIndexBufferIndirectCommandNV.html">VkBindIndexBufferIndirectCommandNV</a></p>
+</li>
+<li>
+<p><a href="VkBindVertexBufferIndirectCommandNV.html">VkBindVertexBufferIndirectCommandNV</a></p>
+</li>
+<li>
+<p><a href="VkSetStateFlagsIndirectCommandNV.html">VkSetStateFlagsIndirectCommandNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsStreamNV.html">VkIndirectCommandsStreamNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsLayoutTokenNV.html">VkIndirectCommandsLayoutTokenNV</a></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsLayoutCreateInfoNV.html">VkIndirectCommandsLayoutCreateInfoNV</a></p>
+</li>
+<li>
+<p><a href="VkGeneratedCommandsInfoNV.html">VkGeneratedCommandsInfoNV</a></p>
+</li>
+<li>
+<p><a href="VkGeneratedCommandsMemoryRequirementsInfoNV.html">VkGeneratedCommandsMemoryRequirementsInfoNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="vkGetGeneratedCommandsMemoryRequirementsNV.html">vkGetGeneratedCommandsMemoryRequirementsNV</a></p>
+</li>
+<li>
+<p><a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a></p>
+</li>
+<li>
+<p><a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a></p>
+</li>
+<li>
+<p><a href="vkCmdBindPipelineShaderGroupNV.html">vkCmdBindPipelineShaderGroupNV</a></p>
+</li>
+<li>
+<p><a href="vkCreateIndirectCommandsLayoutNV.html">vkCreateIndirectCommandsLayoutNV</a></p>
+</li>
+<li>
+<p><a href="vkDestroyIndirectCommandsLayoutNV.html">vkDestroyIndirectCommandsLayoutNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>1) How to name this extension ?</p>
+</div>
+<div class="paragraph">
+<p><code>VK_NV_device_generated_commands</code></p>
+</div>
+<div class="paragraph">
+<p>As usual, one of the hardest issues ;)</p>
+</div>
+<div class="paragraph">
+<p>Alternatives: <code>VK_gpu_commands</code>, <code>VK_execute_commands</code>,
+<code>VK_device_commands</code>, <code>VK_device_execute_commands</code>, <code>VK_device_execute</code>,
+<code>VK_device_created_commands</code>, <code>VK_device_recorded_commands</code>,
+<code>VK_device_generated_commands</code> <code>VK_indirect_generated_commands</code></p>
+</div>
+<div class="paragraph">
+<p>2) Should we use a serial stateful token stream or stateless sequence
+descriptions?</p>
+</div>
+<div class="paragraph">
+<p>Similarly to <a href="VkPipeline.html">VkPipeline</a>, fixed layouts have the most likelihood to be
+cross-vendor adoptable.
+They also benefit from being processable in parallel.
+This is a different design choice compared to the serial command stream
+generated through <code>GL_NV_command_list</code>.</p>
+</div>
+<div class="paragraph">
+<p>3) How to name a sequence description?</p>
+</div>
+<div class="paragraph">
+<p><code>VkIndirectCommandsLayout</code> as in the NVX extension predecessor.</p>
+</div>
+<div class="paragraph">
+<p>Alternative: <code>VkGeneratedCommandsLayout</code></p>
+</div>
+<div class="paragraph">
+<p>4) Do we want to provide <code>indirectCommands</code> inputs with layout or at
+<code>indirectCommands</code> time?</p>
+</div>
+<div class="paragraph">
+<p>Separate layout from data as Vulkan does.
+Provide full flexibility for <code>indirectCommands</code>.</p>
+</div>
+<div class="paragraph">
+<p>5) Should the input be provided as SoA or AoS?</p>
+</div>
+<div class="paragraph">
+<p>Both ways are desireable.
+AoS can provide portability to other APIs and easier to setup, while SoA
+allows to update individual inputs in a cache-efficient manner, when others
+remain static.</p>
+</div>
+<div class="paragraph">
+<p>6) How do we make developers aware of the memory requirements of
+implementation-dependent data used for the generated commands?</p>
+</div>
+<div class="paragraph">
+<p>Make the API explicit and introduce a <code>preprocess</code> <a href="VkBuffer.html">VkBuffer</a>.
+Developers have to allocate it using
+<a href="vkGetGeneratedCommandsMemoryRequirementsNV.html">vkGetGeneratedCommandsMemoryRequirementsNV</a>.</p>
+</div>
+<div class="paragraph">
+<p>In the NVX version the requirements were hidden implicitly as part of the
+command buffer reservation process, however as the memory requirements can
+be substantial, we want to give developers the ability to budget the memory
+themselves.
+By lowering the <code>maxSequencesCount</code> the memory consumption can be reduced.
+Furthermore re-use of the memory is possible, for example for doing explicit
+preprocessing and execution in a ping-pong fashion.</p>
+</div>
+<div class="paragraph">
+<p>The actual buffer size is implementation dependent and may be zero, i.e. not
+always required.</p>
+</div>
+<div class="paragraph">
+<p>When making use of Graphics Shader Groups, the programs should behave
+similar with regards to vertex inputs, clipping and culling outputs of the
+geometry stage, as well as sample shading behavior in fragment shaders, to
+reduce the amount of the worst-case memory approximation.</p>
+</div>
+<div class="paragraph">
+<p>7) Should we allow additional per-sequence dynamic state changes?</p>
+</div>
+<div class="paragraph">
+<p>Yes</p>
+</div>
+<div class="paragraph">
+<p>Introduced a lightweight indirect state flag
+<a href="VkIndirectStateFlagBitsNV.html">VkIndirectStateFlagBitsNV</a>.
+So far only switching front face winding state is exposed.
+Especially in CAD/DCC mirrored transforms that require such changes are
+common, and similar flexibility is given in the ray tracing instance
+description.</p>
+</div>
+<div class="paragraph">
+<p>The flag could be extended further, for example to switch between
+primitive-lists or -strips, or make other state modifications.</p>
+</div>
+<div class="paragraph">
+<p>Furthermore, as new tokens can be added easily, future extension could add
+the ability to change any <a href="VkDynamicState.html">VkDynamicState</a>.</p>
+</div>
+<div class="paragraph">
+<p>8) How do we allow re-using already &#8220;generated&#8221; <code>indirectCommands</code>?</p>
+</div>
+<div class="paragraph">
+<p>Expose a <code>preprocessBuffer</code> to re-use implementation-dependencyFlags data.
+Set the <code>isPreprocessed</code> to true in <a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a>.</p>
+</div>
+<div class="paragraph">
+<p>9) Under which conditions is <a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a> legal?</p>
+</div>
+<div class="paragraph">
+<p>It behaves like a regular draw call command.</p>
+</div>
+<div class="paragraph">
+<p>10) Is <a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a> copying the input data or
+referencing it?</p>
+</div>
+<div class="paragraph">
+<p>There are multiple implementations possible:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>one could have some emulation code that parses the inputs, and generates
+an output command buffer, therefore copying the inputs.</p>
+</li>
+<li>
+<p>one could just reference the inputs, and have the processing done in
+pipe at execution time.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the data is mandated to be copied, then it puts a penalty on
+implementation that could process the inputs directly in pipe.
+If the data is &#8220;referenced&#8221;, then it allows both types of implementation.</p>
+</div>
+<div class="paragraph">
+<p>The inputs are &#8220;referenced&#8221;, and <strong class="purple">must</strong> not be modified after the call to
+<a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a> has completed.</p>
+</div>
+<div class="paragraph">
+<p>11) Which buffer usage flags are required for the buffers referenced by
+<code>VkGeneratedCommandsInfoNV</code> ?</p>
+</div>
+<div class="paragraph">
+<p>Reuse existing <code>VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT</code></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkGeneratedCommandsInfoNV.html">VkGeneratedCommandsInfoNV</a>::<code>preprocessBuffer</code></p>
+</li>
+<li>
+<p><a href="VkGeneratedCommandsInfoNV.html">VkGeneratedCommandsInfoNV</a>::<code>sequencesCountBuffer</code></p>
+</li>
+<li>
+<p><a href="VkGeneratedCommandsInfoNV.html">VkGeneratedCommandsInfoNV</a>::<code>sequencesIndexBuffer</code></p>
+</li>
+<li>
+<p><a href="VkIndirectCommandsStreamNV.html">VkIndirectCommandsStreamNV</a>::<code>buffer</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>12) In which pipeline stage does the device generated command expansion
+happen?</p>
+</div>
+<div class="paragraph">
+<p><a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a> is treated as if it occurs in a
+separate logical pipeline from either graphics or compute, and that pipeline
+only includes <code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code>, a new stage
+<code>VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV</code>, and
+<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>.
+This new stage has two corresponding new access types,
+<code>VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV</code> and
+<code>VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV</code>, used to synchronize reading
+the buffer inputs and writing the preprocess memory output.</p>
+</div>
+<div class="paragraph">
+<p>The generated output written in the preprocess buffer memory by
+<a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a> is considered to be consumed by the
+<code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code> pipeline stage.</p>
+</div>
+<div class="paragraph">
+<p>Thus, to synchronize from writing the input buffers to preprocessing via
+<a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a>, use:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>dstStageMask</code> = <code>VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV</code></p>
+</li>
+<li>
+<p><code>dstAccessMask</code> = <code>VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To synchronize from <a href="vkCmdPreprocessGeneratedCommandsNV.html">vkCmdPreprocessGeneratedCommandsNV</a> to executing
+the generated commands by <a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a>, use:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>srcStageMask</code> = <code>VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV</code></p>
+</li>
+<li>
+<p><code>srcAccessMask</code> = <code>VK_ACCESS_COMMAND_PREPROCESS_WRITE_BIT_NV</code></p>
+</li>
+<li>
+<p><code>dstStageMask</code> = <code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p>
+</li>
+<li>
+<p><code>dstAccessMask</code> = <code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When <a href="vkCmdExecuteGeneratedCommandsNV.html">vkCmdExecuteGeneratedCommandsNV</a> is used with a
+<code>isPreprocessed</code> of <code>VK_FALSE</code>, the generated commands are implicitly
+preprocessed, therefore one only needs to synchronize the inputs via:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>dstStageMask</code> = <code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p>
+</li>
+<li>
+<p><code>dstAccessMask</code> = <code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>13) What if most token data is &#8220;static&#8221;, but we frequently want to render
+a subsection?</p>
+</div>
+<div class="paragraph">
+<p>Added &#8220;sequencesIndexBuffer&#8221;.
+This allows to easier sort and filter what should actually be executed.</p>
+</div>
+<div class="paragraph">
+<p>14) What are the changes compared to the previous NVX extension?</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Compute dispatch support was removed (was never implemented in drivers).
+There are different approaches how dispatching from the device should
+work, hence we defer this to a future extension.</p>
+</li>
+<li>
+<p>The <code>ObjectTableNVX</code> was replaced by using physical buffer addresses and
+introducing Shader Groups for the graphics pipeline.</p>
+</li>
+<li>
+<p>Less state changes are possible overall, but the important operations
+are still there (reduces complexity of implementation).</p>
+</li>
+<li>
+<p>The API was redesigned so all inputs must be passed at both
+preprocessing and execution time (this was implicit in NVX, now it is
+explicit)</p>
+</li>
+<li>
+<p>The reservation of intermediate command space is now mandatory and
+explicit through a preprocess buffer.</p>
+</li>
+<li>
+<p>The <a href="VkIndirectStateFlagBitsNV.html">VkIndirectStateFlagBitsNV</a> were introduced</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>15) When porting from other APIs, their indirect buffers may use different
+    enums, for example for index buffer types.
+    How to solve this?</p>
+</div>
+<div class="paragraph">
+<p>Added &#8220;pIndexTypeValues&#8221; to map custom <code>uint32_t</code> values to corresponding
+<code>VkIndexType</code>.</p>
+</div>
+<div class="paragraph">
+<p>16) Do we need more shader group state overrides?</p>
+</div>
+<div class="paragraph">
+<p>The NVX version allowed all PSO states to be different, however as the goal
+is not to replace all state setup, but focus on highly-frequent state
+changes for drawing lots of objects, we reduced the amount of state
+overrides.
+Especially VkPipelineLayout as well as VkRenderPass configuration should be
+left static, the rest is still open for discussion.</p>
+</div>
+<div class="paragraph">
+<p>The current focus is just to allow VertexInput changes as well as shaders,
+while all shader groups use the same shader stages.</p>
+</div>
+<div class="paragraph">
+<p>Too much flexibility will increase the test coverage requirement as well.
+However, further extensions could allow more dynamic state as well.</p>
+</div>
+<div class="paragraph">
+<p>17) Do we need more detailed physical device feature queries/enables?</p>
+</div>
+<div class="paragraph">
+<p>An EXT version would need detailed implementor feedback to come up with a
+good set of features.
+Please contact us if you are interested, we are happy to make more features
+optional, or add further restrictions to reduce the minimum feature set of
+an EXT.</p>
+</div>
+<div class="paragraph">
+<p>18) Is there an interaction with VK_KHR_pipeline_library planned?</p>
+</div>
+<div class="paragraph">
+<p>Yes, a future version of this extension will detail the interaction, once
+VK_KHR_pipeline_library is no longer provisional.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example_code"><a class="anchor" href="#_example_code"></a>Example Code</h3>
+<div class="paragraph">
+<p>Open-Source samples illustrating the usage of the extension can be found at
+the following location (may not yet exist at time of writing):</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/nvpro-samples/vk_device_generated_cmds" class="bare">https://github.com/nvpro-samples/vk_device_generated_cmds</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2020-02-20 (Christoph Kubisch)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial version</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +1534,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

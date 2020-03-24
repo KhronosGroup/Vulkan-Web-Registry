@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_subgroup_size_control"> VK_EXT_subgroup_size_control</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,198 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.1</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2019-03-05</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+<li>
+<p>Jason Ekstrand, Intel</p>
+</li>
+<li>
+<p>Sławek Grajewski, Intel</p>
+</li>
+<li>
+<p>Jesse Hall, Google</p>
+</li>
+<li>
+<p>Neil Henning, AMD</p>
+</li>
+<li>
+<p>Daniel Koch, NVIDIA</p>
+</li>
+<li>
+<p>Jeff Leger, Qualcomm</p>
+</li>
+<li>
+<p>Graeme Leese, Broadcom</p>
+</li>
+<li>
+<p>Allan MacKinnon, Google</p>
+</li>
+<li>
+<p>Mariusz Merecki, Intel</p>
+</li>
+<li>
+<p>Graham Wihlidal, Electronic Arts</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension enables an implementation to control the subgroup size by
+allowing a varying subgroup size and also specifying a required subgroup
+size.</p>
+</div>
+<div class="paragraph">
+<p>It extends the subgroup support in Vulkan 1.1 to allow an implementation to
+expose a varying subgroup size.
+Previously Vulkan exposed a single subgroup size per physical device, with
+the expectation that implementations will behave as if all subgroups have
+the same size.
+Some implementations <strong class="purple">may</strong> dispatch shaders with a varying subgroup size for
+different subgroups.
+As a result they could implicitly split a large subgroup into smaller
+subgroups or represent a small subgroup as a larger subgroup, some of whose
+invocations were inactive on launch.</p>
+</div>
+<div class="paragraph">
+<p>To aid developers in understanding the performance characteristics of their
+programs, this extension exposes a minimum and maximum subgroup size that a
+physical device supports and a pipeline create flag to enable that pipeline
+to vary its subgroup size.
+If enabled, any <code>SubgroupSize</code> decorated variables in the SPIR-V shader
+modules provided to pipeline creation <strong class="purple">may</strong> vary between the
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#limits-min-subgroup-size" target="_blank" rel="noopener">minimum</a> and
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#limits-max-subgroup-size" target="_blank" rel="noopener">maximum</a> subgroup sizes.</p>
+</div>
+<div class="paragraph">
+<p>An implementation is also optionally allowed to support specifying a
+required subgroup size for a given pipeline stage.
+Implementations advertise which <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#limits-required-subgroup-size-stages" target="_blank" rel="noopener">stages support a required subgroup size</a>, and any pipeline of a supported
+stage can be passed a
+<a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a> structure to
+set the subgroup size for that shader stage of the pipeline.
+For compute shaders, this requires the developer to query the
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#limits-max-subgroups-per-workgroup" target="_blank" rel="noopener"><code>maxComputeWorkgroupSubgroups</code></a>
+and ensure that:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[s = { WorkGroupSize.x * WorkGroupSize.y * WorkgroupSize.z \leq SubgroupSize * maxComputeWorkgroupSubgroups }\]
+</div>
+</div>
+<div class="paragraph">
+<p>Developers can also specify a new pipeline shader stage create flag that
+requires the implementation to have fully populated subgroups within local
+workgroups.
+This requires the workgroup size in the X dimension to be a multiple of the
+subgroup size.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES_EXT</code>
+(added in version 2)</p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkPipelineShaderStageCreateFlagBits.html">VkPipelineShaderStageCreateFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceSubgroupSizeControlFeaturesEXT.html">VkPhysicalDeviceSubgroupSizeControlFeaturesEXT</a> (added in version
+2)</p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceSubgroupSizeControlPropertiesEXT.html">VkPhysicalDeviceSubgroupSizeControlPropertiesEXT</a></p>
+</li>
+<li>
+<p><a href="VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT.html">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2019-03-05 (Neil Henning)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 2, 2019-07-26 (Jason Ekstrand)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add the missing <a href="VkPhysicalDeviceSubgroupSizeControlFeaturesEXT.html">VkPhysicalDeviceSubgroupSizeControlFeaturesEXT</a>
+for querying subgroup size control features.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +1016,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

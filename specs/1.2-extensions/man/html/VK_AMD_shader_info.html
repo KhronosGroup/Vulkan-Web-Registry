@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_AMD_shader_info"> VK_AMD_shader_info</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,176 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2017-10-09</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jaakko Konttinen, AMD</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension adds a way to query certain information about a compiled
+shader which is part of a pipeline.
+This information may include shader disassembly, shader binary and various
+statistics about a shader&#8217;s resource usage.</p>
+</div>
+<div class="paragraph">
+<p>While this extension provides a mechanism for extracting this information,
+the details regarding the contents or format of this information are not
+specified by this extension and may be provided by the vendor externally.</p>
+</div>
+<div class="paragraph">
+<p>Furthermore, all information types are optionally supported, and users
+should not assume every implementation supports querying every type of
+information.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkShaderInfoTypeAMD.html">VkShaderInfoTypeAMD</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkShaderResourceUsageAMD.html">VkShaderResourceUsageAMD</a></p>
+</li>
+<li>
+<p><a href="VkShaderStatisticsInfoAMD.html">VkShaderStatisticsInfoAMD</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="vkGetShaderInfoAMD.html">vkGetShaderInfoAMD</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h3>
+<div class="paragraph">
+<p>This example extracts the register usage of a fragment shader within a
+particular graphics pipeline:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">extern VkDevice device;
+extern VkPipeline gfxPipeline;
+
+PFN_vkGetShaderInfoAMD pfnGetShaderInfoAMD = (PFN_vkGetShaderInfoAMD)vkGetDeviceProcAddr(
+    device, "vkGetShaderInfoAMD");
+
+VkShaderStatisticsInfoAMD statistics = {};
+
+size_t dataSize = sizeof(statistics);
+
+if (pfnGetShaderInfoAMD(device,
+    gfxPipeline,
+    VK_SHADER_STAGE_FRAGMENT_BIT,
+    VK_SHADER_INFO_TYPE_STATISTICS_AMD,
+    &amp;dataSize,
+    &amp;statistics) == VK_SUCCESS)
+{
+    printf("VGPR usage: %d\n", statistics.resourceUsage.numUsedVgprs);
+    printf("SGPR usage: %d\n", statistics.resourceUsage.numUsedSgprs);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following example continues the previous example by subsequently
+attempting to query and print shader disassembly about the fragment shader:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Query disassembly size (if available)
+if (pfnGetShaderInfoAMD(device,
+    gfxPipeline,
+    VK_SHADER_STAGE_FRAGMENT_BIT,
+    VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD,
+    &amp;dataSize,
+    nullptr) == VK_SUCCESS)
+{
+    printf("Fragment shader disassembly:\n");
+
+    void* disassembly = malloc(dataSize);
+
+    // Query disassembly and print
+    if (pfnGetShaderInfoAMD(device,
+        gfxPipeline,
+        VK_SHADER_STAGE_FRAGMENT_BIT,
+        VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD,
+        &amp;dataSize,
+        disassembly) == VK_SUCCESS)
+    {
+        printf((char*)disassembly);
+    }
+
+    free(disassembly);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2017-10-09 (Jaakko Konttinen)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial revision</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +994,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

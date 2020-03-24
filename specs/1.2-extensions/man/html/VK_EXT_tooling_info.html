@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_tooling_info"> VK_EXT_tooling_info</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,167 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2018-11-05</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Rolando Caloca</p>
+</li>
+<li>
+<p>Matthaeus Chajdas</p>
+</li>
+<li>
+<p>Baldur Karlsson</p>
+</li>
+<li>
+<p>Daniel Rakos</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>When an error occurs during application development, a common question is
+"What tools are actually running right now?" This extension adds the ability
+to query that information directly from the Vulkan implementation.</p>
+</div>
+<div class="paragraph">
+<p>Outdated versions of one tool might not play nicely with another, or perhaps
+a tool is not actually running when it should have been.
+Trying to figure that out can cause headaches as it&#8217;s necessary to consult
+each known tool to figure out what&#8217;s going on - in some cases the tool might
+not even be known.</p>
+</div>
+<div class="paragraph">
+<p>Typically, the expectation is that developers will simply print out this
+information for visual inspection when an issue occurs, however a small
+amount of semantic information about what the tool is doing is provided to
+help identify it programmatically.
+For example, if the advertised limits or features of an implementation are
+unexpected, is there a tool active which modifies these limits? Or if an
+application is providing debug markers, but the implementation is not
+actually doing anything with that information, this can quickly point that
+out.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkToolPurposeFlagBitsEXT.html">VkToolPurposeFlagBitsEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceToolPropertiesEXT.html">VkPhysicalDeviceToolPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="vkGetPhysicalDeviceToolPropertiesEXT.html">vkGetPhysicalDeviceToolPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h3>
+<div class="listingblock">
+<div class="title">Printing Tool Information</div>
+<div class="content">
+<pre class="highlight"><code>uint32_t num_tools;
+VkPhysicalDeviceToolPropertiesEXT *pToolProperties;
+vkGetPhysicalDeviceToolPropertiesEXT(physicalDevice, &amp;num_tools, NULL);
+
+pToolProperties = (VkPhysicalDeviceToolPropertiesEXT*)malloc(sizeof(VkPhysicalDeviceToolPropertiesEXT) * num_tools);
+
+vkGetPhysicalDeviceToolPropertiesEXT(physicalDevice, &amp;num_tools, pToolProperties);
+
+for (int i = 0; i &lt; num_tools; ++i) {
+    printf("%s:\n", pToolProperties[i].name);
+    printf("Version:\n");
+    printf("%s:\n", pToolProperties[i].version);
+    printf("Description:\n");
+    printf("\t%s\n", pToolProperties[i].description);
+    printf("Purposes:\n");
+    printf("\t%s\n", VkToolPurposeFlagBitsEXT_to_string(pToolProperties[i].purposes));
+    if (strnlen_s(pToolProperties[i].layer,VK_MAX_EXTENSION_NAME_SIZE) &gt; 0) {
+        printf("Corresponding Layer:\n");
+        printf("\t%s\n", pToolProperties[i].layer);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>1) Why is this information separate from the layer mechanism?</p>
+</div>
+<div class="paragraph">
+<p>Some tooling may be built into a driver, or be part of the Vulkan loader
+etc.
+- and so tying this information directly to layers would&#8217;ve been awkward at
+best.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2018-11-05 (Tobias Hector)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +985,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

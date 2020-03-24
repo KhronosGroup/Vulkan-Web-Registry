@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_image_drm_format_modifier"> VK_EXT_image_drm_format_modifier</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,18 +788,707 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_bind_memory2">[VK_KHR_bind_memory2]</a></code></p>
+<p>Requires <code><a href="VK_KHR_bind_memory2.html">VK_KHR_bind_memory2</a></code></p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">[VK_KHR_get_physical_device_properties2]</a></code></p>
+<p>Requires <code><a href="VK_KHR_get_physical_device_properties2.html">VK_KHR_get_physical_device_properties2</a></code></p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_image_format_list">[VK_KHR_image_format_list]</a></code></p>
+<p>Requires <code><a href="VK_KHR_image_format_list.html">VK_KHR_image_format_list</a></code></p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_sampler_ycbcr_conversion">[VK_KHR_sampler_ycbcr_conversion]</a></code></p>
+<p>Requires <code><a href="VK_KHR_sampler_ycbcr_conversion.html">VK_KHR_sampler_ycbcr_conversion</a></code></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2018-08-29</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Antoine Labour, Google</p>
+</li>
+<li>
+<p>Bas Nieuwenhuizen, Google</p>
+</li>
+<li>
+<p>Chad Versace, Google</p>
+</li>
+<li>
+<p>James Jones, NVIDIA</p>
+</li>
+<li>
+<p>Jason Ekstrand, Intel</p>
+</li>
+<li>
+<p>Jőrg Wagner, ARM</p>
+</li>
+<li>
+<p>Kristian Høgsberg Kristensen, Google</p>
+</li>
+<li>
+<p>Ray Smith, ARM</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension provides the ability to use <em>DRM format modifiers</em> with
+images, enabling Vulkan to better integrate with the Linux ecosystem of
+graphics, video, and display APIs.</p>
+</div>
+<div class="paragraph">
+<p>Its functionality closely overlaps with
+<code>EGL_EXT_image_dma_buf_import_modifiers</code><sup><a href="VK_EXT_image_drm_format_modifier-fn2.html">2</sup></a>^
+and
+<code>EGL_MESA_image_dma_buf_export</code><sup><a href="VK_EXT_image_drm_format_modifier-fn3.html">3</sup></a>^.
+Unlike the EGL extensions, this extension does not require the use of a
+specific handle type (such as a dma_buf) for external memory and provides
+more explicit control of image creation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_introduction_to_drm_format_modifiers"><a class="anchor" href="#_introduction_to_drm_format_modifiers"></a>Introduction to DRM Format Modifiers</h3>
+<div class="paragraph">
+<p>A <em>DRM format modifier</em> is a 64-bit, vendor-prefixed, semi-opaque unsigned
+integer.
+Most <em>modifiers</em> represent a concrete, vendor-specific tiling format for
+images.
+Some exceptions are <code>DRM_FORMAT_MOD_LINEAR</code> (which is not
+vendor-specific); <code>DRM_FORMAT_MOD_NONE</code> (which is an alias of
+<code>DRM_FORMAT_MOD_LINEAR</code> due to historical accident); and
+<code>DRM_FORMAT_MOD_INVALID</code> (which does not represent a tiling format).
+The <em>modifier&#8217;s</em> vendor prefix consists of the 8 most significant bits.
+The canonical list of <em>modifiers</em> and vendor prefixes is found in
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/drm/drm_fourcc.h"><code>drm_fourcc.h</code></a>
+in the Linux kernel source.
+The other dominant source of <em>modifiers</em> are vendor kernel trees.</p>
+</div>
+<div class="paragraph">
+<p>One goal of <em>modifiers</em> in the Linux ecosystem is to enumerate for each
+vendor a reasonably sized set of tiling formats that are appropriate for
+images shared across processes, APIs, and/or devices, where each
+participating component may possibly be from different vendors.
+A non-goal is to enumerate all tiling formats supported by all vendors.
+Some tiling formats used internally by vendors are inappropriate for
+sharing; no <em>modifiers</em> should be assigned to such tiling formats.</p>
+</div>
+<div class="paragraph">
+<p>Modifier values typically do not <em>describe</em> memory layouts.
+More precisely, a <em>modifier</em>'s lower 56 bits usually have no structure.
+Instead, modifiers <em>name</em> memory layouts; they name a small set of
+vendor-preferred layouts for image sharing.
+As a consequence, in each vendor namespace the modifier values are often
+sequentially allocated starting at 1.</p>
+</div>
+<div class="paragraph">
+<p>Each <em>modifier</em> is usually supported by a single vendor and its name matches
+the pattern <code>{VENDOR}_FORMAT_MOD_*</code> or <code>DRM_FORMAT_MOD_{VENDOR}_*</code>.
+Examples are <code>I915_FORMAT_MOD_X_TILED</code> and
+<code>DRM_FORMAT_MOD_BROADCOM_VC4_T_TILED</code>.
+An exception is <code>DRM_FORMAT_MOD_LINEAR</code>, which is supported by most
+vendors.</p>
+</div>
+<div class="paragraph">
+<p>Many APIs in Linux use <em>modifiers</em> to negotiate and specify the memory
+layout of shared images.
+For example, a Wayland compositor and Wayland client may, by relaying
+<em>modifiers</em> over the Wayland protocol <code>zwp_linux_dmabuf_v1</code>, negotiate a
+vendor-specific tiling format for a shared <code>wl_buffer</code>.
+The client may allocate the underlying memory for the <code>wl_buffer</code> with
+GBM, providing the chosen <em>modifier</em> to <code>gbm_bo_create_with_modifiers</code>.
+The client may then import the <code>wl_buffer</code> into Vulkan for producing
+image content, providing the resource&#8217;s dma_buf to
+<a href="VkImportMemoryFdInfoKHR.html">VkImportMemoryFdInfoKHR</a> and its <em>modifier</em> to
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>.
+The compositor may then import the <code>wl_buffer</code> into OpenGL for sampling,
+providing the resource&#8217;s dma_buf and <em>modifier</em> to <code>eglCreateImage</code>.
+The compositor may also bypass OpenGL and submit the <code>wl_buffer</code> directly
+to the kernel&#8217;s display API, providing the dma_buf and <em>modifier</em> through
+<code>drm_mode_fb_cmd2</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_format_translation"><a class="anchor" href="#_format_translation"></a>Format Translation</h3>
+<div class="paragraph">
+<p><em>Modifier</em>-capable APIs often pair <em>modifiers</em> with DRM formats, which are
+defined in
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/drm/drm_fourcc.h"><code>drm_fourcc.h</code></a>.
+However, <code>VK_EXT_image_drm_format_modifier</code> uses <a href="VkFormat.html">VkFormat</a> instead of
+DRM formats.
+The application must convert between <a href="VkFormat.html">VkFormat</a> and DRM format when it
+sends or receives a DRM format to or from an external API.</p>
+</div>
+<div class="paragraph">
+<p>The mapping from <a href="VkFormat.html">VkFormat</a> to DRM format is lossy.
+Therefore, when receiving a DRM format from an external API, often the
+application must use information from the external API to accurately map the
+DRM format to a <a href="VkFormat.html">VkFormat</a>.
+For example, DRM formats do not distinguish between RGB and sRGB (as of
+2018-03-28); external information is required to identify the image&#8217;s
+colorspace.</p>
+</div>
+<div class="paragraph">
+<p>The mapping between <a href="VkFormat.html">VkFormat</a> and DRM format is also incomplete.
+For some DRM formats there exist no corresponding Vulkan format, and for
+some Vulkan formats there exist no corresponding DRM format.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage_patterns"><a class="anchor" href="#_usage_patterns"></a>Usage Patterns</h3>
+<div class="paragraph">
+<p>Three primary usage patterns are intended for this extension:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Negotiation.</strong> The application negotiates with <em>modifier</em>-aware,
+external components to determine sets of image creation parameters
+supported among all components.</p>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>In the Linux ecosystem, the negotiation usually assumes the image is a 2D,
+single-sampled, non-mipmapped, non-array image; this extension permits that
+assumption but does not require it.
+The result of the negotiation usually resembles a set of tuples such as
+<em>(drmFormat, drmFormatModifier)</em>, where each participating component
+supports all tuples in the set.</p>
+</div>
+<div class="paragraph">
+<p>Many details of this negotiation—such as the protocol used during
+negotiation, the set of image creation parameters expressable in the
+protocol, and how the protocol chooses which process and which API will
+create the image—are outside the scope of this specification.</p>
+</div>
+<div class="paragraph">
+<p>In this extension, <a href="vkGetPhysicalDeviceFormatProperties2.html">vkGetPhysicalDeviceFormatProperties2</a> with
+<a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a> serves a primary role during the
+negotiation, and <a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> with
+<a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a> serves a secondary role.</p>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Import.</strong> The application imports an image with a <em>modifier</em>.</p>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>In this pattern, the application receives from an external source the
+image&#8217;s memory and its creation parameters, which are often the result of
+the negotiation described above.
+Some image creation parameters are implicitly defined by the external
+source; for example, <code>VK_IMAGE_TYPE_2D</code> is often assumed.
+Some image creation parameters are usually explicit, such as the image&#8217;s
+<code>format</code>, <code>drmFormatModifier</code>, and <code>extent</code>; and each plane&#8217;s
+<code>offset</code> and <code>rowPitch</code>.</p>
+</div>
+<div class="paragraph">
+<p>Before creating the image, the application first verifies that the physical
+device supports the received creation parameters by querying
+<a href="vkGetPhysicalDeviceFormatProperties2.html">vkGetPhysicalDeviceFormatProperties2</a> with
+<a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a> and
+<a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> with
+<a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a>.
+Then the application creates the image by chaining
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a> and
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a> onto <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>.</p>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Export.</strong> The application creates an image and allocates its memory.
+Then the application exports to <em>modifier</em>-aware consumers the image&#8217;s
+memory handles; its creation parameters; its <em>modifier</em>; and the
+<a href="VkSubresourceLayout.html" target="_blank" rel="noopener"><code>offset</code></a>,
+<a href="VkSubresourceLayout.html" target="_blank" rel="noopener"><code>size</code></a>, and
+<a href="VkSubresourceLayout.html" target="_blank" rel="noopener"><code>rowPitch</code></a> of each <em>memory plane</em>.</p>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>In this pattern, the Vulkan device is the authority for the image; it is the
+allocator of the image&#8217;s memory and the decider of the image&#8217;s creation
+parameters.
+When choosing the image&#8217;s creation parameters, the application usually
+chooses a tuple <em>(format, drmFormatModifier)</em> from the result of the
+negotiation described above.
+The negotiation&#8217;s result often contains multiple tuples that share the same
+format but differ in their <em>modifier</em>.
+In this case, the application should defer the choice of the image&#8217;s
+<em>modifier</em> to the Vulkan implementation by providing all such <em>modifiers</em> to
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>::<code>pDrmFormatModifiers</code>;
+and the implementation should choose from <code>pDrmFormatModifiers</code> the
+optimal <em>modifier</em> in consideration with the other image parameters.</p>
+</div>
+<div class="paragraph">
+<p>The application creates the image by chaining
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a> and
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a> onto <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>.
+The protocol and APIs by which the application will share the image with
+external consumers will likely determine the value of
+<a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code>.
+The implementation chooses for the image an optimal <em>modifier</em> from
+<a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>::<code>pDrmFormatModifiers</code>.
+The application then queries the implementation-chosen <em>modifier</em> with
+<a href="vkGetImageDrmFormatModifierPropertiesEXT.html">vkGetImageDrmFormatModifierPropertiesEXT</a>, and queries the memory
+layout of each plane with <a href="vkGetImageSubresourceLayout.html">vkGetImageSubresourceLayout</a>.</p>
+</div>
+<div class="paragraph">
+<p>The application then allocates the image&#8217;s memory with
+<a href="VkMemoryAllocateInfo.html">VkMemoryAllocateInfo</a>, adding chained extension structures for external
+memory; binds it to the image; and exports the memory, for example, with
+<a href="vkGetMemoryFdKHR.html">vkGetMemoryFdKHR</a>.</p>
+</div>
+<div class="paragraph">
+<p>Finally, the application sends the image&#8217;s creation parameters, its
+<em>modifier</em>, its per-plane memory layout, and the exported memory handle to
+the external consumers.
+The details of how the application transmits this information to external
+consumers is outside the scope of this specification.</p>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prior_art"><a class="anchor" href="#_prior_art"></a>Prior Art</h3>
+<div class="paragraph">
+<p>Extension
+<code>EGL_EXT_image_dma_buf_import</code><sup><a href="VK_EXT_image_drm_format_modifier-fn1.html">1</sup></a>^
+introduced the ability to create an <code>EGLImage</code> by importing for each
+plane a dma_buf, offset, and row pitch.</p>
+</div>
+<div class="paragraph">
+<p>Later, extension
+<code>EGL_EXT_image_dma_buf_import_modifiers</code><sup><a href="VK_EXT_image_drm_format_modifier-fn2.html">2</sup></a>^
+introduced the ability to query which combination of formats and <em>modifiers</em>
+the implementation supports and to specify <em>modifiers</em> during creation of
+the <code>EGLImage</code>.</p>
+</div>
+<div class="paragraph">
+<p>Extension
+<code>EGL_MESA_image_dma_buf_export</code><sup><a href="VK_EXT_image_drm_format_modifier-fn3.html">3</sup></a>^
+is the inverse of <code>EGL_EXT_image_dma_buf_import_modifiers</code>.</p>
+</div>
+<div class="paragraph">
+<p>The Linux kernel modesetting API (KMS), when configuring the display&#8217;s
+framebuffer with <code>struct
+drm_mode_fb_cmd2</code><sup><a href="VK_EXT_image_drm_format_modifier-fn4.html">4</sup></a>^, allows one to
+specify the frambuffer&#8217;s <em>modifier</em> as well as a per-plane memory handle,
+offset, and row pitch.</p>
+</div>
+<div class="paragraph">
+<p>GBM, a graphics buffer manager for Linux, allows creation of a <code>gbm_bo</code>
+(that is, a graphics <em>buffer object</em>) by importing data similar to that in
+<code>EGL_EXT_image_dma_buf_import_modifiers</code><sup><a href="VK_EXT_image_drm_format_modifier-fn1.html">1</sup></a>^;
+and symmetrically allows exporting the same data from the <code>gbm_bo</code>.
+See the references to <em>modifier</em> and <em>plane</em> in
+<code>gbm.h</code><sup><a href="VK_EXT_image_drm_format_modifier-fn5.html">5</sup></a>^.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkResult.html">VkResult</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkImageTiling.html">VkImageTiling</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkImageAspectFlagBits.html">VkImageAspectFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extends <a href="VkFormatProperties2.html">VkFormatProperties2</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Member of <a href="VkDrmFormatModifierPropertiesListEXT.html">VkDrmFormatModifierPropertiesListEXT</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkDrmFormatModifierPropertiesEXT.html">VkDrmFormatModifierPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extends <a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceImageDrmFormatModifierInfoEXT.html">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extends <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a></p>
+</li>
+<li>
+<p><a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Parameter to <a href="vkGetImageDrmFormatModifierPropertiesEXT.html">vkGetImageDrmFormatModifierPropertiesEXT</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkImageDrmFormatModifierPropertiesEXT.html">VkImageDrmFormatModifierPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="vkGetImageDrmFormatModifierPropertiesEXT.html">vkGetImageDrmFormatModifierPropertiesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>1) Should this extension define a single DRM format modifier per
+   <code>VkImage</code>? Or define one per plane?</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>RESOLVED</strong>: There exists a single DRM format modifier per <code>VkImage</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>DISCUSSION</strong>: Prior art, such as
+<code>EGL_EXT_image_dma_buf_import_modifiers</code><sup><a href="VK_EXT_image_drm_format_modifier-fn2.html">2</sup></a>^,
+<code>struct drm_mode_fb_cmd2</code><sup><a href="VK_EXT_image_drm_format_modifier-fn4.html">4</sup></a>^, and
+<code>struct
+gbm_import_fd_modifier_data</code><sup><a href="VK_EXT_image_drm_format_modifier-fn5.html">5</sup></a>^,
+allows defining one <em>modifier</em> per plane.
+However, developers of the GBM and kernel APIs concede it was a mistake.
+Beginning in Linux 4.10, the kernel requires that the application provide
+the same DRM format <em>modifier</em> for each plane.
+(See Linux commit
+<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bae781b259269590109e8a4a8227331362b88212">bae781b259269590109e8a4a8227331362b88212</a>).
+And GBM provides an entry point, <code>gbm_bo_get_modifier</code>, for querying the
+<em>modifier</em> of the image but does not provide one to query the modifier of
+individual planes.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>2) When creating an image with
+   <a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, which is typically
+   used when <em>importing</em> an image, should the application explicitly provide
+   the size of each plane?</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><strong>RESOLVED</strong>: No.
+The application <strong class="purple">must</strong> not provide the size.
+To enforce this, the API requires that
+<a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>::<code>pPlaneLayouts-&gt;size</code>
+<strong class="purple">must</strong> be 0.</p>
+</div>
+<div class="paragraph">
+<p><strong>DISCUSSION</strong>: Prior art, such as
+<code>EGL_EXT_image_dma_buf_import_modifiers</code><sup><a href="VK_EXT_image_drm_format_modifier-fn2.html">2</sup></a>^,
+<code>struct drm_mode_fb_cmd2</code><sup><a href="VK_EXT_image_drm_format_modifier-fn4.html">4</sup></a>^, and
+<code>struct
+gbm_import_fd_modifier_data</code><sup><a href="VK_EXT_image_drm_format_modifier-fn5.html">5</sup></a>^,
+omits from the API the size of each plane.
+Instead, the APIs infer each plane&#8217;s size from the import parameters, which
+include the image&#8217;s pixel format and a dma_buf, offset, and row pitch for
+each plane.</p>
+</div>
+<div class="paragraph">
+<p>However, Vulkan differs from EGL and GBM with regards to image creation in
+the following ways:</p>
+</div>
+<div class="ulist">
+<div class="title">Differences in Image Creation</div>
+<ul>
+<li>
+<p><strong>Undedicated allocation by default.</strong> When importing or exporting a set
+of dma_bufs as an <code>EGLImage</code> or <code>gbm_bo</code>, common practice mandates
+that each dma_buf&#8217;s memory be dedicated (in the sense of
+<code>VK_KHR_dedicated_allocation</code>) to the image (though not necessarily
+dedicated to a single plane).
+In particular, neither the GBM documentation nor the EGL extension
+specifications explicitly state this requirement, but in light of common
+practice this is likely due to under-specification rather than
+intentional omission.
+In contrast, <code>VK_EXT_image_drm_format_modifier</code> permits, but does not
+require, the implementation to require dedicated allocations for images
+created with <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>.</p>
+</li>
+<li>
+<p><strong>Separation of image creation and memory allocation.</strong> When importing a
+set of dma_bufs as an <code>EGLImage</code> or <code>gbm_bo</code>, EGL and GBM create
+the image resource and bind it to memory (the dma_bufs) simultaneously.
+This allows EGL and GBM to query each dma_buf&#8217;s size during image
+creation.
+In Vulkan, image creation and memory allocation are independent unless a
+dedicated allocation is used (as in <code>VK_KHR_dedicated_allocation</code>).
+Therefore, without requiring dedicated allocation, Vulkan cannot query
+the size of each dma_buf (or other external handle) when calculating the
+image&#8217;s memory layout.
+Even if dedication allocation were required, Vulkan cannot calculate the
+image&#8217;s memory layout until after the image is bound to its dma_ufs.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The above differences complicate the potential inference of plane size in
+Vulkan.
+Consider the following problematic cases:</p>
+</div>
+<div class="ulist">
+<div class="title">Problematic Plane Size Calculations</div>
+<ul>
+<li>
+<p><strong>Padding.</strong> Some plane of the image may require implementation-dependent
+padding.</p>
+</li>
+<li>
+<p><strong>Metadata.</strong> For some <em>modifiers</em>, the image may have a metadata plane
+which requires a non-trivial calculation to determine its size.</p>
+</li>
+<li>
+<p><strong>Mipmapped, array, and 3D images.</strong> The implementation may support
+<code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code> for images whose
+<code>mipLevels</code>, <code>arrayLayers</code>, or <code>depth</code> is greater than 1.
+For such images with certain <em>modifiers</em>, the calculation of each
+plane&#8217;s size may be non-trivial.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>However, an application-provided plane size solves none of the above
+problems.</p>
+</div>
+<div class="paragraph">
+<p>For simplicity, consider an external image with a single memory plane.
+The implementation is obviously capable calculating the image&#8217;s size when
+its tiling is <code>VK_IMAGE_TILING_OPTIMAL</code>.
+Likewise, any reasonable implementation is capable of calculating the
+image&#8217;s size when its tiling uses a supported <em>modifier</em>.</p>
+</div>
+<div class="paragraph">
+<p>Suppose that the external image&#8217;s size is smaller than the
+implementation-calculated size.
+If the application provided the external image&#8217;s size to
+<a href="vkCreateImage.html">vkCreateImage</a>, the implementation would observe the mismatched size
+and recognize its inability to comprehend the external image&#8217;s layout
+(unless the implementation used the application-provided size to select a
+refinement of the tiling layout indicated by the <em>modifier</em>, which is
+strongly discouraged).
+The implementation would observe the conflict, and reject image creation
+with <code>VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT</code>.
+On the other hand, if the application did not provide the external image&#8217;s
+size to <a href="vkCreateImage.html">vkCreateImage</a>, then the application would observe after
+calling <a href="vkGetImageMemoryRequirements.html">vkGetImageMemoryRequirements</a> that the external image&#8217;s size is
+less than the size required by the implementation.
+The application would observe the conflict and refuse to bind the
+<code>VkImage</code> to the external memory.
+In both cases, the result is explicit failure.</p>
+</div>
+<div class="paragraph">
+<p>Suppose that the external image&#8217;s size is larger than the
+implementation-calculated size.
+If the application provided the external image&#8217;s size to
+<a href="vkCreateImage.html">vkCreateImage</a>, for reasons similar to above the implementation would
+observe the mismatched size and recognize its inability to comprehend the
+image data residing in the extra size.
+The implementation, however, must assume that image data resides in the
+entire size provided by the application.
+The implementation would observe the conflict and reject image creation with
+<code>VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT</code>.
+On the other hand, if the application did not provide the external image&#8217;s
+size to <a href="vkCreateImage.html">vkCreateImage</a>, then the application would observe after
+calling <a href="vkGetImageMemoryRequirements.html">vkGetImageMemoryRequirements</a> that the external image&#8217;s size is
+larger than the implementation-usable size.
+The application would observe the conflict and refuse to bind the
+<code>VkImage</code> to the external memory.
+In both cases, the result is explicit failure.</p>
+</div>
+<div class="paragraph">
+<p>Therefore, an application-provided size provides no benefit, and this
+extension should not require it.
+This decision renders <a href="VkSubresourceLayout.html">VkSubresourceLayout</a>::<code>size</code> an unused field
+during image creation, and thus introduces a risk that implementations may
+require applications to submit sideband creation parameters in the unused
+field.
+To prevent implementations from relying on sideband data, this extension
+<em>requires</em> the application to set <code>size</code> to 0.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_references"><a class="anchor" href="#_references"></a>References</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a id="VK_EXT_image_drm_format_modifier-fn1"></a>
+<a href="https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_image_dma_buf_import.txt"><code>EGL_EXT_image_dma_buf_import</code></a></p>
+</li>
+<li>
+<p><a id="VK_EXT_image_drm_format_modifier-fn2"></a>
+<a href="https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_image_dma_buf_import_modifiers.txt"><code>EGL_EXT_image_dma_buf_import_modifiers</code></a></p>
+</li>
+<li>
+<p><a id="VK_EXT_image_drm_format_modifier-fn3"></a>
+<a href="https://www.khronos.org/registry/EGL/extensions/MESA/EGL_MESA_image_dma_buf_export.txt"><code>EGL_MESA_image_dma_buf_export</code></a></p>
+</li>
+<li>
+<p><a id="VK_EXT_image_drm_format_modifier-fn4"></a>
+<a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/uapi/drm/drm_mode.h?id=refs/tags/v4.10#n392"><code>struct
+drm_mode_fb_cmd2</code></a></p>
+</li>
+<li>
+<p><a id="VK_EXT_image_drm_format_modifier-fn5"></a>
+<a href="https://cgit.freedesktop.org/mesa/mesa/tree/src/gbm/main/gbm.h?id=refs/tags/mesa-18.0.0-rc1"><code>gbm.h</code></a></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2018-08-29 (Chad Versace)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>First stable revision</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -844,8 +1525,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

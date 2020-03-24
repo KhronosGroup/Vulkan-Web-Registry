@@ -760,9 +760,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>Vulkan<sup>®</sup> Documentation and Extensions: Procedures and Conventions</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.2.135,</span>
-<span id="revdate">2020-03-17 11:23:49Z</span>
-<br><span id="revremark">from git branch: github-master commit: 18caa8e0b823981992e6df876ec56d4cfa8bc89f</span>
+<span id="revnumber">version 1.2.136,</span>
+<span id="revdate">2020-03-24 15:11:22Z</span>
+<br><span id="revremark">from git branch: github-master commit: 9d2243151f9d7a1ed0b37424ab74c1416c7d903c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2649,6 +2649,29 @@ Other useful references are the <code>VK_KHR_shader_draw_parameters</code>
 appendix, which includes a variety of external dependencies and
 interactions, and the <code>VK_EXT_debug_marker</code> appendix, which is a
 simpler, standalone example.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The extension appendices are also incorporated in separate
+per-extension reference pages, and must rigidly follow the structure of
+the model appendices (although individual subsections can be added or
+removed as required).</p>
+</li>
+<li>
+<p>When creating references to the extension appendix from elsewhere in
+the Specification, use one of the following two styles.
+The first style is currently preferred.</p>
+<div class="listingblock">
+<div class="title">Example Markup</div>
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">A link to the `&lt;&lt;VK_KHR_shader_float_controls&gt;&gt;` extension.
+
+Another link to the `apiext:VK_KHR_shader_float_controls` extension.</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>In the preamble to the appendix, start with an asciidoctor <code>include</code> of
@@ -2882,9 +2905,6 @@ level of logical AND (<code>+</code>) or OR (<code>,</code>) operators.
 For example, if a section of text only applies when one extensions is
 enabled and another is not, the following markup will not work:</p>
 </div>
-<div class="paragraph">
-<p>+</p>
-</div>
 <div class="listingblock">
 <div class="title">Example Markup (Does Not Work)</div>
 <div class="content">
@@ -2895,11 +2915,7 @@ endif::VK_KHR_shader_float16_int8+!VK_KHR_8bit_storage[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>+
-Instead, expand the complex conditional into nested simpler ones:</p>
-</div>
-<div class="paragraph">
-<p>+</p>
+<p>Instead, expand the complex conditional into nested simpler ones:</p>
 </div>
 <div class="listingblock">
 <div class="title">Example Markup (Does Work)</div>
@@ -4157,7 +4173,9 @@ the source documents.
 The validation scripts (<code>make allchecks</code> output) also rely on these macros
 being used consistently and correctly.
 The API markup macros, with examples of their use, are in the following
-table:</p>
+table (note that these examples will not actually successfully link into
+corresponding specification or reference pages, since they&#8217;re in an
+unrelated document).</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. API Markup Macros</caption>
@@ -4172,6 +4190,20 @@ table:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">reflink&#x3a;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates a cross-reference or link to an unknown type of
+                  API entity. This is only used in generated content in the
+                  reference pages which refers to other reference pages
+                  which are not actually part of the API. Example:
+                  reflink&#x3a;WSIheaders &#8594; <a href="#WSIheaders">WSIheaders</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ext&#x3a;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generates a cross-reference or link to the description
+                  of an extension. Example: ext&#x3a;VK_KHR_ray_tracing &#8594;
+                  <a href="#VK_KHR_ray_tracing">VK_KHR_ray_tracing</a>.</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">flink&#x3a;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Generates a cross-reference or link to the definition of
@@ -6492,7 +6524,7 @@ identify subsections of a reference page in some cases.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">[open,refpage='name',desc='short description',type='pagetype',xrefs='xrefs']
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">[open,refpage='name',desc='short description',type='pagetype',alias='alias',anchor='anchor',xrefs='xrefs']
 --</code></pre>
 </div>
 </div>
@@ -6515,8 +6547,20 @@ This attribute is required.</p>
 <p><strong>type</strong> - type of the interface, which must match the directory name
 following <code>api/</code> in the interface <code>include::</code> line within the block, and
 must be one of <code>basetypes</code>, <code>defines</code>, <code>enums</code>, <code>flags</code>, <code>funcpointers</code>,
-<code>handles</code>, <code>protos</code>, or <code>structs</code>.
+<code>handles</code>, <code>protos</code>, <code>structs</code>, or <code>freeform</code>.
 This attribute is required.</p>
+</li>
+<li>
+<p><strong>alias</strong> - list of comma-separated names of other API entities which this
+refpage also describes. This is used when an API is promoted and the
+refpage block describes both the old and promoted APIs.
+This attribute is optional.</p>
+</li>
+<li>
+<p><strong>anchor</strong> - anchor name at which this reference page is fully described
+in the specification document.
+This attribute is optional except for <code>freeform</code> pages, which do not
+correspond to Vulkan APIs.</p>
 </li>
 <li>
 <p><strong>xrefs</strong> - list of whitespace-separated names of other reference pages
@@ -6611,6 +6655,23 @@ incorrect, as well.
 The extraction process is somewhat fragile, so care should be taken and the
 results of reference page extraction verified after making changes to that
 portion of the specification source.</p>
+</div>
+<div class="paragraph">
+<p>Content that should only appear in reference pages, such as
+developer-oriented guidelines for reference pages describing extensions, may
+be conditionally included in the specification as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-asciidoc" data-lang="asciidoc">ifdef::isrefpage[]
+
+=== Refpage-Only Section
+
+*This section will appear only when generating an extension refpage,
+but not in the specification extensions appendix.*
+
+endif::isrefpage[]</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -6936,6 +6997,16 @@ to by the Vulkan Working Group.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2020-03-16 - Add documentation of writing links to extension appendices in
+the <a href="#extensions-documenting-extensions">Changes for New Extensions</a>
+section and document the ext&#x3a; and reflink&#x3a; macros in the
+<a href="#markup-macros-api">API Markup Macros</a> section.
+Improve documentation of writing <a href="#writing-refpages">Markup For Automatic
+Reference Page Extraction</a> including how to mark up content in the
+Specification source so it only appears in generated reference pages;
+however, this section is still out of date (internal issue 1999).</p>
+</li>
+<li>
 <p>2020-03-11 - Specify in the <a href="#sample-command">Sample Command Description</a>
 section that a valid usage statement must be defined at the place (command
 or structure specification) that all information need to evaluate the
@@ -7185,8 +7256,8 @@ Use American rather than British spelling conventions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:12:51 -0700
+Version 1.2.136<br>
+Last updated 2020-03-23 06:32:11 -0700
 </div>
 </div>
 

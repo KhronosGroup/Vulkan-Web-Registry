@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_NV_shading_rate_image"> VK_NV_shading_rate_image</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,9 +788,413 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">[VK_KHR_get_physical_device_properties2]</a></code></p>
+<p>Requires <code><a href="VK_KHR_get_physical_device_properties2.html">VK_KHR_get_physical_device_properties2</a></code></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2019-07-18</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Pat Brown, NVIDIA</p>
+</li>
+<li>
+<p>Carsten Rohde, NVIDIA</p>
+</li>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+<li>
+<p>Daniel Koch, NVIDIA</p>
+</li>
+<li>
+<p>Mathias Schott, NVIDIA</p>
+</li>
+<li>
+<p>Matthew Netsch, Qualcomm Technologies, Inc.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension allows applications to use a variable shading rate when
+processing fragments of rasterized primitives.
+By default, Vulkan will spawn one fragment shader for each pixel covered by
+a primitive.
+In this extension, applications can bind a <em>shading rate image</em> that can be
+used to vary the number of fragment shader invocations across the
+framebuffer.
+Some portions of the screen may be configured to spawn up to 16 fragment
+shaders for each pixel, while other portions may use a single fragment
+shader invocation for a 4x4 block of pixels.
+This can be useful for use cases like eye tracking, where the portion of the
+framebuffer that the user is looking at directly can be processed at high
+frequency, while distant corners of the image can be processed at lower
+frequency.
+Each texel in the shading rate image represents a fixed-size rectangle in
+the framebuffer, covering 16x16 pixels in the initial implementation of this
+extension.
+When rasterizing a primitive covering one of these rectangles, the Vulkan
+implementation reads a texel in the bound shading rate image and looks up
+the fetched value in a palette to determine a base shading rate.</p>
+</div>
+<div class="paragraph">
+<p>In addition to the API support controlling rasterization, this extension
+also adds Vulkan support for the
+<a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/NV/SPV_NV_shading_rate.html"><code>SPV_NV_shading_rate</code></a> extension to
+SPIR-V.
+That extension provides two fragment shader variable decorations that allow
+fragment shaders to determine the shading rate used for processing the
+fragment:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>FragmentSizeNV</code>, which indicates the width and height of the set of
+pixels processed by the fragment shader.</p>
+</li>
+<li>
+<p><code>InvocationsPerPixel</code>, which indicates the maximum number of fragment
+shader invocations that could be spawned for the pixel(s) covered by the
+fragment.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When using SPIR-V in conjunction with the OpenGL Shading Language (GLSL),
+the fragment shader capabilities are provided by the
+<code>GL_NV_shading_rate_image</code> language extension and correspond to the built-in
+variables <code>gl_FragmentSizeNV</code> and <code>gl_InvocationsPerPixelNV</code>,
+respectively.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkImageLayout.html">VkImageLayout</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkDynamicState.html">VkDynamicState</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_DYNAMIC_STATE_VIEWPORT_SHADING_RATE_PALETTE_NV</code></p>
+</li>
+<li>
+<p><code>VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkAccessFlagBits.html">VkAccessFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkImageUsageFlagBits.html">VkImageUsageFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkPipelineStageFlagBits.html">VkPipelineStageFlagBits</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkShadingRatePaletteEntryNV.html">VkShadingRatePaletteEntryNV</a>, containing the following constants:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_16_INVOCATIONS_PER_PIXEL_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_8_INVOCATIONS_PER_PIXEL_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_4_INVOCATIONS_PER_PIXEL_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_2_INVOCATIONS_PER_PIXEL_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_PIXEL_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X1_PIXELS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_1X2_PIXELS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X2_PIXELS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X2_PIXELS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_2X4_PIXELS_NV</code></p>
+</li>
+<li>
+<p><code>VK_SHADING_RATE_PALETTE_ENTRY_1_INVOCATION_PER_4X4_PIXELS_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="VkCoarseSampleOrderTypeNV.html">VkCoarseSampleOrderTypeNV</a>, containing the following constants:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV</code></p>
+</li>
+<li>
+<p><code>VK_COARSE_SAMPLE_ORDER_TYPE_CUSTOM_NV</code></p>
+</li>
+<li>
+<p><code>VK_COARSE_SAMPLE_ORDER_TYPE_PIXEL_MAJOR_NV</code></p>
+</li>
+<li>
+<p><code>VK_COARSE_SAMPLE_ORDER_TYPE_SAMPLE_MAJOR_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkShadingRatePaletteNV.html">VkShadingRatePaletteNV</a></p>
+</li>
+<li>
+<p><a href="VkPipelineViewportShadingRateImageStateCreateInfoNV.html">VkPipelineViewportShadingRateImageStateCreateInfoNV</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceShadingRateImageFeaturesNV.html">VkPhysicalDeviceShadingRateImageFeaturesNV</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceShadingRateImagePropertiesNV.html">VkPhysicalDeviceShadingRateImagePropertiesNV</a></p>
+</li>
+<li>
+<p><a href="VkCoarseSampleLocationNV.html">VkCoarseSampleLocationNV</a></p>
+</li>
+<li>
+<p><a href="VkCoarseSampleOrderCustomNV.html">VkCoarseSampleOrderCustomNV</a></p>
+</li>
+<li>
+<p><a href="VkPipelineViewportCoarseSampleOrderStateCreateInfoNV.html">VkPipelineViewportCoarseSampleOrderStateCreateInfoNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="vkCmdBindShadingRateImageNV.html">vkCmdBindShadingRateImageNV</a></p>
+</li>
+<li>
+<p><a href="vkCmdSetViewportShadingRatePaletteNV.html">vkCmdSetViewportShadingRatePaletteNV</a></p>
+</li>
+<li>
+<p><a href="vkCmdSetCoarseSampleOrderNV.html">vkCmdSetCoarseSampleOrderNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>(1) When using shading rates specifying &#8220;coarse&#8221; fragments covering
+    multiple pixels, we will generate a combined coverage mask that combines
+    the coverage masks of all pixels covered by the fragment.
+    By default, these masks are combined in an implementation-dependent
+    order.
+    Should we provide a mechanism allowing applications to query or specify
+    an exact order?</p>
+</div>
+<div class="paragraph">
+<p><strong>RESOLVED</strong>: Yes, this feature is useful for cases where most of the fragment
+shader can be evaluated once for an entire coarse fragment, but where some
+per-pixel computations are also required.
+For example, a per-pixel alpha test may want to kill all the samples for
+some pixels in a coarse fragment.
+This sort of test can be implemented using an output sample mask, but such a
+shader would need to know which bit in the mask corresponds to each sample
+in the coarse fragment.
+We are including a mechanism to allow aplications to specify the orders of
+coverage samples for each shading rate and sample count, either as static
+pipeline state or dynamically via a command buffer.
+This portion of the extension has its own feature bit.</p>
+</div>
+<div class="paragraph">
+<p>We will not be providing a query to determine the implementation-dependent
+default ordering.
+The thinking here is that if an application cares enough about the coarse
+fragment sample ordering to perform such a query, it could instead just set
+its own order, also using custom per-pixel sample locations if required.</p>
+</div>
+<div class="paragraph">
+<p>(2) For the pipeline stage
+    <code>VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV</code>, should we specify a
+    precise location in the pipeline the shading rate image is accessed
+    (after geometry shading, but before the early fragment tests) or leave
+    it under-specified in case there are other implementations that access
+    the image in a different pipeline location?</p>
+</div>
+<div class="paragraph">
+<p><strong>RESOLVED</strong> We are specifying the pipeline stage to be between the final
+stage used for vertex processing
+(<code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code>) and before the first stage
+used for fragment processing
+(<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code>), which seems to be the
+natural place to access the shading rate image.</p>
+</div>
+<div class="paragraph">
+<p>(3) How do centroid-sampled variables work with fragments larger than one
+    pixel?</p>
+</div>
+<div class="paragraph">
+<p><strong>RESOLVED</strong> For single-pixel fragments, fragment shader inputs decorated with
+<code>Centroid</code> are sampled at an implementation-dependent location in the
+intersection of the area of the primitive being rasterized and the area of
+the pixel that corresponds to the fragment.
+With multi-pixel fragments, we follow a similar pattern, using the
+intersection of the primitive and the <strong>set</strong> of pixels corresponding to the
+fragment.</p>
+</div>
+<div class="paragraph">
+<p>One important thing to keep in mind when using such &#8220;coarse&#8221; shading rates
+is that fragment attributes are sampled at the center of the fragment by
+default, regardless of the set of pixels/samples covered by the fragment.
+For fragments with a size of 4x4 pixels, this center location will be more
+than two pixels (1.5 * sqrt(2)) away from the center of the pixels at the
+corners of the fragment.
+When rendering a primitive that covers only a small part of a coarse
+fragment, sampling a color outside the primitive can produce overly bright
+or dark color values if the color values have a large gradient.
+To deal with this, an application can use centroid sampling on attributes
+where &#8220;extrapolation&#8221; artifacts can lead to overly bright or dark pixels.
+Note that this same problem also exists for multisampling with single-pixel
+fragments, but is less severe because it only affects certain samples of a
+pixel and such bright/dark samples may be averaged with other samples that
+don&#8217;t have a similar problem.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 3, 2019-07-18 (Mathias Schott)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Fully list extension interfaces in this appendix.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 2, 2018-09-13 (Pat Brown)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Miscellaneous edits preparing the specification for publication.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 1, 2018-08-08 (Pat Brown)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -835,8 +1231,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

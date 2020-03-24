@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_NV_viewport_swizzle"> VK_NV_viewport_swizzle</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,327 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2016-12-22</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>This extension requires <code>multiViewport</code> and <code>geometryShader</code>
+features to be useful.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Daniel Koch, NVIDIA</p>
+</li>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension provides a new per-viewport swizzle that can modify the
+position of primitives sent to each viewport.
+New viewport swizzle state is added for each viewport, and a new position
+vector is computed for each vertex by selecting from and optionally negating
+any of the four components of the original position vector.</p>
+</div>
+<div class="paragraph">
+<p>This new viewport swizzle is useful for a number of algorithms, including
+single-pass cubemap rendering (broadcasting a primitive to multiple faces
+and reorienting the vertex position for each face) and voxel rasterization.
+The per-viewport component remapping and negation provided by the swizzle
+allows application code to re-orient three-dimensional geometry with a view
+along any of the <strong>X</strong>, <strong>Y</strong>, or <strong>Z</strong> axes.
+If a perspective projection and depth buffering is required, <span class="eq">1/W</span>
+buffering should be used, as described in the single-pass cubemap rendering
+example in the &#8220;Issues&#8221; section below.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkViewportCoordinateSwizzleNV.html">VkViewportCoordinateSwizzleNV</a></p>
+</li>
+<li>
+<p><a href="VkPipelineViewportSwizzleStateCreateFlagsNV.html">VkPipelineViewportSwizzleStateCreateFlagsNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkViewportSwizzleNV.html">VkViewportSwizzleNV</a></p>
+</li>
+<li>
+<p><a href="VkPipelineViewportSwizzleStateCreateInfoNV.html">VkPipelineViewportSwizzleStateCreateInfoNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>1) Where does viewport swizzling occur in the pipeline?</p>
+</div>
+<div class="paragraph">
+<p><strong>RESOLVED</strong>: Despite being associated with the viewport, viewport swizzling
+must happen prior to the viewport transform.
+In particular, it needs to be performed before clipping and perspective
+division.</p>
+</div>
+<div class="paragraph">
+<p>The viewport mask expansion (<code><a href="VK_NV_viewport_array2.html" target="_blank" rel="noopener">VK_NV_viewport_array2</a></code>) and the viewport
+swizzle could potentially be performed before or after transform feedback,
+but feeding back several viewports worth of primitives with different
+swizzles doesn&#8217;t seem particularly useful.
+This specification applies the viewport mask and swizzle after transform
+feedback, and makes primitive queries only count each primitive once.</p>
+</div>
+<div class="paragraph">
+<p>2) Any interesting examples of how this extension,
+<code><a href="VK_NV_viewport_array2.html" target="_blank" rel="noopener">VK_NV_viewport_array2</a></code>, and <code><a href="VK_NV_geometry_shader_passthrough.html" target="_blank" rel="noopener">VK_NV_geometry_shader_passthrough</a></code> can
+be used together in practice?</p>
+</div>
+<div class="paragraph">
+<p><strong>RESOLVED</strong>: One interesting use case for this extension is for single-pass
+rendering to a cubemap.
+In this example, the application would attach a cubemap texture to a layered
+FBO where the six cube faces are treated as layers.
+Vertices are sent through the vertex shader without applying a projection
+matrix, where the <code>gl_Position</code> output is <span class="eq">(x,y,z,1)</span> and the center
+of the cubemap is at <span class="eq">(0,0,0)</span>.
+With unextended Vulkan, one could have a conventional instanced geometry
+shader that looks something like the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">layout(invocations = 6) in;     // separate invocation per face
+layout(triangles) in;
+layout(triangle_strip) out;
+layout(max_vertices = 3) out;
+
+in Inputs {
+vec2 texcoord;
+vec3 normal;
+vec4 baseColor;
+} v[];
+
+    out Outputs {
+    vec2 texcoord;
+    vec3 normal;
+    vec4 baseColor;
+    };
+
+    void main()
+    {
+    int face = gl_InvocationID;  // which face am I?
+
+    // Project gl_Position for each vertex onto the cube map face.
+    vec4 positions[3];
+    for (int i = 0; i &lt; 3; i++) {
+        positions[i] = rotate(gl_in[i].gl_Position, face);
+    }
+
+    // If the primitive doesn't project onto this face, we're done.
+    if (shouldCull(positions)) {
+        return;
+    }
+
+    // Otherwise, emit a copy of the input primitive to the
+    // appropriate face (using gl_Layer).
+    for (int i = 0; i &lt; 3; i++) {
+        gl_Layer = face;
+        gl_Position = positions[i];
+        texcoord = v[i].texcoord;
+        normal = v[i].normal;
+        baseColor = v[i].baseColor;
+        EmitVertex();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With passthrough geometry shaders, this can be done using a much simpler
+shader:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">layout(triangles) in;
+layout(passthrough) in Inputs {
+    vec2 texcoord;
+    vec3 normal;
+    vec4 baseColor;
+}
+layout(passthrough) in gl_PerVertex {
+    vec4 gl_Position;
+} gl_in[];
+layout(viewport_relative) out int gl_Layer;
+
+void main()
+{
+    // Figure out which faces the primitive projects onto and
+    // generate a corresponding viewport mask.
+    uint mask = 0;
+    for (int i = 0; i &lt; 6; i++) {
+        if (!shouldCull(face)) {
+        mask |= 1U &lt;&lt; i;
+        }
+    }
+    gl_ViewportMask = mask;
+    gl_Layer = 0;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The application code is set up so that each of the six cube faces has a
+separate viewport (numbered 0 to 5).
+Each face also has a separate swizzle, programmed via the
+<a href="VkPipelineViewportSwizzleStateCreateInfoNV.html">VkPipelineViewportSwizzleStateCreateInfoNV</a> pipeline state.
+The viewport swizzle feature performs the coordinate transformation handled
+by the <code>rotate</code>() function in the original shader.
+The <code>viewport_relative</code> layout qualifier says that the viewport number (0
+to 5) is added to the base <code>gl_Layer</code> value of 0 to determine which layer
+(cube face) the primitive should be sent to.</p>
+</div>
+<div class="paragraph">
+<p>Note that the use of the passed through input <code>normal</code> in this example
+suggests that the fragment shader in this example would perform an operation
+like per-fragment lighting.
+The viewport swizzle would transform the position to be face-relative, but
+<code>normal</code> would remain in the original coordinate system.
+It seems likely that the fragment shader in either version of the example
+would want to perform lighting in the original coordinate system.
+It would likely do this by reconstructing the position of the fragment in
+the original coordinate system using <code>gl_FragCoord</code>, a constant or
+uniform holding the size of the cube face, and the input
+<code>gl_ViewportIndex</code> (or <code>gl_Layer</code>), which identifies the cube face.
+Since the value of <code>normal</code> is in the original coordinate system, it
+would not need to be modified as part of this coordinate transformation.</p>
+</div>
+<div class="paragraph">
+<p>Note that while the <code>rotate</code>() operation in the regular geometry shader
+above could include an arbitrary post-rotation projection matrix, the
+viewport swizzle does not support arbitrary math.
+To get proper projection, <span class="eq">1/W</span> buffering should be used.
+To do this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Program the viewport swizzles to move the pre-projection <span class="eq">W</span> eye
+coordinate (typically 1.0) into the <span class="eq">Z</span> coordinate of the swizzle
+output and the eye coordinate component used for depth into the <span class="eq">W</span>
+coordinate.
+For example, the viewport corresponding to the <span class="eq">+Z</span> face might use a
+swizzle of <span class="eq">(+X, -Y, +W, +Z)</span>.
+The <span class="eq">Z</span> normalized device coordinate computed after swizzling would
+then be <span class="eq">z'/w' = 1/Z<sub>eye</sub></span>.</p>
+</li>
+<li>
+<p>On NVIDIA implementations supporting floating-point depth buffers with
+values outside <span class="eq">[0,1]</span>, prevent unwanted near plane clipping by
+enabling <code>depthClampEnable</code>.
+Ensure that the depth clamp doesn&#8217;t mess up depth testing by programming
+the depth range to very large values, such as
+<span class="eq"><code>minDepthBounds</code>=-z</span>, <span class="eq"><code>maxDepthBounds</code>=+z</span>, where
+<span class="eq">z = 2<sup>127</sup></span>.
+It should be possible to use IEEE infinity encodings also (<code>0xFF800000</code>
+for <code>-INF</code>, <code>0x7F800000</code> for <code>+INF</code>).
+Even when near/far clipping is disabled, primitives extending behind the
+eye will still be clipped because one or more vertices will have a
+negative <span class="eq">W</span> coordinate and fail <span class="eq">X</span>/<span class="eq">Y</span> clipping tests.</p>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>On other implementations, scale <span class="eq">X</span>, <span class="eq">Y</span>, and <span class="eq">Z</span> eye
+coordinates so that vertices on the near plane have a post-swizzle <span class="eq">W</span>
+coordinate of 1.0.
+For example, if the near plane is at <span class="eq">Z<sub>eye</sub> = 1/256</span>, scale <span class="eq">X</span>,
+<span class="eq">Y</span>, and <span class="eq">Z</span> by 256.</p>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p>Adjust depth testing to reflect the fact that <span class="eq">1/W</span> values are large
+near the eye and small away from the eye.
+Clear the depth buffer to zero (infinitely far away) and use a depth
+test of <code>VK_COMPARE_OP_GREATER</code> instead of <code>VK_COMPARE_OP_LESS</code>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2016-12-22 (Piers Daniell)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +1145,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

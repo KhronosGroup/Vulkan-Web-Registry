@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_blend_operation_advanced"> VK_EXT_blend_operation_advanced</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,6 +788,374 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2017-06-12</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension adds a number of &#8220;advanced&#8221; blending operations that <strong class="purple">can</strong>
+be used to perform new color blending operations, many of which are more
+complex than the standard blend modes provided by unextended Vulkan.
+This extension requires different styles of usage, depending on the level of
+hardware support and the enabled features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If
+<a href="VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT.html">VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT</a>::<code>advancedBlendCoherentOperations</code>
+is <code>VK_FALSE</code>, the new blending operations are supported, but a
+memory dependency <strong class="purple">must</strong> separate each advanced blend operation on a
+given sample.
+<code>VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT</code> is used to
+synchronize reads using advanced blend operations.</p>
+</li>
+<li>
+<p>If
+<a href="VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT.html">VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT</a>::<code>advancedBlendCoherentOperations</code>
+is <code>VK_TRUE</code>, advanced blend operations obey primitive order just
+like basic blend operations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In unextended Vulkan, the set of blending operations is limited, and <strong class="purple">can</strong> be
+expressed very simply.
+The <code>VK_BLEND_OP_MIN</code> and <code>VK_BLEND_OP_MAX</code> blend operations simply
+compute component-wise minimums or maximums of source and destination color
+components.
+The <code>VK_BLEND_OP_ADD</code>, <code>VK_BLEND_OP_SUBTRACT</code>, and
+<code>VK_BLEND_OP_REVERSE_SUBTRACT</code> modes multiply the source and destination
+colors by source and destination factors and either add the two products
+together or subtract one from the other.
+This limited set of operations supports many common blending operations but
+precludes the use of more sophisticated transparency and blending operations
+commonly available in many dedicated imaging APIs.</p>
+</div>
+<div class="paragraph">
+<p>This extension provides a number of new &#8220;advanced&#8221; blending operations.
+Unlike traditional blending operations using <code>VK_BLEND_OP_ADD</code>, these
+blending equations do not use source and destination factors specified by
+<a href="VkBlendFactor.html">VkBlendFactor</a>.
+Instead, each blend operation specifies a complete equation based on the
+source and destination colors.
+These new blend operations are used for both RGB and alpha components; they
+<strong class="purple">must</strong> not be used to perform separate RGB and alpha blending (via different
+values of color and alpha <a href="VkBlendOp.html">VkBlendOp</a>).</p>
+</div>
+<div class="paragraph">
+<p>These blending operations are performed using premultiplied colors, where
+RGB colors <strong class="purple">can</strong> be considered premultiplied or non-premultiplied by alpha,
+according to the <code>srcPremultiplied</code> and <code>dstPremultiplied</code> members
+of <a href="VkPipelineColorBlendAdvancedStateCreateInfoEXT.html">VkPipelineColorBlendAdvancedStateCreateInfoEXT</a>.
+If a color is considered non-premultiplied, the (R,G,B) color components are
+multiplied by the alpha component prior to blending.
+For non-premultiplied color components in the range <span class="eq">[0,1]</span>, the
+corresponding premultiplied color component would have values in the range
+<span class="eq">[0 × A, 1 × A]</span>.</p>
+</div>
+<div class="paragraph">
+<p>Many of these advanced blending equations are formulated where the result of
+blending source and destination colors with partial coverage have three
+separate contributions: from the portions covered by both the source and the
+destination, from the portion covered only by the source, and from the
+portion covered only by the destination.
+The blend parameter
+<a href="VkPipelineColorBlendAdvancedStateCreateInfoEXT.html">VkPipelineColorBlendAdvancedStateCreateInfoEXT</a>::<code>blendOverlap</code>
+<strong class="purple">can</strong> be used to specify a correlation between source and destination pixel
+coverage.
+If set to <code>VK_BLEND_OVERLAP_CONJOINT_EXT</code>, the source and destination
+are considered to have maximal overlap, as would be the case if drawing two
+objects on top of each other.
+If set to <code>VK_BLEND_OVERLAP_DISJOINT_EXT</code>, the source and destination
+are considered to have minimal overlap, as would be the case when rendering
+a complex polygon tessellated into individual non-intersecting triangles.
+If set to <code>VK_BLEND_OVERLAP_UNCORRELATED_EXT</code>, the source and
+destination coverage are assumed to have no spatial correlation within the
+pixel.</p>
+</div>
+<div class="paragraph">
+<p>In addition to the coherency issues on implementations not supporting
+<code>advancedBlendCoherentOperations</code>, this extension has several
+limitations worth noting.
+First, the new blend operations have a limit on the number of color
+attachments they <strong class="purple">can</strong> be used with, as indicated by
+<a href="VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT.html">VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT</a>::<code>advancedBlendMaxColorAttachments</code>.
+Additionally, blending precision <strong class="purple">may</strong> be limited to 16-bit floating-point,
+which <strong class="purple">may</strong> result in a loss of precision and dynamic range for framebuffer
+formats with 32-bit floating-point components, and in a loss of precision
+for formats with 12- and 16-bit signed or unsigned normalized integer
+components.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkAccessFlagBits.html">VkAccessFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkBlendOp.html">VkBlendOp</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_BLEND_OP_ZERO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SRC_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DST_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SRC_OVER_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DST_OVER_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SRC_IN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DST_IN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SRC_OUT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DST_OUT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SRC_ATOP_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DST_ATOP_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_XOR_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_MULTIPLY_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SCREEN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_OVERLAY_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DARKEN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_LIGHTEN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_COLORDODGE_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_COLORBURN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HARDLIGHT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_SOFTLIGHT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_DIFFERENCE_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_EXCLUSION_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_INVERT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_INVERT_RGB_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_LINEARDODGE_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_LINEARBURN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_VIVIDLIGHT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_LINEARLIGHT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_PINLIGHT_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HARDMIX_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HSL_HUE_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HSL_SATURATION_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HSL_COLOR_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_HSL_LUMINOSITY_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_PLUS_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_PLUS_CLAMPED_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_PLUS_CLAMPED_ALPHA_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_PLUS_DARKER_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_MINUS_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_MINUS_CLAMPED_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_CONTRAST_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_INVERT_OVG_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_RED_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_GREEN_EXT</code></p>
+</li>
+<li>
+<p><code>VK_BLEND_OP_BLUE_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkBlendOverlapEXT.html">VkBlendOverlapEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT.html">VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT.html">VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT</a></p>
+</li>
+<li>
+<p><a href="VkPipelineColorBlendAdvancedStateCreateInfoEXT.html">VkPipelineColorBlendAdvancedStateCreateInfoEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2017-06-12 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 2, 2017-06-12 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -832,8 +1192,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

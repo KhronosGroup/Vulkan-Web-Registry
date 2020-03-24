@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_descriptor_indexing"> VK_EXT_descriptor_indexing</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,10 +788,10 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">[VK_KHR_get_physical_device_properties2]</a></code></p>
+<p>Requires <code><a href="VK_KHR_get_physical_device_properties2.html">VK_KHR_get_physical_device_properties2</a></code></p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_maintenance3">[VK_KHR_maintenance3]</a></code></p>
+<p>Requires <code><a href="VK_KHR_maintenance3.html">VK_KHR_maintenance3</a></code></p>
 </li>
 </ul>
 </div>
@@ -812,9 +804,255 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <ul>
 <li>
 <p><em>Promoted</em> to
-<a href="#versions-1.2-promotions">Vulkan 1.2</a></p>
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#versions-1.2-promotions" target="_blank" rel="noopener">Vulkan 1.2</a></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2017-10-02</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Promoted to Vulkan 1.2 Core</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jeff Bolz, NVIDIA</p>
+</li>
+<li>
+<p>Daniel Rakos, AMD</p>
+</li>
+<li>
+<p>Slawomir Grajewski, Intel</p>
+</li>
+<li>
+<p>Tobias Hector, Imagination Technologies</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension adds several small features which together enable
+applications to create large descriptor sets containing substantially all of
+their resources, and selecting amongst those resources with dynamic
+(non-uniform) indexes in the shader.
+There are feature enables and SPIR-V capabilities for non-uniform descriptor
+indexing in the shader, and non-uniform indexing in the shader requires use
+of a new <code>NonUniformEXT</code> decoration defined in the
+<code>SPV_EXT_descriptor_indexing</code> SPIR-V extension.
+There are descriptor set layout binding creation flags enabling several
+features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Descriptors can be updated after they are bound to a command buffer,
+such that the execution of the command buffer reflects the most recent
+update to the descriptors.</p>
+</li>
+<li>
+<p>Descriptors that are not used by any pending command buffers can be
+updated, which enables writing new descriptors for frame N+1 while frame
+N is executing.</p>
+</li>
+<li>
+<p>Relax the requirement that all descriptors in a binding that is
+&#8220;statically used&#8221; must be valid, such that descriptors that are not
+accessed by a submission need not be valid and can be updated while that
+submission is executing.</p>
+</li>
+<li>
+<p>The final binding in a descriptor set layout can have a variable size
+(and unsized arrays of resources are allowed in the
+<code>GL_EXT_nonuniform_qualifier</code> and <code>SPV_EXT_descriptor_indexing</code>
+extensions).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note that it is valid for multiple descriptor arrays in a shader to use the
+same set and binding number, as long as they are all compatible with the
+descriptor type in the pipeline layout.
+This means a single array binding in the descriptor set can serve multiple
+texture dimensionalities, or an array of buffer descriptors can be used with
+multiple different block layouts.</p>
+</div>
+<div class="paragraph">
+<p>There are new descriptor set layout and descriptor pool creation flags that
+are required to opt in to the update-after-bind functionality, and there are
+separate <code>maxPerStage</code>* and <code>maxDescriptorSet</code>* limits that apply to
+these descriptor set layouts which <strong class="purple">may</strong> be much higher than the pre-existing
+limits.
+The old limits only count descriptors in non-updateAfterBind descriptor set
+layouts, and the new limits count descriptors in all descriptor set layouts
+in the pipeline layout.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkDescriptorPoolCreateFlagBits.html">VkDescriptorPoolCreateFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkDescriptorSetLayoutCreateFlagBits.html">VkDescriptorSetLayoutCreateFlagBits</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="VkResult.html">VkResult</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_FRAGMENTATION_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkDescriptorBindingFlagBitsEXT.html">VkDescriptorBindingFlagBitsEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkDescriptorSetLayoutBindingFlagsCreateInfoEXT.html">VkDescriptorSetLayoutBindingFlagsCreateInfoEXT</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceDescriptorIndexingFeaturesEXT.html">VkPhysicalDeviceDescriptorIndexingFeaturesEXT</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceDescriptorIndexingPropertiesEXT.html">VkPhysicalDeviceDescriptorIndexingPropertiesEXT</a></p>
+</li>
+<li>
+<p><a href="VkDescriptorSetVariableDescriptorCountAllocateInfoEXT.html">VkDescriptorSetVariableDescriptorCountAllocateInfoEXT</a></p>
+</li>
+<li>
+<p><a href="VkDescriptorSetVariableDescriptorCountLayoutSupportEXT.html">VkDescriptorSetVariableDescriptorCountLayoutSupportEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_promotion_to_vulkan_1_2"><a class="anchor" href="#_promotion_to_vulkan_1_2"></a>Promotion to Vulkan 1.2</h3>
+<div class="paragraph">
+<p>Functionality in this extension is included in core Vulkan 1.2, with the EXT
+suffix omitted.
+However, if Vulkan 1.2 is supported and this extension is not, the
+<code>descriptorIndexing</code> capability is optional.
+The original type, enum and command names are still available as aliases of
+the core functionality.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2017-07-26 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 2, 2017-10-02 (Jeff Bolz)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>???</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -851,8 +1089,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_shader_subgroup_vote"> VK_EXT_shader_subgroup_vote</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -806,9 +798,244 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <ul>
 <li>
 <p><em>Deprecated</em> by
-<a href="#versions-1.1-new-features">Vulkan 1.1</a></p>
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#versions-1.1-new-features" target="_blank" rel="noopener">Vulkan 1.1</a></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2016-11-28</p>
+</dd>
+<dt class="hdlist1"><strong>IP Status</strong></dt>
+<dd>
+<p>No known IP claims.</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>This extension requires the
+<a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_subgroup_vote.html"><code>SPV_KHR_subgroup_vote</code></a> SPIR-V
+extension.</p>
+</li>
+<li>
+<p>This extension requires the
+<a href="https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_shader_group_vote.txt"><code>GL_ARB_shader_group_vote</code></a>
+extension for GLSL source languages.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Neil Henning, Codeplay</p>
+</li>
+<li>
+<p>Daniel Koch, NVIDIA Corporation</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>This extension adds support for the following SPIR-V extension in Vulkan:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>SPV_KHR_subgroup_vote</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This extension provides new SPIR-V instructions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>OpSubgroupAllKHR</code>,</p>
+</li>
+<li>
+<p><code>OpSubgroupAnyKHR</code>, and</p>
+</li>
+<li>
+<p><code>OpSubgroupAllEqualKHR</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>to compute the composite of a set of boolean conditions across a group of
+shader invocations that are running concurrently (a <em>subgroup</em>).
+These composite results may be used to execute shaders more efficiently on a
+<a href="VkPhysicalDevice.html">VkPhysicalDevice</a>.</p>
+</div>
+<div class="paragraph">
+<p>When using GLSL source-based shader languages, the following shader
+functions from GL_ARB_shader_group_vote can map to these SPIR-V
+instructions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>anyInvocationARB</code>() &#8594; <code>OpSubgroupAnyKHR</code>,</p>
+</li>
+<li>
+<p><code>allInvocationsARB</code>() &#8594; <code>OpSubgroupAllKHR</code>, and</p>
+</li>
+<li>
+<p><code>allInvocationsEqualARB</code>() &#8594; <code>OpSubgroupAllEqualKHR</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The subgroup across which the boolean conditions are evaluated is
+implementation-dependent, and this extension provides no guarantee over how
+individual shader invocations are assigned to subgroups.
+In particular, a subgroup has no necessary relationship with the compute
+shader <em>local workgroup</em>&#8201;&#8212;&#8201;any pair of shader invocations in a compute
+local workgroup may execute in different subgroups as used by these
+instructions.</p>
+</div>
+<div class="paragraph">
+<p>Compute shaders operate on an explicitly specified group of threads (a local
+workgroup), but many implementations will also group non-compute shader
+invocations and execute them concurrently.
+When executing code like</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">if (condition) {
+  result = do_fast_path();
+} else {
+  result = do_general_path();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>where <code>condition</code> diverges between invocations, an implementation might
+first execute <code>do_fast_path</code>() for the invocations where <code>condition</code>
+is true and leave the other invocations dormant.
+Once <code>do_fast_path</code>() returns, it might call <code>do_general_path</code>() for
+invocations where <code>condition</code> is <code>false</code> and leave the other
+invocations dormant.
+In this case, the shader executes <strong>both</strong> the fast and the general path and
+might be better off just using the general path for all invocations.</p>
+</div>
+<div class="paragraph">
+<p>This extension provides the ability to avoid divergent execution by
+evaluating a condition across an entire subgroup using code like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">if (allInvocationsARB(condition)) {
+  result = do_fast_path();
+} else {
+  result = do_general_path();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The built-in function <code>allInvocationsARB</code>() will return the same value
+for all invocations in the group, so the group will either execute
+<code>do_fast_path</code>() or <code>do_general_path</code>(), but never both.
+For example, shader code might want to evaluate a complex function
+iteratively by starting with an approximation of the result and then
+refining the approximation.
+Some input values may require a small number of iterations to generate an
+accurate result (<code>do_fast_path</code>) while others require a larger number
+(<code>do_general_path</code>).
+In another example, shader code might want to evaluate a complex function
+(<code>do_general_path</code>) that can be greatly simplified when assuming a
+specific value for one of its inputs (<code>do_fast_path</code>).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_object_types"><a class="anchor" href="#_new_object_types"></a>New Object Types</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_built_in_variables"><a class="anchor" href="#_new_built_in_variables"></a>New Built-In Variables</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_spir_v_capabilities"><a class="anchor" href="#_new_spir_v_capabilities"></a>New SPIR-V Capabilities</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#spirvenv-capabilities-table-subgroupvote" target="_blank" rel="noopener">SubgroupVoteKHR</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deprecated_by_vulkan_1_1"><a class="anchor" href="#_deprecated_by_vulkan_1_1"></a>Deprecated by Vulkan 1.1</h3>
+<div class="paragraph">
+<p>All functionality in this extension is superseded by the core Vulkan 1.1
+<a href="VkPhysicalDeviceSubgroupProperties.html" target="_blank" rel="noopener">subgroup operations</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2016-11-28 (Daniel Koch)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial draft</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -845,8 +1072,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 

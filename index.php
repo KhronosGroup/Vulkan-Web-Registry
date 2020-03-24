@@ -237,14 +237,17 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <p> Other branches in the repository are of historical interest only. </p>
 
 <p> Registered and published extensions are listed below, grouped by
-    Author/Vendor ID. The links are into the corresponding extension
-    appendices of the <a href="specs/1.2-extensions/html/vkspec.html">
-    Vulkan 1.2 Core API + all published Extensions</a> Specification. This
-    list is driven by the <tt>supported</tt> tags in
-    <tt>xml/vk.xml</tt> in Vulkan-Docs, and may contain anomalies in
-    the form of links to extensions marked as supported by a vendor, but
-    whose specifications have not yet been merged into the Vulkan-Docs
-    repository. </a>
+    Author/Vendor ID.
+    The links are to extension reference pages; these pages are quick to
+    load compared to the full <a
+    href="specs/1.2-extensions/html/vkspec.html"> Vulkan 1.2 Core API + all
+    published Extensions </a> Specification, and they link back to it if
+    more information or context is needed.
+    The list of links is generated based on the <tt>supported</tt> tags in
+    <tt>xml/vk.xml</tt> in Vulkan-Docs, and may contain anomalies in the
+    form of links to extensions marked as supported by a vendor, but whose
+    specifications have not yet been merged into the Vulkan-Docs repository.
+    </a> </p>
 
 <!-- Generated from xml/indexExt.py in the Vulkan-Docs repository -->
 <?php include_once("extensions.php"); ?>

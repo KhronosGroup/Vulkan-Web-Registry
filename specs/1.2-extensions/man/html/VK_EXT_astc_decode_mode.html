@@ -764,14 +764,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_specification"><a class="anchor" href="#_specification"></a>Specification</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="../../html/vkspec.html#VK_EXT_astc_decode_mode"> VK_EXT_astc_decode_mode</a> in the main specification for complete information.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_registered_extension_number"><a class="anchor" href="#_registered_extension_number"></a>Registered Extension Number</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -796,9 +788,196 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>Requires Vulkan 1.0</p>
 </li>
 <li>
-<p>Requires <code><a href="#VK_KHR_get_physical_device_properties2">[VK_KHR_get_physical_device_properties2]</a></code></p>
+<p>Requires <code><a href="VK_KHR_get_physical_device_properties2.html">VK_KHR_get_physical_device_properties2</a></code></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2018-08-07</p>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Jan-Harald Fredriksen, Arm</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description"><a class="anchor" href="#_description"></a>Description</h3>
+<div class="paragraph">
+<p>The existing specification requires that low dynamic range (LDR) ASTC
+textures are decompressed to FP16 values per component.
+In many cases, decompressing LDR textures to a lower precision intermediate
+result gives acceptable image quality.
+Source material for LDR textures is typically authored as 8-bit UNORM
+values, so decoding to FP16 values adds little value.
+On the other hand, reducing precision of the decoded result reduces the size
+of the decompressed data, potentially improving texture cache performance
+and saving power.</p>
+</div>
+<div class="paragraph">
+<p>The goal of this extension is to enable this efficiency gain on existing
+ASTC texture data.
+This is achieved by giving the application the ability to select the
+intermediate decoding precision.</p>
+</div>
+<div class="paragraph">
+<p>Three decoding options are provided:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Decode to <code>VK_FORMAT_R16G16B16A16_SFLOAT</code> precision: This is the
+default, and matches the required behavior in the core API.</p>
+</li>
+<li>
+<p>Decode to <code>VK_FORMAT_R8G8B8A8_UNORM</code> precision: This is provided as
+an option in LDR mode.</p>
+</li>
+<li>
+<p>Decode to <code>VK_FORMAT_E5B9G9R9_UFLOAT_PACK32</code> precision: This is
+provided as an option in both LDR and HDR mode.
+In this mode, negative values cannot be represented and are clamped to
+zero.
+The alpha component is ignored, and the results are as if alpha was 1.0.
+This decode mode is optional and support can be queried via the physical
+device properties.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enum_constants"><a class="anchor" href="#_new_enum_constants"></a>New Enum Constants</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="VkStructureType.html">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT</code></p>
+</li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_enums"><a class="anchor" href="#_new_enums"></a>New Enums</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_structures"><a class="anchor" href="#_new_structures"></a>New Structures</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkImageViewASTCDecodeModeEXT.html">VkImageViewASTCDecodeModeEXT</a></p>
+</li>
+<li>
+<p><a href="VkPhysicalDeviceASTCDecodeFeaturesEXT.html">VkPhysicalDeviceASTCDecodeFeaturesEXT</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_new_functions"><a class="anchor" href="#_new_functions"></a>New Functions</h3>
+<div class="paragraph">
+<p>None.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h3>
+<div class="paragraph">
+<p>1) Are implementations allowed to decode at a higher precision than what is
+    requested?</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>RESOLUTION: No.
+If we allow this, then this extension could be exposed on all
+implementations that support ASTC.
+But developers would have no way of knowing what precision was actually
+used, and thus whether the image quality is sufficient at reduced
+precision.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>2) Should the decode mode be image view state and/or sampler state?</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>RESOLUTION: Image view state only.
+Some implementations treat the different decode modes as different
+texture formats.</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example"><a class="anchor" href="#_example"></a>Example</h3>
+<div class="paragraph">
+<p>Create an image view that decodes to <code>VK_FORMAT_R8G8B8A8_UNORM</code>
+precision:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">    VkImageViewASTCDecodeModeEXT decodeMode =
+    {
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT, // sType
+        NULL, // pNext
+        VK_FORMAT_R8G8B8A8_UNORM // decode mode
+    };
+
+    VkImageViewCreateInfo createInfo =
+    {
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // sType
+        &amp;decodeMode, // pNext
+        // flags, image, viewType set to application-desired values
+        VK_FORMAT_ASTC_8x8_UNORM_BLOCK, // format
+        // components, subresourceRange set to application-desired values
+    };
+
+    VkImageView imageView;
+    VkResult result = vkCreateImageView(
+        device,
+        &amp;createInfo,
+        NULL,
+        &amp;imageView);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2018-08-07 (Jan-Harald Fredriksen)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Initial revision</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -835,8 +1014,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.135<br>
-Last updated 2020-03-17 04:15:18 -0700
+Version 1.2.136<br>
+Last updated 2020-03-24 08:02:02 -0700
 </div>
 </div>
 
