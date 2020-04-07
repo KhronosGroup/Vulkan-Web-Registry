@@ -212,5 +212,6 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_image_view_handle.html"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_multiview_per_view_attributes.html"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
 </ul>
