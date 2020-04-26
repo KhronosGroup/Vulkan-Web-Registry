@@ -111,6 +111,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_robustness2.html"> VK_EXT_robustness2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sample_locations.html"> VK_EXT_sample_locations </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sampler_filter_minmax.html"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_scalar_block_layout.html"> VK_EXT_scalar_block_layout </a> </li>
@@ -212,6 +213,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_image_view_handle.html"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_multiview_per_view_attributes.html"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_shader_resolve.html"> VK_QCOM_render_pass_shader_resolve </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
 </ul>

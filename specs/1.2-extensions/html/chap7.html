@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.138 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.139 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.138 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.139 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.138,</span>
-<span id="revdate">2020-04-16 19:20:30Z</span>
-<br><span id="revremark">from git branch: github-master commit: ccd6dfea90ab21d0f5a3fd6f67c9753474d2db33</span>
+<span id="revnumber">version 1.2.139,</span>
+<span id="revdate">2020-04-26 21:27:12Z</span>
+<br><span id="revremark">from git branch: github-master commit: 5789d98a3fb3e02beb2f92aab5dd4b87d648cfc2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1340,8 +1340,10 @@ instance.</p>
 <p>A <em>subpass description</em> describes the subset of attachments that is involved
 in the execution of a subpass.
 Each subpass <strong class="purple">can</strong> read from some attachments as <em>input attachments</em>, write
-to some as <em>color attachments</em> or <em>depth/stencil attachments</em>, and perform
-<em>multisample resolve operations</em> to <em>resolve attachments</em>.
+to some as <em>color attachments</em> or <em>depth/stencil attachments</em>,
+perform <em>shader resolve operations</em> to <em>color_attachments</em> or
+<em>depth/stencil_attachments</em>,
+and perform <em>multisample resolve operations</em> to <em>resolve attachments</em>.
 A subpass description <strong class="purple">can</strong> also include a set of <em>preserve attachments</em>,
 which are attachments that are not read or written by the subpass but whose
 contents <strong class="purple">must</strong> be preserved throughout the subpass.</p>
@@ -2908,8 +2910,11 @@ If the <code>attachment</code> member of any element of <code>pColorAttachments<
 fragment are discarded.</p>
 </div>
 <div class="paragraph">
-<p>If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds
-to a color attachment (the element in <code>pColorAttachments</code> at the same
+<p>If
+<code>flags</code> does not include
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds to
+a color attachment (the element in <code>pColorAttachments</code> at the same
 index), and a multisample resolve operation is defined for each attachment.
 At the end of each subpass, multisample resolve operations read the
 subpass’s color attachments, and resolve the samples for each pixel within
@@ -2919,6 +2924,8 @@ attachments, unless the resolve attachment index is
 </div>
 <div class="paragraph">
 <p>Similarly, if
+<code>flags</code> does not include
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and
 <a href="#VkSubpassDescriptionDepthStencilResolve">VkSubpassDescriptionDepthStencilResolve</a>::<code>pDepthStencilResolveAttachment</code>
 is not <code>NULL</code> and does not have the value <code>VK_ATTACHMENT_UNUSED</code>, it
 corresponds to the depth/stencil attachment in
@@ -2975,6 +2982,21 @@ subpass dependency from <strong>S<sub>1</sub></strong> to <strong>S</strong>.</p
 </li>
 <li>
 <p>The attachment is not used or preserved in subpass <strong>S</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In addition, the contents of an attachment within the render area become
+undefined at the start of a subpass <strong>S</strong> if all of the following conditions
+are true:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code> is set.</p>
+</li>
+<li>
+<p>The attachment is used as a color or depth/stencil in the subpass.</p>
 </li>
 </ul>
 </div>
@@ -3099,6 +3121,39 @@ If <code>flags</code> includes
 also include <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSubpassDescription-flags-03341" href="#VUID-VkSubpassDescription-flags-03341"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pResolveAttachments</code> is not <code>NULL</code>, then each resolve attachment
+<strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03342" href="#VUID-VkSubpassDescription-flags-03342"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pDepthStencilResolveAttachmentKHR</code> is not <code>NULL</code>, then the
+depth/stencil resolve attachment <strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03343" href="#VUID-VkSubpassDescription-flags-03343"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, then the subpass
+<strong class="purple">must</strong> be the last subpass in a subpass dependency chain</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03344" href="#VUID-VkSubpassDescription-flags-03344"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM</code>, then the sample
+count of the input attachments <strong class="purple">must</strong> equal <code>rasterizationSamples</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03345" href="#VUID-VkSubpassDescription-flags-03345"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM</code>, and if
+<code>sampleShadingEnable</code> is enabled (explicitly or implicitly) then
+<code>minSampleShading</code> <strong class="purple">must</strong> equal 0.0</p>
+</li>
+<li>
 <p><a id="VUID-VkSubpassDescription-pInputAttachments-02868" href="#VUID-VkSubpassDescription-pInputAttachments-02868"></a>
 If the render pass is created with
 <code>VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM</code> each of the elements of
@@ -3151,6 +3206,8 @@ specifying usage of the subpass, are:</p>
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSubpassDescriptionFlagBits {
     VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX = <span class="hex">0x00000001</span>,
     VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX = <span class="hex">0x00000002</span>,
+    VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM = <span class="hex">0x00000004</span>,
+    VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM = <span class="hex">0x00000008</span>,
     VK_SUBPASS_DESCRIPTION_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkSubpassDescriptionFlagBits;</code></pre>
 </div>
@@ -3171,7 +3228,38 @@ that shaders compiled for this subpass use per-view positions which only
 differ in value in the x component.
 Per-view viewport mask <strong class="purple">can</strong> also be used.</p>
 </li>
+<li>
+<p><code>VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM</code> specifies that the
+framebuffer region is the fragment region, that is, the minimum region
+dependencies are by pixel rather than by sample, such that any fragment
+shader invocation <strong class="purple">can</strong> access any sample associated with that fragment
+shader invocation.</p>
+</li>
+<li>
+<p><code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code> specifies that the
+subpass performs shader resolve operations.</p>
+</li>
 </ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Shader resolve operations allow for custom resolve operations, but
+overdrawing pixels <strong class="purple">may</strong> have a performance and/or power cost.
+Furthermore, since the contents of any depth stencil attachment or color
+attachment is undefined at the begining of a shader resolve subpass, any
+depth testing, stencil testing, or blending which sources these undefined
+values are also undefined.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -8649,8 +8737,8 @@ This command <strong class="purple">must</strong> not be recorded when transform
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.138<br>
-Last updated 2020-03-26 01:48:59 -0700
+Version 1.2.139<br>
+Last updated 2020-04-16 23:02:14 -0700
 </div>
 </div>
 <style>

@@ -886,8 +886,11 @@ If the <code>attachment</code> member of any element of <code>pColorAttachments<
 fragment are discarded.</p>
 </div>
 <div class="paragraph">
-<p>If <code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds
-to a color attachment (the element in <code>pColorAttachments</code> at the same
+<p>If
+<code>flags</code> does not include
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pResolveAttachments</code> is not <code>NULL</code>, each of its elements corresponds to
+a color attachment (the element in <code>pColorAttachments</code> at the same
 index), and a multisample resolve operation is defined for each attachment.
 At the end of each subpass, multisample resolve operations read the
 subpass&#8217;s color attachments, and resolve the samples for each pixel within
@@ -897,6 +900,8 @@ attachments, unless the resolve attachment index is
 </div>
 <div class="paragraph">
 <p>Similarly, if
+<code>flags</code> does not include
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and
 <a href="VkSubpassDescriptionDepthStencilResolve.html">VkSubpassDescriptionDepthStencilResolve</a>::<code>pDepthStencilResolveAttachment</code>
 is not <code>NULL</code> and does not have the value <code>VK_ATTACHMENT_UNUSED</code>, it
 corresponds to the depth/stencil attachment in
@@ -953,6 +958,21 @@ subpass dependency from <strong>S<sub>1</sub></strong> to <strong>S</strong>.</p
 </li>
 <li>
 <p>The attachment is not used or preserved in subpass <strong>S</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In addition, the contents of an attachment within the render area become
+undefined at the start of a subpass <strong>S</strong> if all of the following conditions
+are true:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code> is set.</p>
+</li>
+<li>
+<p>The attachment is used as a color or depth/stencil in the subpass.</p>
 </li>
 </ul>
 </div>
@@ -1077,6 +1097,39 @@ If <code>flags</code> includes
 also include <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSubpassDescription-flags-03341"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pResolveAttachments</code> is not <code>NULL</code>, then each resolve attachment
+<strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03342"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, and if
+<code>pDepthStencilResolveAttachmentKHR</code> is not <code>NULL</code>, then the
+depth/stencil resolve attachment <strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03343"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM</code>, then the subpass
+<strong class="purple">must</strong> be the last subpass in a subpass dependency chain</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03344"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM</code>, then the sample
+count of the input attachments <strong class="purple">must</strong> equal <code>rasterizationSamples</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-flags-03345"></a>
+If <code>flags</code> includes
+<code>VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM</code>, and if
+<code>sampleShadingEnable</code> is enabled (explicitly or implicitly) then
+<code>minSampleShading</code> <strong class="purple">must</strong> equal 0.0</p>
+</li>
+<li>
 <p><a id="VUID-VkSubpassDescription-pInputAttachments-02868"></a>
 If the render pass is created with
 <code>VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM</code> each of the elements of
@@ -1151,8 +1204,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.138<br>
-Last updated 2020-04-16 12:20:30 -0700
+Version 1.2.139<br>
+Last updated 2020-04-26 14:27:12 -0700
 </div>
 </div>
 
