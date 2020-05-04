@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.139 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.140 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.139 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.140 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.139,</span>
-<span id="revdate">2020-04-26 21:33:05Z</span>
-<br><span id="revremark">from git branch: github-master commit: 5789d98a3fb3e02beb2f92aab5dd4b87d648cfc2</span>
+<span id="revnumber">version 1.2.140,</span>
+<span id="revdate">2020-05-04 09:54:44Z</span>
+<br><span id="revremark">from git branch: github-master commit: a79b923ed376c42e99ecdb9d2ad69a56fb850ddc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -879,7 +879,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap8.html#shaders-group-operations">8.20. Group Operations</a></li>
 <li><a href="chap8.html#shaders-quad-operations">8.21. Quad Group Operations</a></li>
 <li><a href="chap8.html#shaders-derivative-operations">8.22. Derivative Operations</a></li>
-<li><a href="chap8.html#_helper_invocations">8.23. Helper Invocations</a></li>
+<li><a href="chap8.html#shaders-helper-invocations">8.23. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -1039,18 +1039,15 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </li>
 <li><a href="#fragops">25. Fragment Operations</a>
 <ul class="sectlevel2">
-<li><a href="#fragops-early">25.1. Early Per-Fragment Tests</a></li>
-<li><a href="#fragops-scissor">25.2. Scissor Test</a></li>
-<li><a href="#fragops-samplemask">25.3. Sample Mask</a></li>
-<li><a href="#fragops-early-mode">25.4. Early Fragment Test Mode</a></li>
-<li><a href="#fragops-late">25.5. Late Per-Fragment Tests</a></li>
-<li><a href="#fragops-covg">25.6. Multisample Coverage</a></li>
-<li><a href="#fragops-ds-state">25.7. Depth and Stencil Operations</a></li>
-<li><a href="#fragops-dbt">25.8. Depth Bounds Test</a></li>
-<li><a href="#fragops-stencil">25.9. Stencil Test</a></li>
-<li><a href="#fragops-depth">25.10. Depth Test</a></li>
-<li><a href="#fragops-samplecount">25.11. Sample Counting</a></li>
-<li><a href="#fragops-coverage-reduction">25.12. Coverage Reduction</a></li>
+<li><a href="#fragops-scissor">25.1. Scissor Test</a></li>
+<li><a href="#fragops-samplemask">25.2. Sample Mask Test</a></li>
+<li><a href="#fragops-covg">25.3. Multisample Coverage</a></li>
+<li><a href="#fragops-ds-state">25.4. Depth and Stencil Operations</a></li>
+<li><a href="#fragops-dbt">25.5. Depth Bounds Test</a></li>
+<li><a href="#fragops-stencil">25.6. Stencil Test</a></li>
+<li><a href="#fragops-depth">25.7. Depth Test</a></li>
+<li><a href="#fragops-samplecount">25.8. Sample Counting</a></li>
+<li><a href="#fragops-coverage-reduction">25.9. Coverage Reduction</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#framebuffer">26. The Framebuffer</a>
@@ -1241,44 +1238,28 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="fragops"><a class="anchor" href="#fragops"></a>25. Fragment Operations</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Fragment operations execute on a per-fragment or per-sample basis, affecting
-whether or how a fragment or sample is written to the framebuffer.
-Some operations execute <a href="#fragops-early">before fragment shading</a>, and
-others <a href="#fragops-late">after</a>.
-Fragment operations always adhere to <a href="chap24.html#primrast-order">rasterization order</a>.</p>
-</div>
-<div class="sect2">
-<h3 id="fragops-early"><a class="anchor" href="#fragops-early"></a>25.1. Early Per-Fragment Tests</h3>
-<div class="paragraph">
-<p>Once fragments are produced by rasterization, a number of per-fragment
-operations are performed prior to fragment shader execution.
-If a fragment is discarded during any of these operations, it will not be
-processed by any subsequent stage, including fragment shader execution.</p>
+<p>Fragments produced by rasterization go through a number of operations to
+determine whether or how values produced by fragment shading are written to
+the framebuffer.</p>
 </div>
 <div class="paragraph">
-<p>The <a href="#fragops-scissor">scissor test</a> and
-<a href="#fragops-samplemask">sample mask generation</a> are always performed during
-early fragment tests.</p>
+<p>The following fragment operations adhere to <a href="chap24.html#primrast-order">rasterization
+order</a>, and are typically performed in this order:</p>
 </div>
-<div class="paragraph">
-<p>Fragment operations are performed in the following order:</p>
-</div>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>the scissor test (see <a href="#fragops-scissor">Scissor Test</a>)</p>
+<p><a href="#fragops-scissor">Scissor test</a></p>
 </li>
 <li>
-<p>multisample fragment operations (see <a href="#fragops-samplemask">Sample Mask</a>)</p>
+<p><a href="#fragops-samplemask">Sample mask test</a></p>
 </li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If early per-fragment operations are <a href="chap8.html#shaders-fragment-earlytest">enabled by
-the fragment shader</a>, these operations are also performed:</p>
-</div>
-<div class="ulist">
-<ul>
+<li>
+<p><a href="chap8.html#shaders-fragment">Fragment shading</a></p>
+</li>
+<li>
+<p><a href="#fragops-covg">Multisample coverage</a></p>
+</li>
 <li>
 <p><a href="#fragops-dbt">Depth bounds test</a></p>
 </li>
@@ -1289,25 +1270,61 @@ the fragment shader</a>, these operations are also performed:</p>
 <p><a href="#fragops-depth">Depth test</a></p>
 </li>
 <li>
-<p><a href="#fragops-samplecount">Sample counting</a> for <a href="chap16.html#queries-occlusion">occlusion queries</a></p>
+<p><a href="#fragops-samplecount">Sample counting</a></p>
 </li>
-</ul>
+<li>
+<p><a href="#fragops-coverage-reduction">Coverage reduction</a></p>
+</li>
+</ol>
 </div>
+<div class="paragraph">
+<p>The <a href="chap24.html#primsrast-multisampling-coverage-mask">coverage mask</a> generated by
+rasterization describes the initial coverage of each sample covered by the
+fragment.
+Fragment operations will update the coverage mask to add or subtract
+coverage where appropriate.
+If a fragment operation results in all bits of the coverage mask being <code>0</code>,
+the fragment is discarded, and no further operations are performed.
+Fragments can also be programmatically discarded in a fragment shader by
+executing
+<code>OpKill</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <a href="chap8.html#shaders-fragment-earlytest">early per-fragment operations</a> are enabled,
+<a href="chap8.html#shaders-fragment">fragment shading</a> and <a href="#fragops-covg">multisample
+coverage</a> operations are instead performed after <a href="#fragops-samplecount">sample counting</a>.</p>
+</div>
+<div class="paragraph">
+<p>Once all fragment operations have completed, fragment shader outputs for
+covered color attachment samples pass through <a href="chap26.html#framebuffer">framebuffer
+operations</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="fragops-scissor"><a class="anchor" href="#fragops-scissor"></a>25.2. Scissor Test</h3>
+<h3 id="fragops-scissor"><a class="anchor" href="#fragops-scissor"></a>25.1. Scissor Test</h3>
+<div class="paragraph">
+<p>The scissor test compares the framebuffer coordinates <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> of
+each sample covered by a fragment against a <em>scissor rectangle</em> at the index
+equal to the fragment’s <a href="chap14.html#interfaces-builtin-variables-viewportindex"><code>ViewportIndex</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>Each scissor rectangle is defined by a <a href="chap2.html#VkRect2D">VkRect2D</a>.
+These values are either set by the <a href="chap23.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a>
+structure during pipeline creation, or dynamically by the
+<a href="#vkCmdSetScissor">vkCmdSetScissor</a> command.</p>
+</div>
+<div class="paragraph">
+<p>A given sample is considered inside a scissor rectangle if <span class="eq">x<sub>f</sub></span> is in
+the range <span class="eq">[<a href="chap2.html#VkRect2D">VkRect2D</a>::offset.x, <a href="chap2.html#VkRect2D">VkRect2D</a>::offset.x + 
+<a href="chap2.html#VkRect2D">VkRect2D</a>::extent.x)</span>, and <span class="eq">y<sub>f</sub></span> is in the range
+<span class="eq">[<a href="chap2.html#VkRect2D">VkRect2D</a>::offset.y, <a href="chap2.html#VkRect2D">VkRect2D</a>::offset.y + 
+<a href="chap2.html#VkRect2D">VkRect2D</a>::extent.y)</span>.
+Samples with coordinates outside the scissor rectangle at the corresponding
+<code>ViewportIndex</code> will have their coverage set to <code>0</code>.</p>
+</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The scissor test determines if a fragment’s framebuffer coordinates
-<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> lie within the scissor rectangle corresponding to the
-viewport index (see <a href="chap23.html#vertexpostproc-viewport">Controlling the Viewport</a>)
-used by the primitive that generated the fragment.
-If the pipeline state object is created without
-<code>VK_DYNAMIC_STATE_SCISSOR</code> enabled then the scissor rectangles are set
-by the <a href="chap23.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> state of the pipeline state
-object.
-Otherwise, to dynamically set the scissor rectangles call:</p>
+<p>The scissor rectangles <strong class="purple">can</strong> be set dynamically with the command:</p>
 </div>
 <div id="vkCmdSetScissor" class="listingblock">
 <div class="content">
@@ -1344,10 +1361,9 @@ the current state for the scissor index <span class="eq"><code>firstScissor</cod
 for <span class="eq">i</span> in <span class="eq">[0, <code>scissorCount</code>)</span>.</p>
 </div>
 <div class="paragraph">
-<p>Each scissor rectangle is described by a <a href="chap2.html#VkRect2D">VkRect2D</a> structure, with the
-<code>offset.x</code> and <code>offset.y</code> values determining the upper left corner
-of the scissor rectangle, and the <code>extent.width</code> and <code>extent.height</code>
-values determining the size in pixels.</p>
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_SCISSOR</code> set in
+<a href="chap9.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1466,153 +1482,36 @@ Secondary</p></td>
 </div>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="fragops-samplemask"><a class="anchor" href="#fragops-samplemask"></a>25.2. Sample Mask Test</h3>
 <div class="paragraph">
-<p>If <span class="eq"><code>offset.x</code> ≤ x<sub>f</sub> &lt; <code>offset.x</code> + 
-<code>extent.width</code></span> and <span class="eq"><code>offset.y</code> ≤ y<sub>f</sub> &lt; <code>offset.y</code>
-+  <code>extent.height</code></span> for the selected scissor rectangle, then the
-scissor test passes.
-Otherwise, the test fails and the fragment is discarded.
-For points, lines, and polygons, the scissor rectangle for a primitive is
-selected in the same manner as the viewport (see
-<a href="chap23.html#vertexpostproc-viewport">Controlling the Viewport</a>).
-The scissor rectangles test only applies to <a href="chap19.html#drawing">drawing commands</a>,
-not to other commands like clears or copies.</p>
+<p>The sample mask test compares the <a href="chap24.html#primsrast-multisampling-coverage-mask">coverage mask</a> for a fragment with the <em>sample mask</em> defined by
+<a href="chap24.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::pSampleMask.</p>
 </div>
 <div class="paragraph">
-<p>It is legal for <span class="eq"><code>offset.x</code> +  <code>extent.width</code></span> or
-<span class="eq"><code>offset.y</code> +  <code>extent.height</code></span> to exceed the dimensions of
-the framebuffer - the scissor test still applies as defined above.
-Rasterization does not produce fragments outside of the framebuffer, so such
-fragments never have the scissor test performed on them.</p>
-</div>
-<div class="paragraph">
-<p>The scissor test is always performed.
-Applications <strong class="purple">can</strong> effectively disable the scissor test by specifying a
-scissor rectangle that encompasses the entire framebuffer.</p>
+<p>Each bit of the coverage mask is associated with a sample index as described
+in the <a href="chap24.html#primsrast-multisampling-coverage-mask">rasterization chapter</a>.
+If the bit in <a href="chap24.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::pSampleMask which
+is associated with that same sample index is set to <code>0</code>, the coverage mask
+bit is set to <code>0</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-samplemask"><a class="anchor" href="#fragops-samplemask"></a>25.3. Sample Mask</h3>
-<div class="paragraph">
-<p>This step modifies fragment coverage values based on the values in the
-<code>pSampleMask</code> array member of
-<a href="chap24.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>, as described previously in
-section <a href="chap9.html#pipelines-graphics">Graphics Pipelines</a>.</p>
-</div>
-<div class="paragraph">
-<p><code>pSampleMask</code> contains an array of static coverage information that is
-<code>ANDed</code> with the coverage information generated during rasterization.
-Bits that are zero disable coverage for the corresponding sample.
-Bit <span class="eq">B</span> of mask word <span class="eq">M</span> corresponds to sample <span class="eq">32 × M
-+  B</span>.
-The array is sized to a length of <span class="eq">⌈ <code>rasterizationSamples</code> /
-32 ⌉</span> words.
-If <code>pSampleMask</code> is <code>NULL</code>, it is treated as if the mask has all bits
-enabled, i.e. no coverage is removed from fragments.</p>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>The elements of the sample mask array are of type <code>VkSampleMask</code>,
-each representing 32 bits of coverage information:</p>
-</div>
-<div id="VkSampleMask" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> uint32_t VkSampleMask;</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="fragops-early-mode"><a class="anchor" href="#fragops-early-mode"></a>25.4. Early Fragment Test Mode</h3>
-<div class="paragraph">
-<p>The depth bounds test, stencil test, depth test,
-and occlusion query sample counting are performed before fragment shading if
-and only if early fragment tests are enabled by the fragment shader (see
-<a href="chap8.html#shaders-fragment-earlytest">Early Fragment Tests</a>).
-When early per-fragment operations are enabled, these operations are
-performed prior to fragment shader execution, and the stencil buffer, depth
-buffer, and occlusion query sample counts will be updated accordingly; these
-operations will not be performed again after fragment shader execution.</p>
-</div>
-<div class="paragraph">
-<p>If a pipeline’s fragment shader has early fragment tests disabled, these
-operations are performed only after fragment program execution, in the order
-described below.
-If a pipeline does not contain a fragment shader, these operations are
-performed only once.</p>
-</div>
-<div class="paragraph">
-<p>If early fragment tests are enabled, any depth value computed by the
-fragment shader has no effect.
-Additionally, the depth test (including depth writes), stencil test
-(including stencil writes) and sample counting operations are performed even
-for fragments or samples that would be discarded after fragment shader
-execution due to per-fragment operations such as alpha-to-coverage tests, or
-due to the fragment being discarded by the shader itself.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="fragops-late"><a class="anchor" href="#fragops-late"></a>25.5. Late Per-Fragment Tests</h3>
-<div class="paragraph">
-<p>After programmable fragment processing, per-fragment operations are
-performed before blending and color output to the framebuffer.</p>
-</div>
-<div class="paragraph">
-<p>A fragment is produced by rasterization with framebuffer coordinates of
-<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and depth <span class="eq">z</span>, as described in
-<a href="chap24.html#primsrast">Rasterization</a>.
-The fragment is then modified by programmable fragment processing, which
-adds associated data as described in <a href="chap8.html#shaders">Shaders</a>.
-The fragment is then further modified, and possibly discarded by the late
-per-fragment operations described in this chapter.
-Finally, if the fragment was not discarded, it is used to update the
-framebuffer at the fragment’s framebuffer coordinates for any samples that
-remain covered.</p>
-</div>
-<div class="paragraph">
-<p>The depth bounds test, stencil test, and depth test are performed for each
-sample, rather than just once for each fragment.
-Stencil and depth operations are performed for a sample only if that
-sample’s fragment coverage bit is a value of 1 when the fragment executes
-the corresponding stage of the graphics pipeline.
-If the corresponding coverage bit is 0, no operations are performed for that
-sample.
-Failure of the depth bounds, stencil, or depth test results in termination
-of the processing of that sample by means of disabling coverage for that
-sample, rather than discarding of the fragment.
-If, at any point, a fragment’s coverage becomes zero for all samples, then
-the fragment is discarded.
-All operations are performed on the depth and stencil values stored in the
-depth/stencil attachment of the framebuffer.
-The contents of the color attachments are not modified at this point.</p>
-</div>
-<div class="paragraph">
-<p>The depth bounds test, stencil test, depth test, and occlusion query
-operations described in <a href="#fragops-dbt">Depth Bounds Test</a>,
-<a href="#fragops-stencil">Stencil Test</a>, <a href="#fragops-depth">Depth Test</a>,
-<a href="#fragops-samplecount">Sample Counting</a> are instead performed prior to
-fragment processing, as described in <a href="#fragops-early-mode">Early Fragment
-Test Mode</a>, if requested by the fragment shader.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="fragops-covg"><a class="anchor" href="#fragops-covg"></a>25.6. Multisample Coverage</h3>
+<h3 id="fragops-covg"><a class="anchor" href="#fragops-covg"></a>25.3. Multisample Coverage</h3>
 <div class="paragraph">
 <p>If a fragment shader is active and its entry point’s interface includes a
-built-in output variable decorated with <code>SampleMask</code>, the fragment
-coverage is <code>ANDed</code> with the bits of the sample mask to generate a new
-fragment coverage value.
-If such a fragment shader did not assign a value to <code>SampleMask</code> due to
-flow of control, the value <code>ANDed</code> with the fragment coverage is
-undefined.
+built-in output variable decorated with <code>SampleMask</code>,
+the coverage mask is <code>ANDed</code> with the bits of the <code>SampleMask</code>
+built-in to generate a new coverage mask.
+If <a href="chap24.html#primsrast-sampleshading">sample shading</a> is enabled, bits written to
+<code>SampleMask</code> corresponding to samples that are not being shaded by the
+fragment shader invocation are ignored.
 If no fragment shader is active, or if the active fragment shader does not
-include <code>SampleMask</code> in its interface, the fragment coverage is not
-modified.</p>
+include <code>SampleMask</code> in its interface, the coverage mask is not modified.</p>
 </div>
 <div class="paragraph">
-<p>Next, the fragment alpha and coverage values are modified based on the
+<p>Next, the fragment alpha value and coverage mask are modified based on the
 <code>alphaToCoverageEnable</code> and <code>alphaToOneEnable</code> members of the
 <a href="chap24.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure.</p>
 </div>
@@ -1625,11 +1524,9 @@ If that shader output has an integer or unsigned integer type, then these
 operations are skipped.</p>
 </div>
 <div class="paragraph">
-<p>If <code>alphaToCoverageEnable</code> is enabled, a temporary coverage value with
-<code>rasterizationSamples</code> bits is generated where each bit is determined by
-the fragment’s alpha value.
-The temporary coverage value is then ANDed with the fragment coverage value
-to generate a new fragment coverage value.</p>
+<p>If <code>alphaToCoverageEnable</code> is enabled, a temporary coverage mask is
+generated where each bit is determined by the fragment’s alpha value, which
+is ANDed with the fragment coverage mask.</p>
 </div>
 <div class="paragraph">
 <p>No specific algorithm is specified for converting the alpha value to a
@@ -1663,7 +1560,7 @@ Otherwise, the alpha values are not changed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-ds-state"><a class="anchor" href="#fragops-ds-state"></a>25.7. Depth and Stencil Operations</h3>
+<h3 id="fragops-ds-state"><a class="anchor" href="#fragops-ds-state"></a>25.4. Depth and Stencil Operations</h3>
 <div class="paragraph">
 <p>Pipeline state controlling the <a href="#fragops-dbt">depth bounds tests</a>,
 <a href="#fragops-stencil">stencil test</a>, and <a href="#fragops-depth">depth test</a> is
@@ -1731,8 +1628,12 @@ testing</a> is enabled.</p>
 <a href="#fragops-stencil">stencil test</a>.</p>
 </li>
 <li>
-<p><code>minDepthBounds</code> and <code>maxDepthBounds</code> define the range of values
-used in the <a href="#fragops-dbt">depth bounds test</a>.</p>
+<p><code>minDepthBounds</code> is the minimum depth bound used in the
+<a href="#fragops-dbt">depth bounds test</a>.</p>
+</li>
+<li>
+<p><code>maxDepthBounds</code> is the maximum depth bound used in the
+<a href="#fragops-dbt">depth bounds test</a>.</p>
 </li>
 </ul>
 </div>
@@ -1794,21 +1695,35 @@ mask, but is currently reserved for future use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-dbt"><a class="anchor" href="#fragops-dbt"></a>25.8. Depth Bounds Test</h3>
+<h3 id="fragops-dbt"><a class="anchor" href="#fragops-dbt"></a>25.5. Depth Bounds Test</h3>
+<div class="paragraph">
+<p>The depth bounds test compares the depth value <span class="eq">z<sub>a</sub></span> in the
+depth/stencil attachment at each sample’s framebuffer coordinates
+<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and <a href="chap24.html#primsrast-multisampling-coverage-mask">sample
+index</a> <span class="eq">i</span> against a set of <em>depth bounds</em>.</p>
+</div>
+<div class="paragraph">
+<p>The depth bounds are determined by two floating point values defining a
+minimum (<code>minDepthBounds</code>) and maximum (<code>maxDepthBounds</code>) depth
+value.
+These values are either set by the
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure during pipeline
+creation, or dynamically by the <a href="#vkCmdSetDepthBounds">vkCmdSetDepthBounds</a> command.</p>
+</div>
+<div class="paragraph">
+<p>A given sample is considered within the depth bounds if <span class="eq">z<sub>a</sub></span> is in the
+range <span class="eq">[<code>minDepthBounds</code>,<code>maxDepthBounds</code>]</span>.
+Samples with depth attachment values outside of the depth bounds will have
+their coverage set to <code>0</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the depth bounds test is disabled, or if there is no depth attachment,
+the coverage mask is unmodified by this operation.</p>
+</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The depth bounds test conditionally disables coverage of a sample based on
-the outcome of a comparison between the value <span class="eq">z<sub>a</sub></span> in the depth
-attachment at location <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> (for the appropriate sample) and a
-range of values.
-The test is enabled or disabled by the <code>depthBoundsTestEnable</code> member of
-<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>: If the pipeline state object is
-created without the <code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic state
-enabled then the range of values used in the depth bounds test are defined
-by the <code>minDepthBounds</code> and <code>maxDepthBounds</code> members of the
-<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure.
-Otherwise, to dynamically set the depth bounds range values call:</p>
+<p>To dynamically set the depth bounds range values call:</p>
 </div>
 <div id="vkCmdSetDepthBounds" class="listingblock">
 <div class="content">
@@ -1825,13 +1740,17 @@ Otherwise, to dynamically set the depth bounds range values call:</p>
 recorded.</p>
 </li>
 <li>
-<p><code>minDepthBounds</code> is the lower bound of the range of depth values
-used in the depth bounds test.</p>
+<p><code>minDepthBounds</code> is the minimum depth bound.</p>
 </li>
 <li>
-<p><code>maxDepthBounds</code> is the upper bound of the range.</p>
+<p><code>maxDepthBounds</code> is the maximum depth bound.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> set in
+<a href="chap9.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1915,35 +1834,78 @@ Secondary</p></td>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p>If <span class="eq"><code>minDepthBounds</code> ≤ z<sub>a</sub> ≤ <code>maxDepthBounds</code></span>, then
-the depth bounds test passes.
-Otherwise, the test fails and the sample’s coverage bit is cleared in the
-fragment.
-If there is no depth framebuffer attachment or if the depth bounds test is
-disabled, it is as if the depth bounds test always passes.</p>
-</div>
 </div>
 <div class="sect2">
-<h3 id="fragops-stencil"><a class="anchor" href="#fragops-stencil"></a>25.9. Stencil Test</h3>
+<h3 id="fragops-stencil"><a class="anchor" href="#fragops-stencil"></a>25.6. Stencil Test</h3>
 <div class="paragraph">
-<p>The stencil test conditionally disables coverage of a sample based on the
-outcome of a comparison between the stencil value in the depth/stencil
-attachment at location <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> (for the appropriate sample) and a
-reference value.
-The stencil test also updates the value in the stencil attachment, depending
-on the test state, the stencil value and the stencil write masks.
-The stencil test is enabled or disabled by the <code>stencilTestEnable</code>
-member of <a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>.</p>
+<p>The stencil test compares the stencil attachment value <span class="eq">s<sub>a</sub></span> in the
+depth/stencil attachment at each sample’s framebuffer coordinates
+<span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and <a href="chap24.html#primsrast-multisampling-coverage-mask">sample
+index</a> <span class="eq">i</span> against a <em>stencil reference value</em>.</p>
 </div>
 <div class="paragraph">
-<p>When stencil test is disabled, the stencil test and associated modifications
-are not made, and the sample’s coverage is not modified.</p>
+<p>If the stencil test is not enabled, as specified by
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>stencilTestEnable</code>, or if
+there is no stencil attachment, the coverage mask is unmodified by this
+operation.</p>
 </div>
 <div class="paragraph">
-<p>The stencil test is controlled by the <code>front</code> and <code>back</code> members of
-<code>VkPipelineDepthStencilStateCreateInfo</code>, which are of type
-<code>VkStencilOpState</code>.</p>
+<p>The stencil test is controlled by one of two sets of stencil-related state,
+the front stencil state and the back stencil state.
+Stencil tests and writes use the back stencil state when processing
+fragments generated by <a href="chap24.html#primsrast-polygons-basic">back-facing</a>
+<a href="chap24.html#primsrast-polygons">polygons</a>, and the front stencil state when processing
+fragments generated by <a href="chap24.html#primsrast-polygons-basic">front-facing polygons</a> or
+any other primitives.</p>
+</div>
+<div class="paragraph">
+<p>The comparison performed is based on the <a href="#VkCompareOp">VkCompareOp</a>, compare mask
+<span class="eq">s<sub>c</sub></span> , and stencil reference value <span class="eq">s<sub>r</sub></span> of the relevant state
+set.
+The compare mask and stencil reference value are set by either the
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure during pipeline
+creation, or by the <a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompareMask</a> and
+<a href="#vkCmdSetStencilReference">vkCmdSetStencilReference</a> commands respectively.
+The compare operation is set by <a href="#VkStencilOpState">VkStencilOpState</a>::<code>compareOp</code>
+during pipeline creation.</p>
+</div>
+<div class="paragraph">
+<p>The stencil reference and attachment values <span class="eq">s<sub>r</sub></span> and <span class="eq">s<sub>a</sub></span> are
+each independently combined with the compare mask <span class="eq">s<sub>c</sub></span> using a logical
+<code>AND</code> operation to create masked reference and attachment values
+<span class="eq">s'<sub>r</sub></span> and <span class="eq">s'<sub>a</sub></span>.
+<span class="eq">s'<sub>r</sub></span> and <span class="eq">s'<sub>a</sub></span> are used as <span class="eq">A</span> and <span class="eq">B</span>, respectively,
+in the operation specified by <a href="#VkCompareOp">VkCompareOp</a>.</p>
+</div>
+<div class="paragraph">
+<p>If the comparison evaluates to false, the coverage for the sample is set to
+<code>0</code>.</p>
+</div>
+<div class="paragraph">
+<p>A new stencil value <span class="eq">s<sub>g</sub></span> is generated according to a stencil operation
+defined by <a href="#VkStencilOp">VkStencilOp</a>.
+If the stencil test fails,
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>failOp</code> defines the
+stencil operation used.
+If the stencil test passes however, the stencil op used is based on the
+<a href="#fragops-depth">depth test</a> - if it passes,
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>passOp</code> is used, otherwise
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthFailOp</code> is used.
+whether the stencil test passed or failed, and then whether the
+<a href="#fragops-depth">depth test</a> passed or failed.</p>
+</div>
+<div class="paragraph">
+<p>The stencil attachment value <span class="eq">s<sub>a</sub></span> is then updated with the generated
+stencil value <span class="eq">s<sub>g</sub></span> according to the write mask <span class="eq">s<sub>w</sub></span> defined by
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>writeMask</code> as:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">s<sub>a</sub> = (s<sub>a</sub> &amp; ¬s<sub>w</sub>) | (s<sub>g</sub> &amp; s<sub>w</sub>)</span></p>
+</dd>
+</dl>
 </div>
 <div class="openblock">
 <div class="content">
@@ -2018,36 +1980,10 @@ unsigned stencil comparison.</p>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p>There are two sets of stencil-related state, the front stencil state set and
-the back stencil state set.
-Stencil tests and writes use the front set of stencil state when processing
-front-facing fragments and use the back set of stencil state when processing
-back-facing fragments.
-Fragments rasterized from non-polygon primitives (points and lines) are
-always considered front-facing.
-Fragments rasterized from polygon primitives inherit their facingness from
-the polygon, even if the polygon is rasterized as points or lines due to the
-current <a href="chap24.html#VkPolygonMode">VkPolygonMode</a>.
-Whether a polygon is front- or back-facing is determined in the same manner
-used for face culling (see <a href="chap24.html#primsrast-polygons-basic">Basic Polygon
-Rasterization</a>).</p>
-</div>
-<div class="paragraph">
-<p>The operation of the stencil test is also affected by the <code>compareMask</code>,
-<code>writeMask</code>, and <code>reference</code> members of <code>VkStencilOpState</code> set
-in the pipeline state object if the pipeline state object is created without
-the <code>VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK</code>,
-<code>VK_DYNAMIC_STATE_STENCIL_WRITE_MASK</code>, and
-<code>VK_DYNAMIC_STATE_STENCIL_REFERENCE</code> dynamic states enabled,
-respectively.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the pipeline state object is created with the
-<code>VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK</code> dynamic state enabled, then to
-dynamically set the stencil compare mask call:</p>
+<p>To dynamically set the stencil compare mask call:</p>
 </div>
 <div id="vkCmdSetStencilCompareMask" class="listingblock">
 <div class="content">
@@ -2071,6 +2007,11 @@ the set of stencil state for which to update the compare mask.</p>
 <p><code>compareMask</code> is the new value to use as the stencil compare mask.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK</code> set in
+<a href="chap9.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2146,10 +2087,7 @@ Secondary</p></td>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>Bits which <strong class="purple">can</strong> be set in the
-<a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompareMask</a>::<code>faceMask</code> parameter, and similar
-parameters of other commands specifying which stencil state to update
-stencil masks for, are:</p>
+<p><code>VkStencilFaceFlagBits</code> values are:</p>
 </div>
 <div id="VkStencilFaceFlagBits" class="listingblock">
 <div class="content">
@@ -2158,7 +2096,6 @@ stencil masks for, are:</p>
     VK_STENCIL_FACE_BACK_BIT = <span class="hex">0x00000002</span>,
     VK_STENCIL_FACE_FRONT_AND_BACK = <span class="hex">0x00000003</span>,
     VK_STENCIL_FRONT_AND_BACK = VK_STENCIL_FACE_FRONT_AND_BACK,
-    VK_STENCIL_FACE_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkStencilFaceFlagBits;</code></pre>
 </div>
 </div>
@@ -2197,9 +2134,7 @@ more <a href="#VkStencilFaceFlagBits">VkStencilFaceFlagBits</a>.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the pipeline state object is created with the
-<code>VK_DYNAMIC_STATE_STENCIL_WRITE_MASK</code> dynamic state enabled, then to
-dynamically set the stencil write mask call:</p>
+<p>To dynamically set the stencil write mask call:</p>
 </div>
 <div id="vkCmdSetStencilWriteMask" class="listingblock">
 <div class="content">
@@ -2224,6 +2159,11 @@ described above for <a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompare
 <p><code>writeMask</code> is the new value to use as the stencil write mask.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_STENCIL_WRITE_MASK</code> set in
+<a href="chap9.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2299,9 +2239,7 @@ Secondary</p></td>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the pipeline state object is created with the
-<code>VK_DYNAMIC_STATE_STENCIL_REFERENCE</code> dynamic state enabled, then to
-dynamically set the stencil reference value call:</p>
+<p>To dynamically set the stencil reference value call:</p>
 </div>
 <div id="vkCmdSetStencilReference" class="listingblock">
 <div class="content">
@@ -2326,6 +2264,11 @@ described above for <a href="#vkCmdSetStencilCompareMask">vkCmdSetStencilCompare
 <p><code>reference</code> is the new value to use as the stencil reference value.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_STENCIL_REFERENCE</code> set in
+<a href="chap9.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2398,20 +2341,6 @@ Secondary</p></td>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p><code>reference</code> is an integer reference value that is used in the unsigned
-stencil comparison.
-The reference value used by stencil comparison must be within the range
-<span class="eq">[0,2<sup>s</sup>-1]</span> , where <span class="eq">s</span> is the number of bits in the stencil
-framebuffer attachment, otherwise the reference value is considered
-undefined.
-The <span class="eq">s</span> least significant bits of <code>compareMask</code> are bitwise
-<code>ANDed</code> with both the reference and the stored stencil value, and the
-resulting masked values are those that participate in the comparison
-controlled by <code>compareOp</code>.
-Let <span class="eq">R</span> be the masked reference value and <span class="eq">S</span> be the masked stored
-stencil value.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2429,41 +2358,38 @@ stencil comparison function, are:</p>
     VK_COMPARE_OP_NOT_EQUAL = <span class="integer">5</span>,
     VK_COMPARE_OP_GREATER_OR_EQUAL = <span class="integer">6</span>,
     VK_COMPARE_OP_ALWAYS = <span class="integer">7</span>,
-    VK_COMPARE_OP_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkCompareOp;</code></pre>
 </div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_COMPARE_OP_NEVER</code> specifies that the test never passes.</p>
+<p><code>VK_COMPARE_OP_NEVER</code> specifies that the test evaluates to false.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_LESS</code> specifies that the test passes when <span class="eq">R &lt;
-S</span>.</p>
+<p><code>VK_COMPARE_OP_LESS</code> specifies that the test evaluates <span class="eq">A &lt; B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_EQUAL</code> specifies that the test passes when <span class="eq">R =
-S</span>.</p>
+<p><code>VK_COMPARE_OP_EQUAL</code> specifies that the test evaluates <span class="eq">A = B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_LESS_OR_EQUAL</code> specifies that the test passes when
-<span class="eq">R ≤ S</span>.</p>
+<p><code>VK_COMPARE_OP_LESS_OR_EQUAL</code> specifies that the test evaluates
+<span class="eq">A ≤ B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_GREATER</code> specifies that the test passes when <span class="eq">R &gt;
-S</span>.</p>
+<p><code>VK_COMPARE_OP_GREATER</code> specifies that the test evaluates <span class="eq">A &gt;
+B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_NOT_EQUAL</code> specifies that the test passes when <span class="eq">R
-≠ S</span>.</p>
+<p><code>VK_COMPARE_OP_NOT_EQUAL</code> specifies that the test evaluates <span class="eq">A
+≠ B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_GREATER_OR_EQUAL</code> specifies that the test passes when
-<span class="eq">R ≥ S</span>.</p>
+<p><code>VK_COMPARE_OP_GREATER_OR_EQUAL</code> specifies that the test evaluates
+<span class="eq">A ≥ B</span>.</p>
 </li>
 <li>
-<p><code>VK_COMPARE_OP_ALWAYS</code> specifies that the test always passes.</p>
+<p><code>VK_COMPARE_OP_ALWAYS</code> specifies that the test evaluates to true.</p>
 </li>
 </ul>
 </div>
@@ -2487,7 +2413,6 @@ stencil value if this or certain subsequent tests fail or pass, are:</p>
     VK_STENCIL_OP_INVERT = <span class="integer">5</span>,
     VK_STENCIL_OP_INCREMENT_AND_WRAP = <span class="integer">6</span>,
     VK_STENCIL_OP_DECREMENT_AND_WRAP = <span class="integer">7</span>,
-    VK_STENCIL_OP_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkStencilOp;</code></pre>
 </div>
 </div>
@@ -2527,119 +2452,50 @@ wraps to the maximum possible value when the value would go below 0.</p>
 <p>For purposes of increment and decrement, the stencil bits are considered as
 an unsigned integer.</p>
 </div>
-<div class="paragraph">
-<p>If the stencil test fails, the sample’s coverage bit is cleared in the
-fragment.
-If there is no stencil framebuffer attachment, stencil modification <strong class="purple">cannot</strong>
-occur, and it is as if the stencil tests always pass.</p>
-</div>
-<div class="paragraph">
-<p>If the stencil test passes, the <code>writeMask</code> member of the
-<a href="#VkStencilOpState">VkStencilOpState</a> structures controls how the updated stencil value is
-written to the stencil framebuffer attachment.</p>
-</div>
-<div class="paragraph">
-<p>The least significant <span class="eq">s</span> bits of <code>writeMask</code>, where <span class="eq">s</span> is the
-number of bits in the stencil framebuffer attachment, specify an integer
-mask.
-Where a <span class="eq">1</span> appears in this mask, the corresponding bit in the stencil
-value in the depth/stencil attachment is written; where a <span class="eq">0</span> appears,
-the bit is not written.
-The <code>writeMask</code> value uses either the front-facing or back-facing state
-based on the facingness of the fragment.
-Fragments generated by front-facing primitives use the front mask and
-fragments generated by back-facing primitives use the back mask.</p>
-</div>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-depth"><a class="anchor" href="#fragops-depth"></a>25.10. Depth Test</h3>
+<h3 id="fragops-depth"><a class="anchor" href="#fragops-depth"></a>25.7. Depth Test</h3>
 <div class="paragraph">
-<p>The depth test conditionally disables coverage of a sample based on the
-outcome of a comparison between the fragment’s depth value at the sample
-location and the sample’s depth value in the depth/stencil attachment at
-location <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span>.
-The comparison is enabled or disabled with the <code>depthTestEnable</code> member
-of the <a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure.
-When disabled, the depth comparison and subsequent possible updates to the
-value of the depth component of the depth/stencil attachment are bypassed
-and the fragment is passed to the next operation.
-The stencil value, however, <strong class="purple">can</strong> be modified as indicated above as if the
-depth test passed.
-If enabled, the comparison takes place and the depth/stencil attachment
-value <strong class="purple">can</strong> subsequently be modified.</p>
+<p>The depth test compares the depth value <span class="eq">z<sub>a</sub></span> in the depth/stencil
+attachment at each sample’s framebuffer coordinates <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and
+<a href="chap24.html#primsrast-multisampling-coverage-mask">sample index</a> <span class="eq">i</span> against the
+sample’s depth value <span class="eq">z<sub>f</sub></span>.</p>
 </div>
 <div class="paragraph">
-<p>The comparison is specified with the <code>depthCompareOp</code> member of
-<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>.
-Let <span class="eq"><code>z</code><sub>f</sub></span> be the incoming fragment’s depth value for a sample,
-and let <span class="eq">z<sub>a</sub></span> be the depth/stencil attachment value in memory for that
-sample.
-The depth test passes under the following conditions:</p>
+<p>If the depth test is not enabled, as specified by
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthTestEnable</code>, or if
+there is no depth attachment, the coverage mask is unmodified by this
+operation.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>VK_COMPARE_OP_NEVER</code>: the test never passes.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_LESS</code>: the test passes when <span class="eq">z<sub>f</sub> &lt; z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_EQUAL</code>: the test passes when <span class="eq">z<sub>f</sub> = z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_LESS_OR_EQUAL</code>: the test passes when <span class="eq">z<sub>f</sub> ≤
-z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_GREATER</code>: the test passes when <span class="eq">z<sub>f</sub> &gt; z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_NOT_EQUAL</code>: the test passes when <span class="eq">z<sub>f</sub> ≠
-z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_GREATER_OR_EQUAL</code>: the test passes when <span class="eq">z<sub>f</sub>
-≥ z<sub>a</sub></span>.</p>
-</li>
-<li>
-<p><code>VK_COMPARE_OP_ALWAYS</code>: the test always passes.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>The comparison performed is based on the <a href="#VkCompareOp">VkCompareOp</a>, set by
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthCompareOp</code> during
+pipeline creation.
+<span class="eq">z<sub>f</sub></span> and <span class="eq">z<sub>a</sub></span> are used as <span class="eq">A</span> and <span class="eq">B</span>, respectively, in
+the operation specified by the <a href="#VkCompareOp">VkCompareOp</a>.</p>
 </div>
 <div class="paragraph">
 <p>If <a href="chap24.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthClampEnable</code> is
-enabled, before the incoming fragment’s <span class="eq"><code>z</code><sub>f</sub></span> is compared to
+enabled, before the sample’s <span class="eq"><code>z</code><sub>f</sub></span> is compared to
 <span class="eq"><code>z</code><sub>a</sub></span>, <span class="eq"><code>z</code><sub>f</sub></span> is clamped to <span class="eq">[min(n,f),max(n,f)]</span>,
 where <span class="eq">n</span> and <span class="eq">f</span> are the <code>minDepth</code> and <code>maxDepth</code> depth
 range values of the viewport used by this fragment, respectively.</p>
 </div>
 <div class="paragraph">
-<p>If the depth test fails, the sample’s coverage bit is cleared in the
-fragment.
-The stencil value at the sample’s location is updated according to the
-function currently in effect for depth test failure.</p>
+<p>If the comparison evaluates to false, the coverage for the sample is set to
+<code>0</code>.</p>
 </div>
 <div id="fragops-depth-write" class="paragraph">
-<p>If the depth test passes, the sample’s (possibly clamped) <span class="eq"><code>z</code><sub>f</sub></span>
-value is conditionally written to the depth framebuffer attachment based on
-the <code>depthWriteEnable</code> member of
-<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>.
-The value is written if <code>depthWriteEnable</code> is <code>VK_TRUE</code> and there is
-a depth framebuffer attachment.
-Otherwise, no value is written.
-The stencil value at the sample’s location is updated according to the
-function currently in effect for depth test success.</p>
-</div>
-<div class="paragraph">
-<p>If there is no depth framebuffer attachment, it is as if the depth test
-always passes.</p>
+<p>If depth writes are enabled, as specified by
+<a href="#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthWriteEnable</code>, and the
+comparison evaluated to true, the depth attachment value <span class="eq">z<sub>a</sub></span> is set
+to the sample’s depth value <span class="eq">z<sub>f</sub></span>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-samplecount"><a class="anchor" href="#fragops-samplecount"></a>25.11. Sample Counting</h3>
+<h3 id="fragops-samplecount"><a class="anchor" href="#fragops-samplecount"></a>25.8. Sample Counting</h3>
 <div class="paragraph">
 <p>Occlusion queries use query pool entries to track the number of samples that
 pass all the per-fragment tests.
@@ -2654,7 +2510,7 @@ sample mask, alpha to coverage, stencil, and depth tests.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-coverage-reduction"><a class="anchor" href="#fragops-coverage-reduction"></a>25.12. Coverage Reduction</h3>
+<h3 id="fragops-coverage-reduction"><a class="anchor" href="#fragops-coverage-reduction"></a>25.9. Coverage Reduction</h3>
 <div class="paragraph">
 <p>Coverage reduction generates a <em>color sample mask</em> from the coverage mask,
 with one bit for each sample in the color attachment(s) for the subpass.
@@ -2662,17 +2518,18 @@ If a bit in the color sample mask is 0, then blending and writing to the
 framebuffer are not performed for that sample.</p>
 </div>
 <div class="paragraph">
-<p>When the <code>VK_NV_framebuffer_mixed_samples</code> extension is not enabled, each
-color sample is associated with a unique rasterization sample, and the value
-of the coverage mask is assigned to the color sample mask.</p>
+<p>If the fragment covers a single pixel with a number of samples equal to the
+number of samples in each color attachment, each color sample is associated
+with a unique rasterization sample, and the value of the coverage mask is
+assigned to the color sample mask.</p>
 </div>
 </div>
 </div>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.139<br>
-Last updated 2020-04-16 23:02:14 -0700
+Version 1.2.140<br>
+Last updated 2020-05-03 21:42:41 -0700
 </div>
 </div>
 <style>

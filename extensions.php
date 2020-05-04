@@ -79,6 +79,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_calibrated_timestamps.html"> VK_EXT_calibrated_timestamps </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_conditional_rendering.html"> VK_EXT_conditional_rendering </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_conservative_rasterization.html"> VK_EXT_conservative_rasterization </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_custom_border_color.html"> VK_EXT_custom_border_color </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_marker.html"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_report.html"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_utils.html"> VK_EXT_debug_utils </a> </li>
@@ -110,6 +111,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_robustness2.html"> VK_EXT_robustness2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sample_locations.html"> VK_EXT_sample_locations </a> </li>

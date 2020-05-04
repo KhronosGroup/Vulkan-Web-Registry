@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.139 - A Specification</title>
+<title>Vulkan® 1.1.140 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.139 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.140 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.139,</span>
-<span id="revdate">2020-04-26 21:48:39Z</span>
-<br><span id="revremark">from git branch: github-master commit: 5789d98a3fb3e02beb2f92aab5dd4b87d648cfc2</span>
+<span id="revnumber">version 1.1.140,</span>
+<span id="revdate">2020-05-04 10:10:01Z</span>
+<br><span id="revremark">from git branch: github-master commit: a79b923ed376c42e99ecdb9d2ad69a56fb850ddc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -873,7 +873,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap8.html#shaders-group-operations">8.14. Group Operations</a></li>
 <li><a href="chap8.html#shaders-quad-operations">8.15. Quad Group Operations</a></li>
 <li><a href="chap8.html#shaders-derivative-operations">8.16. Derivative Operations</a></li>
-<li><a href="chap8.html#_helper_invocations">8.17. Helper Invocations</a></li>
+<li><a href="chap8.html#shaders-helper-invocations">8.17. Helper Invocations</a></li>
 </ul>
 </li>
 <li><a href="chap9.html#pipelines">9. Pipelines</a>
@@ -1027,18 +1027,15 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </li>
 <li><a href="chap25.html#fragops">25. Fragment Operations</a>
 <ul class="sectlevel2">
-<li><a href="chap25.html#fragops-early">25.1. Early Per-Fragment Tests</a></li>
-<li><a href="chap25.html#fragops-scissor">25.2. Scissor Test</a></li>
-<li><a href="chap25.html#fragops-samplemask">25.3. Sample Mask</a></li>
-<li><a href="chap25.html#fragops-early-mode">25.4. Early Fragment Test Mode</a></li>
-<li><a href="chap25.html#fragops-late">25.5. Late Per-Fragment Tests</a></li>
-<li><a href="chap25.html#fragops-covg">25.6. Multisample Coverage</a></li>
-<li><a href="chap25.html#fragops-ds-state">25.7. Depth and Stencil Operations</a></li>
-<li><a href="chap25.html#fragops-dbt">25.8. Depth Bounds Test</a></li>
-<li><a href="chap25.html#fragops-stencil">25.9. Stencil Test</a></li>
-<li><a href="chap25.html#fragops-depth">25.10. Depth Test</a></li>
-<li><a href="chap25.html#fragops-samplecount">25.11. Sample Counting</a></li>
-<li><a href="chap25.html#fragops-coverage-reduction">25.12. Coverage Reduction</a></li>
+<li><a href="chap25.html#fragops-scissor">25.1. Scissor Test</a></li>
+<li><a href="chap25.html#fragops-samplemask">25.2. Sample Mask Test</a></li>
+<li><a href="chap25.html#fragops-covg">25.3. Multisample Coverage</a></li>
+<li><a href="chap25.html#fragops-ds-state">25.4. Depth and Stencil Operations</a></li>
+<li><a href="chap25.html#fragops-dbt">25.5. Depth Bounds Test</a></li>
+<li><a href="chap25.html#fragops-stencil">25.6. Stencil Test</a></li>
+<li><a href="chap25.html#fragops-depth">25.7. Depth Test</a></li>
+<li><a href="chap25.html#fragops-samplecount">25.8. Sample Counting</a></li>
+<li><a href="chap25.html#fragops-coverage-reduction">25.9. Coverage Reduction</a></li>
 </ul>
 </li>
 <li><a href="#framebuffer">26. The Framebuffer</a>
@@ -1183,9 +1180,24 @@ Blending computations are treated as if carried out in floating-point, and
 basic blend operations are performed with a precision and dynamic range no
 lower than that used to represent destination components.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
 <div class="paragraph">
-<p>Blending applies only to fixed-point and floating-point color attachments.
-If the color attachment has an integer format, blending is not applied.</p>
+<p>Blending is only defined for floating-point, UNORM, SNORM, and sRGB formats.
+Within those formats, the implementation may only support blending on some
+subset of them.
+Which formats support blending is indicated by
+<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code>.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>The pipeline blend state is included in the
@@ -1480,7 +1492,6 @@ from the enum:</p>
     VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR = <span class="integer">16</span>,
     VK_BLEND_FACTOR_SRC1_ALPHA = <span class="integer">17</span>,
     VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA = <span class="integer">18</span>,
-    VK_BLEND_FACTOR_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkBlendFactor;</code></pre>
 </div>
 </div>
@@ -1778,7 +1789,6 @@ Possible values of <a href="#VkBlendOp">VkBlendOp</a>, specifying the operations
     VK_BLEND_OP_REVERSE_SUBTRACT = <span class="integer">2</span>,
     VK_BLEND_OP_MIN = <span class="integer">3</span>,
     VK_BLEND_OP_MAX = <span class="integer">4</span>,
-    VK_BLEND_OP_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkBlendOp;</code></pre>
 </div>
 </div>
@@ -1957,7 +1967,6 @@ The <code>logicOp</code> is selected from the following operations:</p>
     VK_LOGIC_OP_OR_INVERTED = <span class="integer">13</span>,
     VK_LOGIC_OP_NAND = <span class="integer">14</span>,
     VK_LOGIC_OP_SET = <span class="integer">15</span>,
-    VK_LOGIC_OP_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkLogicOp;</code></pre>
 </div>
 </div>
@@ -2095,7 +2104,6 @@ framebuffer attachment are:</p>
     VK_COLOR_COMPONENT_G_BIT = <span class="hex">0x00000002</span>,
     VK_COLOR_COMPONENT_B_BIT = <span class="hex">0x00000004</span>,
     VK_COLOR_COMPONENT_A_BIT = <span class="hex">0x00000008</span>,
-    VK_COLOR_COMPONENT_FLAG_BITS_MAX_ENUM = <span class="hex">0x7FFFFFFF</span>
 } VkColorComponentFlagBits;</code></pre>
 </div>
 </div>
@@ -2147,8 +2155,8 @@ more <a href="#VkColorComponentFlagBits">VkColorComponentFlagBits</a>.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.139<br>
-Last updated 2020-04-16 23:02:14 -0700
+Version 1.1.140<br>
+Last updated 2020-05-03 21:42:41 -0700
 </div>
 </div>
 <style>
