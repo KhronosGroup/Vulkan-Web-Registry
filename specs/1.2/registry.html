@@ -778,9 +778,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>The Khronos<sup>®</sup> Vulkan<sup>®</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.2.140,</span>
-<span id="revdate">2020-05-04 09:58:22Z</span>
-<br><span id="revremark">from git branch: github-master commit: a79b923ed376c42e99ecdb9d2ad69a56fb850ddc</span>
+<span id="revnumber">version 1.2.141,</span>
+<span id="revdate">2020-05-15 09:23:16Z</span>
+<br><span id="revremark">from git branch: github-master commit: 8bd1271c25ec56248494389b0cc2b6741cb28164</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1221,11 +1221,30 @@ conditionally depending on the API profile requested.</p>
 <div class="sect2">
 <h3 id="schema:apiname"><a class="anchor" href="#schema:apiname"></a>3.2. API Names</h3>
 <div class="paragraph">
-<p>The schema supports, but does not currently use an <code>api</code> attribute on
-several tags. This is an arbitrary string, specified at header generation
-time, for labelling properties of a specific API or API profile. The string
-can be, but is not necessarily, an actual API name. Names starting with <code>vk</code>
-are suggested if and when we start defining profiles of Vulkan.</p>
+<p>Specific API versions features and extensions can be tagged as belonging to
+to classes of features with the use of <em>API names</em>.
+This is intended to allow multiple closely-related API specifications in the
+same family - such as desktop and mobile specifications - to share the same
+XML.
+An API name is an arbitrary alphanumeric string, although it should be
+chosen to match the corresponding API.
+For example, Vulkan and OpenXR use <code>vulkan</code> and <code>openxr</code> as their API names,
+respectively.</p>
+</div>
+<div class="paragraph">
+<p>The <code>api</code> attribute of the <code>feature</code> tag and the <code>supported</code>
+attribute of the <code>extensions</code> tag must be comma-separated lists of one or
+more API names, all of which match that feature or extension.
+When generating headers and other artifacts from the XML, an API name may be
+specified to the processing scripts, causing the selection of only those
+features and extensions whose API names match the specified name.</p>
+</div>
+<div class="paragraph">
+<p>Several other tags for defining types and groups of types also support
+<code>api</code> attributes.
+If present, the attribute value must be a comma-separated list of one or
+more API names.
+This allows specializing a definition for different, closely related APIs.</p>
 </div>
 </div>
 </div>
@@ -1548,11 +1567,12 @@ the API. The old extension type is still defined, but as an alias of the
 new type.</p>
 </li>
 <li>
-<p><code>api</code> - optional. An API name (see <code>feature</code> below) which
-specializes this definition of the named type, so that the same API
-types may have different definitions for e.g. GL ES and GL. This is
-unlikely to be used in Vulkan, where a single API supports desktop
-and mobile devices, but the functionality is retained.</p>
+<p><code>api</code> - optional <a href="#schema:apiname">API names</a> for which this
+definition is specialized, so that different APIs may have different
+definitions for the same type.
+This definition is only used if the requested API name matches the
+attribute.
+May be used to address subtle incompatibilities.</p>
 </li>
 <li>
 <p><code>category</code> - optional. A string which indicates that this type
@@ -1961,10 +1981,12 @@ tag.</p>
 name.</p>
 </li>
 <li>
-<p><code>api</code> - optional. An API name which specializes this definition
-of the named enum, so that different APIs may have different values
-for the same token. May be used to address a subtle
-incompatibilities.</p>
+<p><code>api</code> - optional <a href="#schema:apiname">API names</a> for which this
+definition is specialized, so that different APIs may have different
+values for the same token.
+This definition is only used if the requested API name matches the
+attribute.
+May be used to address subtle incompatibilities.</p>
 </li>
 <li>
 <p><code>type</code> - optional. Used only when <code>value</code> is specified. C
@@ -2385,8 +2407,8 @@ version.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>api</code> - required. <a href="#schema:apiname">API name</a> this feature is for,
-such as <code>vk</code>.</p>
+<p><code>api</code> - required <a href="#schema:apiname">API names</a> this feature is
+defined for, such as <code>vulkan</code>.</p>
 </li>
 <li>
 <p><code>name</code> - required. Version name, used as the C preprocessor token
@@ -2585,11 +2607,11 @@ header, etc. The attribute value must be the same as one of the
 <code>platform</code> <code>name</code> attribute values.</p>
 </li>
 <li>
-<p><code>supported</code> - required. A regular expression with an implicit <code>^</code> and
-<code>$</code> bracketing it, which should match the <code>api</code> tag of a set of
-<code>feature</code> tags. When the extension tag is just reserving an extension
-number, and no interfaces are yet defined, use <code>supported="disabled"</code> to
-indicate this extension should never be processed.</p>
+<p><code>supported</code> - required <a href="#schema:apiname">API names</a> this extension
+is defined for.
+When the extension tag is just reserving an extension number, and no
+interfaces are yet defined, use <code>supported="disabled"</code> to indicate this
+extension should never be processed.</p>
 </li>
 <li>
 <p><code>promotedto</code> - optional. A Vulkan version or a name of an extension
@@ -2758,10 +2780,11 @@ removed) for all API profiles.</p>
 <p><code>comment</code> - optional. Arbitrary string (unused).</p>
 </li>
 <li>
-<p><code>api</code> - optional. An <a href="#schema:apiname">API name</a>.
-Interfaces in the tag are only required (or removed) if the
-specified API is being generated. If not specified, interfaces are
-required (or removed) for all APIs.</p>
+<p><code>api</code> - optional <a href="#schema:apiname">API names</a> requiring or removing
+these interfaces.
+Interfaces in the tag are only required (or removed) if the requested
+API name matches the attribute.
+If not specified, interfaces are required (or removed) for all APIs.</p>
 </li>
 </ul>
 </div>
@@ -2865,10 +2888,12 @@ attributes:</p>
 <p><code>comment</code> - optional. Arbitrary string (unused).</p>
 </li>
 <li>
-<p><code>api</code> - optional. An API name which specializes this definition of
-the enumerant <code>name</code>, so that different APIs may have different
-values for the same token. May be used to address subtle
-incompatibilities.</p>
+<p><code>api</code> - optional <a href="#schema:apiname">API names</a> for which this
+definition is specialized, so that different APIs may have different
+values for the same token.
+This definition is only used if the requested API name matches the
+attribute.
+May be used to address subtle incompatibilities.</p>
 </li>
 </ul>
 </div>
@@ -2941,11 +2966,6 @@ extension to a new core version of the API. The old extension enumerant
 is still defined, but as an alias of the new core enumerant. It may also
 be used when token names have been changed as a result of profile
 changes, or for consistency purposes.</p>
-</li>
-<li>
-<p><code>api</code> - an API name which specializes this definition of the named
-enum, so that different APIs may have different values for the same
-token. May be used to address subtle incompatibilities.</p>
 </li>
 </ul>
 </div>
@@ -3789,6 +3809,11 @@ files and Python scripts are logged in Github history.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2020-05-07 - Update description of <a href="#schema:apiname">API Names</a> to
+current usage, including allowing specifying multiple API names for a
+given feature or extension.</p>
+</li>
+<li>
 <p>2020-04-29 - Expand use of <code>category</code> <code>basetype</code> in <code>type</code> tags to
 include external API types.</p>
 </li>
@@ -3968,8 +3993,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.140<br>
-Last updated 2020-05-03 21:42:41 -0700
+Version 1.2.141<br>
+Last updated 2020-05-15 00:24:38 -0700
 </div>
 </div>
 
