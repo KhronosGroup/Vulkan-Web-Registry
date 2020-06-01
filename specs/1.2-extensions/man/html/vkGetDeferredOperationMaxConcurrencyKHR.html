@@ -787,11 +787,13 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>vkGetDeferredOperationMaxConcurrencyKHR</code> function is defined as:</p>
+<p>To query the number of additional threads that can usefully be joined to a
+deferred operation, call:</p>
 </div>
 <div id="vkGetDeferredOperationMaxConcurrencyKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">uint32_t vkGetDeferredOperationMaxConcurrencyKHR(
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_deferred_host_operations
+uint32_t vkGetDeferredOperationMaxConcurrencyKHR(
     VkDevice                                    device,
     VkDeferredOperationKHR                      operation);</code></pre>
 </div>
@@ -824,14 +826,22 @@ This value is intended to be used to better schedule work onto available
 threads.
 Applications <strong class="purple">can</strong> join any number of threads to the deferred operation and
 expect it to eventually complete, though excessive joins <strong class="purple">may</strong> return
-<code>VK_THREAD_IDLE_KHR</code> immediately, performing no useful work.</p>
+<code>VK_THREAD_DONE_KHR</code> immediately, performing no useful work.</p>
 </div>
 <div class="paragraph">
-<p>If the deferred operation is currently joined to any threads, the value
-returned by this command <strong class="purple">may</strong> immediately be out of date.</p>
+<p>If <code>operation</code> is complete,
+<code>vkGetDeferredOperationMaxConcurrencyKHR</code> returns zero.</p>
 </div>
 <div class="paragraph">
-<p>Implementations <strong class="purple">must</strong> not return zero.</p>
+<p>If <code>operation</code> is currently joined to any threads, the value returned by
+this command <strong class="purple">may</strong> immediately be out of date.</p>
+</div>
+<div class="paragraph">
+<p>If <code>operation</code> is pending, implementations <strong class="purple">must</strong> not return zero unless
+at least one thread is currently executing <a href="vkDeferredOperationJoinKHR.html">vkDeferredOperationJoinKHR</a>
+on <code>operation</code>.
+If there are such threads, the implementation <strong class="purple">should</strong> return an estimate of
+the number of additional threads which it could profitably use.</p>
 </div>
 <div class="paragraph">
 <p>Implementations <strong class="purple">may</strong> return <span class="eq">2<sup>32</sup>-1</span> to indicate that the maximum
@@ -841,11 +851,25 @@ available on the host CPU.
 In these situations, an application <strong class="purple">should</strong> clamp the return value rather
 than oversubscribing the machine.</p>
 </div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The recommended usage pattern for applications is to query this value once,
+after deferral, and schedule no more than the specified number of threads to
+join the operation.
+Each time a joined thread receives <code>VK_THREAD_IDLE_KHR</code>, the application
+should schedule an additional join at some point in the future, but is not
+required to do so.</p>
 </div>
+</td>
+</tr>
+</table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -900,8 +924,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.141<br>
-Last updated 2020-05-15 02:13:21 -0700
+Version 1.2.142<br>
+Last updated 2020-06-01 04:06:45 -0700
 </div>
 </div>
 

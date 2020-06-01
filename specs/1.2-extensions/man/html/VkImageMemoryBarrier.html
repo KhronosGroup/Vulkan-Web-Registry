@@ -791,7 +791,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="VkImageMemoryBarrier" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">typedef struct VkImageMemoryBarrier {
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_VERSION_1_0
+typedef struct VkImageMemoryBarrier {
     VkStructureType            sType;
     const void*                pNext;
     VkAccessFlags              srcAccessMask;
@@ -816,7 +817,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>srcAccessMask</code> is a bitmask of <a href="VkAccessFlagBits.html">VkAccessFlagBits</a> specifying a
@@ -892,36 +894,9 @@ the first access scope includes no access, as if <code>srcAccessMask</code> was
 <code>0</code>.</p>
 </div>
 <div class="paragraph">
-<p>If <code>oldLayout</code> is not equal to <code>newLayout</code>, then the memory barrier
-defines an <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-image-layout-transitions" target="_blank" rel="noopener">image layout
-transition</a> for the specified image subresource range.</p>
-</div>
-<div id="synchronization-image-barrier-layout-transition-order" class="paragraph">
-<p>Layout transitions that are performed via image memory barriers execute in
-their entirety in <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-submission-order" target="_blank" rel="noopener">submission order</a>,
-relative to other image layout transitions submitted to the same queue,
-including those performed by <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#renderpass" target="_blank" rel="noopener">render passes</a>.
-In effect there is an implicit execution dependency from each such layout
-transition to all layout transitions previously submitted to the same queue.</p>
-</div>
-<div class="paragraph">
-<p>The image layout of each image subresource of a depth/stencil image created
-with <code>VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT</code> is
-dependent on the last sample locations used to render to the image
-subresource as a depth/stencil attachment, thus when the <code>image</code> member
-of a <code>VkImageMemoryBarrier</code> is an image created with this flag the
-application <strong class="purple">can</strong> include a <a href="VkSampleLocationsInfoEXT.html">VkSampleLocationsInfoEXT</a> structure in the
-<code>pNext</code> chain of <code>VkImageMemoryBarrier</code> to specify the sample
-locations to use during the image layout transition.</p>
-</div>
-<div class="paragraph">
-<p>If the <code>VkSampleLocationsInfoEXT</code> structure included in the <code>pNext</code>
-chain of <code>VkImageMemoryBarrier</code> does not match the sample location state
-last used to render to the image subresource range specified by
-<code>subresourceRange</code> or if no <code>VkSampleLocationsInfoEXT</code> structure is
-included in the <code>pNext</code> chain of <code>VkImageMemoryBarrier</code>, then the
-contents of the given image subresource range becomes undefined as if
-<code>oldLayout</code> would equal <code>VK_IMAGE_LAYOUT_UNDEFINED</code>.</p>
+<p><code>oldLayout</code> and <code>newLayout</code> define an
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-image-layout-transitions" target="_blank" rel="noopener">image layout transition</a> for
+the specified image subresource range.</p>
 </div>
 <div class="paragraph">
 <p>If <code>image</code> has a multi-planar format and the image is <em>disjoint</em>, then
@@ -935,63 +910,6 @@ including <code>VK_IMAGE_ASPECT_COLOR_BIT</code> in the <code>aspectMask</code> 
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01197"></a>
-<code>oldLayout</code> <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or the current
-layout of the image subresources affected by the barrier</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-newLayout-01198"></a>
-<code>newLayout</code> <strong class="purple">must</strong> not be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
-<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01381"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01766"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, and one of <code>srcQueueFamilyIndex</code>
-and <code>dstQueueFamilyIndex</code> is <code>VK_QUEUE_FAMILY_IGNORED</code>, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code> or a special queue family
-reserved for external memory transfers, as described in
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01201"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>srcQueueFamilyIndex</code> is
-<code>VK_QUEUE_FAMILY_IGNORED</code>, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> also be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01767"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>srcQueueFamilyIndex</code> is not
-<code>VK_QUEUE_FAMILY_IGNORED</code>, it <strong class="purple">must</strong> be a valid queue family or a
-special queue family reserved for external memory transfers, as
-described in <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01768"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>dstQueueFamilyIndex</code> is not
-<code>VK_QUEUE_FAMILY_IGNORED</code>, it <strong class="purple">must</strong> be a valid queue family or a
-special queue family reserved for external memory transfers, as
-described in <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01205"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not <code>VK_QUEUE_FAMILY_IGNORED</code>, at
-least one of them <strong class="purple">must</strong> be the same as the family of the queue that will
-execute this barrier</p>
-</li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-subresourceRange-01486"></a>
 <code>subresourceRange.baseMipLevel</code> <strong class="purple">must</strong> be less than the
@@ -1022,25 +940,179 @@ If <code>subresourceRange.layerCount</code> is not
 was created</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-image-03319"></a>
-If <code>image</code> has a depth/stencil format with both depth and stencil
-and the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-separateDepthStencilLayouts" target="_blank" rel="noopener">separateDepthStencilLayouts</a> feature is enabled, then the
-<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include either
-or both <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and
-<code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+<p><a id="VUID-VkImageMemoryBarrier-image-01932"></a>
+If <code>image</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
+contiguously to a single <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-image-03320"></a>
-If <code>image</code> has a depth/stencil format with both depth and stencil
-and the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-separateDepthStencilLayouts" target="_blank" rel="noopener">separateDepthStencilLayouts</a> feature is not enabled, then the
-<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include both
-<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01208"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01209"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01210"></a></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04064"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01211"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with <code>VK_IMAGE_USAGE_SAMPLED_BIT</code> or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01212"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01213"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01197"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+<code>oldLayout</code> <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or the current
+layout of the image subresources affected by the barrier</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-newLayout-01198"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+<code>newLayout</code> <strong class="purple">must</strong> not be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
+<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01658"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> then
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01659"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> then
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04065"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL_KHR</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with at least one of
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>,
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04066"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04067"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with at least one of
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>,
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04068"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-02088"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with <code>VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</code>
+set</p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-image-01671"></a>
-If <code>image</code> has a color format and either the format is single-plane
-or the image is not disjoint then the <code>aspectMask</code> member of
-<code>subresourceRange</code> <strong class="purple">must</strong> only include
+If <code>image</code> has a single-plane color format or is not <em>disjoint</em>,
+then the <code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> be
 <code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
 </li>
 <li>
@@ -1059,69 +1131,51 @@ If <code>image</code> has a multi-planar format with only two planes, then the
 <code>VK_IMAGE_ASPECT_PLANE_2_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01208"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-03319"></a>
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include either
+or both <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01209"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> then <code>image</code>
-<strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-03320"></a>
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is not enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include both
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01210"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then <code>image</code>
-<strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070"></a>
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one <strong class="purple">must</strong> not be a special queue family reserved for external
+memory ownership transfers, as described in
+<a href="#synchronization-queue-transfers">[synchronization-queue-transfers]</a></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01658"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> then
-<code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-04071"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, and one of
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is a special
+queue family values reserved for external memory transfers, the other
+<strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01659"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> then
-<code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-04072"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
+the special queue family values reserved for external memory transfers,
+as described in <a href="#synchronization-queue-transfers">[synchronization-queue-transfers]</a></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01211"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_SAMPLED_BIT</code> or
-<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01212"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01213"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01932"></a>
-If <code>image</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
-contiguously to a single <code>VkDeviceMemory</code> object</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-02088"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</code>
-set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-01381"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code></p>
 </li>
 </ul>
 </div>
@@ -1192,8 +1246,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.141<br>
-Last updated 2020-05-15 02:13:21 -0700
+Version 1.2.142<br>
+Last updated 2020-06-01 04:06:45 -0700
 </div>
 </div>
 

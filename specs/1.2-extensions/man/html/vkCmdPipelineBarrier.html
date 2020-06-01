@@ -791,7 +791,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="vkCmdPipelineBarrier" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">void vkCmdPipelineBarrier(
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_VERSION_1_0
+void vkCmdPipelineBarrier(
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
@@ -929,6 +930,46 @@ any dependency between <a href="https://www.khronos.org/registry/vulkan/specs/1.
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-02285"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the render
+pass <strong class="purple">must</strong> have been created with at least one <a href="VkSubpassDependency.html">VkSubpassDependency</a>
+instance in <code>VkRenderPassCreateInfo</code>::<code>pDependencies</code> that
+expresses a dependency from the current subpass to itself, with
+<a href="#synchronization-dependencies-scopes">synchronization scopes</a> and
+<a href="#synchronization-dependencies-access-scopes">access scopes</a> that are
+all supersets of the scopes defined in this command</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, it <strong class="purple">must</strong> not
+include any buffer memory barriers</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-image-04073"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>image</code> member of any image memory barrier included in this command
+<strong class="purple">must</strong> be an attachment used in the current subpass both as an input
+attachment, and as either a color or depth/stencil attachment</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-01181"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>oldLayout</code> and <code>newLayout</code> members of any image memory barrier
+included in this command <strong class="purple">must</strong> be equal</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of any
+image memory barrier included in this command <strong class="purple">must</strong> be equal</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-dependencyFlags-01186"></a>
+If <code>vkCmdPipelineBarrier</code> is called outside of a render pass instance,
+<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code> <strong class="purple">must</strong> not be included in the
+dependency flags</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-01168"></a>
 If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-geometryShader" target="_blank" rel="noopener">geometry shaders</a> feature is not
 enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
@@ -955,67 +996,6 @@ not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not 
 <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-02285"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the render pass <strong class="purple">must</strong> have been created with at least one
-<code>VkSubpassDependency</code> instance in
-<a href="VkRenderPassCreateInfo.html">VkRenderPassCreateInfo</a>::<code>pDependencies</code> that expresses a
-dependency from the current subpass to itself, and for which
-<code>srcStageMask</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>srcStageMask</code>, <code>dstStageMask</code>
-contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>dstStageMask</code>, <code>dependencyFlags</code> is
-equal to <code>VkSubpassDependency</code>::<code>dependencyFlags</code>,
-<code>srcAccessMask</code> member of each element of <code>pMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>srcAccessMask</code>, and <code>dstAccessMask</code>
-member of each element of <code>pMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>dstAccessMask</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-<code>bufferMemoryBarrierCount</code> <strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-image-02635"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>image</code> member of any element of <code>pImageMemoryBarriers</code>
-<strong class="purple">must</strong> be equal to one of the elements of <code>pAttachments</code> that the
-current <code>framebuffer</code> was created with, that is also referred to by
-one of the elements of the <code>pColorAttachments</code>,
-<code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code> members of
-the <code>VkSubpassDescription</code> instance or by the
-<code>pDepthStencilResolveAttachment</code> member of the
-<code>VkSubpassDescriptionDepthStencilResolve</code> structure that the current
-subpass was created with</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-02636"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>oldLayout</code> and <code>newLayout</code> members of any element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be equal to the <code>layout</code> member of
-an element of the <code>pColorAttachments</code>, <code>pResolveAttachments</code> or
-<code>pDepthStencilAttachment</code> members of the <code>VkSubpassDescription</code>
-instance or by the <code>pDepthStencilResolveAttachment</code> member of the
-<code>VkSubpassDescriptionDepthStencilResolve</code> structure that the current
-subpass was created with, that refers to the same <code>image</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-01181"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>oldLayout</code> and <code>newLayout</code> members of an element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be equal</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of
-any element of <code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-01183"></a>
 Any pipeline stage included in <code>srcStageMask</code> or <code>dstStageMask</code>
 <strong class="purple">must</strong> be supported by the capabilities of the queue family specified by
@@ -1024,12 +1004,6 @@ structure that was used to create the <code>VkCommandPool</code> that
 <code>commandBuffer</code> was allocated from, as specified in the
 <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-pipeline-stages-supported" target="_blank" rel="noopener">table of supported pipeline
 stages</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-dependencyFlags-01186"></a>
-If <code>vkCmdPipelineBarrier</code> is called outside of a render pass
-instance, <code>dependencyFlags</code> <strong class="purple">must</strong> not include
-<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-02115"></a>
@@ -1060,7 +1034,7 @@ If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/htm
 The <code>srcAccessMask</code> member of each element of <code>pMemoryBarriers</code>
 <strong class="purple">must</strong> only include access flags that are supported by one or more of the
 pipeline stages in <code>srcStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 <li>
@@ -1068,7 +1042,7 @@ types</a></p>
 The <code>dstAccessMask</code> member of each element of <code>pMemoryBarriers</code>
 <strong class="purple">must</strong> only include access flags that are supported by one or more of the
 pipeline stages in <code>dstStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 <li>
@@ -1080,7 +1054,7 @@ that was used to create the command pool that <code>commandBuffer</code> was
 allocated from, then its <code>srcAccessMask</code> member <strong class="purple">must</strong> only contain
 access flags that are supported by one or more of the pipeline stages in
 <code>srcStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 <li>
@@ -1092,7 +1066,7 @@ that was used to create the command pool that <code>commandBuffer</code> was
 allocated from, then its <code>dstAccessMask</code> member <strong class="purple">must</strong> only contain
 access flags that are supported by one or more of the pipeline stages in
 <code>dstStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 <li>
@@ -1104,7 +1078,7 @@ that was used to create the command pool that <code>commandBuffer</code> was
 allocated from, then its <code>srcAccessMask</code> member <strong class="purple">must</strong> only contain
 access flags that are supported by one or more of the pipeline stages in
 <code>srcStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 <li>
@@ -1116,7 +1090,7 @@ that was used to create the command pool that <code>commandBuffer</code> was
 allocated from, then its <code>dstAccessMask</code> member <strong class="purple">must</strong> only contain
 access flags that are supported by one or more of the pipeline stages in
 <code>dstStageMask</code>, as specified in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types-supported" target="_blank" rel="noopener">table of supported access
+<a href="#synchronization-access-types-supported">table of supported access
 types</a></p>
 </li>
 </ul>
@@ -1247,8 +1221,8 @@ Attribution 4.0 International License</a>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.141<br>
-Last updated 2020-05-15 02:13:21 -0700
+Version 1.2.142<br>
+Last updated 2020-06-01 04:06:45 -0700
 </div>
 </div>
 

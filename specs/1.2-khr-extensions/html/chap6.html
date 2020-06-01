@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.141 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.142 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.141 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.142 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.141,</span>
-<span id="revdate">2020-05-15 09:19:30Z</span>
-<br><span id="revremark">from git branch: github-master commit: 8bd1271c25ec56248494389b0cc2b6741cb28164</span>
+<span id="revnumber">version 1.2.142,</span>
+<span id="revdate">2020-06-01 11:12:48Z</span>
+<br><span id="revremark">from git branch: github-master commit: dd7b521af03ed3ce13b7d2a54c4542f5af7cf370</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1509,29 +1509,12 @@ writes performed by a layout transition are automatically made available.</p>
 <div class="paragraph">
 <p>Layout transitions always apply to a particular image subresource range, and
 specify both an old layout and new layout.
-If the old layout does not match the new layout, a transition occurs.
-The old layout <strong class="purple">must</strong> match the current layout of the image subresource
-range, with one exception.
-The old layout <strong class="purple">can</strong> always be specified as <code>VK_IMAGE_LAYOUT_UNDEFINED</code>,
-though doing so invalidates the contents of the image subresource range.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Setting the old layout to <code>VK_IMAGE_LAYOUT_UNDEFINED</code> implies that the
-contents of the image subresource need not be preserved.
-Implementations <strong class="purple">may</strong> use this information to avoid performing expensive data
-transition operations.</p>
-</div>
-</td>
-</tr>
-</table>
+The old layout <strong class="purple">must</strong> either be <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, or match the
+current layout of the image subresource range.
+If the old layout matches the current layout of the image subresource range,
+the transition preserves the contents of that range.
+If the old layout is <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, the contents of that
+range <strong class="purple">may</strong> be discarded.</p>
 </div>
 <div class="paragraph">
 <p>As image layout transitions <strong class="purple">may</strong> perform read and write accesses on the
@@ -1566,6 +1549,14 @@ race.</p>
 <p>Image layout transitions interact with <a href="chap11.html#resources-memory-aliasing">memory
 aliasing</a>.</p>
 </div>
+<div id="synchronization-image-barrier-layout-transition-order" class="paragraph">
+<p>Layout transitions that are performed via image memory barriers execute in
+their entirety in <a href="#synchronization-submission-order">submission order</a>,
+relative to other image layout transitions submitted to the same queue,
+including those performed by <a href="chap7.html#renderpass">render passes</a>.
+In effect there is an implicit execution dependency from each such layout
+transition to all layout transitions previously submitted to the same queue.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="synchronization-pipeline-stages"><a class="anchor" href="#synchronization-pipeline-stages"></a>6.1.2. Pipeline Stages</h4>
@@ -1580,8 +1571,7 @@ used, and current command buffer state when the command was recorded.
 <a href="chap18.html#copies">copy commands</a>, <a href="chap17.html#clears">clear commands</a>, and <a href="#synchronization">synchronization commands</a> all execute in different sets of
 <a href="#synchronization-pipeline-stages-types">pipeline stages</a>.
 <a href="#synchronization">Synchronization commands</a> do not execute in a defined
-pipeline, but do execute <code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> and
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>.</p>
+pipeline.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1595,9 +1585,9 @@ pipeline, but do execute <code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> and
 <p>Operations performed by synchronization commands (e.g.
 <a href="#synchronization-dependencies-available-and-visible">availability and
 visibility operations</a>) are not executed by a defined pipeline stage.
-However other commands can still synchronize with them via the
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> and
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> pipeline stages.</p>
+However other commands can still synchronize with them by using the
+<a href="#synchronization-dependencies-scopes">synchronization scopes</a> to create a
+<a href="#synchronization-dependencies-chains">dependency chain</a>.</p>
 </div>
 </td>
 </tr>
@@ -1611,8 +1601,6 @@ Otherwise, execution across pipeline stages <strong class="purple">may</strong> 
 order with regards to other stages, unless otherwise enforced by an
 execution dependency.</p>
 </div>
-<div class="openblock">
-<div class="content">
 <div class="paragraph">
 <p>Several of the synchronization commands include pipeline stage parameters,
 restricting the <a href="#synchronization-dependencies-scopes">synchronization
@@ -1622,12 +1610,15 @@ accesses performed by action commands.
 Implementations <strong class="purple">should</strong> use these pipeline stages to avoid unnecessary
 stalls or cache flushing.</p>
 </div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
-<p>Bits which can be set, specifying pipeline stages, are:</p>
+<p>The <code>VkPipelineStageFlagBits</code> enum is defined as:</p>
 </div>
 <div id="VkPipelineStageFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkPipelineStageFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkPipelineStageFlagBits {
     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT = <span class="hex">0x00000001</span>,
     VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT = <span class="hex">0x00000002</span>,
     VK_PIPELINE_STAGE_VERTEX_INPUT_BIT = <span class="hex">0x00000004</span>,
@@ -1653,8 +1644,10 @@ stalls or cache flushing.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> specifies the stage of the
-pipeline where any commands are initially received by the queue.</p>
+<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> is equivalent to
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
+<code>0</code> when specified in the second synchronization scope, but specifies no
+stages in the first scope.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code> specifies the stage of the
@@ -1734,9 +1727,10 @@ compute shader.</p>
 </div>
 </li>
 <li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> specifies the final stage in
-the pipeline where operations generated by all commands complete
-execution.</p>
+<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> is equivalent to
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
+<code>0</code> when specified in the first synchronization scope, but specifies no
+stages in the second scope.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_HOST_BIT</code> specifies a pseudo-stage indicating
@@ -1749,18 +1743,14 @@ execution of the ray tracing shader stages.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> specifies
-the execution of <a href="chap32.html#vkCmdBuildAccelerationStructureKHR">vkCmdBuildAccelerationStructureKHR</a>,
-<a href="chap32.html#vkCmdCopyAccelerationStructureKHR">vkCmdCopyAccelerationStructureKHR</a>, and
-<a href="chap32.html#vkCmdWriteAccelerationStructuresPropertiesKHR">vkCmdWriteAccelerationStructuresPropertiesKHR</a>.</p>
+the execution of <a href="chap32.html#acceleration-structure">acceleration structure
+commands</a>.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT</code> specifies the execution of all
 graphics pipeline stages, and is equivalent to the logical OR of:</p>
 <div class="ulist">
 <ul>
-<li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code></p>
-</li>
 <li>
 <p><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p>
 </li>
@@ -1791,53 +1781,14 @@ graphics pipeline stages, and is equivalent to the logical OR of:</p>
 <li>
 <p><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code></p>
 </li>
-<li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code></p>
-</li>
 </ul>
 </div>
 </li>
 <li>
-<p><code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> is equivalent to the logical OR
-of every other pipeline stage flag that is supported on the queue it is
-used with.</p>
+<p><code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> specifies all commands
+supported on the queue it is used with.</p>
 </li>
 </ul>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>An execution dependency with only <code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code>
-in the destination stage mask will only prevent that stage from executing in
-subsequently submitted commands.
-As this stage does not perform any actual execution, this is not observable
-- in effect, it does not delay processing of subsequent commands.
-Similarly an execution dependency with only
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> in the source stage mask will
-effectively not wait for any prior commands to complete.</p>
-</div>
-<div class="paragraph">
-<p>When defining a memory dependency, using only
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> or
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> would never make any accesses
-available and/or visible because these stages do not access memory.</p>
-</div>
-<div class="paragraph">
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> and
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> are useful for accomplishing layout
-transitions and queue ownership operations when the required execution
-dependency is satisfied by other means - for example, semaphore operations
-between queues.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 </div>
@@ -1845,7 +1796,8 @@ between queues.</p>
 <div class="content">
 <div id="VkPipelineStageFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkPipelineStageFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkPipelineStageFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2043,18 +1995,19 @@ barriers.</p>
 </tr>
 </table>
 </div>
-<div id="synchronization-pipeline-stages-types" class="paragraph">
-<p>The order and set of pipeline stages executed by a given command is
-determined by the command’s pipeline type, as described below:</p>
+<div id="synchronization-pipeline-graphics" class="paragraph">
+<p><a href="chap9.html#pipelines-graphics">Graphics pipelines</a> are executable on queues
+supporting <code>VK_QUEUE_GRAPHICS_BIT</code>.
+Stages executed by graphics pipelines <strong class="purple">can</strong> only be specified in commands
+recorded for queues supporting <code>VK_QUEUE_GRAPHICS_BIT</code>.</p>
 </div>
 <div class="paragraph">
-<p>For the graphics pipeline, the following stages occur in this order:</p>
+<p>The graphics
+pipeline executes the following stages, with the logical ordering of the
+stages matching the order specified here:</p>
 </div>
 <div class="ulist">
 <ul>
-<li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code></p>
-</li>
 <li>
 <p><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p>
 </li>
@@ -2085,9 +2038,6 @@ determined by the command’s pipeline type, as described below:</p>
 <li>
 <p><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code></p>
 </li>
-<li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code></p>
-</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -2096,16 +2046,10 @@ determined by the command’s pipeline type, as described below:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code></p>
-</li>
-<li>
 <p><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code></p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code></p>
-</li>
-<li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code></p>
 </li>
 </ul>
 </div>
@@ -2115,13 +2059,7 @@ determined by the command’s pipeline type, as described below:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code></p>
-</li>
-<li>
 <p><code>VK_PIPELINE_STAGE_TRANSFER_BIT</code></p>
-</li>
-<li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code></p>
 </li>
 </ul>
 </div>
@@ -2161,14 +2099,11 @@ occurs, so no order is guaranteed:</p>
 </div>
 <div class="sect3">
 <h4 id="synchronization-access-types"><a class="anchor" href="#synchronization-access-types"></a>6.1.3. Access Types</h4>
-<div class="openblock">
-<div class="content">
 <div class="paragraph">
 <p>Memory in Vulkan <strong class="purple">can</strong> be accessed from within shader invocations and via
 some fixed-function stages of the pipeline.
 The <em>access type</em> is a function of the <a href="chap13.html#descriptorsets">descriptor type</a>
-used, or how a fixed-function stage accesses memory.
-Each access type corresponds to a bit flag in <a href="#VkAccessFlagBits">VkAccessFlagBits</a>.</p>
+used, or how a fixed-function stage accesses memory.</p>
 </div>
 <div id="synchronization-access-masks" class="paragraph">
 <p>Some synchronization commands take sets of access types as parameters to
@@ -2181,12 +2116,15 @@ Similarly, if a synchronization command includes a destination access mask,
 its second <a href="#synchronization-dependencies-access-scopes">access scope</a> only
 includes accesses via the access types specified in that mask.</p>
 </div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
-<p>Access types that <strong class="purple">can</strong> be set in an access mask include:</p>
+<p>The <code>VkAccessFlagBits</code> enums is defined as:</p>
 </div>
 <div id="VkAccessFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkAccessFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkAccessFlagBits {
     VK_ACCESS_INDIRECT_COMMAND_READ_BIT = <span class="hex">0x00000001</span>,
     VK_ACCESS_INDEX_READ_BIT = <span class="hex">0x00000002</span>,
     VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT = <span class="hex">0x00000004</span>,
@@ -2418,6 +2356,22 @@ perform that type of access.</p>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkAccessFlags" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkAccessFlags;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkAccessFlags</code> is a bitmask type for setting a mask of zero or more
+<a href="#VkAccessFlagBits">VkAccessFlagBits</a>.</p>
+</div>
+</div>
+</div>
 <div id="synchronization-host-access-types" class="paragraph">
 <p>If a memory object does not have the
 <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> property, then
@@ -2446,9 +2400,10 @@ visible to the host.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>The <a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a> command <a href="#synchronization-submission-host-writes">automatically performs a domain operation from host to device</a> for all
-writes performed before the command executes, so in most cases an explicit
-memory barrier is not needed for this case.
+<p><a href="chap4.html#devsandqueues-submission">Queue submission commands</a> automatically
+perform a <a href="#synchronization-submission-host-writes">domain operation from
+host to device</a> for all writes performed before the command executes, so in
+most cases an explicit memory barrier is not needed for this case.
 In the few circumstances where a submit does not occur between the host
 write and the device read access, writes <strong class="purple">can</strong> be made available by using an
 explicit memory barrier.</p>
@@ -2456,21 +2411,6 @@ explicit memory barrier.</p>
 </td>
 </tr>
 </table>
-</div>
-</div>
-</div>
-<div class="openblock">
-<div class="content">
-<div id="VkAccessFlags" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkAccessFlags;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>VkAccessFlags</code> is a bitmask type for setting a mask of zero or more
-<a href="#VkAccessFlagBits">VkAccessFlagBits</a>.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect3">
@@ -2732,13 +2672,6 @@ recorded to other subpasses.</p>
 </ol>
 </div>
 <div class="paragraph">
-<p><a href="chap2.html#fundamentals-queueoperation-command-types">Action and synchronization
-commands</a> recorded to a command buffer execute the
-<code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> pipeline stage in
-<a href="#synchronization-submission-order">submission order</a> - forming an implicit
-execution dependency between this stage in each command.</p>
-</div>
-<div class="paragraph">
 <p><a href="chap2.html#fundamentals-queueoperation-command-types">State commands</a> do not execute
 any operations on the device, instead they set the state of the command
 buffer when they execute on the host, in the order that they are recorded.
@@ -2885,7 +2818,8 @@ API boundaries.</p>
 </div>
 <div id="VkFence" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkFence)</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkFence)</code></pre>
 </div>
 </div>
 </div>
@@ -2897,7 +2831,8 @@ API boundaries.</p>
 </div>
 <div id="vkCreateFence" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkCreateFence(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkCreateFence(
     VkDevice                                    device,
     <span class="directive">const</span> VkFenceCreateInfo*                    pCreateInfo,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator,
@@ -2985,7 +2920,8 @@ object is returned.</p>
 </div>
 <div id="VkFenceCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceCreateInfo {
     VkStructureType       sType;
     <span class="directive">const</span> <span class="directive">void</span>*           pNext;
     VkFenceCreateFlags    flags;
@@ -2998,7 +2934,8 @@ object is returned.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>flags</code> is a bitmask of <a href="#VkFenceCreateFlagBits">VkFenceCreateFlagBits</a> specifying the
@@ -3033,7 +2970,8 @@ initial state and behavior of the fence.</p>
 <div class="content">
 <div id="VkFenceCreateFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkFenceCreateFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkFenceCreateFlagBits {
     VK_FENCE_CREATE_SIGNALED_BIT = <span class="hex">0x00000001</span>,
 } VkFenceCreateFlagBits;</code></pre>
 </div>
@@ -3053,7 +2991,8 @@ Otherwise, it is created in the unsignaled state.</p>
 <div class="content">
 <div id="VkFenceCreateFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkFenceCreateFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkFenceCreateFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3072,7 +3011,8 @@ The <code>VkExportFenceCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkExportFenceCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportFenceCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportFenceCreateInfo {
     VkStructureType                   sType;
     <span class="directive">const</span> <span class="directive">void</span>*                       pNext;
     VkExternalFenceHandleTypeFlags    handleTypes;
@@ -3084,7 +3024,8 @@ The <code>VkExportFenceCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkExportFenceCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkExportFenceCreateInfo VkExportFenceCreateInfoKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence</span>
+<span class="keyword">typedef</span> VkExportFenceCreateInfo VkExportFenceCreateInfoKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -3093,7 +3034,8 @@ The <code>VkExportFenceCreateInfo</code> structure is defined as:</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>handleTypes</code> is a bitmask of
@@ -3144,7 +3086,8 @@ The <code>VkExportFenceWin32HandleInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkExportFenceWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportFenceWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportFenceWin32HandleInfoKHR {
     VkStructureType               sType;
     <span class="directive">const</span> <span class="directive">void</span>*                   pNext;
     <span class="directive">const</span> SECURITY_ATTRIBUTES*    pAttributes;
@@ -3159,7 +3102,8 @@ The <code>VkExportFenceWin32HandleInfoKHR</code> structure is defined as:</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>pAttributes</code> is a pointer to a Windows <code>SECURITY_ATTRIBUTES</code>
@@ -3246,7 +3190,8 @@ the <code>pNext</code> chain of <a href="#VkFenceCreateInfo">VkFenceCreateInfo</
 </div>
 <div id="vkGetFenceWin32HandleKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetFenceWin32HandleKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_win32</span>
+VkResult vkGetFenceWin32HandleKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkFenceGetWin32HandleInfoKHR*         pGetWin32HandleInfo,
     HANDLE*                                     pHandle);</code></pre>
@@ -3339,7 +3284,8 @@ the transference of the specified handle type, as described in
 </div>
 <div id="VkFenceGetWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceGetWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceGetWin32HandleInfoKHR {
     VkStructureType                      sType;
     <span class="directive">const</span> <span class="directive">void</span>*                          pNext;
     VkFence                              fence;
@@ -3353,7 +3299,8 @@ the transference of the specified handle type, as described in
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>fence</code> is the fence from which state will be exported.</p>
@@ -3441,7 +3388,8 @@ handle</p>
 </div>
 <div id="vkGetFenceFdKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetFenceFdKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_fd</span>
+VkResult vkGetFenceFdKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkFenceGetFdInfoKHR*                  pGetFdInfo,
     <span class="predefined-type">int</span>*                                        pFd);</code></pre>
@@ -3562,7 +3510,8 @@ the transference of the specified handle type, as described in
 </div>
 <div id="VkFenceGetFdInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceGetFdInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_fd</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkFenceGetFdInfoKHR {
     VkStructureType                      sType;
     <span class="directive">const</span> <span class="directive">void</span>*                          pNext;
     VkFence                              fence;
@@ -3576,7 +3525,8 @@ the transference of the specified handle type, as described in
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>fence</code> is the fence from which state will be exported.</p>
@@ -3657,7 +3607,8 @@ that imported payload’s handle type was included in
 </div>
 <div id="vkDestroyFence" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkDestroyFence(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkDestroyFence(
     VkDevice                                    device,
     VkFence                                     fence,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator);</code></pre>
@@ -3743,7 +3694,8 @@ created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>N
 </div>
 <div id="vkGetFenceStatus" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetFenceStatus(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkGetFenceStatus(
     VkDevice                                    device,
     VkFence                                     fence);</code></pre>
 </div>
@@ -3866,7 +3818,8 @@ it will eventually return either <code>VK_SUCCESS</code> or
 </div>
 <div id="vkResetFences" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkResetFences(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkResetFences(
     VkDevice                                    device,
     uint32_t                                    fenceCount,
     <span class="directive">const</span> VkFence*                              pFences);</code></pre>
@@ -4022,7 +3975,8 @@ call:</p>
 </div>
 <div id="vkWaitForFences" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkWaitForFences(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkWaitForFences(
     VkDevice                                    device,
     uint32_t                                    fenceCount,
     <span class="directive">const</span> VkFence*                              pFences,
@@ -4417,7 +4371,8 @@ code <code>VK_ERROR_INVALID_EXTERNAL_HANDLE</code>.</p>
 </div>
 <div id="vkImportFenceWin32HandleKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkImportFenceWin32HandleKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_win32</span>
+VkResult vkImportFenceWin32HandleKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkImportFenceWin32HandleInfoKHR*      pImportFenceWin32HandleInfo);</code></pre>
 </div>
@@ -4502,7 +4457,8 @@ times into a given Vulkan instance.</p>
 </div>
 <div id="VkImportFenceWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportFenceWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportFenceWin32HandleInfoKHR {
     VkStructureType                      sType;
     <span class="directive">const</span> <span class="directive">void</span>*                          pNext;
     VkFence                              fence;
@@ -4519,7 +4475,8 @@ times into a given Vulkan instance.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>fence</code> is the fence into which the state will be imported.</p>
@@ -4663,7 +4620,8 @@ fence handle types compatibility</a></p>
 </div>
 <div id="vkImportFenceFdKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkImportFenceFdKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_fd</span>
+VkResult vkImportFenceFdKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkImportFenceFdInfoKHR*               pImportFenceFdInfo);</code></pre>
 </div>
@@ -4760,7 +4718,8 @@ yet completed execution on that queue</p>
 </div>
 <div id="VkImportFenceFdInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportFenceFdInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence_fd</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportFenceFdInfoKHR {
     VkStructureType                      sType;
     <span class="directive">const</span> <span class="directive">void</span>*                          pNext;
     VkFence                              fence;
@@ -4776,7 +4735,8 @@ yet completed execution on that queue</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>fence</code> is the fence into which the payload will be imported.</p>
@@ -4922,7 +4882,8 @@ specifying additional parameters of a fence import operation are:</p>
 </div>
 <div id="VkFenceImportFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkFenceImportFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkFenceImportFlagBits {
     VK_FENCE_IMPORT_TEMPORARY_BIT = <span class="hex">0x00000001</span>,
     VK_FENCE_IMPORT_TEMPORARY_BIT_KHR = VK_FENCE_IMPORT_TEMPORARY_BIT,
 } VkFenceImportFlagBits;</code></pre>
@@ -4933,7 +4894,8 @@ specifying additional parameters of a fence import operation are:</p>
 </div>
 <div id="VkFenceImportFlagBitsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFenceImportFlagBits VkFenceImportFlagBitsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence</span>
+<span class="keyword">typedef</span> VkFenceImportFlagBits VkFenceImportFlagBitsKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -4952,7 +4914,8 @@ regardless of the permanence of <code>handleType</code>.</p>
 <div class="content">
 <div id="VkFenceImportFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkFenceImportFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> VkFlags VkFenceImportFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4960,7 +4923,8 @@ regardless of the permanence of <code>handleType</code>.</p>
 </div>
 <div id="VkFenceImportFlagsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFenceImportFlags VkFenceImportFlagsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_fence</span>
+<span class="keyword">typedef</span> VkFenceImportFlags VkFenceImportFlagsKHR;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5015,7 +4979,8 @@ process and API boundaries.</p>
 </div>
 <div id="VkSemaphore" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSemaphore)</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSemaphore)</code></pre>
 </div>
 </div>
 </div>
@@ -5027,7 +4992,8 @@ process and API boundaries.</p>
 </div>
 <div id="vkCreateSemaphore" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkCreateSemaphore(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkCreateSemaphore(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreCreateInfo*                pCreateInfo,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator,
@@ -5116,7 +5082,8 @@ semaphore object is returned.</p>
 </div>
 <div id="VkSemaphoreCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreCreateInfo {
     VkStructureType           sType;
     <span class="directive">const</span> <span class="directive">void</span>*               pNext;
     VkSemaphoreCreateFlags    flags;
@@ -5129,7 +5096,8 @@ semaphore object is returned.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>flags</code> is reserved for future use.</p>
@@ -5163,7 +5131,8 @@ semaphore object is returned.</p>
 <div class="content">
 <div id="VkSemaphoreCreateFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkSemaphoreCreateFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkSemaphoreCreateFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5182,7 +5151,8 @@ The <code>VkSemaphoreTypeCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkSemaphoreTypeCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreTypeCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreTypeCreateInfo {
     VkStructureType    sType;
     <span class="directive">const</span> <span class="directive">void</span>*        pNext;
     VkSemaphoreType    semaphoreType;
@@ -5195,7 +5165,8 @@ The <code>VkSemaphoreTypeCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkSemaphoreTypeCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreTypeCreateInfo VkSemaphoreTypeCreateInfoKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreTypeCreateInfo VkSemaphoreTypeCreateInfoKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -5204,7 +5175,8 @@ The <code>VkSemaphoreTypeCreateInfo</code> structure is defined as:</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphoreType</code> is a <a href="#VkSemaphoreType">VkSemaphoreType</a> value specifying the type
@@ -5266,7 +5238,8 @@ specifying the type of a semaphore, are:</p>
 </div>
 <div id="VkSemaphoreType" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreType {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreType {
     VK_SEMAPHORE_TYPE_BINARY = <span class="integer">0</span>,
     VK_SEMAPHORE_TYPE_TIMELINE = <span class="integer">1</span>,
     VK_SEMAPHORE_TYPE_BINARY_KHR = VK_SEMAPHORE_TYPE_BINARY,
@@ -5279,7 +5252,8 @@ specifying the type of a semaphore, are:</p>
 </div>
 <div id="VkSemaphoreTypeKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreType VkSemaphoreTypeKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreType VkSemaphoreTypeKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -5312,7 +5286,8 @@ The <code>VkExportSemaphoreCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkExportSemaphoreCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportSemaphoreCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportSemaphoreCreateInfo {
     VkStructureType                       sType;
     <span class="directive">const</span> <span class="directive">void</span>*                           pNext;
     VkExternalSemaphoreHandleTypeFlags    handleTypes;
@@ -5324,7 +5299,8 @@ The <code>VkExportSemaphoreCreateInfo</code> structure is defined as:</p>
 </div>
 <div id="VkExportSemaphoreCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkExportSemaphoreCreateInfo VkExportSemaphoreCreateInfoKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore</span>
+<span class="keyword">typedef</span> VkExportSemaphoreCreateInfo VkExportSemaphoreCreateInfoKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -5333,7 +5309,8 @@ The <code>VkExportSemaphoreCreateInfo</code> structure is defined as:</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>handleTypes</code> is a bitmask of
@@ -5386,7 +5363,8 @@ The <code>VkExportSemaphoreWin32HandleInfoKHR</code> structure is defined as:</p
 </div>
 <div id="VkExportSemaphoreWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportSemaphoreWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkExportSemaphoreWin32HandleInfoKHR {
     VkStructureType               sType;
     <span class="directive">const</span> <span class="directive">void</span>*                   pNext;
     <span class="directive">const</span> SECURITY_ATTRIBUTES*    pAttributes;
@@ -5401,7 +5379,8 @@ The <code>VkExportSemaphoreWin32HandleInfoKHR</code> structure is defined as:</p
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>pAttributes</code> is a pointer to a Windows <code>SECURITY_ATTRIBUTES</code>
@@ -5503,7 +5482,8 @@ If <a href="#VkExportSemaphoreCreateInfo">VkExportSemaphoreCreateInfo</a>::<code
 </div>
 <div id="vkGetSemaphoreWin32HandleKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetSemaphoreWin32HandleKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_win32</span>
+VkResult vkGetSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreGetWin32HandleInfoKHR*     pGetWin32HandleInfo,
     HANDLE*                                     pHandle);</code></pre>
@@ -5596,7 +5576,8 @@ on the transference of the specified handle type, as described in
 </div>
 <div id="VkSemaphoreGetWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreGetWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreGetWin32HandleInfoKHR {
     VkStructureType                          sType;
     <span class="directive">const</span> <span class="directive">void</span>*                              pNext;
     VkSemaphore                              semaphore;
@@ -5610,7 +5591,8 @@ on the transference of the specified handle type, as described in
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphore</code> is the semaphore from which state will be exported.</p>
@@ -5706,7 +5688,8 @@ call:</p>
 </div>
 <div id="vkGetSemaphoreFdKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetSemaphoreFdKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_fd</span>
+VkResult vkGetSemaphoreFdKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreGetFdInfoKHR*              pGetFdInfo,
     <span class="predefined-type">int</span>*                                        pFd);</code></pre>
@@ -5821,7 +5804,8 @@ depending on the transference of the specified handle type, as described in
 </div>
 <div id="VkSemaphoreGetFdInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreGetFdInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_fd</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreGetFdInfoKHR {
     VkStructureType                          sType;
     <span class="directive">const</span> <span class="directive">void</span>*                              pNext;
     VkSemaphore                              semaphore;
@@ -5835,7 +5819,8 @@ depending on the transference of the specified handle type, as described in
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphore</code> is the semaphore from which state will be exported.</p>
@@ -5937,7 +5922,8 @@ been submitted for execution</p>
 </div>
 <div id="vkDestroySemaphore" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkDestroySemaphore(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkDestroySemaphore(
     VkDevice                                    device,
     VkSemaphore                                 semaphore,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator);</code></pre>
@@ -6257,7 +6243,8 @@ call:</p>
 </div>
 <div id="vkGetSemaphoreCounterValue" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetSemaphoreCounterValue(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+VkResult vkGetSemaphoreCounterValue(
     VkDevice                                    device,
     VkSemaphore                                 semaphore,
     uint64_t*                                   pValue);</code></pre>
@@ -6268,7 +6255,8 @@ call:</p>
 </div>
 <div id="vkGetSemaphoreCounterValueKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetSemaphoreCounterValueKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+VkResult vkGetSemaphoreCounterValueKHR(
     VkDevice                                    device,
     VkSemaphore                                 semaphore,
     uint64_t*                                   pValue);</code></pre>
@@ -6386,7 +6374,8 @@ host, call:</p>
 </div>
 <div id="vkWaitSemaphores" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkWaitSemaphores(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+VkResult vkWaitSemaphores(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout);</code></pre>
@@ -6397,7 +6386,8 @@ host, call:</p>
 </div>
 <div id="vkWaitSemaphoresKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkWaitSemaphoresKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+VkResult vkWaitSemaphoresKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout);</code></pre>
@@ -6507,7 +6497,8 @@ with either <code>VK_SUCCESS</code> or <code>VK_ERROR_DEVICE_LOST</code>.</p>
 </div>
 <div id="VkSemaphoreWaitInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreWaitInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreWaitInfo {
     VkStructureType         sType;
     <span class="directive">const</span> <span class="directive">void</span>*             pNext;
     VkSemaphoreWaitFlags    flags;
@@ -6522,7 +6513,8 @@ with either <code>VK_SUCCESS</code> or <code>VK_ERROR_DEVICE_LOST</code>.</p>
 </div>
 <div id="VkSemaphoreWaitInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreWaitInfo VkSemaphoreWaitInfoKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreWaitInfo VkSemaphoreWaitInfoKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -6531,7 +6523,8 @@ with either <code>VK_SUCCESS</code> or <code>VK_ERROR_DEVICE_LOST</code>.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>flags</code> is a bitmask of <a href="#VkSemaphoreWaitFlagBits">VkSemaphoreWaitFlagBits</a> specifying
@@ -6602,7 +6595,8 @@ additional parameters of a semaphore wait operation, are:</p>
 </div>
 <div id="VkSemaphoreWaitFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreWaitFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreWaitFlagBits {
     VK_SEMAPHORE_WAIT_ANY_BIT = <span class="hex">0x00000001</span>,
     VK_SEMAPHORE_WAIT_ANY_BIT_KHR = VK_SEMAPHORE_WAIT_ANY_BIT,
 } VkSemaphoreWaitFlagBits;</code></pre>
@@ -6613,7 +6607,8 @@ additional parameters of a semaphore wait operation, are:</p>
 </div>
 <div id="VkSemaphoreWaitFlagBitsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreWaitFlagBits VkSemaphoreWaitFlagBitsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreWaitFlagBits VkSemaphoreWaitFlagBitsKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -6638,7 +6633,8 @@ specified by the corresponding element of
 <div class="content">
 <div id="VkSemaphoreWaitFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkSemaphoreWaitFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> VkFlags VkSemaphoreWaitFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6646,7 +6642,8 @@ specified by the corresponding element of
 </div>
 <div id="VkSemaphoreWaitFlagsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreWaitFlags VkSemaphoreWaitFlagsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreWaitFlags VkSemaphoreWaitFlagsKHR;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6664,7 +6661,8 @@ host, call:</p>
 </div>
 <div id="vkSignalSemaphore" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkSignalSemaphore(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+VkResult vkSignalSemaphore(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreSignalInfo*                pSignalInfo);</code></pre>
 </div>
@@ -6674,7 +6672,8 @@ host, call:</p>
 </div>
 <div id="vkSignalSemaphoreKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkSignalSemaphoreKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+VkResult vkSignalSemaphoreKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkSemaphoreSignalInfo*                pSignalInfo);</code></pre>
 </div>
@@ -6759,7 +6758,8 @@ happened-before it.</p>
 </div>
 <div id="VkSemaphoreSignalInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreSignalInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSemaphoreSignalInfo {
     VkStructureType    sType;
     <span class="directive">const</span> <span class="directive">void</span>*        pNext;
     VkSemaphore        semaphore;
@@ -6772,7 +6772,8 @@ happened-before it.</p>
 </div>
 <div id="VkSemaphoreSignalInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreSignalInfo VkSemaphoreSignalInfoKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_timeline_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreSignalInfo VkSemaphoreSignalInfoKHR;</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -6781,7 +6782,8 @@ happened-before it.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphore</code> is the handle of the semaphore to signal.</p>
@@ -7067,7 +7069,8 @@ semaphores created with a <a href="#VkSemaphoreType">VkSemaphoreType</a> of
 </div>
 <div id="vkImportSemaphoreWin32HandleKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkImportSemaphoreWin32HandleKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_win32</span>
+VkResult vkImportSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkImportSemaphoreWin32HandleInfoKHR*  pImportSemaphoreWin32HandleInfo);</code></pre>
 </div>
@@ -7152,7 +7155,8 @@ times into a given Vulkan instance.</p>
 </div>
 <div id="VkImportSemaphoreWin32HandleInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportSemaphoreWin32HandleInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_win32</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportSemaphoreWin32HandleInfoKHR {
     VkStructureType                          sType;
     <span class="directive">const</span> <span class="directive">void</span>*                              pNext;
     VkSemaphore                              semaphore;
@@ -7169,7 +7173,8 @@ times into a given Vulkan instance.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphore</code> is the semaphore into which the payload will be
@@ -7345,7 +7350,8 @@ be <code>VK_SEMAPHORE_TYPE_TIMELINE</code></p>
 </div>
 <div id="vkImportSemaphoreFdKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkImportSemaphoreFdKHR(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_fd</span>
+VkResult vkImportSemaphoreFdKHR(
     VkDevice                                    device,
     <span class="directive">const</span> VkImportSemaphoreFdInfoKHR*           pImportSemaphoreFdInfo);</code></pre>
 </div>
@@ -7443,7 +7449,8 @@ not yet completed execution on that queue</p>
 </div>
 <div id="VkImportSemaphoreFdInfoKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportSemaphoreFdInfoKHR {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore_fd</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkImportSemaphoreFdInfoKHR {
     VkStructureType                          sType;
     <span class="directive">const</span> <span class="directive">void</span>*                              pNext;
     VkSemaphore                              semaphore;
@@ -7459,7 +7466,8 @@ not yet completed execution on that queue</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>semaphore</code> is the semaphore into which the payload will be
@@ -7599,7 +7607,8 @@ Bits which can be set include:</p>
 </div>
 <div id="VkSemaphoreImportFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreImportFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkSemaphoreImportFlagBits {
     VK_SEMAPHORE_IMPORT_TEMPORARY_BIT = <span class="hex">0x00000001</span>,
     VK_SEMAPHORE_IMPORT_TEMPORARY_BIT_KHR = VK_SEMAPHORE_IMPORT_TEMPORARY_BIT,
 } VkSemaphoreImportFlagBits;</code></pre>
@@ -7610,7 +7619,8 @@ Bits which can be set include:</p>
 </div>
 <div id="VkSemaphoreImportFlagBitsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreImportFlagBits VkSemaphoreImportFlagBitsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreImportFlagBits VkSemaphoreImportFlagBitsKHR;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7632,7 +7642,8 @@ regardless of the permanence of <code>handleType</code>.</p>
 <div class="content">
 <div id="VkSemaphoreImportFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkSemaphoreImportFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
+<span class="keyword">typedef</span> VkFlags VkSemaphoreImportFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7640,7 +7651,8 @@ regardless of the permanence of <code>handleType</code>.</p>
 </div>
 <div id="VkSemaphoreImportFlagsKHR" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkSemaphoreImportFlags VkSemaphoreImportFlagsKHR;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_external_semaphore</span>
+<span class="keyword">typedef</span> VkSemaphoreImportFlags VkSemaphoreImportFlagsKHR;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7674,7 +7686,8 @@ the current state of an event <strong class="purple">can</strong> be queried.</p
 </div>
 <div id="VkEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkEvent)</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkEvent)</code></pre>
 </div>
 </div>
 </div>
@@ -7686,7 +7699,8 @@ the current state of an event <strong class="purple">can</strong> be queried.</p
 </div>
 <div id="vkCreateEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkCreateEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkCreateEvent(
     VkDevice                                    device,
     <span class="directive">const</span> VkEventCreateInfo*                    pCreateInfo,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator,
@@ -7777,7 +7791,8 @@ object is returned.</p>
 </div>
 <div id="VkEventCreateInfo" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkEventCreateInfo {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkEventCreateInfo {
     VkStructureType       sType;
     <span class="directive">const</span> <span class="directive">void</span>*           pNext;
     VkEventCreateFlags    flags;
@@ -7790,7 +7805,8 @@ object is returned.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>flags</code> is reserved for future use.</p>
@@ -7821,7 +7837,8 @@ object is returned.</p>
 <div class="content">
 <div id="VkEventCreateFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkEventCreateFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkEventCreateFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7837,7 +7854,8 @@ currently reserved for future use.</p>
 </div>
 <div id="vkDestroyEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkDestroyEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkDestroyEvent(
     VkDevice                                    device,
     VkEvent                                     event,
     <span class="directive">const</span> VkAllocationCallbacks*                pAllocator);</code></pre>
@@ -7923,7 +7941,8 @@ created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>N
 </div>
 <div id="vkGetEventStatus" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkGetEventStatus(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkGetEventStatus(
     VkDevice                                    device,
     VkEvent                                     event);</code></pre>
 </div>
@@ -8042,7 +8061,8 @@ state has no effect.</p>
 </div>
 <div id="vkSetEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkSetEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkSetEvent(
     VkDevice                                    device,
     VkEvent                                     event);</code></pre>
 </div>
@@ -8137,7 +8157,8 @@ occurs.</p>
 </div>
 <div id="vkResetEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkResetEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkResetEvent(
     VkDevice                                    device,
     VkEvent                                     event);</code></pre>
 </div>
@@ -8250,7 +8271,8 @@ inserted in command buffers.</p>
 </div>
 <div id="vkCmdSetEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkCmdSetEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkCmdSetEvent(
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask);</code></pre>
@@ -8267,7 +8289,8 @@ recorded.</p>
 </li>
 <li>
 <p><code>stageMask</code> specifies the <a href="#synchronization-pipeline-stages">source
-stage mask</a> used to determine when the <code>event</code> is signaled.</p>
+stage mask</a> used to determine the first
+<a href="#synchronization-dependencies-scopes">synchronization scope</a>.</p>
 </li>
 </ul>
 </div>
@@ -8412,7 +8435,8 @@ Compute</p></td>
 </div>
 <div id="vkCmdResetEvent" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkCmdResetEvent(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkCmdResetEvent(
     VkCommandBuffer                             commandBuffer,
     VkEvent                                     event,
     VkPipelineStageFlags                        stageMask);</code></pre>
@@ -8581,7 +8605,8 @@ call:</p>
 </div>
 <div id="vkCmdWaitEvents" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkCmdWaitEvents(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkCmdWaitEvents(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    eventCount,
     <span class="directive">const</span> VkEvent*                              pEvents,
@@ -8742,6 +8767,70 @@ semaphore).</p>
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-vkCmdWaitEvents-srcAccessMask-02815" href="#VUID-vkCmdWaitEvents-srcAccessMask-02815"></a>
+The <code>srcAccessMask</code> member of each element of <code>pMemoryBarriers</code>
+<strong class="purple">must</strong> only include access flags that are supported by one or more of the
+pipeline stages in <code>srcStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-dstAccessMask-02816" href="#VUID-vkCmdWaitEvents-dstAccessMask-02816"></a>
+The <code>dstAccessMask</code> member of each element of <code>pMemoryBarriers</code>
+<strong class="purple">must</strong> only include access flags that are supported by one or more of the
+pipeline stages in <code>dstStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-pBufferMemoryBarriers-02817" href="#VUID-vkCmdWaitEvents-pBufferMemoryBarriers-02817"></a>
+For any element of <code>pBufferMemoryBarriers</code>, if its
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members are
+equal, or if its <code>srcQueueFamilyIndex</code> is the queue family index
+that was used to create the command pool that <code>commandBuffer</code> was
+allocated from, then its <code>srcAccessMask</code> member <strong class="purple">must</strong> only contain
+access flags that are supported by one or more of the pipeline stages in
+<code>srcStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-pBufferMemoryBarriers-02818" href="#VUID-vkCmdWaitEvents-pBufferMemoryBarriers-02818"></a>
+For any element of <code>pBufferMemoryBarriers</code>, if its
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members are
+equal, or if its <code>dstQueueFamilyIndex</code> is the queue family index
+that was used to create the command pool that <code>commandBuffer</code> was
+allocated from, then its <code>dstAccessMask</code> member <strong class="purple">must</strong> only contain
+access flags that are supported by one or more of the pipeline stages in
+<code>dstStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-pImageMemoryBarriers-02819" href="#VUID-vkCmdWaitEvents-pImageMemoryBarriers-02819"></a>
+For any element of <code>pImageMemoryBarriers</code>, if its
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members are
+equal, or if its <code>srcQueueFamilyIndex</code> is the queue family index
+that was used to create the command pool that <code>commandBuffer</code> was
+allocated from, then its <code>srcAccessMask</code> member <strong class="purple">must</strong> only contain
+access flags that are supported by one or more of the pipeline stages in
+<code>srcStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-pImageMemoryBarriers-02820" href="#VUID-vkCmdWaitEvents-pImageMemoryBarriers-02820"></a>
+For any element of <code>pImageMemoryBarriers</code>, if its
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members are
+equal, or if its <code>dstQueueFamilyIndex</code> is the queue family index
+that was used to create the command pool that <code>commandBuffer</code> was
+allocated from, then its <code>dstAccessMask</code> member <strong class="purple">must</strong> only contain
+access flags that are supported by one or more of the pipeline stages in
+<code>dstStageMask</code>, as specified in the
+<a href="#synchronization-access-types-supported">table of supported access
+types</a></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdWaitEvents-srcStageMask-01158" href="#VUID-vkCmdWaitEvents-srcStageMask-01158"></a>
 <code>srcStageMask</code> <strong class="purple">must</strong> be the bitwise OR of the <code>stageMask</code>
 parameter used in previous calls to <code>vkCmdSetEvent</code> with any of the
@@ -8792,24 +8881,6 @@ structure that was used to create the <code>VkCommandPool</code> that
 stages</a></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdWaitEvents-pMemoryBarriers-01165" href="#VUID-vkCmdWaitEvents-pMemoryBarriers-01165"></a>
-Each element of <code>pMemoryBarriers</code>, <code>pBufferMemoryBarriers</code> or
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> not have any access flag included in
-its <code>srcAccessMask</code> member if that bit is not supported by any of
-the pipeline stages in <code>srcStageMask</code>, as specified in the
-<a href="#synchronization-access-types-supported">table of supported access
-types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-pMemoryBarriers-01166" href="#VUID-vkCmdWaitEvents-pMemoryBarriers-01166"></a>
-Each element of <code>pMemoryBarriers</code>, <code>pBufferMemoryBarriers</code> or
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> not have any access flag included in
-its <code>dstAccessMask</code> member if that bit is not supported by any of
-the pipeline stages in <code>dstStageMask</code>, as specified in the
-<a href="#synchronization-access-types-supported">table of supported access
-types</a></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdWaitEvents-srcQueueFamilyIndex-02803" href="#VUID-vkCmdWaitEvents-srcQueueFamilyIndex-02803"></a>
 The <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of
 any element of <code>pBufferMemoryBarriers</code> or <code>pImageMemoryBarriers</code>
@@ -8819,54 +8890,6 @@ any element of <code>pBufferMemoryBarriers</code> or <code>pImageMemoryBarriers<
 <p><a id="VUID-vkCmdWaitEvents-commandBuffer-01167" href="#VUID-vkCmdWaitEvents-commandBuffer-01167"></a>
 <code>commandBuffer</code>’s current device mask <strong class="purple">must</strong> include exactly one
 physical device</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-srcAccessMask-02809" href="#VUID-vkCmdWaitEvents-srcAccessMask-02809"></a>
-The <code>srcAccessMask</code> member of each element of <code>pMemoryBarriers</code>
-<strong class="purple">must</strong> only include access flags that are supported by one or more of the
-pipeline stages in <code>srcStageMask</code>, as specified in the
-<a href="#synchronization-access-types-supported">table of supported access
-types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-dstAccessMask-02810" href="#VUID-vkCmdWaitEvents-dstAccessMask-02810"></a>
-The <code>dstAccessMask</code> member of each element of <code>pMemoryBarriers</code>
-<strong class="purple">must</strong> only include access flags that are supported by one or more of the
-pipeline stages in <code>dstStageMask</code>, as specified in the
-<a href="#synchronization-access-types-supported">table of supported access
-types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-srcAccessMask-02811" href="#VUID-vkCmdWaitEvents-srcAccessMask-02811"></a>
-The <code>srcAccessMask</code> member of each element of
-<code>pBufferMemoryBarriers</code> <strong class="purple">must</strong> only include access flags that are
-supported by one or more of the pipeline stages in <code>srcStageMask</code>,
-as specified in the <a href="#synchronization-access-types-supported">table of
-supported access types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-dstAccessMask-02812" href="#VUID-vkCmdWaitEvents-dstAccessMask-02812"></a>
-The <code>dstAccessMask</code> member of each element of
-<code>pBufferMemoryBarriers</code> <strong class="purple">must</strong> only include access flags that are
-supported by one or more of the pipeline stages in <code>dstStageMask</code>,
-as specified in the <a href="#synchronization-access-types-supported">table of
-supported access types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-srcAccessMask-02813" href="#VUID-vkCmdWaitEvents-srcAccessMask-02813"></a>
-The <code>srcAccessMask</code> member of each element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> only include access flags that are
-supported by one or more of the pipeline stages in <code>srcStageMask</code>,
-as specified in the <a href="#synchronization-access-types-supported">table of
-supported access types</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-dstAccessMask-02814" href="#VUID-vkCmdWaitEvents-dstAccessMask-02814"></a>
-The <code>dstAccessMask</code> member of any element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> only include access flags that are
-supported by one or more of the pipeline stages in <code>dstStageMask</code>,
-as specified in the <a href="#synchronization-access-types-supported">table of
-supported access types</a></p>
 </li>
 </ul>
 </div>
@@ -8971,11 +8994,6 @@ Compute</p></td>
 </div>
 <div class="sect2">
 <h3 id="synchronization-pipeline-barriers"><a class="anchor" href="#synchronization-pipeline-barriers"></a>6.6. Pipeline Barriers</h3>
-<div class="paragraph">
-<p><a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a> is a synchronization command that inserts a
-dependency between commands submitted to the same queue, or between commands
-in the same subpass.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -8983,7 +9001,8 @@ in the same subpass.</p>
 </div>
 <div id="vkCmdPipelineBarrier" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="directive">void</span> vkCmdPipelineBarrier(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="directive">void</span> vkCmdPipelineBarrier(
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
@@ -9111,6 +9130,46 @@ any dependency between <a href="#synchronization-framebuffer-regions">framebuffe
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-02285" href="#VUID-vkCmdPipelineBarrier-pDependencies-02285"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the render
+pass <strong class="purple">must</strong> have been created with at least one <a href="chap7.html#VkSubpassDependency">VkSubpassDependency</a>
+instance in <code>VkRenderPassCreateInfo</code>::<code>pDependencies</code> that
+expresses a dependency from the current subpass to itself, with
+<a href="#synchronization-dependencies-scopes">synchronization scopes</a> and
+<a href="#synchronization-dependencies-access-scopes">access scopes</a> that are
+all supersets of the scopes defined in this command</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178" href="#VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, it <strong class="purple">must</strong> not
+include any buffer memory barriers</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-image-04073" href="#VUID-vkCmdPipelineBarrier-image-04073"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>image</code> member of any image memory barrier included in this command
+<strong class="purple">must</strong> be an attachment used in the current subpass both as an input
+attachment, and as either a color or depth/stencil attachment</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-01181" href="#VUID-vkCmdPipelineBarrier-oldLayout-01181"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>oldLayout</code> and <code>newLayout</code> members of any image memory barrier
+included in this command <strong class="purple">must</strong> be equal</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182" href="#VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182"></a>
+If <code>vkCmdPipelineBarrier</code> is called within a render pass instance, the
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of any
+image memory barrier included in this command <strong class="purple">must</strong> be equal</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-dependencyFlags-01186" href="#VUID-vkCmdPipelineBarrier-dependencyFlags-01186"></a>
+If <code>vkCmdPipelineBarrier</code> is called outside of a render pass instance,
+<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code> <strong class="purple">must</strong> not be included in the
+dependency flags</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-01168" href="#VUID-vkCmdPipelineBarrier-srcStageMask-01168"></a>
 If the <a href="chap34.html#features-geometryShader">geometry shaders</a> feature is not
 enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
@@ -9137,67 +9196,6 @@ not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not 
 <code>VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdPipelineBarrier-pDependencies-02285" href="#VUID-vkCmdPipelineBarrier-pDependencies-02285"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the render pass <strong class="purple">must</strong> have been created with at least one
-<code>VkSubpassDependency</code> instance in
-<a href="chap7.html#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a>::<code>pDependencies</code> that expresses a
-dependency from the current subpass to itself, and for which
-<code>srcStageMask</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>srcStageMask</code>, <code>dstStageMask</code>
-contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>dstStageMask</code>, <code>dependencyFlags</code> is
-equal to <code>VkSubpassDependency</code>::<code>dependencyFlags</code>,
-<code>srcAccessMask</code> member of each element of <code>pMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>srcAccessMask</code>, and <code>dstAccessMask</code>
-member of each element of <code>pMemoryBarriers</code> and
-<code>pImageMemoryBarriers</code> contains a subset of the bit values in
-<code>VkSubpassDependency</code>::<code>dstAccessMask</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178" href="#VUID-vkCmdPipelineBarrier-bufferMemoryBarrierCount-01178"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-<code>bufferMemoryBarrierCount</code> <strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-image-02635" href="#VUID-vkCmdPipelineBarrier-image-02635"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>image</code> member of any element of <code>pImageMemoryBarriers</code>
-<strong class="purple">must</strong> be equal to one of the elements of <code>pAttachments</code> that the
-current <code>framebuffer</code> was created with, that is also referred to by
-one of the elements of the <code>pColorAttachments</code>,
-<code>pResolveAttachments</code> or <code>pDepthStencilAttachment</code> members of
-the <code>VkSubpassDescription</code> instance or by the
-<code>pDepthStencilResolveAttachment</code> member of the
-<code>VkSubpassDescriptionDepthStencilResolve</code> structure that the current
-subpass was created with</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-02636" href="#VUID-vkCmdPipelineBarrier-oldLayout-02636"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>oldLayout</code> and <code>newLayout</code> members of any element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be equal to the <code>layout</code> member of
-an element of the <code>pColorAttachments</code>, <code>pResolveAttachments</code> or
-<code>pDepthStencilAttachment</code> members of the <code>VkSubpassDescription</code>
-instance or by the <code>pDepthStencilResolveAttachment</code> member of the
-<code>VkSubpassDescriptionDepthStencilResolve</code> structure that the current
-subpass was created with, that refers to the same <code>image</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-oldLayout-01181" href="#VUID-vkCmdPipelineBarrier-oldLayout-01181"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>oldLayout</code> and <code>newLayout</code> members of an element of
-<code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be equal</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182" href="#VUID-vkCmdPipelineBarrier-srcQueueFamilyIndex-01182"></a>
-If <code>vkCmdPipelineBarrier</code> is called within a render pass instance,
-the <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> members of
-any element of <code>pImageMemoryBarriers</code> <strong class="purple">must</strong> be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-01183" href="#VUID-vkCmdPipelineBarrier-srcStageMask-01183"></a>
 Any pipeline stage included in <code>srcStageMask</code> or <code>dstStageMask</code>
 <strong class="purple">must</strong> be supported by the capabilities of the queue family specified by
@@ -9206,12 +9204,6 @@ structure that was used to create the <code>VkCommandPool</code> that
 <code>commandBuffer</code> was allocated from, as specified in the
 <a href="#synchronization-pipeline-stages-supported">table of supported pipeline
 stages</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdPipelineBarrier-dependencyFlags-01186" href="#VUID-vkCmdPipelineBarrier-dependencyFlags-01186"></a>
-If <code>vkCmdPipelineBarrier</code> is called outside of a render pass
-instance, <code>dependencyFlags</code> <strong class="purple">must</strong> not include
-<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcAccessMask-02815" href="#VUID-vkCmdPipelineBarrier-srcAccessMask-02815"></a>
@@ -9380,7 +9372,8 @@ specifying how execution and memory dependencies are formed, are:</p>
 </div>
 <div id="VkDependencyFlagBits" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">enum</span> VkDependencyFlagBits {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkDependencyFlagBits {
     VK_DEPENDENCY_BY_REGION_BIT = <span class="hex">0x00000001</span>,
     VK_DEPENDENCY_DEVICE_GROUP_BIT = <span class="hex">0x00000004</span>,
     VK_DEPENDENCY_VIEW_LOCAL_BIT = <span class="hex">0x00000002</span>,
@@ -9413,7 +9406,8 @@ dependency</a>.</p>
 <div class="content">
 <div id="VkDependencyFlags" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> VkFlags VkDependencyFlags;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> VkFlags VkDependencyFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -9429,9 +9423,8 @@ dependency</a>.</p>
 following restrictions apply.
 For a given subpass to allow a pipeline barrier, the render pass <strong class="purple">must</strong>
 declare a <em>self-dependency</em> from that subpass to itself.
-That is, there <strong class="purple">must</strong> exist a <code>VkSubpassDependency</code> in the subpass
-dependency list for the render pass with <code>srcSubpass</code> and
-<code>dstSubpass</code> equal to that subpass index.
+That is, there <strong class="purple">must</strong> exist a subpass dependency with <code>srcSubpass</code> and
+<code>dstSubpass</code> both equal to that subpass index.
 More than one self-dependency <strong class="purple">can</strong> be declared for each subpass.</p>
 </div>
 <div class="paragraph">
@@ -9441,8 +9434,9 @@ If any of the stages in <code>srcStages</code> are
 <a href="#synchronization-framebuffer-regions">framebuffer-space stages</a>,
 <code>dstStages</code> <strong class="purple">must</strong> only contain
 <a href="#synchronization-framebuffer-regions">framebuffer-space stages</a>.
-Additionally, <code>srcStages</code> <strong class="purple">must</strong> not contain
-<code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> in a self-dependency.</p>
+This means that pseudo-stages like <code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>
+which include the execution of both framebuffer-space stages and
+non-framebuffer-space stages <strong class="purple">must</strong> not be used.</p>
 </div>
 <div class="paragraph">
 <p>If the source and destination stage masks both include framebuffer-space
@@ -9452,21 +9446,22 @@ If the subpass has more than one view, then <code>dependencyFlags</code> <strong
 include <code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code>.</p>
 </div>
 <div class="paragraph">
-<p>A <code>vkCmdPipelineBarrier</code> command inside a render pass instance <strong class="purple">must</strong> be
-a <em>subset</em> of one of the self-dependencies of the subpass it is used in,
-meaning that the stage masks and access masks <strong class="purple">must</strong> each include only a
-subset of the bits of the corresponding mask in that self-dependency.
-If the self-dependency has <code>VK_DEPENDENCY_BY_REGION_BIT</code>
+<p>Each of the <a href="#synchronization-dependencies-scopes">synchronization scopes</a>
+and <a href="#synchronization-dependencies-access-scopes">access scopes</a> of a
+<a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a> command inside a render pass instance <strong class="purple">must</strong> be a
+subset of the scopes of one of the self-dependencies for the current
+subpass.</p>
+</div>
+<div class="paragraph">
+<p>If the self-dependency has <code>VK_DEPENDENCY_BY_REGION_BIT</code>
 or <code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code>
 set, then so <strong class="purple">must</strong> the pipeline barrier.
-Pipeline barriers within a render pass instance <strong class="purple">can</strong> only be types
-<code>VkMemoryBarrier</code> or <code>VkImageMemoryBarrier</code>.
-If a <code>VkImageMemoryBarrier</code> is used, the image and image subresource
-range specified in the barrier <strong class="purple">must</strong> be a subset of one of the image views
-used by the framebuffer in the current subpass.
-Additionally, <code>oldLayout</code> <strong class="purple">must</strong> be equal to <code>newLayout</code>, and both
-the <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
-<code>VK_QUEUE_FAMILY_IGNORED</code>.</p>
+Pipeline barriers within a render pass instance <strong class="purple">must</strong> not include buffer
+memory barriers.
+Image memory barriers <strong class="purple">must</strong> only specify image subresources that are used as
+attachments within the subpass, and <strong class="purple">must</strong> not define an
+<a href="#synchronization-image-layout-transitions">image layout transition</a> or
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a>.</p>
 </div>
 </div>
 </div>
@@ -9498,7 +9493,8 @@ that exist at the time of its execution.</p>
 </div>
 <div id="VkMemoryBarrier" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkMemoryBarrier {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkMemoryBarrier {
     VkStructureType    sType;
     <span class="directive">const</span> <span class="directive">void</span>*        pNext;
     VkAccessFlags      srcAccessMask;
@@ -9512,7 +9508,8 @@ that exist at the time of its execution.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>srcAccessMask</code> is a bitmask of <a href="#VkAccessFlagBits">VkAccessFlagBits</a> specifying a
@@ -9577,7 +9574,8 @@ specified buffer range.</p>
 </div>
 <div id="VkBufferMemoryBarrier" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkBufferMemoryBarrier {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkBufferMemoryBarrier {
     VkStructureType    sType;
     <span class="directive">const</span> <span class="directive">void</span>*        pNext;
     VkAccessFlags      srcAccessMask;
@@ -9596,7 +9594,8 @@ specified buffer range.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>srcAccessMask</code> is a bitmask of <a href="#VkAccessFlagBits">VkAccessFlagBits</a> specifying a
@@ -9779,7 +9778,8 @@ specified image subresource range.</p>
 </div>
 <div id="VkImageMemoryBarrier" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="keyword">typedef</span> <span class="keyword">struct</span> VkImageMemoryBarrier {
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkImageMemoryBarrier {
     VkStructureType            sType;
     <span class="directive">const</span> <span class="directive">void</span>*                pNext;
     VkAccessFlags              srcAccessMask;
@@ -9799,7 +9799,8 @@ specified image subresource range.</p>
 <p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
 </li>
 <li>
 <p><code>srcAccessMask</code> is a bitmask of <a href="#VkAccessFlagBits">VkAccessFlagBits</a> specifying a
@@ -9870,17 +9871,9 @@ the first access scope includes no access, as if <code>srcAccessMask</code> was
 <code>0</code>.</p>
 </div>
 <div class="paragraph">
-<p>If <code>oldLayout</code> is not equal to <code>newLayout</code>, then the memory barrier
-defines an <a href="#synchronization-image-layout-transitions">image layout
-transition</a> for the specified image subresource range.</p>
-</div>
-<div id="synchronization-image-barrier-layout-transition-order" class="paragraph">
-<p>Layout transitions that are performed via image memory barriers execute in
-their entirety in <a href="#synchronization-submission-order">submission order</a>,
-relative to other image layout transitions submitted to the same queue,
-including those performed by <a href="chap7.html#renderpass">render passes</a>.
-In effect there is an implicit execution dependency from each such layout
-transition to all layout transitions previously submitted to the same queue.</p>
+<p><code>oldLayout</code> and <code>newLayout</code> define an
+<a href="#synchronization-image-layout-transitions">image layout transition</a> for
+the specified image subresource range.</p>
 </div>
 <div class="paragraph">
 <p>If <code>image</code> has a multi-planar format and the image is <em>disjoint</em>, then
@@ -9894,63 +9887,6 @@ including <code>VK_IMAGE_ASPECT_COLOR_BIT</code> in the <code>aspectMask</code> 
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01197" href="#VUID-VkImageMemoryBarrier-oldLayout-01197"></a>
-<code>oldLayout</code> <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or the current
-layout of the image subresources affected by the barrier</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-newLayout-01198" href="#VUID-VkImageMemoryBarrier-newLayout-01198"></a>
-<code>newLayout</code> <strong class="purple">must</strong> not be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
-<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01381" href="#VUID-VkImageMemoryBarrier-image-01381"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01766" href="#VUID-VkImageMemoryBarrier-image-01766"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, and one of <code>srcQueueFamilyIndex</code>
-and <code>dstQueueFamilyIndex</code> is <code>VK_QUEUE_FAMILY_IGNORED</code>, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code> or a special queue family
-reserved for external memory transfers, as described in
-<a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01201" href="#VUID-VkImageMemoryBarrier-image-01201"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>srcQueueFamilyIndex</code> is
-<code>VK_QUEUE_FAMILY_IGNORED</code>, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> also be
-<code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01767" href="#VUID-VkImageMemoryBarrier-image-01767"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>srcQueueFamilyIndex</code> is not
-<code>VK_QUEUE_FAMILY_IGNORED</code>, it <strong class="purple">must</strong> be a valid queue family or a
-special queue family reserved for external memory transfers, as
-described in <a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01768" href="#VUID-VkImageMemoryBarrier-image-01768"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code> and <code>dstQueueFamilyIndex</code> is not
-<code>VK_QUEUE_FAMILY_IGNORED</code>, it <strong class="purple">must</strong> be a valid queue family or a
-special queue family reserved for external memory transfers, as
-described in <a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01205" href="#VUID-VkImageMemoryBarrier-image-01205"></a>
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not <code>VK_QUEUE_FAMILY_IGNORED</code>, at
-least one of them <strong class="purple">must</strong> be the same as the family of the queue that will
-execute this barrier</p>
-</li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-subresourceRange-01486" href="#VUID-VkImageMemoryBarrier-subresourceRange-01486"></a>
 <code>subresourceRange.baseMipLevel</code> <strong class="purple">must</strong> be less than the
@@ -9981,25 +9917,168 @@ If <code>subresourceRange.layerCount</code> is not
 was created</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-image-03319" href="#VUID-VkImageMemoryBarrier-image-03319"></a>
-If <code>image</code> has a depth/stencil format with both depth and stencil
-and the <a href="chap34.html#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is enabled, then the
-<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include either
-or both <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and
-<code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+<p><a id="VUID-VkImageMemoryBarrier-image-01932" href="#VUID-VkImageMemoryBarrier-image-01932"></a>
+If <code>image</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
+contiguously to a single <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-image-03320" href="#VUID-VkImageMemoryBarrier-image-03320"></a>
-If <code>image</code> has a depth/stencil format with both depth and stencil
-and the <a href="chap34.html#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is not enabled, then the
-<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include both
-<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01208" href="#VUID-VkImageMemoryBarrier-oldLayout-01208"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01209" href="#VUID-VkImageMemoryBarrier-oldLayout-01209"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01210" href="#VUID-VkImageMemoryBarrier-oldLayout-01210"></a></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04064" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04064"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01211" href="#VUID-VkImageMemoryBarrier-oldLayout-01211"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with <code>VK_IMAGE_USAGE_SAMPLED_BIT</code> or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01212" href="#VUID-VkImageMemoryBarrier-oldLayout-01212"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01213" href="#VUID-VkImageMemoryBarrier-oldLayout-01213"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01197" href="#VUID-VkImageMemoryBarrier-oldLayout-01197"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+<code>oldLayout</code> <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or the current
+layout of the image subresources affected by the barrier</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-newLayout-01198" href="#VUID-VkImageMemoryBarrier-newLayout-01198"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+<code>newLayout</code> <strong class="purple">must</strong> not be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
+<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01658" href="#VUID-VkImageMemoryBarrier-oldLayout-01658"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> then
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01659" href="#VUID-VkImageMemoryBarrier-oldLayout-01659"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> then
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04065" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04065"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL_KHR</code> then <code>image</code> <strong class="purple">must</strong>
+have been created with at least one of
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>,
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04066" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04066"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04067" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04067"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with at least one of
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>,
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, or
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04068" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04068"></a>
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL_KHR</code> then <code>image</code>
+<strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-image-01671" href="#VUID-VkImageMemoryBarrier-image-01671"></a>
-If <code>image</code> has a color format and either the format is single-plane
-or the image is not disjoint then the <code>aspectMask</code> member of
-<code>subresourceRange</code> <strong class="purple">must</strong> only include
+If <code>image</code> has a single-plane color format or is not <em>disjoint</em>,
+then the <code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> be
 <code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
 </li>
 <li>
@@ -10018,62 +10097,51 @@ If <code>image</code> has a multi-planar format with only two planes, then the
 <code>VK_IMAGE_ASPECT_PLANE_2_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01208" href="#VUID-VkImageMemoryBarrier-oldLayout-01208"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-03319" href="#VUID-VkImageMemoryBarrier-image-03319"></a>
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="chap34.html#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include either
+or both <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01209" href="#VUID-VkImageMemoryBarrier-oldLayout-01209"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> then <code>image</code>
-<strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-03320" href="#VUID-VkImageMemoryBarrier-image-03320"></a>
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="chap34.html#features-separateDepthStencilLayouts">separateDepthStencilLayouts</a> feature is not enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include both
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01210" href="#VUID-VkImageMemoryBarrier-oldLayout-01210"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then <code>image</code>
-<strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070" href="#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070"></a>
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one <strong class="purple">must</strong> not be a special queue family reserved for external
+memory ownership transfers, as described in
+<a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01658" href="#VUID-VkImageMemoryBarrier-oldLayout-01658"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> then
-<code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-04071" href="#VUID-VkImageMemoryBarrier-image-04071"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, and one of
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is a special
+queue family values reserved for external memory transfers, the other
+<strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01659" href="#VUID-VkImageMemoryBarrier-oldLayout-01659"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> then
-<code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-04072" href="#VUID-VkImageMemoryBarrier-image-04072"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
+the special queue family values reserved for external memory transfers,
+as described in <a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01211" href="#VUID-VkImageMemoryBarrier-oldLayout-01211"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_SAMPLED_BIT</code> or
-<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01212" href="#VUID-VkImageMemoryBarrier-oldLayout-01212"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-oldLayout-01213" href="#VUID-VkImageMemoryBarrier-oldLayout-01213"></a>
-If either <code>oldLayout</code> or <code>newLayout</code> is
-<code>VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> set</p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01932" href="#VUID-VkImageMemoryBarrier-image-01932"></a>
-If <code>image</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
-contiguously to a single <code>VkDeviceMemory</code> object</p>
+<p><a id="VUID-VkImageMemoryBarrier-image-01381" href="#VUID-VkImageMemoryBarrier-image-01381"></a>
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
+<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code></p>
 </li>
 </ul>
 </div>
@@ -10297,7 +10365,8 @@ given queue, call:</p>
 </div>
 <div id="vkQueueWaitIdle" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkQueueWaitIdle(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkQueueWaitIdle(
     VkQueue                                     queue);</code></pre>
 </div>
 </div>
@@ -10410,7 +10479,8 @@ all queues on a given logical device, call:</p>
 </div>
 <div id="vkDeviceWaitIdle" class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++">VkResult vkDeviceWaitIdle(
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+VkResult vkDeviceWaitIdle(
     VkDevice                                    device);</code></pre>
 </div>
 </div>
@@ -10490,9 +10560,10 @@ all queues owned by <code>device</code>.</p>
 <div class="sect2">
 <h3 id="synchronization-submission-host-writes"><a class="anchor" href="#synchronization-submission-host-writes"></a>6.9. Host Write Ordering Guarantees</h3>
 <div class="paragraph">
-<p>When batches of command buffers are submitted to a queue via
-<a href="chap5.html#vkQueueSubmit">vkQueueSubmit</a>, it defines a memory dependency with prior host
-operations, and execution of command buffers submitted to the queue.</p>
+<p>When batches of command buffers are submitted to a queue via a
+<a href="chap4.html#devsandqueues-submission">queue submission command</a>, it defines a memory
+dependency with prior host operations, and execution of command buffers
+submitted to the queue.</p>
 </div>
 <div class="paragraph">
 <p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a> is
@@ -10543,7 +10614,7 @@ waited on by a different physical device.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.141<br>
+Version 1.2.142<br>
 Last updated 2020-05-03 21:42:41 -0700
 </div>
 </div>
