@@ -51,6 +51,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
         <li> <a href="#repo-loader"/> <b>Loader and Validation Layers Repositories</b> </a> </li>
         <li> <a href="#repo-samples"/> <b>Sample Code Repository</b> </a> </li>
         </ul> </li>
+    <li> <a href="#feedback"> <b>Providing Feedback on the Registry</b> </a>
 </ul>
 
 
@@ -355,6 +356,17 @@ include_once("../../assets/static_pages/khr_page_top.php");
      <tt>vulkan.hpp</tt> is included in the <a
      href="#vulkan-headers">Vulkan-Headers</a> repository. </li>
 </ul>
+
+<h3> <a name="feedback"></a> <b>Providing Feedback on the Registry</b> </h3>
+
+<p> Khronos welcomes comments and bug reports. To provide feedback on the
+    Vulkan registry itself (such as reporting missing content, bad links,
+    etc.), file an issue in the <a
+    href="https://github.com/KhronosGroup/Vulkan-Web-Registry/issues">
+    Vulkan-Web-Registry </a> Github project. </p>
+
+<p> For the Vulkan Specification or other documentation and tools, file an
+    Issue on the appropriate <a href="#repos">GitHub Repository</a>. </p>
 
 <?php include_once("../../assets/static_pages/khr_page_bottom.php"); ?>
 </body>
