@@ -778,9 +778,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>The Khronos<sup>®</sup> Vulkan<sup>®</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.2.142,</span>
-<span id="revdate">2020-06-01 11:16:32Z</span>
-<br><span id="revremark">from git branch: github-master commit: dd7b521af03ed3ce13b7d2a54c4542f5af7cf370</span>
+<span id="revnumber">version 1.2.143,</span>
+<span id="revdate">2020-06-08 11:01:16Z</span>
+<br><span id="revremark">from git branch: github-master commit: f6a10a5af095938e2a6ac8581b7f848a4b324f46</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -946,11 +946,16 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#_how_to_add_a_compile_time_constant">20.3. How To Add A Compile Time Constant</a></li>
 <li><a href="#_how_to_add_a_struct_or_union_type">20.4. How To Add A Struct or Union Type</a></li>
 <li><a href="#_how_to_add_an_enumerated_type">20.5. How To Add An Enumerated Type</a></li>
-<li><a href="#_how_to_add_a_command">20.6. How to Add A Command</a></li>
-<li><a href="#_more_complicated_api_representations">20.7. More Complicated API Representations</a></li>
-<li><a href="#_more_complicated_output_formats_and_other_languages">20.8. More Complicated Output Formats And Other Languages</a></li>
-<li><a href="#_additional_semantic_tagging">20.9. Additional Semantic Tagging</a></li>
-<li><a href="#general:stability">20.10. Stability of the XML Database and Schema</a></li>
+<li><a href="#_how_to_add_bit_flags">20.6. How To Add Bit Flags</a>
+<ul class="sectlevel3">
+<li><a href="#_32_bit_flags">20.6.1. 32-bit Flags</a></li>
+</ul>
+</li>
+<li><a href="#_how_to_add_a_command">20.7. How to Add A Command</a></li>
+<li><a href="#_more_complicated_api_representations">20.8. More Complicated API Representations</a></li>
+<li><a href="#_more_complicated_output_formats_and_other_languages">20.9. More Complicated Output Formats And Other Languages</a></li>
+<li><a href="#_additional_semantic_tagging">20.10. Additional Semantic Tagging</a></li>
+<li><a href="#general:stability">20.11. Stability of the XML Database and Schema</a></li>
 </ul>
 </li>
 <li><a href="#changelog">21. Change Log</a></li>
@@ -1768,6 +1773,10 @@ during header generation, used mostly for function pointer types.</p>
 <p><code>name</code> - contains the name of this type (if not defined in the tag
 attributes).</p>
 </li>
+<li>
+<p><code>bitvalues</code> - contains the name of the enumeration defining flag
+values for a <code>bitmask</code> type. Ignored for other types.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1923,6 +1932,10 @@ a reserved range of enumerants is allocated.</p>
 </li>
 <li>
 <p><code>comment</code> - optional. Arbitrary string (unused).</p>
+</li>
+<li>
+<p><code>bitwidth</code> - optional. Bit width required for the generated enum
+value type. If omitted, a default value of 32 is used.</p>
 </li>
 </ul>
 </div>
@@ -3677,7 +3690,166 @@ the C header unchanged.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_to_add_a_command"><a class="anchor" href="#_how_to_add_a_command"></a>20.6. How to Add A Command</h3>
+<h3 id="_how_to_add_bit_flags"><a class="anchor" href="#_how_to_add_bit_flags"></a>20.6. How To Add Bit Flags</h3>
+<div class="paragraph">
+<p>Bit masks are defined by two types in the xml - the type of the mask
+itself, and the type of the valid flags.</p>
+</div>
+<div class="paragraph">
+<p>For this example, assume we want to define bit flags that can handle up to
+64 independent values as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">typedef VkFlags64 VkExampleFlags;
+
+// Flag bits for VkExampleFlags
+static const VkExampleFlags VK_EXAMPLE_NONE = 0;
+static const VkExampleFlags VK_EXAMPLE_FIRST_BIT = 0x00000001;
+static const VkExampleFlags VK_EXAMPLE_SECOND_BIT = 0x00000002;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An explicit <code>type</code> dependency should be added to the <code>feature</code> tag
+in exactly the same fashion as described above for <code>struct</code> types.</p>
+</div>
+<div class="paragraph">
+<p>Firstly, a definition is needed for the flags type used as a parameter
+to commands or member of functions. Go to the line labelled:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;comment&gt;Bitmask types&lt;/comment&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At the end of the list of <code>VkFlags</code> and <code>VkFlags64</code> types, add a definition
+of the flags type like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;type bitvalues="VkExampleFlagBits" category="bitmask"&gt;typedef &lt;type&gt;VkFlags64&lt;/type&gt; &lt;name&gt;VkExampleFlags&lt;/name&gt;;&lt;/type&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>category</code> defines this as a <code>"bitmask"</code> type. The <code>bitvalues</code>
+attribute identifies the <code>*FlagBits</code> entry defining the flag bits
+associated with this type.</p>
+</div>
+<div class="paragraph">
+<p>Next, go to the line labelled:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;comment&gt;Types generated from corresponding enums tags below&lt;/comment&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At an appropriate point in the list of enum types after this comment, add
+the following line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;type name="VkExampleFlagBits" category="enum"/&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This defines a type for the flag bits for generators that need it.
+The <code>category</code> attribute of <code>"enum"</code> identifies that this is an
+enumerated type.</p>
+</div>
+<div class="paragraph">
+<p>Finally, go to the line labelled:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;comment&gt;Vulkan enumerant (token) definitions&lt;/comment&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At the end of the list of enum definitions below this line, add an
+<code>enums</code> tag whose <code>name</code> attribute matches the <code>type</code> name
+<code>VkExampleFlagBits</code>, and whose contents correspond to the individual
+fields of the enumerated type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;enums name="VkExampleFlagBits" type="bitmask" bitwidth="64"&gt;
+    &lt;enum value="0" name="VK_EXAMPLE_NONE"/&gt;
+    &lt;enum bitpos="0" name="VK_EXAMPLE_FIRST_BIT"/&gt;
+    &lt;enum bitpos="1" name="VK_EXAMPLE_SECOND_BIT"/&gt;
+&lt;/enums&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>type</code> attribute is set to <code>"bitmask"</code>, indicating that the
+individual enumerants represent elements of a bitmask.
+The <code>bitwidth</code> attribute is set to <code>"64"</code> indicating that this is a
+64-bit flag type.</p>
+</div>
+<div class="paragraph">
+<p>The individual <code>enum</code> tags define the enumerants, just like the
+definition for compile time constants described above. In this case, a
+"no flags" type is defined in <code>VK_EXAMPLE_NONE</code> with the <code>value</code>
+attribute defining it to have a hard value of 0. The other types have their
+values are specified using the <code>bitpos</code> attribute, as these are actual
+bit flag values. The value of this attribute must be an integer in
+the range [0,63] specifying a single bit number, and the resulting value
+is printed as a hexadecimal constant corresponding to that bit.</p>
+</div>
+<div class="sect3">
+<h4 id="_32_bit_flags"><a class="anchor" href="#_32_bit_flags"></a>20.6.1. 32-bit Flags</h4>
+<div class="paragraph">
+<p>Bit flags can also be defined using 32-bit C enum types. Doing so is
+broadly similar to 64-bit bit flags, but with a few key differences.
+For this example, assume we want to define the same type as above,
+but corresponding to a C <code>enum</code> and flags type defined as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">typedef enum VkExampleFlagBits {
+    VK_EXAMPLE_NONE
+    VK_DEVICE_CREATE_VALIDATION_BIT = 0x00000001,
+    VK_DEVICE_CREATE_MULTI_DEVICE_IQ_MATCH_BIT = 0x00000002;
+} VkExampleFlagBits;
+
+typedef VkFlags VkExampleFlags;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To add this to the xml, entries need to be added to the XML in the same way
+as above, but with slightly different attributes:</p>
+</div>
+<div class="paragraph">
+<p>For the flag type definition, the entry should use <code>VkFlags</code> instead of
+<code>VkFlags64</code>, and require the flag bits type, instead of specifying the
+<code>bitvalues</code> attribute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;type requires="VkExampleFlagBits" category="bitmask"&gt;typedef &lt;type&gt;VkFlags&lt;/type&gt; &lt;name&gt;VkExampleFlags&lt;/name&gt;;&lt;/type&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the definition of the enumerated flag values themselves, the bitwidth
+needs to either be changed to <code>"32"</code>, or omitted entirely (which defaults
+to a bitwidth of 32) as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;enums name="VkExampleFlagBits" type="bitmask"&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that 32-bit bitmasks must use an integer in the range [0,30] - C enums
+are only guaranteed to support signed 32-bit integer values, and defining
+an unsigned value for the 31st bit could change the size of the enum type.
+The generator scripts will warn about values exceeding this range.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_add_a_command"><a class="anchor" href="#_how_to_add_a_command"></a>20.7. How to Add A Command</h3>
 <div class="paragraph">
 <p>For this example, assume we want to define the command:</p>
 </div>
@@ -3743,7 +3915,7 @@ previously.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_more_complicated_api_representations"><a class="anchor" href="#_more_complicated_api_representations"></a>20.7. More Complicated API Representations</h3>
+<h3 id="_more_complicated_api_representations"><a class="anchor" href="#_more_complicated_api_representations"></a>20.8. More Complicated API Representations</h3>
 <div class="paragraph">
 <p>The registry schema can represent a good deal of additional information, for
 example by creating multiple <code>feature</code> tags defining different API
@@ -3752,7 +3924,7 @@ Those capabilities will be documented as they are needed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_more_complicated_output_formats_and_other_languages"><a class="anchor" href="#_more_complicated_output_formats_and_other_languages"></a>20.8. More Complicated Output Formats And Other Languages</h3>
+<h3 id="_more_complicated_output_formats_and_other_languages"><a class="anchor" href="#_more_complicated_output_formats_and_other_languages"></a>20.9. More Complicated Output Formats And Other Languages</h3>
 <div class="paragraph">
 <p>The registry schema is oriented towards C-language APIs. Types and commands
 are defined using syntax which is a subset of C, especially for structure
@@ -3775,7 +3947,7 @@ generators.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_additional_semantic_tagging"><a class="anchor" href="#_additional_semantic_tagging"></a>20.9. Additional Semantic Tagging</h3>
+<h3 id="_additional_semantic_tagging"><a class="anchor" href="#_additional_semantic_tagging"></a>20.10. Additional Semantic Tagging</h3>
 <div class="paragraph">
 <p>The schema is being extended to support semantic tags describing
 various properties of API features, such as:</p>
@@ -3806,7 +3978,7 @@ suggestions on the Github issue tracker.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="general:stability"><a class="anchor" href="#general:stability"></a>20.10. Stability of the XML Database and Schema</h3>
+<h3 id="general:stability"><a class="anchor" href="#general:stability"></a>20.11. Stability of the XML Database and Schema</h3>
 <div class="paragraph">
 <p>The Vulkan XML schema is evolving in response to corresponding changes
 in the Vulkan API and ecosystem. Most such change will probably be
@@ -3824,6 +3996,10 @@ files and Python scripts are logged in Github history.</p>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
+<li>
+<p>2020-06-02 - Add description of how to switch between 64- and 32-bit
+flags.</p>
+</li>
 <li>
 <p>2020-05-07 - Update description of <a href="#schema:apiname">API Names</a> to
 current usage, including allowing specifying multiple API names for a
@@ -4009,8 +4185,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.142<br>
-Last updated 2020-06-01 04:04:08 -0700
+Version 1.2.143<br>
+Last updated 2020-06-08 03:48:42 -0700
 </div>
 </div>
 

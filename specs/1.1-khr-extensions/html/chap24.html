@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.142 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.143 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.142 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.143 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.142,</span>
-<span id="revdate">2020-06-01 11:24:35Z</span>
-<br><span id="revremark">from git branch: github-master commit: dd7b521af03ed3ce13b7d2a54c4542f5af7cf370</span>
+<span id="revnumber">version 1.1.143,</span>
+<span id="revdate">2020-06-08 11:09:49Z</span>
+<br><span id="revremark">from git branch: github-master commit: f6a10a5af095938e2a6ac8581b7f848a4b324f46</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1701,8 +1701,8 @@ range <span class="eq">[0, <code>rasterizationSamples</code>)</span>.</p>
 </div>
 <div class="paragraph">
 <p>Each sample in a fragment is also assigned a unique <em>coverage index</em> <span class="eq">j</span>
-in the range <span class="eq">[0, n * <code>rasterizationSamples</code>)</span>, where <span class="eq">n</span> is the
-number of sets in the fragment.
+in the range <span class="eq">[0, n × <code>rasterizationSamples</code>)</span>, where <span class="eq">n</span>
+is the number of sets in the fragment.
 If the fragment contains a single set of samples, the <em>coverage index</em> is
 always equal to the <em>sample index</em>.</p>
 </div>
@@ -1714,7 +1714,7 @@ as:</p>
 <dl>
 <dt class="hdlist1"></dt>
 <dd>
-<p><span class="eq">B = n * <code>rasterizationSamples</code></span></p>
+<p><span class="eq">B = n × <code>rasterizationSamples</code></span></p>
 </dd>
 <dt class="hdlist1"></dt>
 <dd>
@@ -2381,6 +2381,271 @@ attributes.</p>
 </div>
 <div class="title">Figure 15. Non strict lines</div>
 </div>
+<div class="paragraph">
+<p>Only when <code>strictLines</code> is <code>VK_FALSE</code> implementations <strong class="purple">may</strong> deviate
+from the non-strict line algorithm described above in the following ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Implementations <strong class="purple">may</strong> instead interpolate each fragment according to the
+formula in <a href="#primsrast-lines-basic">Basic Line Segment Rasterization</a> using
+the original line segment endpoints.</p>
+</li>
+<li>
+<p>Rasterization of non-antialiased non-strict line segments <strong class="purple">may</strong> be
+performed using the rules defined in <a href="#primsrast-lines-bresenham">Bresenham
+Line Segment Rasterization</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="primsrast-lines-bresenham"><a class="anchor" href="#primsrast-lines-bresenham"></a>24.6.2. Bresenham Line Segment Rasterization</h4>
+<div class="paragraph">
+<p>Non-strict lines <strong class="purple">may</strong> also follow these rasterization rules for
+non-antialiased lines.</p>
+</div>
+<div class="paragraph">
+<p>Line segment rasterization begins by characterizing the segment as either
+<em>x-major</em> or <em>y-major</em>.
+x-major line segments have slope in the closed interval <span class="eq">[-1,1]</span>; all
+other line segments are y-major (slope is determined by the segment’s
+endpoints).
+We specify rasterization only for x-major segments except in cases where the
+modifications for y-major segments are not self-evident.</p>
+</div>
+<div class="paragraph">
+<p>Ideally, Vulkan uses a <em>diamond-exit</em> rule to determine those fragments that
+are produced by rasterizing a line segment.
+For each fragment <span class="eq">f</span> with center at framebuffer coordinates <span class="eq">x<sub>f</sub></span>
+and <span class="eq">y<sub>f</sub></span>, define a diamond-shaped region that is the intersection of
+four half planes:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.10764em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.10764em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.10764em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mord">∣</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.00744em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.32144em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose">}</span></span></span></span></span>
+</div>
+</div>
+<div class="paragraph">
+<p>Essentially, a line segment starting at <span class="eq">p<sub>a</sub></span> and ending at <span class="eq">p<sub>b</sub></span>
+produces those fragments <span class="eq">f</span> for which the segment intersects
+<span class="eq">R<sub>f</sub></span>, except if <span class="eq">p<sub>b</sub></span> is contained in <span class="eq">R<sub>f</sub></span>.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="391.00003" height="321.00003" viewBox="0 0 103.4521 84.931256" version="1.1" id="svg8" inkscape:version="0.92.4 (5da689c313, 2019-01-14)" sodipodi:docname="bresenham.svg">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow2Mend" orient="auto" refY="0" refX="0" id="Arrow2Mend" style="overflow:visible" inkscape:isstock="true">
+      <path id="path2950" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1" d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z" transform="scale(-0.6)" inkscape:connector-curvature="0"></path>
+    </marker>
+    <marker inkscape:isstock="true" style="overflow:visible" id="marker1483" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path1481" inkscape:connector-curvature="0"></path>
+    </marker>
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="Arrow1Lend-0" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path977-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:isstock="true" style="overflow:visible" id="marker1483-7" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path1481-0"></path>
+    </marker>
+    <marker inkscape:stockid="Arrow1Mstart" orient="auto" refY="0" refX="0" id="Arrow1Mstart" style="overflow:visible" inkscape:isstock="true">
+      <path id="path2320" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1" transform="matrix(0.4,0,0,0.4,4,0)" inkscape:connector-curvature="0"></path>
+    </marker>
+    <marker inkscape:isstock="true" style="overflow:visible" id="marker2639" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Mend">
+      <path transform="matrix(-0.4,0,0,-0.4,-4,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path2637" inkscape:connector-curvature="0"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="1.48" inkscape:cx="208.25234" inkscape:cy="168.34984" inkscape:document-units="px" inkscape:current-layer="layer1" showgrid="true" inkscape:snap-object-midpoints="true" inkscape:snap-text-baseline="true" inkscape:window-width="1920" inkscape:window-height="935" inkscape:window-x="-8" inkscape:window-y="-8" inkscape:window-maximized="0" fit-margin-top="20" fit-margin-right="20" fit-margin-bottom="20" fit-margin-left="20" units="px" inkscape:snap-center="true">
+    <inkscape:grid type="xygrid" id="grid12" originx="-23.680211" originy="-47.4927" dotted="false"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-31.430062,48.736474)">
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 101.67694,-43.312516 36.85402,21.510402" id="path2597" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <g id="g1463" transform="matrix(1.7500001,0,0,1.7500001,-27.968899,-72.260452)" style="stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none">
+      <circle r="0.52778977" cy="21.833345" cx="42.333332" id="path4517" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="21.833345" cx="52.916668" id="path4517-7" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="21.833345" cx="63.5" id="path4517-78" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="21.833345" cx="74.083336" id="path4517-7-9" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="21.833345" cx="84.666664" id="path4517-0" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <path sodipodi:nodetypes="ccccccccccccccccccccc" inkscape:connector-curvature="0" id="path1171" d="m 37.041666,16.541677 h 52.916665 v 42.333331 l -52.91666,4e-6 -5e-6,-42.333333 m 10.583334,0 4e-6,42.333333 m 10.583332,0 -4e-6,-42.333333 m 10.583332,0 8e-6,42.333333 m 10.583336,0 -8e-6,-42.333333 m 10.583336,0 v 42.333333 m -5e-6,-10.583337 H 37.041666 m 10e-7,-10.58333 52.916664,-2e-6 m 0,-10.583333 -52.916664,3e-6" style="fill:none;stroke:#808080;stroke-width:0.15119047;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+      <circle r="0.52778977" cy="32.416679" cx="42.333332" id="path4517-6" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="32.416679" cx="52.916668" id="path4517-7-3" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="32.416679" cx="63.5" id="path4517-78-9" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="32.416679" cx="74.083336" id="path4517-7-9-1" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="32.416679" cx="84.666664" id="path4517-0-6" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="43.000011" cx="42.333332" id="path4517-4" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="43.000011" cx="52.916668" id="path4517-7-2" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="43.000011" cx="63.5" id="path4517-78-3" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="43.000011" cx="74.083336" id="path4517-7-9-0" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="43.000011" cx="84.666664" id="path4517-0-9" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="53.583344" cx="42.333332" id="path4517-14" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="53.583344" cx="52.916668" id="path4517-7-4" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="53.583344" cx="63.5" id="path4517-78-7" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="53.583344" cx="74.083336" id="path4517-7-9-8" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+      <circle r="0.52778977" cy="53.583344" cx="84.666664" id="path4517-0-7" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.15119047;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></circle>
+    </g>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 120.19778,-43.312516 46.114437,30.770819" id="path2597-8" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 83.156105,-43.312516 36.85402,2.9895682" id="path2597-1" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 64.635271,-43.312516 36.85402,-15.531266" id="path2597-1-9" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 46.114437,-43.312516 -9.260417,9.260417" id="path2597-1-9-6" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 129.45819,-34.052099 64.635271,30.770819" id="path2597-1-6" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 129.45819,-15.531266 83.156105,30.770819" id="path2597-1-8" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 129.45819,2.9895688 101.67694,30.770819" id="path2597-1-9-68" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 129.45819,21.510402 -9.26042,9.260417" id="path2597-1-9-68-7" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 64.635271,-43.312516 36.85402,-15.531265" id="path2597-1-9-4" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 36.85402,-34.052099 64.82292,64.822918" id="path2597-1-9-2" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 36.85402,-15.531266 83.156105,30.770819" id="path2597-1-9-2-0" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 36.85402,2.9895681 64.635271,30.770819" id="path2597-1-9-2-0-7" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 36.85402,21.510402 9.260417,9.260417" id="path2597-1-9-2-0-7-9" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 36.85402,-34.052099 64.82292,64.822918" id="path2597-1-9-2-9" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 46.114437,-43.312516 120.19777,30.770819" id="path2597-1-9-2-8" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 64.635271,-43.312516 129.45819,21.510402" id="path2597-1-9-2-8-2" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="M 83.156105,-43.312516 129.45819,2.9895681" id="path2597-1-9-2-8-2-4" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 101.67694,-43.312516 27.78125,27.78125" id="path2597-1-9-2-8-2-4-0" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.3321186;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.99635576, 0.99635576;stroke-dashoffset:0;stroke-opacity:1" d="m 120.19777,-43.312516 9.26042,9.260417" id="path2597-1-9-2-8-2-4-0-3" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.52999997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend)" d="M 42.145687,20.187485 118.87486,-39.343766" id="path819" inkscape:connector-curvature="0" sodipodi:nodetypes="cc"></path>
+    <g id="g3490" transform="translate(11.90625,10.583333)" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-opacity:1">
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3" d="m 32.88527,9.6041515 2.645834,2.6458335" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-2" d="M 35.531104,9.6041515 32.88527,12.249985" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+    </g>
+    <g id="g3490-6" transform="translate(30.427084,-7.9375001)" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-opacity:1">
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-1" d="m 32.88527,9.6041515 2.645834,2.6458335" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-2-0" d="M 35.531104,9.6041515 32.88527,12.249985" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+    </g>
+    <g id="g3490-6-5" transform="translate(48.947918,-26.458334)" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-opacity:1">
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-1-3" d="m 32.88527,9.6041515 2.645834,2.6458335" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-2-0-8" d="M 35.531104,9.6041515 32.88527,12.249985" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+    </g>
+    <g id="g3490-6-5-0" transform="translate(67.468751,-44.979168)" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-opacity:1">
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-1-3-9" d="m 32.88527,9.6041515 2.645834,2.6458335" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+      <path sodipodi:nodetypes="cc" inkscape:connector-curvature="0" id="path2597-1-9-2-0-7-9-3-2-0-8-0" d="M 35.531104,9.6041515 32.88527,12.249985" style="fill:#ff0000;fill-opacity:1;stroke:#ff0000;stroke-width:0.33205208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"></path>
+    </g>
+  </g>
+</svg>
+</div>
+<div class="title">Figure 16. Visualization of Bresenham’s algorithm</div>
+</div>
+<div class="paragraph">
+<p>To avoid difficulties when an endpoint lies on a boundary of <span class="eq">R<sub>f</sub></span> we
+(in principle) perturb the supplied endpoints by a tiny amount.
+Let <span class="eq">p<sub>a</sub></span> and <span class="eq">p<sub>b</sub></span> have framebuffer coordinates <span class="eq">(x<sub>a</sub>,
+y<sub>a</sub>)</span> and <span class="eq">(x<sub>b</sub>, y<sub>b</sub>)</span>, respectively.
+Obtain the perturbed endpoints <span class="eq">p<sub>a</sub>'</span> given by <span class="eq">(x<sub>a</sub>, y<sub>a</sub>) -
+(ε, ε<sup>2</sup>)</span> and <span class="eq">p<sub>b</sub>'</span> given by <span class="eq">(x<sub>b</sub>, y<sub>b</sub>) -
+(ε, ε<sup>2</sup>)</span>.
+Rasterizing the line segment starting at <span class="eq">p<sub>a</sub></span> and ending at <span class="eq">p<sub>b</sub></span>
+produces those fragments <span class="eq">f</span> for which the segment starting at
+<span class="eq">p<sub>a</sub>'</span> and ending on <span class="eq">p<sub>b</sub>'</span> intersects <span class="eq">R<sub>f</sub></span>, except if
+<span class="eq">p<sub>b</sub>'</span> is contained in <span class="eq">R<sub>f</sub></span>.
+<span class="eq">ε</span> is chosen to be so small that rasterizing the line segment
+produces the same fragments when <span class="eq">δ</span> is substituted for
+<span class="eq">ε</span> for any <span class="eq">0 &lt; δ ≤ ε</span>.</p>
+</div>
+<div class="paragraph">
+<p>When <span class="eq">p<sub>a</sub></span> and <span class="eq">p<sub>b</sub></span> lie on fragment centers, this
+characterization of fragments reduces to Bresenham’s algorithm with one
+modification: lines produced in this description are &quot;half-open,&quot; meaning
+that the final fragment (corresponding to <span class="eq">p<sub>b</sub></span>) is not drawn.
+This means that when rasterizing a series of connected line segments, shared
+endpoints will be produced only once rather than twice (as would occur with
+Bresenham’s algorithm).</p>
+</div>
+<div class="paragraph">
+<p>Implementations <strong class="purple">may</strong> use other line segment rasterization algorithms,
+subject to the following rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The coordinates of a fragment produced by the algorithm <strong class="purple">must</strong> not
+deviate by more than one unit in either x or y framebuffer coordinates
+from a corresponding fragment produced by the diamond-exit rule.</p>
+</li>
+<li>
+<p>The total number of fragments produced by the algorithm <strong class="purple">must</strong> not differ
+from that produced by the diamond-exit rule by no more than one.</p>
+</li>
+<li>
+<p>For an x-major line, two fragments that lie in the same
+framebuffer-coordinate column <strong class="purple">must</strong> not be produced (for a y-major line,
+two fragments that lie in the same framebuffer-coordinate row <strong class="purple">must</strong> not
+be produced).</p>
+</li>
+<li>
+<p>If two line segments share a common endpoint, and both segments are
+either x-major (both left-to-right or both right-to-left) or y-major
+(both bottom-to-top or both top-to-bottom), then rasterizing both
+segments <strong class="purple">must</strong> not produce duplicate fragments.
+Fragments also <strong class="purple">must</strong> not be omitted so as to interrupt continuity of the
+connected segments.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The actual width <span class="eq">w</span> of Bresenham lines is determined by rounding the
+line width to the nearest integer, clamping it to the
+implementation-dependent <code>lineWidthRange</code> (with both values rounded to
+the nearest integer), then clamping it to be no less than 1.</p>
+</div>
+<div class="paragraph">
+<p>Bresenham line segments of width other than one are rasterized by offsetting
+them in the minor direction (for an x-major line, the minor direction is y,
+and for a y-major line, the minor direction is x) and producing a row or
+column of fragments in the minor direction.
+If the line segment has endpoints given by <span class="eq">(x<sub>0</sub>, y<sub>0</sub>)</span> and
+<span class="eq">(x<sub>1</sub>, y<sub>1</sub>)</span> in framebuffer coordinates, the segment with endpoints
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span> and <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose">)</span></span></span></span> is rasterized, but instead of a single fragment, a column of
+fragments of height w (a row of fragments of length w for a y-major segment)
+is produced at each x (y for y-major) location.
+The lowest fragment of this column is the fragment that would be produced by
+rasterizing the segment of width 1 with the modified coordinates.</p>
+</div>
+<div class="paragraph">
+<p>The preferred method of attribute interpolation for a wide line is to
+generate the same attribute values for all fragments in the row or column
+described above, as if the adjusted line were used for interpolation and
+those values replicated to the other fragments, except for <code>FragCoord</code>
+which is interpolated as usual.
+Implementations <strong class="purple">may</strong> instead interpolate each fragment according to the
+formula in <a href="#primsrast-lines-basic">Basic Line Segment Rasterization</a>, using
+the original line segment endpoints.</p>
+</div>
+<div class="paragraph">
+<p>When Bresenham lines are being rasterized, sample locations <strong class="purple">may</strong> all be
+treated as being at the pixel center (this <strong class="purple">may</strong> affect attribute and depth
+interpolation).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The sample locations described above are <strong>not</strong> used for determining
+coverage, they are only used for things like attribute interpolation.
+The rasterization rules that determine coverage are defined in terms of
+whether the line intersects <strong>pixels</strong>, as opposed to the point sampling rules
+used for other primitive types.
+So these rules are independent of the sample locations.
+One consequence of this is that Bresenham lines cover the same pixels
+regardless of the number of rasterization samples, and cover all samples in
+those pixels (unless masked out or killed).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2909,8 +3174,8 @@ Secondary</p></td>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.142<br>
-Last updated 2020-05-03 21:42:41 -0700
+Version 1.1.143<br>
+Last updated 2020-06-08 03:48:42 -0700
 </div>
 </div>
 <style>
