@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.144 - A Specification</title>
+<title>Vulkan® 1.1.145 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.144 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.145 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.144,</span>
-<span id="revdate">2020-06-15 08:17:46Z</span>
-<br><span id="revremark">from git branch: github-master commit: 9d84b7e4992f764224b9d64a61105123a0860967</span>
+<span id="revnumber">version 1.1.145,</span>
+<span id="revdate">2020-06-20 15:09:31Z</span>
+<br><span id="revremark">from git branch: github-master commit: 1e4e9cad5c761f05463ab65aa95e38b0dac534bc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1055,7 +1055,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap28.html#sparsememory-sparse-memory-aliasing">28.5. Sparse Memory Aliasing</a></li>
 <li><a href="chap28.html#_sparse_resource_implementation_guidelines">28.6. Sparse Resource Implementation Guidelines</a></li>
 <li><a href="chap28.html#sparsememory-resourceapi">28.7. Sparse Resource API</a></li>
-<li><a href="chap28.html#sparsememory-examples">28.8. Examples</a></li>
 </ul>
 </li>
 <li><a href="chap29.html#extendingvulkan">29. Extending Vulkan</a>
@@ -1100,6 +1099,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
 </li>
@@ -1178,14 +1178,32 @@ Specification.</p>
 <div class="sect2">
 <h3 id="spirvenv-capabilities"><a class="anchor" href="#spirvenv-capabilities"></a>Capabilities</h3>
 <div class="paragraph">
-<p>The SPIR-V capabilities listed below <strong class="purple">must</strong> be supported if the corresponding
-feature or extension is enabled, or if no features or extensions are listed
-for that capability.
-Extensions are only listed when there is not also a feature bit associated
-with that capability.</p>
+<p>The <a href="#spirvenv-capabilities-table">table below</a> lists the set of SPIR-V
+capabilities that <strong class="purple">may</strong> be supported in Vulkan implementations.
+The application <strong class="purple">must</strong> not use any of these capabilities in SPIR-V passed to
+<a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> unless one of the following conditions is met for
+the <a href="chap4.html#VkDevice">VkDevice</a> specified in the <code>device</code> parameter of
+<a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The corresponding field in the table is blank.</p>
+</li>
+<li>
+<p>Any corresponding Vulkan feature is enabled.</p>
+</li>
+<li>
+<p>Any corresponding Vulkan extension is enabled.</p>
+</li>
+<li>
+<p>The corresponding core version is supported (as returned by
+<a href="chap4.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code>).</p>
+</li>
+</ul>
 </div>
 <table id="spirvenv-capabilities-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 60. List of SPIR-V Capabilities and enabling features or extensions</caption>
+<caption class="title">Table 60. List of SPIR-V Capabilities and corresponding Vulkan features, extensions, or core version</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1193,7 +1211,7 @@ with that capability.</p>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">SPIR-V <code>OpCapability</code></th>
-<th class="tableblock halign-left valign-top">Vulkan feature or extension name</th>
+<th class="tableblock halign-left valign-top">Vulkan feature, extension, or core version</th>
 </tr>
 </thead>
 <tbody>
@@ -1345,11 +1363,12 @@ with that capability.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>MultiView</code></p></td>
-<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap30.html#features-multiview"><code>multiview</code></a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DeviceGroup</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="spirvenv-capabilities-table-variablepointers"></a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap37.html#versions-1.1">VK_API_VERSION_1_1</a>
+<a id="spirvenv-capabilities-table-variablepointers"></a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VariablePointersStorageBuffer</code></p></td>
@@ -1486,6 +1505,13 @@ met for the <a href="chap4.html#VkDevice">VkDevice</a> specified in the <code>de
 <div class="paragraph">
 <p>A SPIR-V module passed to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> <strong class="purple">must</strong> conform to the
 following rules:</p>
+</div>
+<div class="sect3">
+<h4 id="spirvenv-module-validation-standalone"><a class="anchor" href="#spirvenv-module-validation-standalone"></a>Standalone SPIR-V Validation</h4>
+<div class="paragraph">
+<p>Rules which <strong class="purple">can</strong> be validated with only the SPIR-V module itself and do not
+depend on knowledge of the implementation and its capabilities or knowledge
+of runtime information such as enabled features.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1702,34 +1728,8 @@ type for the “Sampled Type”.
 the variable holding the result of a sampling instruction.)</p>
 </li>
 <li>
-<p>If the <code>Sampled</code> <code>Type</code> of an <code>OpTypeImage</code> declaration does
-not match the numeric format of the corresponding resource in type, as
-shown in the <em>SPIR-V Sampled Type</em> column of the
-<a href="chap32.html#formats-numericformat">Interpretation of Numeric Format</a> table, the values obtained by reading or
-sampling from the image are undefined.</p>
-</li>
-<li>
-<p>If the signedness of any read or sample operation does not match the
-signedness of the corresponding resource then the values obtained are
-undefined.</p>
-</li>
-<li>
 <p><code>OpTypeImage</code> <strong class="purple">must</strong> have a “Sampled” operand of 1 (sampled image)
 or 2 (storage image).</p>
-</li>
-<li>
-<p>If
-<a href="chap30.html#features-shaderStorageImageReadWithoutFormat">shaderStorageImageReadWithoutFormat</a>
-is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
-<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
-decorated with <code>NonReadable</code>.</p>
-</li>
-<li>
-<p>If
-<a href="chap30.html#features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
-is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
-<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
-decorated with <code>NonWritable</code>.</p>
 </li>
 <li>
 <p>If an <code>OpImageTexelPointer</code> is used in an atomic operation, the
@@ -1782,10 +1782,6 @@ to or modified.</p>
 <a href="chap14.html#interfaces-builtin-variables">Built-In Variables</a> <strong class="purple">must</strong> not be used.</p>
 </li>
 <li>
-<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
-extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
-</li>
-<li>
 <p>The <code>GLSLShared</code> and <code>GLSLPacked</code> decorations <strong class="purple">must</strong> not be used.</p>
 </li>
 <li>
@@ -1808,12 +1804,6 @@ modes <strong class="purple">can</strong> be used for the <code>FPRoundingMode</
 floating-point conversion instructions as described in the
 <a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_16bit_storage.html"><code>SPV_KHR_16bit_storage</code></a> SPIR-V
 extension.</p>
-</li>
-<li>
-<p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
-constraints on storage class, type, and descriptor type described in
-<a href="chap14.html#interfaces-resources-setandbinding">DescriptorSet and Binding
-Assignment</a></p>
 </li>
 <li>
 <p>Variables decorated with <code>Invariant</code> and variables with structure
@@ -1868,10 +1858,6 @@ the (top-level) type of <em>V</em>.</p>
 </div>
 </li>
 <li>
-<p>Linkage: See <a href="chap14.html#interfaces">Shader Interfaces</a> for additional linking and
-validation rules.</p>
-</li>
-<li>
 <p>If <code>OpControlBarrier</code> is used in
 fragment, vertex, tessellation evaluation, or geometry shaders, the
 execution Scope <strong class="purple">must</strong> be <code>Subgroup</code>.</p>
@@ -1884,19 +1870,6 @@ execution Scope <strong class="purple">must</strong> be <code>Subgroup</code>.</
 <p>For each compute shader entry point, either a <code>LocalSize</code> execution
 mode or an object decorated with the <code>WorkgroupSize</code> decoration
 <strong class="purple">must</strong> be specified.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>“Result Type” for <strong>Non Uniform Group Operations</strong> <strong class="purple">must</strong> be limited to
-32-bit floating-point, 32-bit integer, boolean, or vectors of these
-types.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>If the <code>Float64</code> capability is enabled, 64-bit floating-point and
-vector of 64-bit floating-point types are also permitted.</p>
 </li>
 </ul>
 </div>
@@ -1923,41 +1896,13 @@ vector of 64-bit floating-point types are also permitted.</p>
 for the value pointed to by <em>Pointer</em>.</p>
 </li>
 <li>
-<p>The <em>Pointer</em> operand of all atomic instructions <strong class="purple">must</strong> have a <strong>Storage
-Class</strong> limited to:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Uniform</strong></p>
-</li>
-<li>
-<p><strong>Workgroup</strong></p>
-</li>
-<li>
-<p><strong>Image</strong></p>
-</li>
-<li>
-<p><strong>StorageBuffer</strong></p>
+<p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
+constraints on storage class, type, and descriptor type described in
+<a href="chap14.html#interfaces-resources-setandbinding">DescriptorSet and Binding
+Assignment</a></p>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
-following storage classes:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
-</li>
-<li>
-<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
-<code>VariablePointersStorageBuffer</code> is enabled.</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
 </div>
 </div>
 <div class="sect2">
@@ -2206,13 +2151,192 @@ additional functionality beyond what <code>OpUMod</code> provides.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="spirvenv-format-type-matching"><a class="anchor" href="#spirvenv-format-type-matching"></a>Image Format and Type Matching</h3>
+<div class="paragraph">
+<p>When specifying the <code>Image</code> <code>Format</code> as anything other than
+<code>Unknown</code>, the converted bit width, type, and signedness as shown in the
+table below, <strong class="purple">must</strong> match the <code>Sampled</code> <code>Type</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Formatted accesses are always converted from a shader readable type to the
+resource’s format or vice versa via <a href="chap15.html#textures-format-conversion">Format Conversion</a> for reads
+and <a href="chap15.html#textures-output-format-conversion">Texel Output Format Conversion</a> for writes.
+As such, the bit width and format below do not necessarily match 1:1 with
+what might be expected for some formats.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For a given <code>Image</code> <code>Format</code>, the <code>Sampled</code> <code>Type</code> <strong class="purple">must</strong> be the
+type described in the <em>Type</em> column of the below table, with its
+<code>Literal</code> <code>Width</code> set to that in the <em>Bit Width</em> column, and its
+<code>Literal</code> <code>Signedness</code> to that in the <em>Signedness</em> column (where
+applicable).</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Image Format</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Bit Width</th>
+<th class="tableblock halign-left valign-top">Signedness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32f</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock"><code>OpTypeFloat</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock">N/A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgb10A2</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R11fG11fB10f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32i</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="19"><p class="tableblock"><code>OpTypeInt</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="19"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top" rowspan="9"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32ui</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="10"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgb10a2ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8ui</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
 <h3 id="spirvenv-image-formats"><a class="anchor" href="#spirvenv-image-formats"></a>Compatibility Between SPIR-V Image Formats And Vulkan Formats</h3>
 <div class="paragraph">
-<p>Images which are read from or written to by shaders <strong class="purple">must</strong> have SPIR-V image
-formats compatible with the Vulkan image formats backing the image under the
-circumstances described for <a href="chap15.html#textures-operation-validation">texture image
-validation</a>.
-The compatibile formats are:</p>
+<p>SPIR-V <code>Image</code> <code>Format</code> values are compatible with <a href="chap32.html#VkFormat">VkFormat</a>
+values as defined below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 64. SPIR-V and Vulkan Image Format Compatibility</caption>
@@ -2227,6 +2351,10 @@ The compatibile formats are:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32f</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R32G32B32A32_SFLOAT</code></p></td>
@@ -2390,8 +2518,8 @@ The compatibile formats are:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.144<br>
-Last updated 2020-06-08 03:48:42 -0700
+Version 1.1.145<br>
+Last updated 2020-06-15 03:58:14 -0700
 </div>
 </div>
 <style>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.144 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.145 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.144 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.145 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.144,</span>
-<span id="revdate">2020-06-15 08:14:20Z</span>
-<br><span id="revremark">from git branch: github-master commit: 9d84b7e4992f764224b9d64a61105123a0860967</span>
+<span id="revnumber">version 1.1.145,</span>
+<span id="revdate">2020-06-20 15:06:01Z</span>
+<br><span id="revremark">from git branch: github-master commit: 1e4e9cad5c761f05463ab65aa95e38b0dac534bc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1067,7 +1067,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap28.html#sparsememory-sparse-memory-aliasing">28.5. Sparse Memory Aliasing</a></li>
 <li><a href="chap28.html#_sparse_resource_implementation_guidelines">28.6. Sparse Resource Implementation Guidelines</a></li>
 <li><a href="chap28.html#sparsememory-resourceapi">28.7. Sparse Resource API</a></li>
-<li><a href="chap28.html#sparsememory-examples">28.8. Examples</a></li>
 </ul>
 </li>
 <li><a href="chap29.html#wsi">29. Window System Integration (WSI)</a>
@@ -1147,6 +1146,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap39.html#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="chap39.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="chap39.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="chap39.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="chap39.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
 </li>
@@ -2153,11 +2153,7 @@ match that specified in <a href="chap13.html#VkDescriptorImageInfo">VkDescriptor
 used to write the image descriptor.</p>
 </li>
 <li>
-<p>If the instruction is <code>OpImageRead</code> or <code>OpImageSparseRead</code> and the
-<code>shaderStorageImageReadWithoutFormat</code> feature is not enabled, or the
-instruction is <code>OpImageWrite</code> and the
-<code>shaderStorageImageWriteWithoutFormat</code> feature is not enabled, then
-the SPIR-V Image Format <strong class="purple">must</strong> be <a href="chap39.html#spirvenv-image-formats">compatible</a>
+<p>The SPIR-V Image Format is not <a href="chap39.html#spirvenv-image-formats">compatible</a>
 with the image view’s <code>format</code>.</p>
 </li>
 <li>
@@ -2228,6 +2224,15 @@ equal to <code>VK_SAMPLE_COUNT_1_BIT</code>, the instruction <strong class="purp
 <p>If the image was created with <a href="chap11.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>samples</code>
 not equal to <code>VK_SAMPLE_COUNT_1_BIT</code>, the instruction <strong class="purple">must</strong> have
 <code>MS</code> = 1.</p>
+</li>
+<li>
+<p>If the <code>Sampled</code> <code>Type</code> of the <code>OpTypeImage</code> does not match
+the numeric format of the image, as shown in the <em>SPIR-V Sampled Type</em>
+column of the <a href="chap36.html#formats-numericformat">Interpretation of Numeric Format</a> table.</p>
+</li>
+<li>
+<p>If the signedness of any read or sample operation does not match the
+signedness of the image’s format.</p>
 </li>
 </ul>
 </div>
@@ -4154,6 +4159,9 @@ They include the following steps, which are performed in the listed order:</p>
 <p><a href="#textures-format-validation">Format validation</a></p>
 </li>
 <li>
+<p><a href="#textures-type-validation">Type validation</a></p>
+</li>
+<li>
 <p><a href="#textures-output-coordinate-validation">Coordinate validation</a></p>
 </li>
 <li>
@@ -4177,9 +4185,22 @@ There are a series of validations that the texel undergoes.</p>
 <div class="sect4">
 <h5 id="textures-format-validation"><a class="anchor" href="#textures-format-validation"></a>Texel Format Validation</h5>
 <div class="paragraph">
-<p>If the image format of the <code>OpTypeImage</code> is not compatible with the
-<code>VkImageView</code>’s <code>format</code>, the write causes the contents of the
-image’s memory to become undefined.</p>
+<p>If the image format of the <code>OpTypeImage</code> is not
+<a href="chap39.html#spirvenv-image-formats">compatible</a> with the <code>VkImageView</code>’s
+<code>format</code>, the write causes the contents of the image’s memory to become
+undefined.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="textures-type-validation"><a class="anchor" href="#textures-type-validation"></a>Texel Type Validation</h5>
+<div class="paragraph">
+<p>If the <code>Sampled</code> <code>Type</code> of the <code>OpTypeImage</code> does not match the
+type defined for the format, as specified in the <em>SPIR-V Sampled Type</em>
+column of the <a href="chap36.html#formats-numericformat">Interpretation of Numeric Format</a> table, the write causes the value of
+the texel to become undefined.
+For integer types, if the <code>Signedness</code> of the <code>Sampled</code> <code>Type</code> of
+the <code>OpTypeImage</code> does not match the signedness of the accessed resource,
+the write causes the value of the texel to become undefined.</p>
 </div>
 </div>
 </div>
@@ -5213,8 +5234,8 @@ Texel Anisotropic Filtering: Performed by all <code>OpImageSample</code>* and
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.144<br>
-Last updated 2020-06-08 03:48:42 -0700
+Version 1.1.145<br>
+Last updated 2020-06-15 03:58:14 -0700
 </div>
 </div>
 <style>

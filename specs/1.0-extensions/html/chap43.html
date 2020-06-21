@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.144 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.145 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -775,12 +775,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.144 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.145 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.144,</span>
-<span id="revdate">2020-06-15 08:19:57Z</span>
-<br><span id="revremark">from git branch: github-master commit: 9d84b7e4992f764224b9d64a61105123a0860967</span>
+<span id="revnumber">version 1.0.145,</span>
+<span id="revdate">2020-06-20 15:11:45Z</span>
+<br><span id="revremark">from git branch: github-master commit: 1e4e9cad5c761f05463ab65aa95e38b0dac534bc</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1116,7 +1116,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap31.html#sparsememory-sparse-memory-aliasing">31.5. Sparse Memory Aliasing</a></li>
 <li><a href="chap31.html#_sparse_resource_implementation_guidelines">31.6. Sparse Resource Implementation Guidelines</a></li>
 <li><a href="chap31.html#sparsememory-resourceapi">31.7. Sparse Resource API</a></li>
-<li><a href="chap31.html#sparsememory-examples">31.8. Examples</a></li>
 </ul>
 </li>
 <li><a href="chap32.html#wsi">32. Window System Integration (WSI)</a>
@@ -1210,6 +1209,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
 </li>
@@ -1325,14 +1325,32 @@ Specification.</p>
 <div class="sect2">
 <h3 id="spirvenv-capabilities"><a class="anchor" href="#spirvenv-capabilities"></a>Capabilities</h3>
 <div class="paragraph">
-<p>The SPIR-V capabilities listed below <strong class="purple">must</strong> be supported if the corresponding
-feature or extension is enabled, or if no features or extensions are listed
-for that capability.
-Extensions are only listed when there is not also a feature bit associated
-with that capability.</p>
+<p>The <a href="#spirvenv-capabilities-table">table below</a> lists the set of SPIR-V
+capabilities that <strong class="purple">may</strong> be supported in Vulkan implementations.
+The application <strong class="purple">must</strong> not use any of these capabilities in SPIR-V passed to
+<a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> unless one of the following conditions is met for
+the <a href="chap4.html#VkDevice">VkDevice</a> specified in the <code>device</code> parameter of
+<a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The corresponding field in the table is blank.</p>
+</li>
+<li>
+<p>Any corresponding Vulkan feature is enabled.</p>
+</li>
+<li>
+<p>Any corresponding Vulkan extension is enabled.</p>
+</li>
+<li>
+<p>The corresponding core version is supported (as returned by
+<a href="chap4.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code>).</p>
+</li>
+</ul>
 </div>
 <table id="spirvenv-capabilities-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 76. List of SPIR-V Capabilities and enabling features or extensions</caption>
+<caption class="title">Table 77. List of SPIR-V Capabilities and corresponding Vulkan features, extensions, or core version</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1340,7 +1358,7 @@ with that capability.</p>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">SPIR-V <code>OpCapability</code></th>
-<th class="tableblock halign-left valign-top">Vulkan feature or extension name</th>
+<th class="tableblock halign-left valign-top">Vulkan feature, extension, or core version</th>
 </tr>
 </thead>
 <tbody>
@@ -1497,11 +1515,11 @@ with that capability.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>MultiView</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap47.html#VK_KHR_multiview">VK_KHR_multiview</a></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap38.html#features-multiview"><code>multiview</code></a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>DeviceGroup</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap47.html#VK_KHR_device_group">VK_KHR_device_group</a></code>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap47.html#VK_KHR_device_group">VK_KHR_device_group</a>
 <a id="spirvenv-capabilities-table-variablepointers"></a></p></td>
 </tr>
 <tr>
@@ -1600,8 +1618,8 @@ with that capability.</p>
 <a id="spirvenv-capabilities-table-descriptorindexing"></a></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ShaderNonUniformEXT</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap47.html#VK_EXT_descriptor_indexing">VK_EXT_descriptor_indexing</a></code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ShaderNonUniform</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap47.html#VK_EXT_descriptor_indexing">VK_EXT_descriptor_indexing</a></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>RuntimeDescriptorArray</code></p></td>
@@ -1651,7 +1669,6 @@ with that capability.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float16</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap38.html#features-shaderFloat16"><code>shaderFloat16</code></a>
 ,
-or
                                             <code><a href="chap47.html#VK_AMD_gpu_shader_half_float">VK_AMD_gpu_shader_half_float</a></code></p></td>
 </tr>
 <tr>
@@ -1840,7 +1857,7 @@ met for the <a href="chap4.html#VkDevice">VkDevice</a> specified in the <code>de
 </ul>
 </div>
 <table id="spirvenv-extensions-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 77. List of SPIR-V Extensions and corresponding Vulkan extensions or core version</caption>
+<caption class="title">Table 78. List of SPIR-V Extensions and corresponding Vulkan extensions or core version</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -2050,6 +2067,13 @@ met for the <a href="chap4.html#VkDevice">VkDevice</a> specified in the <code>de
 <p>A SPIR-V module passed to <a href="chap8.html#vkCreateShaderModule">vkCreateShaderModule</a> <strong class="purple">must</strong> conform to the
 following rules:</p>
 </div>
+<div class="sect3">
+<h4 id="spirvenv-module-validation-standalone"><a class="anchor" href="#spirvenv-module-validation-standalone"></a>Standalone SPIR-V Validation</h4>
+<div class="paragraph">
+<p>Rules which <strong class="purple">can</strong> be validated with only the SPIR-V module itself and do not
+depend on knowledge of the implementation and its capabilities or knowledge
+of runtime information such as enabled features.</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -2092,32 +2116,9 @@ tessellation control, and compute execution models.</p>
 <ul>
 <li>
 <p><strong>Device</strong></p>
-<div class="ulist">
-<ul>
-<li>
-<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is enabled
-and
-<a href="chap38.html#features-vulkanMemoryModelDeviceScope"><code>vulkanMemoryModelDeviceScope</code></a>
-is not enabled, <strong>Device</strong> scope <strong class="purple">must</strong> not be used.</p>
-</li>
-<li>
-<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
-enabled, <strong>Device</strong> scope only extends to the queue family, not the
-whole device.</p>
-</li>
-</ul>
-</div>
 </li>
 <li>
 <p><strong>QueueFamily</strong></p>
-<div class="ulist">
-<ul>
-<li>
-<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
-enabled, <strong>QueueFamily</strong> <strong class="purple">must</strong> not be used.</p>
-</li>
-</ul>
-</div>
 </li>
 <li>
 <p><strong>Workgroup</strong></p>
@@ -2284,25 +2285,9 @@ the following as its <strong>Storage Class</strong> operand:</p>
 <ul>
 <li>
 <p><code>Subgroup</code></p>
-<div class="ulist">
-<ul>
-<li>
-<p>if <a href="chap38.html#features-shaderSubgroupClock"><code>shaderSubgroupClock</code></a> is
-not enabled, the <code>Subgroup</code> scope <strong class="purple">must</strong> not be used.</p>
-</li>
-</ul>
-</div>
 </li>
 <li>
 <p><code>Device</code></p>
-<div class="ulist">
-<ul>
-<li>
-<p>if <a href="chap38.html#features-shaderDeviceClock"><code>shaderDeviceClock</code></a> is not
-enabled, the <code>Device</code> scope <strong class="purple">must</strong> not be used.</p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>
@@ -2349,34 +2334,8 @@ type for the “Sampled Type”.
 the variable holding the result of a sampling instruction.)</p>
 </li>
 <li>
-<p>If the <code>Sampled</code> <code>Type</code> of an <code>OpTypeImage</code> declaration does
-not match the numeric format of the corresponding resource in type, as
-shown in the <em>SPIR-V Sampled Type</em> column of the
-<a href="chap40.html#formats-numericformat">Interpretation of Numeric Format</a> table, the values obtained by reading or
-sampling from the image are undefined.</p>
-</li>
-<li>
-<p>If the signedness of any read or sample operation does not match the
-signedness of the corresponding resource then the values obtained are
-undefined.</p>
-</li>
-<li>
 <p><code>OpTypeImage</code> <strong class="purple">must</strong> have a “Sampled” operand of 1 (sampled image)
 or 2 (storage image).</p>
-</li>
-<li>
-<p>If
-<a href="chap38.html#features-shaderStorageImageReadWithoutFormat">shaderStorageImageReadWithoutFormat</a>
-is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
-<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
-decorated with <code>NonReadable</code>.</p>
-</li>
-<li>
-<p>If
-<a href="chap38.html#features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
-is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
-<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
-decorated with <code>NonWritable</code>.</p>
 </li>
 <li>
 <p>If an <code>OpImageTexelPointer</code> is used in an atomic operation, the
@@ -2444,10 +2403,6 @@ type <strong class="purple">must</strong> not be stored to or modified.</p>
 <a href="chap14.html#interfaces-builtin-variables">Built-In Variables</a> <strong class="purple">must</strong> not be used.</p>
 </li>
 <li>
-<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
-extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
-</li>
-<li>
 <p>The <code>GLSLShared</code> and <code>GLSLPacked</code> decorations <strong class="purple">must</strong> not be used.</p>
 </li>
 <li>
@@ -2488,12 +2443,6 @@ floating-point conversion instructions as described in the
 extension.</p>
 </li>
 <li>
-<p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
-constraints on storage class, type, and descriptor type described in
-<a href="chap14.html#interfaces-resources-setandbinding">DescriptorSet and Binding
-Assignment</a></p>
-</li>
-<li>
 <p>Variables decorated with <code>Invariant</code> and variables with structure
 types that have any members decorated with <code>Invariant</code> <strong class="purple">must</strong> be in
 the <code>Output</code> or <code>Input</code> storage class.
@@ -2515,13 +2464,6 @@ that is in the <code>PhysicalStorageBuffer</code> storage class decorated as
 <code>Block</code>, or
 that is in the <code>Uniform</code> storage class decorated as
 <code>BufferBlock</code>.</p>
-</li>
-<li>
-<p>If the <code>RuntimeDescriptorArray</code> capability is supported, an array of
-variables with storage class <code>Uniform</code>,
-<code>StorageBuffer</code>,
-or <code>UniformConstant</code>, or for the outermost dimension of an array of
-arrays of such variables.</p>
 </li>
 </ul>
 </div>
@@ -2555,10 +2497,6 @@ the (top-level) type of <em>V</em>.</p>
 </div>
 </li>
 <li>
-<p>Linkage: See <a href="chap14.html#interfaces">Shader Interfaces</a> for additional linking and
-validation rules.</p>
-</li>
-<li>
 <p>Compute Shaders</p>
 <div class="ulist">
 <ul>
@@ -2572,11 +2510,6 @@ mode or an object decorated with the <code>WorkgroupSize</code> decoration
 mode, the first two dimensions of the local workgroup size <strong class="purple">must</strong> be a
 multiple of two.</p>
 </li>
-<li>
-<p>For compute shaders using the <code>DerivativeGroupLinearNV</code> execution
-mode, the product of the dimensions of the local workgroup size <strong class="purple">must</strong>
-be a multiple of four.</p>
-</li>
 </ul>
 </div>
 </li>
@@ -2585,22 +2518,6 @@ be a multiple of four.</p>
 or a scalar 64-bit integer type if the <code>Int64Atomics</code> capability is
 enabled,
 for the value pointed to by <em>Pointer</em>.</p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="chap38.html#features-shaderBufferInt64Atomics">shaderBufferInt64Atomics</a> <strong class="purple">must</strong> be
-enabled for 64-bit integer atomic operations to be supported on a
-<em>Pointer</em> with a <strong>Storage Class</strong> of
-<strong>StorageBuffer</strong> or
-<strong>Uniform</strong>.</p>
-</li>
-<li>
-<p><a href="chap38.html#features-shaderSharedInt64Atomics">shaderSharedInt64Atomics</a> <strong class="purple">must</strong> be
-enabled for 64-bit integer atomic operations to be supported on a
-<em>Pointer</em> with a <strong>Storage Class</strong> of <strong>Workgroup</strong>.</p>
-</li>
-</ul>
-</div>
 </li>
 <li>
 <p>The <em>Pointer</em> operand of all atomic instructions <strong class="purple">must</strong> have a <strong>Storage
@@ -2623,11 +2540,218 @@ Class</strong> limited to:</p>
 </div>
 </li>
 <li>
+<p>Output variables or block members decorated with <code>Offset</code> that have a
+64-bit type, or a composite type containing a 64-bit type, <strong class="purple">must</strong> specify
+an <code>Offset</code> value aligned to a 8 byte boundary</p>
+</li>
+<li>
+<p>Any output block or block member decorated with <code>Offset</code> containing a
+64-bit type consumes a multiple of 8 bytes</p>
+</li>
+<li>
+<p>The size of any output block containing any member decorated with
+<code>Offset</code> that is a 64-bit type <strong class="purple">must</strong> be a multiple of 8</p>
+</li>
+<li>
+<p>The first member of an output block that specifies a <code>Offset</code>
+decoration <strong class="purple">must</strong> specify a <code>Offset</code> value that is aligned to an 8
+byte boundary if that block contains any member decorated with
+<code>Offset</code> and is a 64-bit type</p>
+</li>
+<li>
+<p>Output variables or block members decorated with <code>Offset</code> that have a
+32-bit type, or a composite type contains a 32-bit type, <strong class="purple">must</strong> specify
+an <code>Offset</code> value aligned to a 4 byte boundary</p>
+</li>
+<li>
+<p>Output variables, blocks or block members decorated with <code>Offset</code>
+<strong class="purple">must</strong> only contain base types that have components that are either
+32-bit or 64-bit in size</p>
+</li>
+<li>
+<p>Only variables or block members in the output interface decorated with
+<code>Offset</code> <strong class="purple">can</strong> be captured for transform feedback, and those variables
+or block members <strong class="purple">must</strong> also be decorated with <code>XfbBuffer</code> and
+<code>XfbStride</code>, or inherit <code>XfbBuffer</code> and <code>XfbStride</code> decorations
+from a block containing them</p>
+</li>
+<li>
+<p>All variables or block members in the output interface of the entry
+point being compiled decorated with a specific <code>XfbBuffer</code> value
+<strong class="purple">must</strong> all be decorated with identical <code>XfbStride</code> values</p>
+</li>
+<li>
+<p>If any variables or block members in the output interface of the entry
+point being compiled are decorated with <code>Stream</code>, then all variables
+belonging to the same <code>XfbBuffer</code> <strong class="purple">must</strong> specify the same <code>Stream</code>
+value</p>
+</li>
+<li>
+<p>Output variables, blocks or block members that are not decorated with
+<code>Stream</code> default to vertex stream zero</p>
+</li>
+<li>
+<p>For any two variables or block members in the output interface of the
+entry point being compiled with the same <code>XfbBuffer</code> value, the
+ranges determined by the <code>Offset</code> decoration and the size of the type
+<strong class="purple">must</strong> not overlap</p>
+</li>
+<li>
+<p><code>RayPayloadKHR</code> storage class <strong class="purple">must</strong> only be used in ray generation,
+any-hit, closest hit or miss shaders.</p>
+</li>
+<li>
+<p><code>IncomingRayPayloadKHR</code> storage class <strong class="purple">must</strong> only be used in closest
+hit, any-hit, or miss shaders.</p>
+</li>
+<li>
+<p><code>HitAttributeKHR</code> storage class <strong class="purple">must</strong> only be used in intersection,
+any-hit, or closest hit shaders.</p>
+</li>
+<li>
+<p><code>CallableDataKHR</code> storage class <strong class="purple">must</strong> only be used in ray generation,
+closest hit, miss, and callable shaders.</p>
+</li>
+<li>
+<p><code>IncomingCallableDataKHR</code> storage class <strong class="purple">must</strong> only be used in
+callable shaders.</p>
+</li>
+<li>
+<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
+following storage classes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
+</li>
+<li>
+<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
+<code>VariablePointersStorageBuffer</code> is enabled.</p>
+</li>
+<li>
+<p><strong>PhysicalStorageBuffer</strong>, if the <code>PhysicalStorageBuffer64</code> addressing
+model is enabled.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>All instructions that support memory access operands and that use a
+physical pointer <strong class="purple">must</strong> include the <code>Aligned</code> operand.</p>
+</li>
+<li>
+<p>Any access chain instruction that accesses into a <code>RowMajor</code> matrix
+<strong class="purple">must</strong> only be used as the <code>Pointer</code> operand to <code>OpLoad</code> or
+<code>OpStore</code>.</p>
+</li>
+<li>
+<p><code>OpConvertUToPtr</code> and <code>OpConvertPtrToU</code> <strong class="purple">must</strong> use an integer type
+whose <code>Width</code> is 64.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="spirvenv-module-validation-runtime"><a class="anchor" href="#spirvenv-module-validation-runtime"></a>Runtime SPIR-V Validation</h4>
+<div class="paragraph">
+<p>Rules which <strong class="purple">must</strong> be validated at runetime as they depend on knowledge of
+the implementation and its capabilities or knowledge of runtime information
+such as enabled features.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is enabled and
+<a href="chap38.html#features-vulkanMemoryModelDeviceScope"><code>vulkanMemoryModelDeviceScope</code></a>
+is not enabled, <strong>Device</strong> memory scope <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
+enabled, <strong>Device</strong> memory scope only extends to the queue family, not the
+whole device.</p>
+</li>
+<li>
+<p>If <a href="chap38.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
+enabled, <strong>QueueFamily</strong> memory scope <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>if <a href="chap38.html#features-shaderSubgroupClock"><code>shaderSubgroupClock</code></a> is not
+enabled, the <code>Subgroup</code> scope <strong class="purple">must</strong> not be used for
+<code>OpReadClockKHR</code>.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Device</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>if <a href="chap38.html#features-shaderDeviceClock"><code>shaderDeviceClock</code></a> is not
+enabled, the <code>Device</code> scope <strong class="purple">must</strong> not be used for
+<code>OpReadClockKHR</code>.</p>
+</li>
+<li>
+<p>The converted bit width, signedness, and numeric type of the <code>Image</code>
+<code>Format</code> operand of an <code>OpTypeImage</code> <strong class="purple">must</strong> match the <code>Sampled</code>
+<code>Type</code>, as defined in <a href="#spirvenv-format-type-matching">Image Format and Type Matching</a>.</p>
+</li>
+<li>
+<p>The <code>Result</code> <code>Type</code> operand of <code>OpImageRead</code> <strong class="purple">must</strong> be a vector
+of four components.</p>
+</li>
+<li>
+<p>If
+<a href="chap38.html#features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonWritable</code>.</p>
+</li>
+<li>
+<p>If
+<a href="chap38.html#features-shaderStorageImageReadWithoutFormat">shaderStorageImageReadWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonReadable</code>.</p>
+</li>
+<li>
+<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
+extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p><code>OpTypeRuntimeArray</code> <strong class="purple">must</strong> only be used for an array of variables
+with storage class <code>Uniform</code>,
+<code>StorageBuffer</code>,
+or <code>UniformConstant</code>, or for the outermost dimension of an array of
+arrays of such variables if the
+<a href="chap38.html#features-runtimeDescriptorArray">runtimeDescriptorArray</a> feature is
+enabled,</p>
+</li>
+<li>
 <p>If an instruction loads from or stores to a resource (including atomics
 and image instructions) and the resource descriptor being accessed is
 not dynamically uniform, then the operand corresponding to that resource
 (e.g. the pointer or sampled image operand) <strong class="purple">must</strong> be decorated with
 <code>NonUniform</code>.</p>
+</li>
+<li>
+<p><a href="chap38.html#features-shaderBufferInt64Atomics">shaderBufferInt64Atomics</a> <strong class="purple">must</strong> be
+enabled for 64-bit integer atomic operations to be supported on a
+<em>Pointer</em> with a <strong>Storage Class</strong> of
+<strong>StorageBuffer</strong> or
+<strong>Uniform</strong>.</p>
+</li>
+<li>
+<p><a href="chap38.html#features-shaderSharedInt64Atomics">shaderSharedInt64Atomics</a> <strong class="purple">must</strong> be
+enabled for 64-bit integer atomic operations to be supported on a
+<em>Pointer</em> with a <strong>Storage Class</strong> of <strong>Workgroup</strong>.</p>
 </li>
 <li>
 <p>If
@@ -2761,35 +2885,6 @@ buffers writing to that stream the <strong class="purple">must</strong> not exce
 <code>VkPhysicalDeviceTransformFeedbackPropertiesEXT</code>::<code>maxTransformFeedbackStreamDataSize</code></p>
 </li>
 <li>
-<p>Output variables or block members decorated with <code>Offset</code> that have a
-64-bit type, or a composite type containing a 64-bit type, <strong class="purple">must</strong> specify
-an <code>Offset</code> value aligned to a 8 byte boundary</p>
-</li>
-<li>
-<p>Any output block or block member decorated with <code>Offset</code> containing a
-64-bit type consumes a multiple of 8 bytes</p>
-</li>
-<li>
-<p>The size of any output block containing any member decorated with
-<code>Offset</code> that is a 64-bit type <strong class="purple">must</strong> be a multiple of 8</p>
-</li>
-<li>
-<p>The first member of an output block that specifies a <code>Offset</code>
-decoration <strong class="purple">must</strong> specify a <code>Offset</code> value that is aligned to an 8
-byte boundary if that block contains any member decorated with
-<code>Offset</code> and is a 64-bit type</p>
-</li>
-<li>
-<p>Output variables or block members decorated with <code>Offset</code> that have a
-32-bit type, or a composite type contains a 32-bit type, <strong class="purple">must</strong> specify
-an <code>Offset</code> value aligned to a 4 byte boundary</p>
-</li>
-<li>
-<p>Output variables, blocks or block members decorated with <code>Offset</code>
-<strong class="purple">must</strong> only contain base types that have components that are either
-32-bit or 64-bit in size</p>
-</li>
-<li>
 <p>The Stream value to <code>OpEmitStreamVertex</code> and
 <code>OpEndStreamPrimitive</code> <strong class="purple">must</strong> be less than
 <code>VkPhysicalDeviceTransformFeedbackPropertiesEXT</code>::<code>maxTransformFeedbackStreams</code></p>
@@ -2800,34 +2895,6 @@ an <code>Offset</code> value aligned to a 4 byte boundary</p>
 is <code>VK_FALSE</code>, then execution mode <strong class="purple">must</strong> be <code>OutputPoints</code></p>
 </li>
 <li>
-<p>Only variables or block members in the output interface decorated with
-<code>Offset</code> <strong class="purple">can</strong> be captured for transform feedback, and those variables
-or block memebers <strong class="purple">must</strong> also be decorated with <code>XfbBuffer</code> and
-<code>XfbStride</code>, or inherit <code>XfbBuffer</code> and <code>XfbStride</code> decorations
-from a block containing them</p>
-</li>
-<li>
-<p>All variables or block members in the output interface of the entry
-point being compiled decorated with a specific <code>XfbBuffer</code> value
-<strong class="purple">must</strong> all be decorated with identical <code>XfbStride</code> values</p>
-</li>
-<li>
-<p>If any variables or block members in the output interface of the entry
-point being compiled are decorated with <code>Stream</code>, then all variables
-belonging to the same <code>XfbBuffer</code> <strong class="purple">must</strong> specify the same <code>Stream</code>
-value</p>
-</li>
-<li>
-<p>Output variables, blocks or block members that are not decorated with
-<code>Stream</code> default to vertex stream zero</p>
-</li>
-<li>
-<p>For any two variables or block members in the output interface of the
-entry point being compiled with the same <code>XfbBuffer</code> value, the
-ranges determined by the <code>Offset</code> decoration and the size of the type
-<strong class="purple">must</strong> not overlap</p>
-</li>
-<li>
 <p>The stream number value to <code>Stream</code> <strong class="purple">must</strong> be less than
 <code>VkPhysicalDeviceTransformFeedbackPropertiesEXT</code>::<code>maxTransformFeedbackStreams</code></p>
 </li>
@@ -2836,79 +2903,14 @@ ranges determined by the <code>Offset</code> decoration and the size of the type
 <code>VkPhysicalDeviceTransformFeedbackPropertiesEXT</code>::<code>maxTransformFeedbackBufferDataStride</code></p>
 </li>
 <li>
-<p><code>RayPayloadKHR</code> storage class <strong class="purple">must</strong> only be used in ray generation,
-any-hit, closest hit or miss shaders.</p>
+<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled any load
+or store through a physical pointer type <strong class="purple">must</strong> be aligned to a multiple
+of the size of the largest scalar type in the pointed-to type.</p>
 </li>
 <li>
-<p><code>IncomingRayPayloadKHR</code> storage class <strong class="purple">must</strong> only be used in closest
-hit, any-hit, or miss shaders.</p>
-</li>
-<li>
-<p><code>HitAttributeKHR</code> storage class <strong class="purple">must</strong> only be used in intersection,
-any-hit, or closest hit shaders.</p>
-</li>
-<li>
-<p><code>CallableDataKHR</code> storage class <strong class="purple">must</strong> only be used in ray generation,
-closest hit, miss, and callable shaders.</p>
-</li>
-<li>
-<p><code>IncomingCallableDataKHR</code> storage class <strong class="purple">must</strong> only be used in
-callable shaders.</p>
-</li>
-<li>
-<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
-following storage classes:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
-</li>
-<li>
-<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
-<code>VariablePointersStorageBuffer</code> is enabled.</p>
-</li>
-<li>
-<p><strong>PhysicalStorageBuffer</strong>, if the <code>PhysicalStorageBuffer64</code> addressing
-model is enabled.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Any load or store through a physical pointer type <strong class="purple">must</strong> be aligned to a
-multiple of the size of the largest scalar type in the pointed-to type.</p>
-</li>
-<li>
-<p>All instructions that support memory access operands and that use a
-physical pointer <strong class="purple">must</strong> include the <code>Aligned</code> operand.</p>
-</li>
-<li>
-<p>The pointer value of a memory access instruction <strong class="purple">must</strong> be at least as
+<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled the
+pointer value of a memory access instruction <strong class="purple">must</strong> be at least as
 aligned as specified by the <code>Aligned</code> memory access operand.</p>
-</li>
-<li>
-<p>Any access chain instruction that accesses into a <code>RowMajor</code> matrix
-<strong class="purple">must</strong> only be used as the <code>Pointer</code> operand to <code>OpLoad</code> or
-<code>OpStore</code>.</p>
-</li>
-<li>
-<p><code>OpConvertUToPtr</code> and <code>OpConvertPtrToU</code> <strong class="purple">must</strong> use an integer type
-whose <code>Width</code> is 64.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>For <code>OpCooperativeMatrixLoadNV</code> and <code>OpCooperativeMatrixStoreNV</code>
-instructions, the <code>Pointer</code> and <code>Stride</code> operands <strong class="purple">must</strong> be aligned
-to at least the lesser of 16 bytes or the natural alignment of a row or
-column (depending on <code>ColumnMajor</code>) of the matrix (where the natural
-alignment is the number of columns/rows multiplied by the component
-size).</p>
 </li>
 <li>
 <p>For <code>OpTypeCooperativeMatrixNV</code>, the component type, scope, number of
@@ -2951,7 +2953,27 @@ scope of <code>scope</code>.</p>
 instructions <strong class="purple">must</strong> not be used in shader stages not included in
 <a href="chap39.html#VkPhysicalDeviceCooperativeMatrixPropertiesNV">VkPhysicalDeviceCooperativeMatrixPropertiesNV</a>::<code>cooperativeMatrixSupportedStages</code>.</p>
 </li>
+<li>
+<p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
+constraints on storage class, type, and descriptor type described in
+<a href="chap14.html#interfaces-resources-setandbinding">DescriptorSet and Binding
+Assignment</a></p>
+</li>
+<li>
+<p>For <code>OpCooperativeMatrixLoadNV</code> and <code>OpCooperativeMatrixStoreNV</code>
+instructions, the <code>Pointer</code> and <code>Stride</code> operands <strong class="purple">must</strong> be aligned
+to at least the lesser of 16 bytes or the natural alignment of a row or
+column (depending on <code>ColumnMajor</code>) of the matrix (where the natural
+alignment is the number of columns/rows multiplied by the component
+size).</p>
+</li>
+<li>
+<p>For compute shaders using the <code>DerivativeGroupLinearNV</code> execution
+mode, the product of the dimensions of the local workgroup size <strong class="purple">must</strong> be
+a multiple of four.</p>
+</li>
 </ul>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -3161,7 +3183,7 @@ then denormals <strong class="purple">must</strong> be preserved throughout the 
 are <strong class="purple">required</strong> to be at least as follows:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 78. Precision of core SPIR-V Instructions</caption>
+<caption class="title">Table 79. Precision of core SPIR-V Instructions</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3253,7 +3275,7 @@ different sign than the infinitely precise result.</p>
 </table>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 79. Precision of GLSL.std.450 Instructions</caption>
+<caption class="title">Table 80. Precision of GLSL.std.450 Instructions</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3544,16 +3566,195 @@ implementation-dependent order and internal precision.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="spirvenv-format-type-matching"><a class="anchor" href="#spirvenv-format-type-matching"></a>Image Format and Type Matching</h3>
+<div class="paragraph">
+<p>When specifying the <code>Image</code> <code>Format</code> as anything other than
+<code>Unknown</code>, the converted bit width, type, and signedness as shown in the
+table below, <strong class="purple">must</strong> match the <code>Sampled</code> <code>Type</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Formatted accesses are always converted from a shader readable type to the
+resource’s format or vice versa via <a href="chap15.html#textures-format-conversion">Format Conversion</a> for reads
+and <a href="chap15.html#textures-output-format-conversion">Texel Output Format Conversion</a> for writes.
+As such, the bit width and format below do not necessarily match 1:1 with
+what might be expected for some formats.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>For a given <code>Image</code> <code>Format</code>, the <code>Sampled</code> <code>Type</code> <strong class="purple">must</strong> be the
+type described in the <em>Type</em> column of the below table, with its
+<code>Literal</code> <code>Width</code> set to that in the <em>Bit Width</em> column, and its
+<code>Literal</code> <code>Signedness</code> to that in the <em>Signedness</em> column (where
+applicable).</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Image Format</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Bit Width</th>
+<th class="tableblock halign-left valign-top">Signedness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32f</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock"><code>OpTypeFloat</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top" rowspan="20"><p class="tableblock">N/A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgb10A2</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R11fG11fB10f</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8Snorm</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32i</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="19"><p class="tableblock"><code>OpTypeInt</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="19"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top" rowspan="9"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8i</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32ui</code></p></td>
+<td class="tableblock halign-left valign-top" rowspan="10"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg32ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R32ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R16ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgb10a2ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba8ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rg8ui</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R8ui</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
 <h3 id="spirvenv-image-formats"><a class="anchor" href="#spirvenv-image-formats"></a>Compatibility Between SPIR-V Image Formats And Vulkan Formats</h3>
 <div class="paragraph">
-<p>Images which are read from or written to by shaders <strong class="purple">must</strong> have SPIR-V image
-formats compatible with the Vulkan image formats backing the image under the
-circumstances described for <a href="chap15.html#textures-operation-validation">texture image
-validation</a>.
-The compatibile formats are:</p>
+<p>SPIR-V <code>Image</code> <code>Format</code> values are compatible with <a href="chap40.html#VkFormat">VkFormat</a>
+values as defined below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 80. SPIR-V and Vulkan Image Format Compatibility</caption>
+<caption class="title">Table 81. SPIR-V and Vulkan Image Format Compatibility</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -3565,6 +3766,10 @@ The compatibile formats are:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Unknown</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Rgba32f</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_FORMAT_R32G32B32A32_SFLOAT</code></p></td>
@@ -3728,8 +3933,8 @@ The compatibile formats are:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.144<br>
-Last updated 2020-06-08 03:48:42 -0700
+Version 1.0.145<br>
+Last updated 2020-06-15 03:58:14 -0700
 </div>
 </div>
 <style>

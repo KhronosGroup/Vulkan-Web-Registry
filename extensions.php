@@ -90,6 +90,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_discard_rectangles.html"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_display_control.html"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_display_surface_counter.html"> VK_EXT_display_surface_counter </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_extended_dynamic_state.html"> VK_EXT_extended_dynamic_state </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_external_memory_dma_buf.html"> VK_EXT_external_memory_dma_buf </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_external_memory_host.html"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_filter_cubic.html"> VK_EXT_filter_cubic </a> </li>
