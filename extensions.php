@@ -87,6 +87,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_direct_mode_display.html"> VK_EXT_direct_mode_display </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_directfb_surface.html"> VK_EXT_directfb_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_discard_rectangles.html"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_display_control.html"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_display_surface_counter.html"> VK_EXT_display_surface_counter </a> </li>
@@ -95,6 +96,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_external_memory_host.html"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_filter_cubic.html"> VK_EXT_filter_cubic </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_fragment_density_map.html"> VK_EXT_fragment_density_map </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_fragment_density_map2.html"> VK_EXT_fragment_density_map2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_fragment_shader_interlock.html"> VK_EXT_fragment_shader_interlock </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_full_screen_exclusive.html"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_global_priority.html"> VK_EXT_global_priority </a> </li>

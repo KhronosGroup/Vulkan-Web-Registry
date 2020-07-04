@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.145 - A Specification</title>
+<title>Vulkan® 1.0.146 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -726,12 +726,20 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
+/* From https://github.com/KhronosGroup/Vulkan-Docs/pull/1157 */
 /* Make VUID anchor handles*/
 li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
-li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
+
+li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff; }
+
 li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
-li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
+
+li > p > a[id^="VUID-"].link { color: black; text-decoration: none; }
+
+/* TODO: not quite sure what these two do */
 li > p > a[id^="VUID-"].link:hover { color: black; }
+
+.vuid { color: gray; font-family: monospace; }
 
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -761,13 +769,27 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
         padding-left: 1.5em;
         padding-right: 1.5em;
     }
-    .loadable {display: none !important;}
+    .hidden {display: none;}
 </style>
 <script>
+    function hideElement(e){
+        e.setAttribute("hidden", "");
+        e.classList.add("hidden");
+    }
+
+    function unhideElement(e){
+        e.classList.remove("hidden");
+        e.removeAttribute("hidden");
+    }
+
+    function hideLoadableContent(){
+        unhideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) hideElement(loadable);
+    }
+
     function unhideLoadableContent(){
-        document.getElementById("loading_msg").style.display = "none";
-        var loadables = document.getElementsByClassName("loadable");
-        for( var i = 0; i < loadables.length; ++i ) loadables[i].classList.remove("loadable");
+        hideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) unhideElement(loadable);
     }
 
     window.addEventListener("load", unhideLoadableContent);
@@ -775,1160 +797,524 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.145 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.146 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.145,</span>
-<span id="revdate">2020-06-20 15:20:37Z</span>
-<br><span id="revremark">from git branch: github-master commit: 1e4e9cad5c761f05463ab65aa95e38b0dac534bc</span>
+<span id="revnumber">version 1.0.146,</span>
+<span id="revdate">2020-07-04 03:17:38Z</span>
+<br><span id="revremark">from git branch: github-master commit: d91f3e239932cd5d418bc83db4ae649101097b5f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="chap1.html#introduction">1. Introduction</a>
+<li><a href="chap2.html#introduction">1. Introduction</a>
 <ul class="sectlevel2">
-<li><a href="chap1.html#introduction-conventions">1.1. Document Conventions</a></li>
+<li><a href="chap2.html#introduction-conventions">1.1. Document Conventions</a></li>
 </ul>
 </li>
-<li><a href="chap2.html#fundamentals">2. Fundamentals</a>
+<li><a href="chap3.html#fundamentals">2. Fundamentals</a>
 <ul class="sectlevel2">
-<li><a href="chap2.html#fundamentals-host-environment">2.1. Host and Device Environment</a></li>
-<li><a href="chap2.html#fundamentals-execmodel">2.2. Execution Model</a></li>
-<li><a href="chap2.html#fundamentals-objectmodel-overview">2.3. Object Model</a></li>
-<li><a href="chap2.html#fundamentals-abi">2.4. Application Binary Interface</a></li>
-<li><a href="chap2.html#fundamentals-commandsyntax">2.5. Command Syntax and Duration</a></li>
-<li><a href="chap2.html#fundamentals-threadingbehavior">2.6. Threading Behavior</a></li>
-<li><a href="chap2.html#fundamentals-errors">2.7. Errors</a></li>
-<li><a href="chap2.html#fundamentals-numerics">2.8. Numeric Representation and Computation</a></li>
-<li><a href="chap2.html#fundamentals-fixedconv">2.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap2.html#fundamentals-common-objects">2.10. Common Object Types</a></li>
-</ul>
-</li>
-<li><a href="chap3.html#initialization">3. Initialization</a>
-<ul class="sectlevel2">
-<li><a href="chap3.html#initialization-functionpointers">3.1. Command Function Pointers</a></li>
-<li><a href="chap3.html#initialization-instances">3.2. Instances</a></li>
-</ul>
-</li>
-<li><a href="chap4.html#devsandqueues">4. Devices and Queues</a>
-<ul class="sectlevel2">
-<li><a href="chap4.html#devsandqueues-physical-device-enumeration">4.1. Physical Devices</a></li>
-<li><a href="chap4.html#devsandqueues-devices">4.2. Devices</a></li>
-<li><a href="chap4.html#devsandqueues-queues">4.3. Queues</a></li>
-</ul>
-</li>
+<li><a href="chap3.html#fundamentals-host-environment">2.1. Host and Device Environment</a></li>
+<li><a href="chap3.html#fundamentals-execmodel">2.2. Execution Model</a></li>
+<li><a href="chap3.html#fundamentals-objectmodel-overview">2.3. Object Model</a></li>
 <link href="chunked.css?4" rel="stylesheet">
 <script>var searchindexurl = 'search.index.js?4' + (document.title.replace(/[^0-9.]/g, ''));</script>
 <script src="chunked.js?4"></script>
-<li><a href="chap5.html#commandbuffers">5. Command Buffers</a>
-<ul class="sectlevel2">
-<li><a href="chap5.html#commandbuffers-lifecycle">5.1. Command Buffer Lifecycle</a></li>
-<li><a href="chap5.html#commandbuffers-pools">5.2. Command Pools</a></li>
-<li><a href="chap5.html#commandbuffer-allocation">5.3. Command Buffer Allocation and Management</a></li>
-<li><a href="chap5.html#commandbuffers-recording">5.4. Command Buffer Recording</a></li>
-<li><a href="chap5.html#commandbuffers-submission">5.5. Command Buffer Submission</a></li>
-<li><a href="chap5.html#commandbuffers-submission-progress">5.6. Queue Forward Progress</a></li>
-<li><a href="chap5.html#commandbuffers-secondary">5.7. Secondary Command Buffer Execution</a></li>
+<li><a href="chap3.html#fundamentals-abi">2.4. Application Binary Interface</a></li>
+<li><a href="chap3.html#fundamentals-commandsyntax">2.5. Command Syntax and Duration</a></li>
+<li><a href="chap3.html#fundamentals-threadingbehavior">2.6. Threading Behavior</a></li>
+<li><a href="chap3.html#fundamentals-errors">2.7. Errors</a></li>
+<li><a href="chap3.html#fundamentals-numerics">2.8. Numeric Representation and Computation</a></li>
+<li><a href="chap3.html#fundamentals-fixedconv">2.9. Fixed-Point Data Conversions</a></li>
+<li><a href="chap3.html#fundamentals-common-objects">2.10. Common Object Types</a></li>
 </ul>
 </li>
-<li><a href="chap6.html#synchronization">6. Synchronization and Cache Control</a>
+<li><a href="chap4.html#initialization">3. Initialization</a>
 <ul class="sectlevel2">
-<li><a href="chap6.html#synchronization-dependencies">6.1. Execution and Memory Dependencies</a></li>
-<li><a href="chap6.html#synchronization-implicit">6.2. Implicit Synchronization Guarantees</a></li>
-<li><a href="chap6.html#synchronization-fences">6.3. Fences</a></li>
-<li><a href="chap6.html#synchronization-semaphores">6.4. Semaphores</a></li>
-<li><a href="chap6.html#synchronization-events">6.5. Events</a></li>
-<li><a href="chap6.html#synchronization-pipeline-barriers">6.6. Pipeline Barriers</a></li>
-<li><a href="chap6.html#synchronization-memory-barriers">6.7. Memory Barriers</a></li>
-<li><a href="chap6.html#synchronization-wait-idle">6.8. Wait Idle Operations</a></li>
-<li><a href="chap6.html#synchronization-submission-host-writes">6.9. Host Write Ordering Guarantees</a></li>
+<li><a href="chap4.html#initialization-functionpointers">3.1. Command Function Pointers</a></li>
+<li><a href="chap4.html#initialization-instances">3.2. Instances</a></li>
 </ul>
 </li>
-<li><a href="chap7.html#renderpass">7. Render Pass</a>
+<li><a href="chap5.html#devsandqueues">4. Devices and Queues</a>
 <ul class="sectlevel2">
-<li><a href="chap7.html#renderpass-creation">7.1. Render Pass Creation</a></li>
-<li><a href="chap7.html#renderpass-compatibility">7.2. Render Pass Compatibility</a></li>
-<li><a href="chap7.html#_framebuffers">7.3. Framebuffers</a></li>
-<li><a href="chap7.html#renderpass-commands">7.4. Render Pass Commands</a></li>
-<ul class="sectlevel1"><li><a href="index.html#preamble">0. Preamble</a></li></ul>
+<li><a href="chap5.html#devsandqueues-physical-device-enumeration">4.1. Physical Devices</a></li>
+<li><a href="chap5.html#devsandqueues-devices">4.2. Devices</a></li>
+<li><a href="chap5.html#devsandqueues-queues">4.3. Queues</a></li>
 </ul>
 </li>
-<li><a href="chap8.html#shaders">8. Shaders</a>
+<li><a href="chap6.html#commandbuffers">5. Command Buffers</a>
 <ul class="sectlevel2">
-<li><a href="chap8.html#shader-modules">8.1. Shader Modules</a></li>
-<li><a href="chap8.html#shaders-execution">8.2. Shader Execution</a></li>
-<li><a href="chap8.html#shaders-execution-memory-ordering">8.3. Shader Memory Access Ordering</a></li>
-<li><a href="chap8.html#shaders-inputs">8.4. Shader Inputs and Outputs</a></li>
-<li><a href="chap8.html#shaders-vertex">8.5. Vertex Shaders</a></li>
-<li><a href="chap8.html#shaders-tessellation-control">8.6. Tessellation Control Shaders</a></li>
-<li><a href="chap8.html#shaders-tessellation-evaluation">8.7. Tessellation Evaluation Shaders</a></li>
-<li><a href="chap8.html#shaders-geometry">8.8. Geometry Shaders</a></li>
-<li><a href="chap8.html#shaders-fragment">8.9. Fragment Shaders</a></li>
-<li><a href="chap8.html#shaders-compute">8.10. Compute Shaders</a></li>
-<li><a href="chap8.html#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
-<li><a href="chap8.html#shaders-staticuse">8.12. Static Use</a></li>
-<li><a href="chap8.html#shaders-scope">8.13. Scope</a></li>
-<li><a href="chap8.html#shaders-derivative-operations">8.14. Derivative Operations</a></li>
-<li><a href="chap8.html#shaders-helper-invocations">8.15. Helper Invocations</a></li>
+<li><a href="chap6.html#commandbuffers-lifecycle">5.1. Command Buffer Lifecycle</a></li>
+<li><a href="chap6.html#commandbuffers-pools">5.2. Command Pools</a></li>
+<li><a href="chap6.html#commandbuffer-allocation">5.3. Command Buffer Allocation and Management</a></li>
+<li><a href="chap6.html#commandbuffers-recording">5.4. Command Buffer Recording</a></li>
+<li><a href="chap6.html#commandbuffers-submission">5.5. Command Buffer Submission</a></li>
+<li><a href="chap6.html#commandbuffers-submission-progress">5.6. Queue Forward Progress</a></li>
+<ul class="sectlevel1"><li><a href="chap1.html#preamble">0. Preamble</a></li></ul>
+<li><a href="chap6.html#commandbuffers-secondary">5.7. Secondary Command Buffer Execution</a></li>
 </ul>
 </li>
-<li><a href="chap9.html#pipelines">9. Pipelines</a>
+<li><a href="chap7.html#synchronization">6. Synchronization and Cache Control</a>
 <ul class="sectlevel2">
-<li><a href="chap9.html#pipelines-compute">9.1. Compute Pipelines</a></li>
-<li><a href="chap9.html#pipelines-graphics">9.2. Graphics Pipelines</a></li>
-<li><a href="chap9.html#pipelines-destruction">9.3. Pipeline destruction</a></li>
-<li><a href="chap9.html#pipelines-multiple">9.4. Multiple Pipeline Creation</a></li>
-<li><a href="chap9.html#pipelines-pipeline-derivatives">9.5. Pipeline Derivatives</a></li>
-<li><a href="chap9.html#pipelines-cache">9.6. Pipeline Cache</a></li>
-<li><a href="chap9.html#pipelines-specialization-constants">9.7. Specialization Constants</a></li>
-<li><a href="chap9.html#pipelines-binding">9.8. Pipeline Binding</a></li>
-<li><a href="chap9.html#pipelines-dynamic-state">9.9. Dynamic State</a></li>
+<li><a href="chap7.html#synchronization-dependencies">6.1. Execution and Memory Dependencies</a></li>
+<li><a href="chap7.html#synchronization-implicit">6.2. Implicit Synchronization Guarantees</a></li>
+<li><a href="chap7.html#synchronization-fences">6.3. Fences</a></li>
+<li><a href="chap7.html#synchronization-semaphores">6.4. Semaphores</a></li>
+<li><a href="chap7.html#synchronization-events">6.5. Events</a></li>
+<li><a href="chap7.html#synchronization-pipeline-barriers">6.6. Pipeline Barriers</a></li>
+<li><a href="chap7.html#synchronization-memory-barriers">6.7. Memory Barriers</a></li>
+<li><a href="chap7.html#synchronization-wait-idle">6.8. Wait Idle Operations</a></li>
+<li><a href="chap7.html#synchronization-submission-host-writes">6.9. Host Write Ordering Guarantees</a></li>
 </ul>
 </li>
-<li><a href="chap10.html#memory">10. Memory Allocation</a>
+<li><a href="chap8.html#renderpass">7. Render Pass</a>
 <ul class="sectlevel2">
-<li><a href="chap10.html#memory-host">10.1. Host Memory</a></li>
-<li><a href="chap10.html#memory-device">10.2. Device Memory</a></li>
+<li><a href="chap8.html#renderpass-creation">7.1. Render Pass Creation</a></li>
+<li><a href="chap8.html#renderpass-compatibility">7.2. Render Pass Compatibility</a></li>
+<li><a href="chap8.html#_framebuffers">7.3. Framebuffers</a></li>
+<li><a href="chap8.html#renderpass-commands">7.4. Render Pass Commands</a></li>
 </ul>
 </li>
-<li><a href="chap11.html#resources">11. Resource Creation</a>
+<li><a href="chap9.html#shaders">8. Shaders</a>
 <ul class="sectlevel2">
-<li><a href="chap11.html#resources-buffers">11.1. Buffers</a></li>
-<li><a href="chap11.html#resources-buffer-views">11.2. Buffer Views</a></li>
-<li><a href="chap11.html#resources-images">11.3. Images</a></li>
-<li><a href="chap11.html#resources-image-layouts">11.4. Image Layouts</a></li>
-<li><a href="chap11.html#resources-image-views">11.5. Image Views</a></li>
-<li><a href="chap11.html#resources-association">11.6. Resource Memory Association</a></li>
-<li><a href="chap11.html#resources-sharing">11.7. Resource Sharing Mode</a></li>
-<li><a href="chap11.html#resources-memory-aliasing">11.8. Memory Aliasing</a></li>
+<li><a href="chap9.html#shader-modules">8.1. Shader Modules</a></li>
+<li><a href="chap9.html#shaders-execution">8.2. Shader Execution</a></li>
+<li><a href="chap9.html#shaders-execution-memory-ordering">8.3. Shader Memory Access Ordering</a></li>
+<li><a href="chap9.html#shaders-inputs">8.4. Shader Inputs and Outputs</a></li>
+<li><a href="chap9.html#shaders-vertex">8.5. Vertex Shaders</a></li>
+<li><a href="chap9.html#shaders-tessellation-control">8.6. Tessellation Control Shaders</a></li>
+<li><a href="chap9.html#shaders-tessellation-evaluation">8.7. Tessellation Evaluation Shaders</a></li>
+<li><a href="chap9.html#shaders-geometry">8.8. Geometry Shaders</a></li>
+<li><a href="chap9.html#shaders-fragment">8.9. Fragment Shaders</a></li>
+<li><a href="chap9.html#shaders-compute">8.10. Compute Shaders</a></li>
+<li><a href="chap9.html#shaders-interpolation-decorations">8.11. Interpolation Decorations</a></li>
+<li><a href="chap9.html#shaders-staticuse">8.12. Static Use</a></li>
+<li><a href="chap9.html#shaders-scope">8.13. Scope</a></li>
+<li><a href="chap9.html#shaders-derivative-operations">8.14. Derivative Operations</a></li>
+<li><a href="chap9.html#shaders-helper-invocations">8.15. Helper Invocations</a></li>
 </ul>
 </li>
-<li><a href="chap12.html#samplers">12. Samplers</a></li>
-<li><a href="chap13.html#descriptorsets">13. Resource Descriptors</a>
+<li><a href="chap10.html#pipelines">9. Pipelines</a>
 <ul class="sectlevel2">
-<li><a href="chap13.html#descriptorsets-types">13.1. Descriptor Types</a></li>
-<li><a href="chap13.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
+<li><a href="chap10.html#pipelines-compute">9.1. Compute Pipelines</a></li>
+<li><a href="chap10.html#pipelines-graphics">9.2. Graphics Pipelines</a></li>
+<li><a href="chap10.html#pipelines-destruction">9.3. Pipeline destruction</a></li>
+<li><a href="chap10.html#pipelines-multiple">9.4. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-pipeline-derivatives">9.5. Pipeline Derivatives</a></li>
+<li><a href="chap10.html#pipelines-cache">9.6. Pipeline Cache</a></li>
+<li><a href="chap10.html#pipelines-specialization-constants">9.7. Specialization Constants</a></li>
+<li><a href="chap10.html#pipelines-binding">9.8. Pipeline Binding</a></li>
+<li><a href="chap10.html#pipelines-dynamic-state">9.9. Dynamic State</a></li>
 </ul>
 </li>
-<li><a href="chap14.html#interfaces">14. Shader Interfaces</a>
+<li><a href="chap11.html#memory">10. Memory Allocation</a>
 <ul class="sectlevel2">
-<li><a href="chap14.html#interfaces-iointerfaces">14.1. Shader Input and Output Interfaces</a></li>
-<li><a href="chap14.html#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
-<li><a href="chap14.html#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
-<li><a href="chap14.html#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
-<li><a href="chap14.html#interfaces-resources">14.5. Shader Resource Interface</a></li>
-<li><a href="chap14.html#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
+<li><a href="chap11.html#memory-host">10.1. Host Memory</a></li>
+<li><a href="chap11.html#memory-device">10.2. Device Memory</a></li>
 </ul>
 </li>
-<li><a href="chap15.html#textures">15. Image Operations</a>
+<li><a href="chap12.html#resources">11. Resource Creation</a>
 <ul class="sectlevel2">
-<li><a href="chap15.html#_image_operations_overview">15.1. Image Operations Overview</a></li>
-<li><a href="chap15.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
-<li><a href="chap15.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
-<li><a href="chap15.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
-<li><a href="chap15.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
-<li><a href="chap15.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
-<li><a href="chap15.html#textures-instructions">15.9. Image Operation Steps</a></li>
+<li><a href="chap12.html#resources-buffers">11.1. Buffers</a></li>
+<li><a href="chap12.html#resources-buffer-views">11.2. Buffer Views</a></li>
+<li><a href="chap12.html#resources-images">11.3. Images</a></li>
+<li><a href="chap12.html#resources-image-layouts">11.4. Image Layouts</a></li>
+<li><a href="chap12.html#resources-image-views">11.5. Image Views</a></li>
+<li><a href="chap12.html#resources-association">11.6. Resource Memory Association</a></li>
+<li><a href="chap12.html#resources-sharing">11.7. Resource Sharing Mode</a></li>
+<li><a href="chap12.html#resources-memory-aliasing">11.8. Memory Aliasing</a></li>
 </ul>
 </li>
-<li><a href="chap16.html#queries">16. Queries</a>
+<li><a href="chap13.html#samplers">12. Samplers</a></li>
+<li><a href="chap14.html#descriptorsets">13. Resource Descriptors</a>
 <ul class="sectlevel2">
-<li><a href="chap16.html#queries-pools">16.1. Query Pools</a></li>
-<li><a href="chap16.html#queries-operation">16.2. Query Operation</a></li>
-<li><a href="chap16.html#queries-occlusion">16.3. Occlusion Queries</a></li>
-<li><a href="chap16.html#queries-pipestats">16.4. Pipeline Statistics Queries</a></li>
-<li><a href="chap16.html#queries-timestamps">16.5. Timestamp Queries</a></li>
+<li><a href="chap14.html#descriptorsets-types">13.1. Descriptor Types</a></li>
+<li><a href="chap14.html#descriptorsets-sets">13.2. Descriptor Sets</a></li>
 </ul>
 </li>
-<li><a href="chap17.html#clears">17. Clear Commands</a>
+<li><a href="chap15.html#interfaces">14. Shader Interfaces</a>
 <ul class="sectlevel2">
-<li><a href="chap17.html#clears-outside">17.1. Clearing Images Outside A Render Pass Instance</a></li>
-<li><a href="chap17.html#clears-inside">17.2. Clearing Images Inside A Render Pass Instance</a></li>
-<li><a href="chap17.html#clears-values">17.3. Clear Values</a></li>
-<li><a href="chap17.html#clears-filling-buffers">17.4. Filling Buffers</a></li>
-<li><a href="chap17.html#clears-updating-buffers">17.5. Updating Buffers</a></li>
+<li><a href="chap15.html#interfaces-iointerfaces">14.1. Shader Input and Output Interfaces</a></li>
+<li><a href="chap15.html#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
+<li><a href="chap15.html#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
+<li><a href="chap15.html#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
+<li><a href="chap15.html#interfaces-resources">14.5. Shader Resource Interface</a></li>
+<li><a href="chap15.html#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
 </ul>
 </li>
-<li><a href="chap18.html#copies">18. Copy Commands</a>
+<li><a href="chap16.html#textures">15. Image Operations</a>
 <ul class="sectlevel2">
-<li><a href="chap18.html#_common_operation">18.1. Common Operation</a></li>
-<li><a href="chap18.html#copies-buffers">18.2. Copying Data Between Buffers</a></li>
-<li><a href="chap18.html#copies-images">18.3. Copying Data Between Images</a></li>
-<li><a href="chap18.html#copies-buffers-images">18.4. Copying Data Between Buffers and Images</a></li>
-<li><a href="chap18.html#copies-imagescaling">18.5. Image Copies with Scaling</a></li>
-<li><a href="chap18.html#copies-resolve">18.6. Resolving Multisample Images</a></li>
+<li><a href="chap16.html#_image_operations_overview">15.1. Image Operations Overview</a></li>
+<li><a href="chap16.html#_conversion_formulas">15.2. Conversion Formulas</a></li>
+<li><a href="chap16.html#_texel_input_operations">15.3. Texel Input Operations</a></li>
+<li><a href="chap16.html#_texel_output_operations">15.4. Texel Output Operations</a></li>
+<li><a href="chap16.html#textures-normalized-operations">15.5. Normalized Texel Coordinate Operations</a></li>
+<li><a href="chap16.html#_unnormalized_texel_coordinate_operations">15.6. Unnormalized Texel Coordinate Operations</a></li>
+<li><a href="chap16.html#textures-integer-coordinate-operations">15.7. Integer Texel Coordinate Operations</a></li>
+<li><a href="chap16.html#textures-sample-operations">15.8. Image Sample Operations</a></li>
+<li><a href="chap16.html#textures-instructions">15.9. Image Operation Steps</a></li>
 </ul>
 </li>
-<li><a href="chap19.html#drawing">19. Drawing Commands</a>
+<li><a href="chap17.html#queries">16. Queries</a>
 <ul class="sectlevel2">
-<li><a href="chap19.html#drawing-primitive-topologies">19.1. Primitive Topologies</a></li>
-<li><a href="chap19.html#drawing-primitive-order">19.2. Primitive Order</a></li>
-<li><a href="chap19.html#drawing-primitive-shading">19.3. Programmable Primitive Shading</a></li>
+<li><a href="chap17.html#queries-pools">16.1. Query Pools</a></li>
+<li><a href="chap17.html#queries-operation">16.2. Query Operation</a></li>
+<li><a href="chap17.html#queries-occlusion">16.3. Occlusion Queries</a></li>
+<li><a href="chap17.html#queries-pipestats">16.4. Pipeline Statistics Queries</a></li>
+<li><a href="chap17.html#queries-timestamps">16.5. Timestamp Queries</a></li>
 </ul>
 </li>
-<li><a href="chap20.html#fxvertex">20. Fixed-Function Vertex Processing</a>
+<li><a href="chap18.html#clears">17. Clear Commands</a>
 <ul class="sectlevel2">
-<li><a href="chap20.html#fxvertex-attrib">20.1. Vertex Attributes</a></li>
-<li><a href="chap20.html#fxvertex-input">20.2. Vertex Input Description</a></li>
-<li><a href="chap20.html#fxvertex-example">20.3. Example</a></li>
+<li><a href="chap18.html#clears-outside">17.1. Clearing Images Outside A Render Pass Instance</a></li>
+<li><a href="chap18.html#clears-inside">17.2. Clearing Images Inside A Render Pass Instance</a></li>
+<li><a href="chap18.html#clears-values">17.3. Clear Values</a></li>
+<li><a href="chap18.html#clears-filling-buffers">17.4. Filling Buffers</a></li>
+<li><a href="chap18.html#clears-updating-buffers">17.5. Updating Buffers</a></li>
 </ul>
 </li>
-<li><a href="chap21.html#tessellation">21. Tessellation</a>
+<li><a href="chap19.html#copies">18. Copy Commands</a>
 <ul class="sectlevel2">
-<li><a href="chap21.html#_tessellator">21.1. Tessellator</a></li>
-<li><a href="chap21.html#_tessellator_patch_discard">21.2. Tessellator Patch Discard</a></li>
-<li><a href="chap21.html#tessellation-tessellator-spacing">21.3. Tessellator Spacing</a></li>
-<li><a href="chap21.html#tessellation-primitive-order">21.4. Tessellation Primitive Ordering</a></li>
-<li><a href="chap21.html#tessellation-vertex-winding-order">21.5. Tessellator Vertex Winding Order</a></li>
-<li><a href="chap21.html#tessellation-triangle-tessellation">21.6. Triangle Tessellation</a></li>
-<li><a href="chap21.html#tessellation-quad-tessellation">21.7. Quad Tessellation</a></li>
-<li><a href="chap21.html#tessellation-isoline-tessellation">21.8. Isoline Tessellation</a></li>
-<li><a href="chap21.html#tessellation-point-mode">21.9. Tessellation Point Mode</a></li>
-<li><a href="chap21.html#_tessellation_pipeline_state">21.10. Tessellation Pipeline State</a></li>
+<li><a href="chap19.html#_common_operation">18.1. Common Operation</a></li>
+<li><a href="chap19.html#copies-buffers">18.2. Copying Data Between Buffers</a></li>
+<li><a href="chap19.html#copies-images">18.3. Copying Data Between Images</a></li>
+<li><a href="chap19.html#copies-buffers-images">18.4. Copying Data Between Buffers and Images</a></li>
+<li><a href="chap19.html#copies-imagescaling">18.5. Image Copies with Scaling</a></li>
+<li><a href="chap19.html#copies-resolve">18.6. Resolving Multisample Images</a></li>
 </ul>
 </li>
-<li><a href="chap22.html#geometry">22. Geometry Shading</a>
+<li><a href="chap20.html#drawing">19. Drawing Commands</a>
 <ul class="sectlevel2">
-<li><a href="chap22.html#geometry-input">22.1. Geometry Shader Input Primitives</a></li>
-<li><a href="chap22.html#geometry-output">22.2. Geometry Shader Output Primitives</a></li>
-<li><a href="chap22.html#geometry-invocations">22.3. Multiple Invocations of Geometry Shaders</a></li>
-<li><a href="chap22.html#geometry-ordering">22.4. Geometry Shader Primitive Ordering</a></li>
+<li><a href="chap20.html#drawing-primitive-topologies">19.1. Primitive Topologies</a></li>
+<li><a href="chap20.html#drawing-primitive-order">19.2. Primitive Order</a></li>
+<li><a href="chap20.html#drawing-primitive-shading">19.3. Programmable Primitive Shading</a></li>
 </ul>
 </li>
-<li><a href="#vertexpostproc">23. Fixed-Function Vertex Post-Processing</a>
+<li><a href="chap21.html#fxvertex">20. Fixed-Function Vertex Processing</a>
 <ul class="sectlevel2">
-<li><a href="#vertexpostproc-flatshading">23.1. Flat Shading</a></li>
-<li><a href="#vertexpostproc-clipping">23.2. Primitive Clipping</a></li>
-<li><a href="#vertexpostproc-clipping-shader-outputs">23.3. Clipping Shader Outputs</a></li>
-<li><a href="#vertexpostproc-coord-transform">23.4. Coordinate Transformations</a></li>
-<li><a href="#vertexpostproc-viewport">23.5. Controlling the Viewport</a></li>
+<li><a href="chap21.html#fxvertex-attrib">20.1. Vertex Attributes</a></li>
+<li><a href="chap21.html#fxvertex-input">20.2. Vertex Input Description</a></li>
+<li><a href="chap21.html#fxvertex-example">20.3. Example</a></li>
 </ul>
 </li>
-<li><a href="chap24.html#primsrast">24. Rasterization</a>
+<li><a href="chap22.html#tessellation">21. Tessellation</a>
 <ul class="sectlevel2">
-<li><a href="chap24.html#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
-<li><a href="chap24.html#primrast-order">24.2. Rasterization Order</a></li>
-<li><a href="chap24.html#primsrast-multisampling">24.3. Multisampling</a></li>
-<li><a href="chap24.html#primsrast-sampleshading">24.4. Sample Shading</a></li>
-<li><a href="chap24.html#primsrast-points">24.5. Points</a></li>
-<li><a href="chap24.html#primsrast-lines">24.6. Line Segments</a></li>
-<li><a href="chap24.html#primsrast-polygons">24.7. Polygons</a></li>
+<li><a href="chap22.html#_tessellator">21.1. Tessellator</a></li>
+<li><a href="chap22.html#_tessellator_patch_discard">21.2. Tessellator Patch Discard</a></li>
+<li><a href="chap22.html#tessellation-tessellator-spacing">21.3. Tessellator Spacing</a></li>
+<li><a href="chap22.html#tessellation-primitive-order">21.4. Tessellation Primitive Ordering</a></li>
+<li><a href="chap22.html#tessellation-vertex-winding-order">21.5. Tessellator Vertex Winding Order</a></li>
+<li><a href="chap22.html#tessellation-triangle-tessellation">21.6. Triangle Tessellation</a></li>
+<li><a href="chap22.html#tessellation-quad-tessellation">21.7. Quad Tessellation</a></li>
+<li><a href="chap22.html#tessellation-isoline-tessellation">21.8. Isoline Tessellation</a></li>
+<li><a href="chap22.html#tessellation-point-mode">21.9. Tessellation Point Mode</a></li>
+<li><a href="chap22.html#_tessellation_pipeline_state">21.10. Tessellation Pipeline State</a></li>
 </ul>
 </li>
-<li><a href="chap25.html#fragops">25. Fragment Operations</a>
+<li><a href="#geometry">22. Geometry Shading</a>
 <ul class="sectlevel2">
-<li><a href="chap25.html#fragops-scissor">25.1. Scissor Test</a></li>
-<li><a href="chap25.html#fragops-samplemask">25.2. Sample Mask Test</a></li>
-<li><a href="chap25.html#fragops-covg">25.3. Multisample Coverage</a></li>
-<li><a href="chap25.html#fragops-ds-state">25.4. Depth and Stencil Operations</a></li>
-<li><a href="chap25.html#fragops-dbt">25.5. Depth Bounds Test</a></li>
-<li><a href="chap25.html#fragops-stencil">25.6. Stencil Test</a></li>
-<li><a href="chap25.html#fragops-depth">25.7. Depth Test</a></li>
-<li><a href="chap25.html#fragops-samplecount">25.8. Sample Counting</a></li>
-<li><a href="chap25.html#fragops-coverage-reduction">25.9. Coverage Reduction</a></li>
+<li><a href="#geometry-input">22.1. Geometry Shader Input Primitives</a></li>
+<li><a href="#geometry-output">22.2. Geometry Shader Output Primitives</a></li>
+<li><a href="#geometry-invocations">22.3. Multiple Invocations of Geometry Shaders</a></li>
+<li><a href="#geometry-ordering">22.4. Geometry Shader Primitive Ordering</a></li>
 </ul>
 </li>
-<li><a href="chap26.html#framebuffer">26. The Framebuffer</a>
+<li><a href="chap24.html#vertexpostproc">23. Fixed-Function Vertex Post-Processing</a>
 <ul class="sectlevel2">
-<li><a href="chap26.html#framebuffer-blending">26.1. Blending</a></li>
-<li><a href="chap26.html#framebuffer-logicop">26.2. Logical Operations</a></li>
-<li><a href="chap26.html#framebuffer-color-write-mask">26.3. Color Write Mask</a></li>
+<li><a href="chap24.html#vertexpostproc-flatshading">23.1. Flat Shading</a></li>
+<li><a href="chap24.html#vertexpostproc-clipping">23.2. Primitive Clipping</a></li>
+<li><a href="chap24.html#vertexpostproc-clipping-shader-outputs">23.3. Clipping Shader Outputs</a></li>
+<li><a href="chap24.html#vertexpostproc-coord-transform">23.4. Coordinate Transformations</a></li>
+<li><a href="chap24.html#vertexpostproc-viewport">23.5. Controlling the Viewport</a></li>
 </ul>
 </li>
-<li><a href="chap27.html#dispatch">27. Dispatching Commands</a></li>
-<li><a href="chap28.html#sparsememory">28. Sparse Resources</a>
+<li><a href="chap25.html#primsrast">24. Rasterization</a>
 <ul class="sectlevel2">
-<li><a href="chap28.html#sparsememory-sparseresourcefeatures">28.1. Sparse Resource Features</a></li>
-<li><a href="chap28.html#sparsememory-fully-resident">28.2. Sparse Buffers and Fully-Resident Images</a></li>
-<li><a href="chap28.html#sparsememory-partially-resident-buffers">28.3. Sparse Partially-Resident Buffers</a></li>
-<li><a href="chap28.html#sparsememory-partially-resident-images">28.4. Sparse Partially-Resident Images</a></li>
-<li><a href="chap28.html#sparsememory-sparse-memory-aliasing">28.5. Sparse Memory Aliasing</a></li>
-<li><a href="chap28.html#_sparse_resource_implementation_guidelines">28.6. Sparse Resource Implementation Guidelines</a></li>
-<li><a href="chap28.html#sparsememory-resourceapi">28.7. Sparse Resource API</a></li>
+<li><a href="chap25.html#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
+<li><a href="chap25.html#primrast-order">24.2. Rasterization Order</a></li>
+<li><a href="chap25.html#primsrast-multisampling">24.3. Multisampling</a></li>
+<li><a href="chap25.html#primsrast-sampleshading">24.4. Sample Shading</a></li>
+<li><a href="chap25.html#primsrast-points">24.5. Points</a></li>
+<li><a href="chap25.html#primsrast-lines">24.6. Line Segments</a></li>
+<li><a href="chap25.html#primsrast-polygons">24.7. Polygons</a></li>
 </ul>
 </li>
-<li><a href="chap29.html#extendingvulkan">29. Extending Vulkan</a>
+<li><a href="chap26.html#fragops">25. Fragment Operations</a>
 <ul class="sectlevel2">
-<li><a href="chap29.html#extendingvulkan-instanceanddevicefunctionality">29.1. Instance and Device Functionality</a></li>
-<li><a href="chap29.html#extendingvulkan-coreversions">29.2. Core Versions</a></li>
-<li><a href="chap29.html#extendingvulkan-layers">29.3. Layers</a></li>
-<li><a href="chap29.html#extendingvulkan-extensions">29.4. Extensions</a></li>
-<li><a href="chap29.html#extendingvulkan-extensions-extensiondependencies">29.5. Extension Dependencies</a></li>
-<li><a href="chap29.html#_compatibility_guarantees_informative">29.6. Compatibility Guarantees (Informative)</a></li>
+<li><a href="chap26.html#fragops-scissor">25.1. Scissor Test</a></li>
+<li><a href="chap26.html#fragops-samplemask">25.2. Sample Mask Test</a></li>
+<li><a href="chap26.html#fragops-covg">25.3. Multisample Coverage</a></li>
+<li><a href="chap26.html#fragops-ds-state">25.4. Depth and Stencil Operations</a></li>
+<li><a href="chap26.html#fragops-dbt">25.5. Depth Bounds Test</a></li>
+<li><a href="chap26.html#fragops-stencil">25.6. Stencil Test</a></li>
+<li><a href="chap26.html#fragops-depth">25.7. Depth Test</a></li>
+<li><a href="chap26.html#fragops-samplecount">25.8. Sample Counting</a></li>
+<li><a href="chap26.html#fragops-coverage-reduction">25.9. Coverage Reduction</a></li>
 </ul>
 </li>
-<li><a href="chap30.html#features">30. Features</a>
+<li><a href="chap27.html#framebuffer">26. The Framebuffer</a>
 <ul class="sectlevel2">
-<li><a href="chap30.html#features-requirements">30.1. Feature Requirements</a></li>
+<li><a href="chap27.html#framebuffer-blending">26.1. Blending</a></li>
+<li><a href="chap27.html#framebuffer-logicop">26.2. Logical Operations</a></li>
+<li><a href="chap27.html#framebuffer-color-write-mask">26.3. Color Write Mask</a></li>
 </ul>
 </li>
-<li><a href="chap31.html#limits">31. Limits</a>
+<li><a href="chap28.html#dispatch">27. Dispatching Commands</a></li>
+<li><a href="chap29.html#sparsememory">28. Sparse Resources</a>
 <ul class="sectlevel2">
-<li><a href="chap31.html#limits-minmax">31.1. Limit Requirements</a></li>
+<li><a href="chap29.html#sparsememory-sparseresourcefeatures">28.1. Sparse Resource Features</a></li>
+<li><a href="chap29.html#sparsememory-fully-resident">28.2. Sparse Buffers and Fully-Resident Images</a></li>
+<li><a href="chap29.html#sparsememory-partially-resident-buffers">28.3. Sparse Partially-Resident Buffers</a></li>
+<li><a href="chap29.html#sparsememory-partially-resident-images">28.4. Sparse Partially-Resident Images</a></li>
+<li><a href="chap29.html#sparsememory-sparse-memory-aliasing">28.5. Sparse Memory Aliasing</a></li>
+<li><a href="chap29.html#_sparse_resource_implementation_guidelines">28.6. Sparse Resource Implementation Guidelines</a></li>
+<li><a href="chap29.html#sparsememory-resourceapi">28.7. Sparse Resource API</a></li>
 </ul>
 </li>
-<li><a href="chap32.html#formats">32. Formats</a>
+<li><a href="chap30.html#extendingvulkan">29. Extending Vulkan</a>
 <ul class="sectlevel2">
-<li><a href="chap32.html#formats-definition">32.1. Format Definition</a></li>
-<li><a href="chap32.html#formats-properties">32.2. Format Properties</a></li>
-<li><a href="chap32.html#features-required-format-support">32.3. Required Format Support</a></li>
+<li><a href="chap30.html#extendingvulkan-instanceanddevicefunctionality">29.1. Instance and Device Functionality</a></li>
+<li><a href="chap30.html#extendingvulkan-coreversions">29.2. Core Versions</a></li>
+<li><a href="chap30.html#extendingvulkan-layers">29.3. Layers</a></li>
+<li><a href="chap30.html#extendingvulkan-extensions">29.4. Extensions</a></li>
+<li><a href="chap30.html#extendingvulkan-extensions-extensiondependencies">29.5. Extension Dependencies</a></li>
+<li><a href="chap30.html#_compatibility_guarantees_informative">29.6. Compatibility Guarantees (Informative)</a></li>
 </ul>
 </li>
-<li><a href="chap33.html#capabilities">33. Additional Capabilities</a>
+<li><a href="chap31.html#features">30. Features</a>
 <ul class="sectlevel2">
-<li><a href="chap33.html#capabilities-image">33.1. Additional Image Capabilities</a></li>
+<li><a href="chap31.html#features-requirements">30.1. Feature Requirements</a></li>
 </ul>
 </li>
-<li><a href="chap34.html#_debugging">34. Debugging</a></li>
-<li><a href="chap35.html#spirvenv">Appendix A: Vulkan Environment for SPIR-V</a>
+<li><a href="chap32.html#limits">31. Limits</a>
 <ul class="sectlevel2">
-<li><a href="chap35.html#_versions_and_formats">Versions and Formats</a></li>
-<li><a href="chap35.html#spirvenv-capabilities">Capabilities</a></li>
-<li><a href="chap35.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
-<li><a href="chap35.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
-<li><a href="chap35.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
-<li><a href="chap35.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
+<li><a href="chap32.html#limits-minmax">31.1. Limit Requirements</a></li>
 </ul>
 </li>
-<li><a href="chap36.html#_compressed_image_formats">Appendix B: Compressed Image Formats</a>
+<li><a href="chap33.html#formats">32. Formats</a>
 <ul class="sectlevel2">
-<li><a href="chap36.html#appendix-compressedtex-bc">Block-Compressed Image Formats</a></li>
-<li><a href="chap36.html#appendix-compressedtex-etc2">ETC Compressed Image Formats</a></li>
-<li><a href="chap36.html#appendix-compressedtex-astc">ASTC Compressed Image Formats</a></li>
+<li><a href="chap33.html#formats-definition">32.1. Format Definition</a></li>
+<li><a href="chap33.html#formats-properties">32.2. Format Properties</a></li>
+<li><a href="chap33.html#features-required-format-support">32.3. Required Format Support</a></li>
 </ul>
 </li>
-<li><a href="chap37.html#versions">Appendix C: Core Revisions (Informative)</a></li>
-<li><a href="chap38.html#extensions">Appendix D: Layers &amp; Extensions (Informative)</a>
+<li><a href="chap34.html#capabilities">33. Additional Capabilities</a>
 <ul class="sectlevel2">
-<li><a href="chap38.html#extension-appendices-list">List of Extensions</a></li>
+<li><a href="chap34.html#capabilities-image">33.1. Additional Image Capabilities</a></li>
 </ul>
 </li>
-<li><a href="chap39.html#boilerplate">Appendix E: API Boilerplate</a>
+<li><a href="chap35.html#_debugging">34. Debugging</a></li>
+<li><a href="chap36.html#spirvenv">Appendix A: Vulkan Environment for SPIR-V</a>
 <ul class="sectlevel2">
-<li><a href="chap39.html#boilerplate-headers">Vulkan Header Files</a></li>
-<li><a href="chap39.html#boilerplate-wsi-header">Window System-Specific Header Control (Informative)</a></li>
-<li><a href="chap39.html#boilerplate-provisional-header">Provisional Extension Header Control (Informative)</a></li>
+<li><a href="chap36.html#_versions_and_formats">Versions and Formats</a></li>
+<li><a href="chap36.html#spirvenv-capabilities">Capabilities</a></li>
+<li><a href="chap36.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
+<li><a href="chap36.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="chap36.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
+<li><a href="chap36.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
 </li>
-<li><a href="chap40.html#invariance">Appendix F: Invariance</a>
+<li><a href="chap37.html#_compressed_image_formats">Appendix B: Compressed Image Formats</a>
 <ul class="sectlevel2">
-<li><a href="chap40.html#_repeatability">Repeatability</a></li>
-<li><a href="chap40.html#_multi_pass_algorithms">Multi-pass Algorithms</a></li>
-<li><a href="chap40.html#_invariance_rules">Invariance Rules</a></li>
-<li><a href="chap40.html#_tessellation_invariance">Tessellation Invariance</a></li>
+<li><a href="chap37.html#appendix-compressedtex-bc">Block-Compressed Image Formats</a></li>
+<li><a href="chap37.html#appendix-compressedtex-etc2">ETC Compressed Image Formats</a></li>
+<li><a href="chap37.html#appendix-compressedtex-astc">ASTC Compressed Image Formats</a></li>
 </ul>
 </li>
-<li><a href="chap41.html#glossary">Glossary</a></li>
-<li><a href="chap42.html#_common_abbreviations">Common Abbreviations</a></li>
-<li><a href="chap43.html#_prefixes">Prefixes</a></li>
-<li><a href="chap44.html#credits">Appendix G: Credits (Informative)</a>
+<li><a href="chap38.html#versions">Appendix C: Core Revisions (Informative)</a></li>
+<li><a href="chap39.html#extensions">Appendix D: Layers &amp; Extensions (Informative)</a>
 <ul class="sectlevel2">
-<li><a href="chap44.html#_working_group_contributors_to_vulkan">Working Group Contributors to Vulkan</a></li>
-<li><a href="chap44.html#_other_credits">Other Credits</a></li>
+<li><a href="chap39.html#extension-appendices-list">List of Extensions</a></li>
+</ul>
+</li>
+<li><a href="chap40.html#boilerplate">Appendix E: API Boilerplate</a>
+<ul class="sectlevel2">
+<li><a href="chap40.html#boilerplate-headers">Vulkan Header Files</a></li>
+<li><a href="chap40.html#boilerplate-wsi-header">Window System-Specific Header Control (Informative)</a></li>
+<li><a href="chap40.html#boilerplate-provisional-header">Provisional Extension Header Control (Informative)</a></li>
+</ul>
+</li>
+<li><a href="chap41.html#invariance">Appendix F: Invariance</a>
+<ul class="sectlevel2">
+<li><a href="chap41.html#_repeatability">Repeatability</a></li>
+<li><a href="chap41.html#_multi_pass_algorithms">Multi-pass Algorithms</a></li>
+<li><a href="chap41.html#_invariance_rules">Invariance Rules</a></li>
+<li><a href="chap41.html#_tessellation_invariance">Tessellation Invariance</a></li>
+</ul>
+</li>
+<li><a href="chap42.html#glossary">Glossary</a></li>
+<li><a href="chap43.html#_common_abbreviations">Common Abbreviations</a></li>
+<li><a href="chap44.html#_prefixes">Prefixes</a></li>
+<li><a href="chap45.html#credits">Appendix G: Credits (Informative)</a>
+<ul class="sectlevel2">
+<li><a href="chap45.html#_working_group_contributors_to_vulkan">Working Group Contributors to Vulkan</a></li>
+<li><a href="chap45.html#_other_credits">Other Credits</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-
-<div id="loading_msg"><p>Loading... please wait.</p></div>
+<div id="loading_msg" class="hidden" hidden=""><p>Loading… please wait.</p></div>
 <div id="content"><div class="sect1">
-<h2 id="vertexpostproc"><a class="anchor" href="#vertexpostproc"></a>23. Fixed-Function Vertex Post-Processing</h2>
+<h2 id="geometry"><a class="anchor" href="#geometry"></a>22. Geometry Shading</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>After programmable vertex processing, the following fixed-function
-operations are applied to vertices of the resulting primitives:</p>
+<p>The geometry shader operates on a group of vertices and their associated
+data assembled from a single input primitive, and emits zero or more output
+primitives and the group of vertices and their associated data required for
+each output primitive.
+Geometry shading is enabled when a geometry shader is included in the
+pipeline.</p>
+</div>
+<div class="sect2">
+<h3 id="geometry-input"><a class="anchor" href="#geometry-input"></a>22.1. Geometry Shader Input Primitives</h3>
+<div class="paragraph">
+<p>Each geometry shader invocation has access to all vertices in the primitive
+(and their associated data), which are presented to the shader as an array
+of inputs.</p>
+</div>
+<div class="paragraph">
+<p>The input primitive type expected by the geometry shader is specified with
+an <code>OpExecutionMode</code> instruction in the geometry shader, and <strong class="purple">must</strong> match
+the incoming primitive type specified by either the pipeline’s
+<a href="chap20.html#drawing-primitive-topologies">primitive topology</a> if tessellation is
+inactive, or the <a href="chap22.html#tessellation">tessellation mode</a> if tessellation is
+active, as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Flat shading (see <a href="#vertexpostproc-flatshading">Flat Shading</a>).</p>
+<p>An input primitive type of <code>InputPoints</code> <strong class="purple">must</strong> only be used with a
+pipeline topology of <code>VK_PRIMITIVE_TOPOLOGY_POINT_LIST</code>, or with a
+tessellation shader that specifies <code>PointMode</code>.
+The input arrays always contain one element, as described by the
+<a href="chap20.html#drawing-point-lists">point list topology</a> or
+<a href="chap22.html#tessellation-point-mode">tessellation in point mode</a>.</p>
 </li>
 <li>
-<p>Primitive clipping, including client-defined half-spaces (see
-<a href="#vertexpostproc-clipping">Primitive Clipping</a>).</p>
+<p>An input primitive type of <code>InputLines</code> <strong class="purple">must</strong> only be used with a
+pipeline topology of <code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST</code> or
+<code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP</code>, or with a tessellation shader
+specifying <code>IsoLines</code> that does not specify <code>PointMode</code>.
+The input arrays always contain two elements, as described by the
+<a href="chap20.html#drawing-line-lists">line list topology</a> or <a href="chap20.html#drawing-line-strips">line strip topology</a>, or by <a href="chap22.html#tessellation-isoline-tessellation">isoline tessellation</a>.</p>
 </li>
 <li>
-<p>Shader output attribute clipping (see
-<a href="#vertexpostproc-clipping-shader-outputs">Clipping Shader Outputs</a>).</p>
+<p>An input primitive type of <code>InputLinesAdjacency</code> <strong class="purple">must</strong> only be used
+when tessellation is inactive, with a pipeline topology of
+<code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY</code> or
+<code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY</code>.
+The input arrays always contain four elements, as described by the
+<a href="chap20.html#drawing-line-lists-with-adjacency">line list with adjacency topology</a>
+or <a href="chap20.html#drawing-line-strips-with-adjacency">line strip with adjacency
+topology</a>.</p>
 </li>
 <li>
-<p>Perspective division on clip coordinates (see
-<a href="#vertexpostproc-coord-transform">Coordinate Transformations</a>).</p>
+<p>An input primitive type of <code>Triangles</code> <strong class="purple">must</strong> only be used with a
+pipeline topology of <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</code>,
+<code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code>, or
+<code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code>; or with a tessellation shader
+specifying <code>Quads</code> or <code>Triangles</code> that does not specify
+<code>PointMode</code>.
+The input arrays always contain three elements, as described by the
+<a href="chap20.html#drawing-triangle-lists">triangle list topology</a>,
+<a href="chap20.html#drawing-triangle-strips">triangle strip topology</a>, or
+<a href="chap20.html#drawing-triangle-fans">triangle fan topology</a>, or by
+<a href="chap22.html#tessellation-triangle-tessellation">triangle</a> or
+<a href="chap22.html#tessellation-quad-tessellation">quad tessellation</a>.
+Vertices <strong class="purple">may</strong> be in a different absolute order to that specified by the
+topology, but <strong class="purple">must</strong> adhere to the specified winding order.</p>
 </li>
 <li>
-<p>Viewport mapping, including depth range scaling (see
-<a href="#vertexpostproc-viewport">Controlling the Viewport</a>).</p>
-</li>
-<li>
-<p>Front face determination for polygon primitives (see
-<a href="chap24.html#primsrast-polygons-basic">Basic Polygon Rasterization</a>).</p>
+<p>An input primitive type of <code>InputTrianglesAdjacency</code> <strong class="purple">must</strong> only be
+used when tessellation is inactive, with a pipeline topology of
+<code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY</code> or
+<code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY</code>.
+The input arrays always contain six elements, as described by the
+<a href="chap20.html#drawing-triangle-lists-with-adjacency">triangle list with adjacency
+topology</a> or <a href="chap20.html#drawing-triangle-strips-with-adjacency">triangle strip
+with adjacency topology</a>.
+Vertices <strong class="purple">may</strong> be in a different absolute order to that specified by the
+topology, but <strong class="purple">must</strong> adhere to the specified winding order, and the
+vertices making up the main primitive <strong class="purple">must</strong> still occur at the first,
+third, and fifth index.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Next, rasterization is performed on primitives as described in chapter
-<a href="chap24.html#primsrast">Rasterization</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="vertexpostproc-flatshading"><a class="anchor" href="#vertexpostproc-flatshading"></a>23.1. Flat Shading</h3>
+<h3 id="geometry-output"><a class="anchor" href="#geometry-output"></a>22.2. Geometry Shader Output Primitives</h3>
 <div class="paragraph">
-<p><em>Flat shading</em> a vertex output attribute means to assign all vertices of the
-primitive the same value for that output.
-The output values assigned are those of the <em>provoking vertex</em> of the
+<p>A geometry shader generates primitives in one of three output modes: points,
+line strips, or triangle strips.
+The primitive mode is specified in the shader using an <code>OpExecutionMode</code>
+instruction with the <code>OutputPoints</code>, <code>OutputLineStrip</code> or
+<code>OutputTriangleStrip</code> modes, respectively.
+Each geometry shader <strong class="purple">must</strong> include exactly one output primitive mode.</p>
+</div>
+<div class="paragraph">
+<p>The vertices output by the geometry shader are assembled into points, lines,
+or triangles based on the output primitive type and the resulting primitives
+are then further processed as described in <a href="chap25.html#primsrast">Rasterization</a>.
+If the number of vertices emitted by the geometry shader is not sufficient
+to produce a single primitive, vertices corresponding to incomplete
+primitives are not processed by subsequent pipeline stages.
+The number of vertices output by the geometry shader is limited to a maximum
+count specified in the shader.</p>
+</div>
+<div class="paragraph">
+<p>The maximum output vertex count is specified in the shader using an
+<code>OpExecutionMode</code> instruction with the mode set to <code>OutputVertices</code>
+and the maximum number of vertices that will be produced by the geometry
+shader specified as a literal.
+Each geometry shader <strong class="purple">must</strong> specify a maximum output vertex count.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="geometry-invocations"><a class="anchor" href="#geometry-invocations"></a>22.3. Multiple Invocations of Geometry Shaders</h3>
+<div class="paragraph">
+<p>Geometry shaders <strong class="purple">can</strong> be invoked more than one time for each input
 primitive.
-Flat shading is applied to those vertex attributes that
-<a href="chap14.html#interfaces-iointerfaces-matching">match</a> fragment input attributes which
-are decorated as <code>Flat</code>.</p>
+This is known as <em>geometry shader instancing</em> and is requested by including
+an <code>OpExecutionMode</code> instruction with <code>mode</code> specified as
+<code>Invocations</code> and the number of invocations specified as an integer
+literal.</p>
 </div>
 <div class="paragraph">
-<p>If neither <a href="chap22.html#geometry">geometry</a> nor <a href="chap21.html#tessellation">tessellation shading</a>
-is active, the provoking vertex is determined by the
-<a href="chap19.html#drawing-primitive-topologies">primitive topology</a> defined by
-<a href="chap19.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a>:<code>topology</code> used to execute
-the <a href="chap19.html#drawing">drawing command</a>.</p>
-</div>
-<div class="paragraph">
-<p>If <a href="chap22.html#geometry">geometry shading</a> is active, the provoking vertex is
-determined by the <a href="chap19.html#drawing-primitive-topologies">primitive topology</a>
-defined by the <a href="chap19.html#drawing-point-lists"><code>OutputPoints</code></a>,
-<a href="chap19.html#drawing-line-strips"><code>OutputLineStrips</code></a>, or
-<a href="chap19.html#drawing-triangle-strips"><code>OutputTriangleStrips</code></a> execution mode.</p>
-</div>
-<div class="paragraph">
-<p>If <a href="chap21.html#tessellation">tessellation shading</a> is active but <a href="chap22.html#geometry">geometry
-shading</a> is not, the provoking vertex <strong class="purple">may</strong> be any of the vertices in each
-primitive.</p>
+<p>In this mode, the geometry shader will execute at least <span class="eq">n</span> times for
+each input primitive, where <span class="eq">n</span> is the number of invocations specified
+in the <code>OpExecutionMode</code> instruction.
+The instance number is available to each invocation as a built-in input
+using <code>InvocationId</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="vertexpostproc-clipping"><a class="anchor" href="#vertexpostproc-clipping"></a>23.2. Primitive Clipping</h3>
+<h3 id="geometry-ordering"><a class="anchor" href="#geometry-ordering"></a>22.4. Geometry Shader Primitive Ordering</h3>
 <div class="paragraph">
-<p>Primitives are culled against the <em>cull volume</em> and then clipped to the
-<em>clip volume</em>.
-In clip coordinates, the <em>view volume</em> is defined by:</p>
-</div>
-<div class="stemblock">
-<div class="content">
-<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3.6000000000000005em;vertical-align:-1.5500000000000007em;"></span><span class="mord"><span class="mtable"><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.04398em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span></span></span></span></span></span></span>
-</div>
-</div>
-<div class="paragraph">
-<p>This view volume <strong class="purple">can</strong> be further restricted by as many as
-<code>VkPhysicalDeviceLimits</code>::<code>maxClipDistances</code> client-defined
-half-spaces.</p>
-</div>
-<div class="paragraph">
-<p>The cull volume is the intersection of up to
-<code>VkPhysicalDeviceLimits</code>::<code>maxCullDistances</code> client-defined
-half-spaces (if no client-defined cull half-spaces are enabled, culling
-against the cull volume is skipped).</p>
-</div>
-<div class="paragraph">
-<p>A shader <strong class="purple">must</strong> write a single cull distance for each enabled cull half-space
-to elements of the <code>CullDistance</code> array.
-If the cull distance for any enabled cull half-space is negative for all of
-the vertices of the primitive under consideration, the primitive is
-discarded.
-Otherwise the primitive is clipped against the clip volume as defined below.</p>
-</div>
-<div class="paragraph">
-<p>The clip volume is the intersection of up to
-<code>VkPhysicalDeviceLimits</code>::<code>maxClipDistances</code> client-defined
-half-spaces with the view volume (if no client-defined clip half-spaces are
-enabled, the clip volume is the view volume).</p>
-</div>
-<div class="paragraph">
-<p>A shader <strong class="purple">must</strong> write a single clip distance for each enabled clip half-space
-to elements of the <code>ClipDistance</code> array.
-Clip half-space <span class="eq">i</span> is then given by the set of points satisfying the
-inequality</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">c<sub>i</sub>(<strong>P</strong>) ≥ 0</span></p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>where <span class="eq">c<sub>i</sub>(<strong>P</strong>)</span> is the clip distance <span class="eq">i</span> at point <span class="eq"><strong>P</strong></span>.
-For point primitives, <span class="eq">c<sub>i</sub>(<strong>P</strong>)</span> is simply the clip distance for the
-vertex in question.
-For line and triangle primitives, per-vertex clip distances are interpolated
-using a weighted mean, with weights derived according to the algorithms
-described in sections <a href="chap24.html#primsrast-lines-basic">Basic Line Segment
-Rasterization</a> and <a href="chap24.html#primsrast-polygons-basic">Basic Polygon
-Rasterization</a>, using the perspective interpolation equations.</p>
-</div>
-<div class="paragraph">
-<p>The number of client-defined clip and cull half-spaces that are enabled is
-determined by the explicit size of the built-in arrays <code>ClipDistance</code> and
-<code>CullDistance</code>, respectively, declared as an output in the interface of
-the entry point of the final shader stage before clipping.</p>
-</div>
-<div class="paragraph">
-<p>Depth clamping is enabled or disabled via the <code>depthClampEnable</code> enable
-of the <a href="chap24.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure.
-Depth clipping is disabled when <code>depthClampEnable</code> is <code>VK_TRUE</code>.
-When depth clipping is disabled, the plane equation</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">0 ≤ z<sub>c</sub> ≤ w<sub>c</sub></span></p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>(see the clip volume definition above) is ignored by view volume clipping
-(effectively, there is no near or far plane clipping).</p>
-</div>
-<div class="paragraph">
-<p>If the primitive under consideration is a point or line segment, then
-clipping passes it unchanged if its vertices lie entirely within the clip
-volume.</p>
-</div>
-<div class="paragraph">
-<p>If a point’s vertex lies outside of the clip volume, the entire primitive
-<strong class="purple">may</strong> be discarded.</p>
-</div>
-<div class="paragraph">
-<p>If either of a line segment’s vertices lie outside of the clip volume, the
-line segment <strong class="purple">may</strong> be clipped, with new vertex coordinates computed for each
-vertex that lies outside the clip volume.
-A clipped line segment endpoint lies on both the original line segment and
-the boundary of the clip volume.</p>
-</div>
-<div class="paragraph">
-<p>This clipping produces a value, <span class="eq">0 ≤ t ≤ 1</span>, for each clipped
-vertex.
-If the coordinates of a clipped vertex are <span class="eq"><strong>P</strong></span> and the original
-vertices’ coordinates are <span class="eq"><strong>P</strong><sub>1</sub></span> and <span class="eq"><strong>P</strong><sub>2</sub></span>, then <span class="eq">t</span>
-is given by</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq"><strong>P</strong> = t <strong>P</strong><sub>1</sub> +  (1-t) <strong>P</strong><sub>2</sub></span>.</p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p><span class="eq">t</span> is used to clip vertex output attributes as described in
-<a href="#vertexpostproc-clipping-shader-outputs">Clipping Shader Outputs</a>.</p>
-</div>
-<div class="paragraph">
-<p>If the primitive is a polygon, it passes unchanged if every one of its edges
-lie entirely inside the clip volume, and it is discarded if every one of its
-edges lie entirely outside the clip volume.
-If the edges of the polygon intersect the boundary of the clip volume, the
-intersecting edges are reconnected by new edges that lie along the boundary
-of the clip volume - in some cases requiring the introduction of new
-vertices into a polygon.</p>
-</div>
-<div class="paragraph">
-<p>If a polygon intersects an edge of the clip volume’s boundary, the clipped
-polygon <strong class="purple">must</strong> include a point on this boundary edge.</p>
-</div>
-<div class="paragraph">
-<p>Primitives rendered with user-defined half-spaces <strong class="purple">must</strong> satisfy a
-complementarity criterion.
-Suppose a series of primitives is drawn where each vertex <span class="eq">i</span> has a
-single specified clip distance <span class="eq">d<sub>i</sub></span> (or a number of similarly
-specified clip distances, if multiple half-spaces are enabled).
-Next, suppose that the same series of primitives are drawn again with each
-such clip distance replaced by <span class="eq">-d<sub>i</sub></span> (and the graphics pipeline is
-otherwise the same).
-In this case, primitives <strong class="purple">must</strong> not be missing any pixels, and pixels <strong class="purple">must</strong>
-not be drawn twice in regions where those primitives are cut by the clip
-planes.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="vertexpostproc-clipping-shader-outputs"><a class="anchor" href="#vertexpostproc-clipping-shader-outputs"></a>23.3. Clipping Shader Outputs</h3>
-<div class="paragraph">
-<p>Next, vertex output attributes are clipped.
-The output values associated with a vertex that lies within the clip volume
-are unaffected by clipping.
-If a primitive is clipped, however, the output values assigned to vertices
-produced by clipping are clipped.</p>
-</div>
-<div class="paragraph">
-<p>Let the output values assigned to the two vertices <span class="eq"><strong>P</strong><sub>1</sub></span> and
-<span class="eq"><strong>P</strong><sub>2</sub></span> of an unclipped edge be <span class="eq"><strong>c</strong><sub>1</sub></span> and <span class="eq"><strong>c</strong><sub>2</sub></span>.
-The value of <span class="eq">t</span> (see <a href="#vertexpostproc-clipping">Primitive Clipping</a>)
-for a clipped point <span class="eq"><strong>P</strong></span> is used to obtain the output value
-associated with <span class="eq"><strong>P</strong></span> as</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq"><strong>c</strong> = t <strong>c</strong><sub>1</sub> +  (1-t) <strong>c</strong><sub>2</sub></span>.</p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>(Multiplying an output value by a scalar means multiplying each of <em>x</em>, <em>y</em>,
-<em>z</em>, and <em>w</em> by the scalar.)</p>
-</div>
-<div class="paragraph">
-<p>Since this computation is performed in clip space before division by
-<span class="eq">w<sub>c</sub></span>, clipped output values are perspective-correct.</p>
-</div>
-<div class="paragraph">
-<p>Polygon clipping creates a clipped vertex along an edge of the clip volume’s
-boundary.
-This situation is handled by noting that polygon clipping proceeds by
-clipping against one half-space at a time.
-Output value clipping is done in the same way, so that clipped points always
-occur at the intersection of polygon edges (possibly already clipped) with
-the clip volume’s boundary.</p>
-</div>
-<div class="paragraph">
-<p>For vertex output attributes whose matching fragment input attributes are
-decorated with <code>NoPerspective</code>, the value of <span class="eq">t</span> used to obtain the
-output value associated with <span class="eq"><strong>P</strong></span> will be adjusted to produce results
-that vary linearly in framebuffer space.</p>
-</div>
-<div class="paragraph">
-<p>Output attributes of integer or unsigned integer type <strong class="purple">must</strong> always be flat
-shaded.
-Flat shaded attributes are constant over the primitive being rasterized (see
-<a href="chap24.html#primsrast-lines-basic">Basic Line Segment Rasterization</a> and
-<a href="chap24.html#primsrast-polygons-basic">Basic Polygon Rasterization</a>), and no
-interpolation is performed.
-The output value <span class="eq"><strong>c</strong></span> is taken from either <span class="eq"><strong>c</strong><sub>1</sub></span> or
-<span class="eq"><strong>c</strong><sub>2</sub></span>, since flat shading has already occurred and the two values
-are identical.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="vertexpostproc-coord-transform"><a class="anchor" href="#vertexpostproc-coord-transform"></a>23.4. Coordinate Transformations</h3>
-<div class="paragraph">
-<p><em>Clip coordinates</em> for a vertex result from shader execution, which yields a
-vertex coordinate <code>Position</code>.</p>
-</div>
-<div class="paragraph">
-<p>Perspective division on clip coordinates yields <em>normalized device
-coordinates</em>, followed by a <em>viewport</em> transformation (see
-<a href="#vertexpostproc-viewport">Controlling the Viewport</a>) to convert these
-coordinates into <em>framebuffer coordinates</em>.</p>
-</div>
-<div class="paragraph">
-<p>If a vertex in clip coordinates has a position given by</p>
-</div>
-<div class="stemblock">
-<div class="content">
-<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:4.80006em;vertical-align:-2.15003em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.6500299999999997em;"><span style="top:-1.6499900000000003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.8000000000000003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.39501em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-3.41001em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.65003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15003em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.6500000000000004em;"><span style="top:-4.8100000000000005em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.61em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-2.4099999999999997em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.04398em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-1.2099999999999997em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.02691em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.1500000000000004em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.6500299999999997em;"><span style="top:-1.6499900000000003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.8000000000000003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.39501em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-3.41001em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.65003em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:2.15003em;"><span></span></span></span></span></span></span></span></span></span></span></span>
-</div>
-</div>
-<div class="paragraph">
-<p>then the vertex’s normalized device coordinates are</p>
-</div>
-<div class="stemblock">
-<div class="content">
-<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3.60004em;vertical-align:-1.55002em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.04398em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.8552999999999997em;vertical-align:-1.6776499999999999em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.17765em;"><span style="top:-4.33765em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7114919999999999em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-3.05255em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7475em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.446108em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.03588em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span><span style="top:-1.7674500000000002em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7114919999999999em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.02691em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4101em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.04398em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.16454285714285719em;"><span style="top:-2.357em;margin-left:-0.04398em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.44509999999999994em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.6776499999999999em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span></span></span></span></span></span>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="vertexpostproc-viewport"><a class="anchor" href="#vertexpostproc-viewport"></a>23.5. Controlling the Viewport</h3>
-<div class="paragraph">
-<p>The viewport transformation is determined by the selected viewport’s width
-and height in pixels, <span class="eq">p<sub>x</sub></span> and <span class="eq">p<sub>y</sub></span>, respectively, and its
-center <span class="eq">(o<sub>x</sub>, o<sub>y</sub>)</span> (also in pixels), as well as its depth range min
-and max determining a depth range scale value <span class="eq">p<sub>z</sub></span> and a depth range
-bias value <span class="eq">o<sub>z</sub></span> (defined below).
-The vertex’s framebuffer coordinates <span class="eq">(x<sub>f</sub>, y<sub>f</sub>, z<sub>f</sub>)</span> are given by</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">x<sub>f</sub> = (p<sub>x</sub> / 2) x<sub>d</sub> +  o<sub>x</sub></span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">y<sub>f</sub> = (p<sub>y</sub> / 2) y<sub>d</sub> +  o<sub>y</sub></span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">z<sub>f</sub> = p<sub>z</sub> × z<sub>d</sub> +  o<sub>z</sub></span></p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>Multiple viewports are available, numbered zero up to
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewports</code> minus one.
-The number of viewports used by a pipeline is controlled by the
-<code>viewportCount</code> member of the <code>VkPipelineViewportStateCreateInfo</code>
-structure used in pipeline creation.</p>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>The <code>VkPipelineViewportStateCreateInfo</code> structure is defined as:</p>
-</div>
-<div id="VkPipelineViewportStateCreateInfo" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
-<span class="keyword">typedef</span> <span class="keyword">struct</span> VkPipelineViewportStateCreateInfo {
-    VkStructureType                       sType;
-    <span class="directive">const</span> <span class="directive">void</span>*                           pNext;
-    VkPipelineViewportStateCreateFlags    flags;
-    uint32_t                              viewportCount;
-    <span class="directive">const</span> VkViewport*                     pViewports;
-    uint32_t                              scissorCount;
-    <span class="directive">const</span> VkRect2D*                       pScissors;
-} VkPipelineViewportStateCreateInfo;</code></pre>
-</div>
+<p>Limited guarantees are provided for the relative ordering of primitives
+produced by a geometry shader, as they pertain to <a href="chap20.html#drawing-primitive-order">primitive order</a>.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p>For instanced geometry shaders, the output primitives generated from
+each input primitive are passed to subsequent pipeline stages using the
+invocation number to order the primitives, from least to greatest.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
-structure.</p>
-</li>
-<li>
-<p><code>flags</code> is reserved for future use.</p>
-</li>
-<li>
-<p><code>viewportCount</code> is the number of viewports used by the pipeline.</p>
-</li>
-<li>
-<p><code>pViewports</code> is a pointer to an array of <a href="#VkViewport">VkViewport</a>
-structures, defining the viewport transforms.
-If the viewport state is dynamic, this member is ignored.</p>
-</li>
-<li>
-<p><code>scissorCount</code> is the number of <a href="chap25.html#fragops-scissor">scissors</a> and
-<strong class="purple">must</strong> match the number of viewports.</p>
-</li>
-<li>
-<p><code>pScissors</code> is a pointer to an array of <a href="chap2.html#VkRect2D">VkRect2D</a> structures
-defining the rectangular bounds of the scissor for the corresponding
-viewport.
-If the scissor state is dynamic, this member is ignored.</p>
+<p>All output primitives generated from a given input primitive are passed
+to subsequent pipeline stages before any output primitives generated
+from subsequent input primitives.</p>
 </li>
 </ul>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-viewportCount-01216" href="#VUID-VkPipelineViewportStateCreateInfo-viewportCount-01216"></a>
-If the <a href="chap30.html#features-multiViewport">multiple viewports</a> feature is not
-enabled, <code>viewportCount</code> <strong class="purple">must</strong> be <code>1</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-scissorCount-01217" href="#VUID-VkPipelineViewportStateCreateInfo-scissorCount-01217"></a>
-If the <a href="chap30.html#features-multiViewport">multiple viewports</a> feature is not
-enabled, <code>scissorCount</code> <strong class="purple">must</strong> be <code>1</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-viewportCount-01218" href="#VUID-VkPipelineViewportStateCreateInfo-viewportCount-01218"></a>
-<code>viewportCount</code> <strong class="purple">must</strong> be between <code>1</code> and
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewports</code>, inclusive</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-scissorCount-01219" href="#VUID-VkPipelineViewportStateCreateInfo-scissorCount-01219"></a>
-<code>scissorCount</code> <strong class="purple">must</strong> be between <code>1</code> and
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewports</code>, inclusive</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-scissorCount-01220" href="#VUID-VkPipelineViewportStateCreateInfo-scissorCount-01220"></a>
-<code>scissorCount</code> and <code>viewportCount</code> <strong class="purple">must</strong> be identical</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-x-02821" href="#VUID-VkPipelineViewportStateCreateInfo-x-02821"></a>
-The <code>x</code> and <code>y</code> members of <code>offset</code> member of any element of
-<code>pScissors</code> <strong class="purple">must</strong> be greater than or equal to <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-offset-02822" href="#VUID-VkPipelineViewportStateCreateInfo-offset-02822"></a>
-Evaluation of <span class="eq">(<code>offset.x</code> +  <code>extent.width</code>)</span> <strong class="purple">must</strong> not
-cause a signed integer addition overflow for any element of
-<code>pScissors</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-offset-02823" href="#VUID-VkPipelineViewportStateCreateInfo-offset-02823"></a>
-Evaluation of <span class="eq">(<code>offset.y</code> +  <code>extent.height</code>)</span> <strong class="purple">must</strong>
-not cause a signed integer addition overflow for any element of
-<code>pScissors</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-sType-sType" href="#VUID-VkPipelineViewportStateCreateInfo-sType-sType"></a> <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-pNext-pNext" href="#VUID-VkPipelineViewportStateCreateInfo-pNext-pNext"></a> <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-flags-zerobitmask" href="#VUID-VkPipelineViewportStateCreateInfo-flags-zerobitmask"></a> <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-viewportCount-arraylength" href="#VUID-VkPipelineViewportStateCreateInfo-viewportCount-arraylength"></a> <code>viewportCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportStateCreateInfo-scissorCount-arraylength" href="#VUID-VkPipelineViewportStateCreateInfo-scissorCount-arraylength"></a> <code>scissorCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="openblock">
-<div class="content">
-<div id="VkPipelineViewportStateCreateFlags" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
-<span class="keyword">typedef</span> VkFlags VkPipelineViewportStateCreateFlags;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>VkPipelineViewportStateCreateFlags</code> is a bitmask type for setting a
-mask, but is currently reserved for future use.</p>
-</div>
-</div>
-</div>
-<div class="paragraph">
-<p>If a geometry shader is active and has an output variable decorated with
-<code>ViewportIndex</code>, the viewport transformation uses the viewport
-corresponding to the value assigned to <code>ViewportIndex</code> taken from an
-implementation-dependent vertex of each primitive.
-If <code>ViewportIndex</code> is outside the range zero to <code>viewportCount</code> minus
-one for a primitive, or if the geometry shader did not assign a value to
-<code>ViewportIndex</code> for all vertices of a primitive due to flow control, the
-values resulting from the viewport transformation of the vertices of such
-primitives are undefined.
-If no geometry shader is active, or if the geometry shader does not have an
-output decorated with <code>ViewportIndex</code>, the viewport numbered zero is used
-by the viewport transformation.</p>
-</div>
-<div class="paragraph">
-<p>A single vertex <strong class="purple">can</strong> be used in more than one individual primitive, in
-primitives such as <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code>.
-In this case, the viewport transformation is applied separately for each
-primitive.</p>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>If the bound pipeline state object was not created with the
-<code>VK_DYNAMIC_STATE_VIEWPORT</code> dynamic state enabled, viewport
-transformation parameters are specified using the <code>pViewports</code> member of
-<code>VkPipelineViewportStateCreateInfo</code> in the pipeline state object.
-If the pipeline state object was created with the
-<code>VK_DYNAMIC_STATE_VIEWPORT</code> dynamic state enabled, the viewport
-transformation parameters are dynamically set and changed with the command:</p>
-</div>
-<div id="vkCmdSetViewport" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
-<span class="directive">void</span> vkCmdSetViewport(
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    firstViewport,
-    uint32_t                                    viewportCount,
-    <span class="directive">const</span> VkViewport*                           pViewports);</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>commandBuffer</code> is the command buffer into which the command will be
-recorded.</p>
-</li>
-<li>
-<p><code>firstViewport</code> is the index of the first viewport whose parameters
-are updated by the command.</p>
-</li>
-<li>
-<p><code>viewportCount</code> is the number of viewports whose parameters are
-updated by the command.</p>
-</li>
-<li>
-<p><code>pViewports</code> is a pointer to an array of <a href="#VkViewport">VkViewport</a> structures
-specifying viewport parameters.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The viewport parameters taken from element <span class="eq">i</span> of <code>pViewports</code>
-replace the current state for the viewport index <span class="eq"><code>firstViewport</code>
-+  i</span>, for <span class="eq">i</span> in <span class="eq">[0, <code>viewportCount</code>)</span>.</p>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetViewport-firstViewport-01222" href="#VUID-vkCmdSetViewport-firstViewport-01222"></a>
-<code>firstViewport</code> <strong class="purple">must</strong> be less than
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewports</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-firstViewport-01223" href="#VUID-vkCmdSetViewport-firstViewport-01223"></a>
-The sum of <code>firstViewport</code> and <code>viewportCount</code> <strong class="purple">must</strong> be between
-<code>1</code> and <code>VkPhysicalDeviceLimits</code>::<code>maxViewports</code>, inclusive</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-firstViewport-01224" href="#VUID-vkCmdSetViewport-firstViewport-01224"></a>
-If the <a href="chap30.html#features-multiViewport">multiple viewports</a> feature is not
-enabled, <code>firstViewport</code> <strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-viewportCount-01225" href="#VUID-vkCmdSetViewport-viewportCount-01225"></a>
-If the <a href="chap30.html#features-multiViewport">multiple viewports</a> feature is not
-enabled, <code>viewportCount</code> <strong class="purple">must</strong> be <code>1</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetViewport-commandBuffer-parameter" href="#VUID-vkCmdSetViewport-commandBuffer-parameter"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-pViewports-parameter" href="#VUID-vkCmdSetViewport-pViewports-parameter"></a> <code>pViewports</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>viewportCount</code> valid <a href="#VkViewport">VkViewport</a> structures</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-commandBuffer-recording" href="#VUID-vkCmdSetViewport-commandBuffer-recording"></a> <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap5.html#commandbuffers-lifecycle">recording state</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-commandBuffer-cmdpool" href="#VUID-vkCmdSetViewport-commandBuffer-cmdpool"></a> The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetViewport-viewportCount-arraylength" href="#VUID-vkCmdSetViewport-viewportCount-arraylength"></a> <code>viewportCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Host Synchronization</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
-</li>
-<li>
-<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Command Properties</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top"><a href="chap5.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap4.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="#synchronization-pipeline-stages-types">Pipeline Type</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
-Secondary</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div class="paragraph">
-<p>Both <a href="#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> and <a href="#vkCmdSetViewport">vkCmdSetViewport</a> use
-<code>VkViewport</code> to set the viewport transformation parameters.</p>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>The <code>VkViewport</code> structure is defined as:</p>
-</div>
-<div id="VkViewport" class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
-<span class="keyword">typedef</span> <span class="keyword">struct</span> VkViewport {
-    <span class="predefined-type">float</span>    x;
-    <span class="predefined-type">float</span>    y;
-    <span class="predefined-type">float</span>    width;
-    <span class="predefined-type">float</span>    height;
-    <span class="predefined-type">float</span>    minDepth;
-    <span class="predefined-type">float</span>    maxDepth;
-} VkViewport;</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>x</code> and <code>y</code> are the viewport’s upper left corner <span class="eq">(x,y)</span>.</p>
-</li>
-<li>
-<p><code>width</code> and <code>height</code> are the viewport’s width and height,
-respectively.</p>
-</li>
-<li>
-<p><code>minDepth</code> and <code>maxDepth</code> are the depth range for the viewport.
-It is valid for <code>minDepth</code> to be greater than or equal to
-<code>maxDepth</code>.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The framebuffer depth coordinate <span class="eq"><code>z</code><sub>f</sub></span> <strong class="purple">may</strong> be represented using
-either a fixed-point or floating-point representation.
-However, a floating-point representation <strong class="purple">must</strong> be used if the depth/stencil
-attachment has a floating-point depth component.
-If an <span class="eq">m</span>-bit fixed-point representation is used, we assume that it
-represents each value <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.283439em;vertical-align:-0.403331em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801079999999999em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mtight">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.5935428571428571em;"><span style="top:-2.786em;margin-right:0.07142857142857144em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathdefault mtight">m</span></span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.403331em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>, where <span class="eq">k ∈ {
-0, 1, …​, 2<sup>m</sup>-1 }</span>, as <span class="eq">k</span> (e.g. 1.0 is represented in binary as a
-string of all ones).</p>
-</div>
-<div class="paragraph">
-<p>The viewport parameters shown in the above equations are found from these
-values as</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">o<sub>x</sub> = <code>x</code> +  <code>width</code> / 2</span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">o<sub>y</sub> = <code>y</code> +  <code>height</code> / 2</span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">o<sub>z</sub> = <code>minDepth</code></span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">p<sub>x</sub> = <code>width</code></span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">p<sub>y</sub> = <code>height</code></span></p>
-</dd>
-<dt class="hdlist1"></dt>
-<dd>
-<p><span class="eq">p<sub>z</sub> = <code>maxDepth</code> - <code>minDepth</code></span>.</p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>The width and height of the <a href="chap31.html#limits-maxViewportDimensions">implementation-dependent maximum viewport dimensions</a> <strong class="purple">must</strong> be greater than
-or equal to the width and height of the largest image which <strong class="purple">can</strong> be created
-and attached to a framebuffer.</p>
-</div>
-<div class="paragraph">
-<p>The floating-point viewport bounds are represented with an
-<a href="chap31.html#limits-viewportSubPixelBits">implementation-dependent precision</a>.</p>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkViewport-width-01770" href="#VUID-VkViewport-width-01770"></a>
-<code>width</code> <strong class="purple">must</strong> be greater than <code>0.0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-width-01771" href="#VUID-VkViewport-width-01771"></a>
-<code>width</code> <strong class="purple">must</strong> be less than or equal to
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewportDimensions</code>[0]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-height-01772" href="#VUID-VkViewport-height-01772"></a>
-<code>height</code> <strong class="purple">must</strong> be greater than <code>0.0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-height-01773" href="#VUID-VkViewport-height-01773"></a>
-The absolute value of <code>height</code> <strong class="purple">must</strong> be less than or equal to
-<code>VkPhysicalDeviceLimits</code>::<code>maxViewportDimensions</code>[1]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-x-01774" href="#VUID-VkViewport-x-01774"></a>
-<code>x</code> <strong class="purple">must</strong> be greater than or equal to <code>viewportBoundsRange</code>[0]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-x-01232" href="#VUID-VkViewport-x-01232"></a>
-<span class="eq">(<code>x</code> +  <code>width</code>)</span> <strong class="purple">must</strong> be less than or equal to
-<code>viewportBoundsRange</code>[1]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-y-01775" href="#VUID-VkViewport-y-01775"></a>
-<code>y</code> <strong class="purple">must</strong> be greater than or equal to <code>viewportBoundsRange</code>[0]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-y-01233" href="#VUID-VkViewport-y-01233"></a>
-<span class="eq">(<code>y</code> +  <code>height</code>)</span> <strong class="purple">must</strong> be less than or equal to
-<code>viewportBoundsRange</code>[1]</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-minDepth-02540" href="#VUID-VkViewport-minDepth-02540"></a>
-<code>minDepth</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
-</li>
-<li>
-<p><a id="VUID-VkViewport-maxDepth-02541" href="#VUID-VkViewport-maxDepth-02541"></a>
-<code>maxDepth</code> <strong class="purple">must</strong> be between <code>0.0</code> and <code>1.0</code>, inclusive</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
 </div>
 </div>
 </div>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.145<br>
-Last updated 2020-06-15 03:58:14 -0700
+Version 1.0.146<br>
+Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>
 <style>

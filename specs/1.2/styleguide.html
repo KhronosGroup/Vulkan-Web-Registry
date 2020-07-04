@@ -726,12 +726,20 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
+/* From https://github.com/KhronosGroup/Vulkan-Docs/pull/1157 */
 /* Make VUID anchor handles*/
 li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
-li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
+
+li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff; }
+
 li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
-li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
+
+li > p > a[id^="VUID-"].link { color: black; text-decoration: none; }
+
+/* TODO: not quite sure what these two do */
 li > p > a[id^="VUID-"].link:hover { color: black; }
+
+.vuid { color: gray; font-family: monospace; }
 
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -761,13 +769,27 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
         padding-left: 1.5em;
         padding-right: 1.5em;
     }
-    .loadable {display: none !important;}
+    .hidden {display: none;}
 </style>
 <script>
+    function hideElement(e){
+        e.setAttribute("hidden", "");
+        e.classList.add("hidden");
+    }
+
+    function unhideElement(e){
+        e.classList.remove("hidden");
+        e.removeAttribute("hidden");
+    }
+
+    function hideLoadableContent(){
+        unhideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) hideElement(loadable);
+    }
+
     function unhideLoadableContent(){
-        document.getElementById("loading_msg").style.display = "none";
-        var loadables = document.getElementsByClassName("loadable");
-        for( var i = 0; i < loadables.length; ++i ) loadables[i].classList.remove("loadable");
+        hideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) unhideElement(loadable);
     }
 
     window.addEventListener("load", unhideLoadableContent);
@@ -778,9 +800,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>Vulkan<sup>®</sup> Documentation and Extensions: Procedures and Conventions</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.2.145,</span>
-<span id="revdate">2020-06-20 14:57:52Z</span>
-<br><span id="revremark">from git branch: github-master commit: 1e4e9cad5c761f05463ab65aa95e38b0dac534bc</span>
+<span id="revnumber">version 1.2.146,</span>
+<span id="revdate">2020-07-04 02:54:26Z</span>
+<br><span id="revremark">from git branch: github-master commit: d91f3e239932cd5d418bc83db4ae649101097b5f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -942,9 +964,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </ul>
 </div>
 </div>
-
-<div id="loading_msg"><p>Loading... please wait.</p></div>
-<div id="content" class="loadable" >
+<div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
+<div id="content" class="loadable" ><script>hideLoadableContent();</script>
 <div id="preamble">
 <div class="sectionbody">
 <div style="page-break-after: always;"></div>
@@ -2616,10 +2637,19 @@ core API with all registered extensions.</p>
 <div class="sect3">
 <h4 id="extensions-documenting-extensions"><a class="anchor" href="#extensions-documenting-extensions"></a>3.9.1. Changes for New Extensions</h4>
 <div class="paragraph">
-<p>Most language defining extensions can be localized either into a small
-number of asciidoctor include files which are conditionally included in the
-core specification chapters and appendices, or into parts of <code>vk.xml</code>
-defining the extension interfaces.</p>
+<p>If an new extension, or a related group of them is of sufficient scope to
+require a new chapter of the specification, localize such changes into a
+small number of asciidoctor include files located under a subdirectory with
+the name of the extension.
+An example can be found in <code>chapters/VK_KHR_surface/wsi.txt</code>.
+Most extensions are not entirely self-contained, and also require changes in
+existing parts of the specification to document new interactions.
+Such changes should be inline in existing chapters.</p>
+</div>
+<div class="paragraph">
+<p>Extensions may also require small additions to <code>vk.xml</code>, in addition to
+defining the extension interfaces themselves, for purposes such as
+introducing new return codes or extending structures to existing APIs.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2668,7 +2698,8 @@ removed as required).</p>
 <li>
 <p>When creating references to the extension appendix from elsewhere in
 the Specification, use one of the following two styles.
-The first style is currently preferred.</p>
+The first style is currently preferred.
+The second style is primarily used inside generated reference pages.</p>
 <div class="listingblock">
 <div class="title">Example Markup</div>
 <div class="content">
@@ -2951,10 +2982,6 @@ VK_KHR_8bit_storage is not defined.
 endif::VK_KHR_8bit_storage[]
 \endif::VK_KHR_shader_float16_int8</code></pre>
 </div>
-</div>
-<div class="sect4">
-<h5 id="extensions-ifdefs"><a class="anchor" href="#extensions-ifdefs"></a>Changes for New Extensions</h5>
-
 </div>
 </div>
 <div class="sect3">
@@ -3244,8 +3271,10 @@ extensions must define two additional tokens.</p>
 <p><code>VK_EXTNAME_SPEC_VERSION</code> is an integer constant which is the revision
 of the extension named <code>VK_extname</code> (<code>EXTNAME</code> is all upper-case, while
 extname is the capitalization of the actual extension name).
-This value begins at 1 with the initial version of an extension
-specification, and is incremented when changes are made.
+This value begins at 1 when an extension specification is first
+published (pre-release versions may use an internal numbering scheme
+that is reset at release time), and is incremented when changes are
+made.
 Note that the revision of an extension defined in the Vulkan header
 files and the revision supported by the Vulkan implementation (the
 <code>specVersion</code> field of the <code>VkExtensionProperties</code> structure
@@ -3292,7 +3321,8 @@ to include the enum values of VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT
 and VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT, we violated this
 policy.
 That change was done prior to this revision policy clarification.
-From this point forward, we intend to follow this policy.</p>
+We intend to follow this policy in the future, although in exceptional
+circumstances an exception may be made.</p>
 </div>
 </td>
 </tr>
@@ -7018,6 +7048,13 @@ to by the Vulkan Working Group.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2020-06-23 - Update the <a href="#extensions-documenting-extensions">Changes for
+New Extensions</a> section to recommend placing most extension language
+inline in existing specification source files, rather than in separate
+files, and to base extension revision numbers at <code>1</code> starting with initial
+public release (public issue 1263).</p>
+</li>
+<li>
 <p>2020-04-29 - Expand use of <code>basetype</code> macros to include external API
 types.</p>
 </li>
@@ -7281,8 +7318,8 @@ Use American rather than British spelling conventions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.145<br>
-Last updated 2020-06-15 03:58:14 -0700
+Version 1.2.146<br>
+Last updated 2020-07-03 19:41:03 -0700
 </div>
 </div>
 

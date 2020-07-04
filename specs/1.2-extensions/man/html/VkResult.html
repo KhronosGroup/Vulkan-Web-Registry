@@ -725,12 +725,20 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
+/* From https://github.com/KhronosGroup/Vulkan-Docs/pull/1157 */
 /* Make VUID anchor handles*/
 li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
-li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
+
+li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff; }
+
 li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
-li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
+
+li > p > a[id^="VUID-"].link { color: black; text-decoration: none; }
+
+/* TODO: not quite sure what these two do */
 li > p > a[id^="VUID-"].link:hover { color: black; }
+
+.vuid { color: gray; font-family: monospace; }
 
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -760,13 +768,27 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
         padding-left: 1.5em;
         padding-right: 1.5em;
     }
-    .loadable {display: none !important;}
+    .hidden {display: none;}
 </style>
 <script>
+    function hideElement(e){
+        e.setAttribute("hidden", "");
+        e.classList.add("hidden");
+    }
+
+    function unhideElement(e){
+        e.classList.remove("hidden");
+        e.removeAttribute("hidden");
+    }
+
+    function hideLoadableContent(){
+        unhideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) hideElement(loadable);
+    }
+
     function unhideLoadableContent(){
-        document.getElementById("loading_msg").style.display = "none";
-        var loadables = document.getElementsByClassName("loadable");
-        for( var i = 0; i < loadables.length; ++i ) loadables[i].classList.remove("loadable");
+        hideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) unhideElement(loadable);
     }
 
     window.addEventListener("load", unhideLoadableContent);
@@ -780,9 +802,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>VkResult - Vulkan command return codes</p>
 </div>
 </div>
-
-<div id="loading_msg"><p>Loading... please wait.</p></div>
-<div id="content" class="loadable" >
+<div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
+<div id="content" class="loadable" ><script>hideLoadableContent();</script>
 <div class="sect1">
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
@@ -833,30 +854,55 @@ typedef enum VkResult {
     VK_ERROR_FORMAT_NOT_SUPPORTED = -11,
     VK_ERROR_FRAGMENTED_POOL = -12,
     VK_ERROR_UNKNOWN = -13,
+  // Provided by VK_VERSION_1_1
     VK_ERROR_OUT_OF_POOL_MEMORY = -1000069000,
+  // Provided by VK_VERSION_1_1
     VK_ERROR_INVALID_EXTERNAL_HANDLE = -1000072003,
+  // Provided by VK_VERSION_1_2
     VK_ERROR_FRAGMENTATION = -1000161000,
+  // Provided by VK_VERSION_1_2
     VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS = -1000257000,
+  // Provided by VK_KHR_surface
     VK_ERROR_SURFACE_LOST_KHR = -1000000000,
+  // Provided by VK_KHR_surface
     VK_ERROR_NATIVE_WINDOW_IN_USE_KHR = -1000000001,
+  // Provided by VK_KHR_swapchain
     VK_SUBOPTIMAL_KHR = 1000001003,
+  // Provided by VK_KHR_swapchain
     VK_ERROR_OUT_OF_DATE_KHR = -1000001004,
+  // Provided by VK_KHR_display_swapchain
     VK_ERROR_INCOMPATIBLE_DISPLAY_KHR = -1000003001,
+  // Provided by VK_EXT_debug_report
     VK_ERROR_VALIDATION_FAILED_EXT = -1000011001,
+  // Provided by VK_NV_glsl_shader
     VK_ERROR_INVALID_SHADER_NV = -1000012000,
+  // Provided by VK_KHR_ray_tracing
     VK_ERROR_INCOMPATIBLE_VERSION_KHR = -1000150000,
+  // Provided by VK_EXT_image_drm_format_modifier
     VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT = -1000158000,
+  // Provided by VK_EXT_global_priority
     VK_ERROR_NOT_PERMITTED_EXT = -1000174001,
+  // Provided by VK_EXT_full_screen_exclusive
     VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT = -1000255000,
+  // Provided by VK_KHR_deferred_host_operations
     VK_THREAD_IDLE_KHR = 1000268000,
+  // Provided by VK_KHR_deferred_host_operations
     VK_THREAD_DONE_KHR = 1000268001,
+  // Provided by VK_KHR_deferred_host_operations
     VK_OPERATION_DEFERRED_KHR = 1000268002,
+  // Provided by VK_KHR_deferred_host_operations
     VK_OPERATION_NOT_DEFERRED_KHR = 1000268003,
+  // Provided by VK_EXT_pipeline_creation_cache_control
     VK_PIPELINE_COMPILE_REQUIRED_EXT = 1000297000,
+  // Provided by VK_KHR_maintenance1
     VK_ERROR_OUT_OF_POOL_MEMORY_KHR = VK_ERROR_OUT_OF_POOL_MEMORY,
+  // Provided by VK_KHR_external_memory
     VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR = VK_ERROR_INVALID_EXTERNAL_HANDLE,
+  // Provided by VK_EXT_descriptor_indexing
     VK_ERROR_FRAGMENTATION_EXT = VK_ERROR_FRAGMENTATION,
+  // Provided by VK_EXT_buffer_device_address
     VK_ERROR_INVALID_DEVICE_ADDRESS_EXT = VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS,
+  // Provided by VK_KHR_buffer_device_address
     VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR = VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS,
     VK_ERROR_PIPELINE_COMPILE_REQUIRED_EXT = VK_PIPELINE_COMPILE_REQUIRED_EXT,
 } VkResult;</code></pre>
@@ -1122,8 +1168,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.145<br>
-Last updated 2020-06-20 07:48:00 -0700
+Version 1.2.146<br>
+Last updated 2020-07-03 19:44:26 -0700
 </div>
 </div>
 

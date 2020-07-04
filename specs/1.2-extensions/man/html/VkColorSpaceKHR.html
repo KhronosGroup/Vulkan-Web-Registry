@@ -725,12 +725,20 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
+/* From https://github.com/KhronosGroup/Vulkan-Docs/pull/1157 */
 /* Make VUID anchor handles*/
 li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
-li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
+
+li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff; }
+
 li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
-li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
+
+li > p > a[id^="VUID-"].link { color: black; text-decoration: none; }
+
+/* TODO: not quite sure what these two do */
 li > p > a[id^="VUID-"].link:hover { color: black; }
+
+.vuid { color: gray; font-family: monospace; }
 
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -760,13 +768,27 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
         padding-left: 1.5em;
         padding-right: 1.5em;
     }
-    .loadable {display: none !important;}
+    .hidden {display: none;}
 </style>
 <script>
+    function hideElement(e){
+        e.setAttribute("hidden", "");
+        e.classList.add("hidden");
+    }
+
+    function unhideElement(e){
+        e.classList.remove("hidden");
+        e.removeAttribute("hidden");
+    }
+
+    function hideLoadableContent(){
+        unhideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) hideElement(loadable);
+    }
+
     function unhideLoadableContent(){
-        document.getElementById("loading_msg").style.display = "none";
-        var loadables = document.getElementsByClassName("loadable");
-        for( var i = 0; i < loadables.length; ++i ) loadables[i].classList.remove("loadable");
+        hideElement( document.getElementById("loading_msg") );
+        for( var loadable of document.getElementsByClassName("loadable") ) unhideElement(loadable);
     }
 
     window.addEventListener("load", unhideLoadableContent);
@@ -780,9 +802,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <p>VkColorSpaceKHR - supported color space of the presentation engine</p>
 </div>
 </div>
-
-<div id="loading_msg"><p>Loading... please wait.</p></div>
-<div id="content" class="loadable" >
+<div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
+<div id="content" class="loadable" ><script>hideLoadableContent();</script>
 <div class="sect1">
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
@@ -795,20 +816,35 @@ supported color spaces of a presentation engine, are:</p>
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_surface
 typedef enum VkColorSpaceKHR {
     VK_COLOR_SPACE_SRGB_NONLINEAR_KHR = 0,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT = 1000104001,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT = 1000104002,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT = 1000104003,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT = 1000104004,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_BT709_LINEAR_EXT = 1000104005,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_BT709_NONLINEAR_EXT = 1000104006,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_BT2020_LINEAR_EXT = 1000104007,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_HDR10_ST2084_EXT = 1000104008,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_DOLBYVISION_EXT = 1000104009,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_HDR10_HLG_EXT = 1000104010,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT = 1000104011,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT = 1000104012,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_PASS_THROUGH_EXT = 1000104013,
+  // Provided by VK_EXT_swapchain_colorspace
     VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT = 1000104014,
+  // Provided by VK_AMD_display_native_hdr
     VK_COLOR_SPACE_DISPLAY_NATIVE_AMD = 1000213000,
     VK_COLORSPACE_SRGB_NONLINEAR_KHR = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
     VK_COLOR_SPACE_DCI_P3_LINEAR_EXT = VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT,
@@ -1112,8 +1148,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.145<br>
-Last updated 2020-06-20 07:48:00 -0700
+Version 1.2.146<br>
+Last updated 2020-07-03 19:44:27 -0700
 </div>
 </div>
 
