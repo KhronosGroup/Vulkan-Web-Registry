@@ -332,7 +332,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
      Utilities for Windows, Linux, Android, and MacOS. </li>
 <li> The <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers" id="vulkan-layers">
      Vulkan-ValidationLayers</a> repository contains the Khronos official
-     Vulkan validation layers for Windows, Linux, Androis, and MacOS. </li>
+     Vulkan validation layers for Windows, Linux, Android, and MacOS. </li>
 <li> The <a href="https://github.com/KhronosGroup/Vulkan-Loader" id="vulkan-loader">
      Vulkan-Loader</a> repository contains the Vulkan loader that is used
      for Linux, Windows, MacOS, and iOS. </li>
