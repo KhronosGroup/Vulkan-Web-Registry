@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.146 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.147 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -747,7 +747,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <!-- dragged in by font-awesome css included by asciidoctor, but preloaded in this extension for convenience -->
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font" type="font/woff2" crossorigin="">
 
-<!-- Note: Chrome needs crossorigin even for same-origin fonts -->
+<!-- Note: Chrome needs crossorigin="" even for same-origin fonts -->
 <link rel="preload" href="../katex/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="">
 <link rel="preload" href="../katex/fonts/KaTeX_Main-Italic.woff2" as="font" type="font/woff2" crossorigin="">
 <link rel="preload" href="../katex/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="">
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.146 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.147 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.146,</span>
-<span id="revdate">2020-07-04 03:08:39Z</span>
-<br><span id="revremark">from git branch: github-master commit: d91f3e239932cd5d418bc83db4ae649101097b5f</span>
+<span id="revnumber">version 1.0.147,</span>
+<span id="revdate">2020-07-13 10:06:06Z</span>
+<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4041,12 +4041,6 @@ sample mask, alpha to coverage, stencil, and depth tests.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the <code>pNext</code> chain of <a href="chap27.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>
-includes a <code>VkPipelineCoverageToColorStateCreateInfoNV</code> structure, then
-that structure controls whether the fragment coverage is substituted for a
-fragment color output and, if so, which output is replaced.</p>
-</div>
-<div class="paragraph">
 <p>The <code>VkPipelineCoverageToColorStateCreateInfoNV</code> structure is defined
 as:</p>
 </div>
@@ -4083,6 +4077,12 @@ replaces a fragment color output.</p>
 output value is replaced.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>If the <code>pNext</code> chain of <a href="chap27.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>
+includes a <code>VkPipelineCoverageToColorStateCreateInfoNV</code> structure, then
+that structure controls whether the fragment coverage is substituted for a
+fragment color output and, if so, which output is replaced.</p>
 </div>
 <div class="paragraph">
 <p>If <code>coverageToColorEnable</code> is <code>VK_TRUE</code>, the
@@ -4157,54 +4157,61 @@ setting a mask, but is currently reserved for future use.</p>
 <div class="sect2">
 <h3 id="fragops-coverage-reduction"><a class="anchor" href="#fragops-coverage-reduction"></a>27.13. Coverage Reduction</h3>
 <div class="paragraph">
-<p>Coverage reduction generates a <em>color sample mask</em> from the coverage mask,
-with one bit for each sample in the color attachment(s) for the subpass.
-If a bit in the color sample mask is 0, then blending and writing to the
-framebuffer are not performed for that sample.</p>
+<p>Coverage reduction takes the coverage information for a fragment and
+converts that to a boolean coverage value for each color sample in each
+pixel covered by the fragment.</p>
 </div>
+<div class="sect3">
+<h4 id="_pixel_coverage"><a class="anchor" href="#_pixel_coverage"></a>27.13.1. Pixel Coverage</h4>
 <div class="paragraph">
-<p>If the fragment covers a single pixel with a number of samples equal to the
-number of samples in each color attachment, each color sample is associated
-with a unique rasterization sample, and the value of the coverage mask is
-assigned to the color sample mask.</p>
+<p>Coverage for each pixel is first extracted from the total fragment coverage
+mask.
+This consists of <code>rasterizationSamples</code> unique coverage samples for each
+pixel in the fragment area, each with a unique
+<a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a>.
+If the fragment only contains a single pixel, coverage for the pixel is
+equivalent to the fragment coverage.</p>
 </div>
 <div class="paragraph">
 <p>If the render pass has a fragment density map attachment and the fragment
-covers multiple pixels, there is an implementation-dependent association of
-rasterization samples to color attachment samples within the fragment.
-However, if all samples in the fragment are covered, all color attachment
-samples will be covered.
-Each color sample’s mask bit is assigned the union of the coverage bits of
-its associated coverage samples.</p>
+covers multiple pixels, pixel coverage is generated in an
+implementation-dependent manner.
+If all samples in the fragment are covered, all samples will be covered in
+each pixel coverage.</p>
 </div>
 <div class="paragraph">
 <p>If a <a href="chap27.html#primsrast-shading-rate-image">shading rate image</a> is used, and the
-fragment covers multiple pixels, each color sample is associated with a
-unique rasterization sample; the range of bits corresponding to a particular
-pixel are assigned to the color sample mask for that pixel.</p>
+fragment covers multiple pixels, each pixel’s coverage consists of the
+coverage samples corresponding to that pixel, and each sample retains its
+unique <a href="chap27.html#primsrast-multisampling-coverage-mask">sample index <span class="eq">i</span></a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_color_sample_coverage"><a class="anchor" href="#_color_sample_coverage"></a>27.13.2. Color Sample Coverage</h4>
+<div class="paragraph">
+<p>Once pixel coverage is determined, coverage for each individual color sample
+corresponding to that pixel is determined.</p>
 </div>
 <div class="paragraph">
-<p>If the <code>VK_AMD_mixed_attachment_samples</code> extension is enabled, bits in the
-coverage mask that correspond to samples greater than the number of samples
-in the color attachments are set to <code>0</code>.
-If all bits in the combined sample mask are <code>0</code>, the entire fragment is
-discarded, and fragment shading <strong class="purple">may</strong> be skipped.</p>
+<p>If the number of <code>rasterizationSamples</code> is identical to the number of
+samples in the color attachments, a color sample is covered if the pixel
+coverage sample with the same <a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a> <span class="eq">i</span> is covered.
+Otherwise, the coverage for each color sample is computed from the pixel
+coverage as follows.</p>
 </div>
-<div class="openblock">
-<div class="content">
 <div class="paragraph">
-<p>If the pipeline’s
-<a href="chap27.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>rasterizationSamples</code> is
-greater than the <a href="chap8.html#VkAttachmentDescription">VkAttachmentDescription</a>::<code>samples</code> of the color
-attachments in the subpass, then the fragment’s coverage is reduced from
-<code>rasterizationSamples</code> bits to a color sample mask with
-<a href="chap8.html#VkAttachmentDescription">VkAttachmentDescription</a>::<code>samples</code> bits.</p>
+<p>If the <code>VK_AMD_mixed_attachment_samples</code> extension is enabled, for color
+samples present in the color attachments, a color sample is covered if the
+pixel coverage sample with the same <a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a> <span class="eq">i</span> is covered; additional pixel coverage samples are
+discarded.</p>
 </div>
 <div class="paragraph">
 <p>When the <code>VK_NV_coverage_reduction_mode</code> extension is enabled, the pipeline
 state controlling coverage reduction is specified through the members of the
 <code>VkPipelineCoverageReductionStateCreateInfoNV</code> structure.</p>
 </div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
 <p>The <code>VkPipelineCoverageReductionStateCreateInfoNV</code> structure is defined
 as:</p>
@@ -4234,14 +4241,13 @@ structure.</p>
 </li>
 <li>
 <p><code>coverageReductionMode</code> is a <a href="#VkCoverageReductionModeNV">VkCoverageReductionModeNV</a> value
-controlling how the <em>color sample mask</em> is generated from the coverage
-mask.</p>
+controlling how color sample coverage is generated from pixel coverage.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>If this structure is not present, the default coverage reduction mode is
-inferred as follows:</p>
+<p>If this structure is not present, or if the extension is not enabled, the
+default coverage reduction mode is inferred as follows:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -4301,7 +4307,7 @@ setting a mask, but is currently reserved for future use.</p>
 <div class="paragraph">
 <p>Possible values of
 <a href="#VkPipelineCoverageReductionStateCreateInfoNV">VkPipelineCoverageReductionStateCreateInfoNV</a>::<code>coverageReductionMode</code>,
-specifying how the coverage mask is reduced to <em>color sample mask</em>, are:</p>
+specifying how color sample coverage is generated from pixel coverage, are:</p>
 </div>
 <div id="VkCoverageReductionModeNV" class="listingblock">
 <div class="content">
@@ -4315,30 +4321,22 @@ specifying how the coverage mask is reduced to <em>color sample mask</em>, are:<
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_COVERAGE_REDUCTION_MODE_MERGE_NV</code>: In this mode, there is an
-implementation-dependent association of each coverage sample to a color
-sample.
-The reduced color sample mask is computed such that the bit for each
-color sample is 1 if any of the associated bits in the fragment’s
-coverage is on, and 0 otherwise.</p>
+<p><code>VK_COVERAGE_REDUCTION_MODE_MERGE_NV</code> specifies that each color
+sample will be associated with an implementation-dependent subset of
+samples in the pixel coverage.
+If any of those associated samples are covered, the color sample is
+covered.</p>
 </li>
 <li>
-<p><code>VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV</code>: In this mode, only the
-first <span class="eq">M</span> coverage samples are associated with the color samples
-such that <a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a>
-<span class="eq">i</span> maps to color sample index <span class="eq">i</span>, where <span class="eq">M</span> is the number
-of color samples.</p>
+<p><code>VK_COVERAGE_REDUCTION_MODE_TRUNCATE_NV</code> specifies that for color
+samples present in the color attachments, a color sample is covered if
+the pixel coverage sample with the same
+<a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a> <span class="eq">i</span> is
+covered; other pixel coverage samples are discarded.</p>
 </li>
 </ul>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p>If the <code>VK_NV_coverage_reduction_mode</code> extension is not enabled, there is an
-implementation-dependent association of coverage samples to color samples.
-The reduced color sample mask is computed such that the bit for each color
-sample is 1 if any of the associated bits in the fragment’s coverage is on,
-and 0 otherwise.</p>
 </div>
 <div class="openblock">
 <div class="content">
@@ -4507,8 +4505,9 @@ A value of 0 indicates the combination does not have a color attachment.</p>
 </div>
 </div>
 </div>
+</div>
 <div class="sect3">
-<h4 id="fragops-coverage-modulation"><a class="anchor" href="#fragops-coverage-modulation"></a>27.13.1. Coverage Modulation</h4>
+<h4 id="fragops-coverage-modulation"><a class="anchor" href="#fragops-coverage-modulation"></a>27.13.3. Coverage Modulation</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -4571,7 +4570,7 @@ containing a value for each number of covered samples.</p>
 </div>
 <div class="paragraph">
 <p>If <code>coverageModulationTableEnable</code> is <code>VK_FALSE</code>, then for each
-color sample the associated bits of the fragment’s coverage are counted and
+color sample the associated bits of the pixel coverage are counted and
 divided by the number of associated bits to produce a modulation factor
 <span class="eq">R</span> in the range <span class="eq">(0,1]</span> (a value of zero would have been killed due
 to a color coverage of 0).
@@ -4729,7 +4728,7 @@ are multiplied by the modulation factor.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.146<br>
+Version 1.0.147<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>
