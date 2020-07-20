@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.147 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.148 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.147 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.148 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.147,</span>
-<span id="revdate">2020-07-13 10:11:31Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.0.148,</span>
+<span id="revdate">2020-07-20 07:44:54Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -955,8 +955,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
 <li><a href="#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
 <li><a href="#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
-<li><a href="#interfaces-resources">14.5. Shader Resource Interface</a></li>
-<li><a href="#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
+<li><a href="#interfaces-raypipeline">14.5. Ray Tracing Pipeline Interface</a></li>
+<li><a href="#interfaces-resources">14.6. Shader Resource Interface</a></li>
+<li><a href="#interfaces-builtin-variables">14.7. Built-In Variables</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#textures">15. Image Operations</a>
@@ -1268,6 +1269,9 @@ a number of different interfaces.</p>
 </li>
 <li>
 <p><a href="#interfaces-inputattachment">Fragment Input Attachment Interface</a></p>
+</li>
+<li>
+<p><a href="#interfaces-raypipeline">Ray Tracing Pipeline Interface</a></p>
 </li>
 <li>
 <p><a href="#interfaces-resources">Shader Resource Interface</a></p>
@@ -1787,7 +1791,137 @@ undefined.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="interfaces-resources"><a class="anchor" href="#interfaces-resources"></a>14.5. Shader Resource Interface</h3>
+<h3 id="interfaces-raypipeline"><a class="anchor" href="#interfaces-raypipeline"></a>14.5. Ray Tracing Pipeline Interface</h3>
+<div class="paragraph">
+<p>Ray tracing pipelines <strong class="purple">may</strong> have more stages than other pipelines with
+multiple instances of each stage and more dynamic interactions between the
+stages, but still has interface structures that obey the same generally
+rules as interfaces between shader stages in other pipelines.
+The three types of inter-stage interface variables for ray tracing pipelines
+are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Ray payloads which contain data tracked for the entire lifetime of the
+ray.</p>
+</li>
+<li>
+<p>Hit attributes which contain data about a specific hit for the duration
+of its processing.</p>
+</li>
+<li>
+<p>Callable data for passing data into and out of a callable shader.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Ray payloads and callable data are used in explicit shader call
+instructions, so they have an incoming variant to distinguish the parameter
+passed to the invocation from any other payloads or data being used by
+subsequent shader call instructions.</p>
+</div>
+<div class="paragraph">
+<p>An interface structure used between stages <strong class="purple">must</strong> match between the stages
+using it.
+Specifically:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The hit attribute structure read in an any-hit or closest-hit shader
+<strong class="purple">must</strong> be the same structure as the hit attribute structure written in the
+corresponding intersection shader in the same hit group.</p>
+</li>
+<li>
+<p>The incoming callable data for a callable shader <strong class="purple">must</strong> be the same
+structure as the callable data referenced by the execute callable
+instruction in the calling shader.</p>
+</li>
+<li>
+<p>The ray payload for a shader invoked by a trace ray command <strong class="purple">must</strong> be the
+same structure for all shader stages using the payload for that ray.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Any shader with an incoming ray payload, incoming callable data, or hit
+attribute <strong class="purple">must</strong> only declare one variable of that type.</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 90%;">
+<caption class="title">Table 16. Ray Pipeline Shader Interface</caption>
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Shader Stage</th>
+<th class="tableblock halign-left valign-top">Ray Payload</th>
+<th class="tableblock halign-left valign-top">Incoming Ray Payload</th>
+<th class="tableblock halign-left valign-top">Hit Attribute</th>
+<th class="tableblock halign-left valign-top">Callable Data</th>
+<th class="tableblock halign-left valign-top">Incoming Callable Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ray Generation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intersection</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Any Hit</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Closest Hit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Miss</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Callable</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">r/w</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="interfaces-resources"><a class="anchor" href="#interfaces-resources"></a>14.6. Shader Resource Interface</h3>
 <div class="paragraph">
 <p>When a shader stage accesses buffer or image resources, as described in the
 <a href="chap14.html#descriptorsets">Resource Descriptors</a> section, the shader resource
@@ -1805,7 +1939,7 @@ For the fragment shader, this includes the <a href="#interfaces-inputattachment"
 constant interface and the descriptor set interface.</p>
 </div>
 <div class="sect3">
-<h4 id="interfaces-resources-pushconst"><a class="anchor" href="#interfaces-resources-pushconst"></a>14.5.1. Push Constant Interface</h4>
+<h4 id="interfaces-resources-pushconst"><a class="anchor" href="#interfaces-resources-pushconst"></a>14.6.1. Push Constant Interface</h4>
 <div class="paragraph">
 <p>The shader variables defined with a storage class of <code>PushConstant</code> that
 are statically used by the shader entry points for the pipeline define the
@@ -1847,7 +1981,7 @@ be accessed with <em>dynamically uniform</em> indices.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="interfaces-resources-descset"><a class="anchor" href="#interfaces-resources-descset"></a>14.5.2. Descriptor Set Interface</h4>
+<h4 id="interfaces-resources-descset"><a class="anchor" href="#interfaces-resources-descset"></a>14.6.2. Descriptor Set Interface</h4>
 <div class="paragraph">
 <p>The <em>descriptor set interface</em> is comprised of the shader variables with the
 storage class of
@@ -2032,7 +2166,7 @@ into arrays in shader code, irrespective of the
 <code>shaderSampledImageArrayDynamicIndexing</code> feature.</p>
 </div>
 <table id="interfaces-resources-correspondence" class="tableblock frame-all grid-all" style="width: 90%;">
-<caption class="title">Table 16. Shader Resource and Descriptor Type Correspondence</caption>
+<caption class="title">Table 17. Shader Resource and Descriptor Type Correspondence</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 66.6667%;">
@@ -2091,7 +2225,7 @@ into arrays in shader code, irrespective of the
 </tbody>
 </table>
 <table id="interfaces-resources-storage-class-correspondence" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 17. Shader Resource and Storage Class Correspondence</caption>
+<caption class="title">Table 18. Shader Resource and Storage Class Correspondence</caption>
 <colgroup>
 <col style="width: 21%;">
 <col style="width: 22%;">
@@ -2185,7 +2319,7 @@ into arrays in shader code, irrespective of the
 </div>
 </div>
 <div class="sect3">
-<h4 id="interfaces-resources-setandbinding"><a class="anchor" href="#interfaces-resources-setandbinding"></a>14.5.3. DescriptorSet and Binding Assignment</h4>
+<h4 id="interfaces-resources-setandbinding"><a class="anchor" href="#interfaces-resources-setandbinding"></a>14.6.3. DescriptorSet and Binding Assignment</h4>
 <div class="paragraph">
 <p>A variable decorated with a <code>DescriptorSet</code> decoration of <span class="eq">s</span> and a
 <code>Binding</code> decoration of <span class="eq">b</span> indicates that this variable is
@@ -2289,7 +2423,7 @@ where some could be <code>OpTypeImage</code>, some could be <code>OpTypeSampler<
 </table>
 </div>
 <table id="interfaces-resources-limits" class="tableblock frame-all grid-all" style="width: 80%;">
-<caption class="title">Table 18. Shader Resource Limits</caption>
+<caption class="title">Table 19. Shader Resource Limits</caption>
 <colgroup>
 <col style="width: 60.3448%;">
 <col style="width: 39.6552%;">
@@ -2359,7 +2493,7 @@ where some could be <code>OpTypeImage</code>, some could be <code>OpTypeSampler<
 </div>
 </div>
 <div class="sect3">
-<h4 id="interfaces-resources-layout"><a class="anchor" href="#interfaces-resources-layout"></a>14.5.4. Offset and Stride Assignment</h4>
+<h4 id="interfaces-resources-layout"><a class="anchor" href="#interfaces-resources-layout"></a>14.6.4. Offset and Stride Assignment</h4>
 <div class="paragraph">
 <p>Certain objects <strong class="purple">must</strong> be explicitly laid out using the <code>Offset</code>,
 <code>ArrayStride</code>, and <code>MatrixStride</code>, as described in
@@ -2552,7 +2686,7 @@ alignment.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="interfaces-builtin-variables"><a class="anchor" href="#interfaces-builtin-variables"></a>14.6. Built-In Variables</h3>
+<h3 id="interfaces-builtin-variables"><a class="anchor" href="#interfaces-builtin-variables"></a>14.7. Built-In Variables</h3>
 <div class="paragraph">
 <p>Built-in variables are accessed in shaders by declaring a variable decorated
 with a <code>BuiltIn</code> SPIR-V decoration.
@@ -3617,7 +3751,8 @@ scalar 32-bit integer value.</p>
 <dd>
 <p>A variable decorated with the <code>RayTmaxKHR</code> decoration will contain the
 parametric <span class="eq">t<sub>max</sub></span> values of the ray being processed.
-The values are independent of the space in which the ray and origin exist.</p>
+The values are independent of the space in which the ray origin and
+direction exist.</p>
 <div class="paragraph">
 <p>The <span class="eq">t<sub>max</sub></span> value changes throughout the lifetime of the ray query that
 produced the intersection.
@@ -3654,7 +3789,8 @@ any-hit, closest hit, and miss shaders.</p>
 <dd>
 <p>A variable decorated with the <code>RayTminKHR</code> decoration will contain the
 parametric <span class="eq">t<sub>min</sub></span> values of the ray being processed.
-The values are independent of the space in which the ray and origin exist.</p>
+The values are independent of the space in which the ray origin and
+direction exist.</p>
 <div class="paragraph">
 <p>The <span class="eq">t<sub>min</sub></span> value remains constant for the duration of the ray query.</p>
 </div>
@@ -4102,7 +4238,7 @@ values.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.147<br>
+Version 1.0.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.147 - A Specification</title>
+<title>Vulkan® 1.1.148 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.147 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.148 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.147,</span>
-<span id="revdate">2020-07-13 10:03:52Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.1.148,</span>
+<span id="revdate">2020-07-20 07:36:29Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1762,7 +1762,8 @@ or 2 (storage image).</p>
 <li>
 <p>If an <code>OpImageTexelPointer</code> is used in an atomic operation, the
 image type of the <code>image</code> parameter to <code>OpImageTexelPointer</code>
-<strong class="purple">must</strong> have an image format of <code>R32i</code> or <code>R32ui</code>.</p>
+<strong class="purple">must</strong> have an image format of
+<code>R32i</code> or <code>R32ui</code>.</p>
 </li>
 <li>
 <p><code>OpImageQuerySizeLod</code>, and <code>OpImageQueryLevels</code> <strong class="purple">must</strong> only
@@ -1922,6 +1923,81 @@ mode or an object decorated with the <code>WorkgroupSize</code> decoration
 <li>
 <p>Atomic instructions <strong class="purple">must</strong> declare a scalar 32-bit integer type,
 for the value pointed to by <em>Pointer</em>.</p>
+</li>
+<li>
+<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
+following storage classes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
+</li>
+<li>
+<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
+<code>VariablePointersStorageBuffer</code> is enabled.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="spirvenv-module-validation-runtime"><a class="anchor" href="#spirvenv-module-validation-runtime"></a>Runtime SPIR-V Validation</h4>
+<div class="paragraph">
+<p>Rules which <strong class="purple">must</strong> be validated at runetime as they depend on knowledge of
+the implementation and its capabilities or knowledge of runtime information
+such as enabled features.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The converted bit width, signedness, and numeric type of the <code>Image</code>
+<code>Format</code> operand of an <code>OpTypeImage</code> <strong class="purple">must</strong> match the <code>Sampled</code>
+<code>Type</code>, as defined in <a href="#spirvenv-format-type-matching">Image Format and Type Matching</a>.</p>
+</li>
+<li>
+<p>The <code>Result</code> <code>Type</code> operand of <code>OpImageRead</code> <strong class="purple">must</strong> be a vector
+of four components.</p>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonWritable</code>.</p>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-shaderStorageImageReadWithoutFormat">shaderStorageImageReadWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonReadable</code>.</p>
+</li>
+<li>
+<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
+extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>“Result Type” for <strong>Non Uniform Group Operations</strong> <strong class="purple">must</strong> be limited to
+32-bit floating-point, 32-bit integer, boolean, or vectors of these
+types.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>Float64</code> capability is enabled, 64-bit floating-point and
+vector of 64-bit floating-point types are also permitted.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="#features-shaderBufferFloat32Atomics">shaderBufferFloat32Atomics</a> or
+<a href="#features-shaderBufferFloat32AtomicAdd">shaderBufferFloat32AtomicAdd</a>
+or <a href="#features-shaderBufferFloat64Atomics">shaderBufferFloat64Atomics</a> or
+<a href="#features-shaderBufferFloat64AtomicAdd">shaderBufferFloat64AtomicAdd</a>
+<strong class="purple">must</strong> be enabled for floating-point atomic operations to be supported on
+a <em>Pointer</em> with a <strong>Storage Class</strong> of <strong>StorageBuffer</strong>.</p>
 </li>
 <li>
 <p><code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
@@ -2546,7 +2622,7 @@ values as defined below:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.147<br>
+Version 1.1.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>

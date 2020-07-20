@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.147 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.148 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.147 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.148 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.147,</span>
-<span id="revdate">2020-07-13 10:06:06Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.0.148,</span>
+<span id="revdate">2020-07-20 07:38:52Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -962,8 +962,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap15.html#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
 <li><a href="chap15.html#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
 <li><a href="chap15.html#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
-<li><a href="chap15.html#interfaces-resources">14.5. Shader Resource Interface</a></li>
-<li><a href="chap15.html#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
+<li><a href="chap15.html#interfaces-raypipeline">14.5. Ray Tracing Pipeline Interface</a></li>
+<li><a href="chap15.html#interfaces-resources">14.6. Shader Resource Interface</a></li>
+<li><a href="chap15.html#interfaces-builtin-variables">14.7. Built-In Variables</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#textures">15. Image Operations</a>
@@ -4829,22 +4830,22 @@ Accessing a subsampled image has additional considerations:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Image data read as an image sampler is undefined if the sampler was not
-created with <code>flags</code> containing
+<p>Image data read as an image sampler will have undefined values if the
+sampler was not created with <code>flags</code> containing
 <code>VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT</code> or was not sampled through
 the use of a combined image sampler with an immutable sampler in
 <code>VkDescriptorSetLayoutBinding</code>.</p>
 </li>
 <li>
-<p>Image data read with an input attachment is undefined if the contents
-were not written as an attachment in an earlier subpass of the same
-render pass.</p>
+<p>Image data read with an input attachment will have undefined values if
+the contents were not written as an attachment in an earlier subpass of
+the same render pass.</p>
 </li>
 <li>
 <p>Image data read as an image sampler in the fragment shader will be
 additionally be read by the device during
 <code>VK_PIPELINE_STAGE_VERTEX_SHADER_BIT</code> if
-<a href="chap40.html#limits-subsampledcoarsereconstructionearlyaccess"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>subsampledCoarseReconstructionEarlyAccess</code></a>
+<a href="chap40.html#limits-subsampledCoarseReconstructionEarlyAccess"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>subsampledCoarseReconstructionEarlyAccess</code></a>
 is <code>VK_TRUE</code> and the sampler was created with <code>flags</code>
 containing
 <code>VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT</code>.</p>
@@ -4852,12 +4853,13 @@ containing
 <li>
 <p>Image data read with load operations are resampled to the fragment
 density of the render pass if
-<a href="chap40.html#limits-subsampledloads"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>subsampledLoads</code></a>
-is <code>VK_TRUE</code>, otherwise they are undefined.</p>
+<a href="chap40.html#limits-subsampledLoads"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>subsampledLoads</code></a>
+is <code>VK_TRUE</code>.
+Otherwise, values of image data are undefined.</p>
 </li>
 <li>
-<p>Image contents outside of the render area become undefined if the image
-is stored as a render pass attachment.</p>
+<p>Image contents outside of the render area take on undefined values if
+the image is stored as a render pass attachment.</p>
 </li>
 </ul>
 </div>
@@ -6875,13 +6877,13 @@ If <code>image</code> was created with <code>usage</code> containing
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-flags-02572" href="#VUID-VkImageViewCreateInfo-flags-02572"></a>
-If <a href="chap39.html#features-fragmentdensitymapdynamic">dynamic fragment density map</a>
+If <a href="chap39.html#features-fragmentDensityMapDynamic">dynamic fragment density map</a>
 feature is not enabled, <code>flags</code> <strong class="purple">must</strong> not contain
 <code>VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-flags-03567" href="#VUID-VkImageViewCreateInfo-flags-03567"></a>
-If <a href="chap39.html#features-fragmentdensitymapdeferred">deferred fragment density map</a>
+If <a href="chap39.html#features-fragmentDensityMapDeferred">deferred fragment density map</a>
 feature is not enabled, <code>flags</code> <strong class="purple">must</strong> not contain
 <code>VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DEFERRED_BIT_EXT</code></p>
 </li>
@@ -6898,7 +6900,7 @@ If <code>image</code> was created with <code>flags</code> containing
 <code>VK_IMAGE_CREATE_SUBSAMPLED_BIT_EXT</code> and <code>usage</code> containing
 <code>VK_IMAGE_USAGE_SAMPLED_BIT</code>, <code>subresourceRange.layerCount</code>
 <strong class="purple">must</strong> be less than or equal to
-<a href="chap40.html#limits-maxsubsampledarraylayers"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>maxSubsampledArrayLayers</code></a></p>
+<a href="chap40.html#limits-maxSubsampledArrayLayers"><code>VkPhysicalDeviceFragmentDensityMap2PropertiesEXT</code>::<code>maxSubsampledArrayLayers</code></a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-flags-04116" href="#VUID-VkImageViewCreateInfo-flags-04116"></a>
@@ -8298,6 +8300,13 @@ Android hardware buffer exported from the memory.</p>
 Android hardware buffer an application <strong class="purple">may</strong> still call
 <a href="#vkGetBufferMemoryRequirements">vkGetBufferMemoryRequirements</a> or <a href="#vkGetBufferMemoryRequirements2">vkGetBufferMemoryRequirements2</a>
 with <a href="#VkBuffer">VkBuffer</a> before it has been bound to memory.</p>
+</div>
+<div class="paragraph">
+<p>If the resource being queried was created with the
+<code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT</code>,
+<code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT</code>, or
+<code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT</code> external memory
+handle type, the value of <code>size</code> has no meaning and <strong class="purple">should</strong> be ignored.</p>
 </div>
 <div class="paragraph">
 <p>The implementation guarantees certain properties about the memory
@@ -12907,7 +12916,7 @@ for memory requirements.</p>
 <div class="content">
 <div class="paragraph">
 <p>Possible values of <code>type</code> in
-<code>VkAccelerationStructureMemoryRequirementsInfoKHR</code> are:,</p>
+<code>VkAccelerationStructureMemoryRequirementsInfoKHR</code> are:</p>
 </div>
 <div id="VkAccelerationStructureMemoryRequirementsTypeKHR" class="listingblock">
 <div class="content">
@@ -13487,7 +13496,7 @@ address is being queried.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.147<br>
+Version 1.0.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>

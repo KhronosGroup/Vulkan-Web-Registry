@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.147 - A Specification</title>
+<title>Vulkan® 1.2.148 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.147 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.148 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.147,</span>
-<span id="revdate">2020-07-13 09:52:13Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.2.148,</span>
+<span id="revdate">2020-07-20 07:23:26Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1980,7 +1980,8 @@ or 2 (storage image).</p>
 <li>
 <p>If an <code>OpImageTexelPointer</code> is used in an atomic operation, the
 image type of the <code>image</code> parameter to <code>OpImageTexelPointer</code>
-<strong class="purple">must</strong> have an image format of <code>R32i</code> or <code>R32ui</code>.</p>
+<strong class="purple">must</strong> have an image format of
+<code>R32i</code> or <code>R32ui</code>.</p>
 </li>
 <li>
 <p><code>OpImageQuerySizeLod</code>, and <code>OpImageQueryLevels</code> <strong class="purple">must</strong> only
@@ -2142,6 +2143,175 @@ mode or an object decorated with the <code>WorkgroupSize</code> decoration
 <li>
 <p>Atomic instructions <strong class="purple">must</strong> declare a scalar 32-bit integer type,
 for the value pointed to by <em>Pointer</em>.</p>
+</li>
+<li>
+<p>The <code>Base</code> operand of <code>OpPtrAccessChain</code> <strong class="purple">must</strong> point to one of the
+following storage classes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Workgroup</strong>, if <code>VariablePointers</code> is enabled.</p>
+</li>
+<li>
+<p><strong>StorageBuffer</strong>, if <code>VariablePointers</code> or
+<code>VariablePointersStorageBuffer</code> is enabled.</p>
+</li>
+<li>
+<p><strong>PhysicalStorageBuffer</strong>, if the <code>PhysicalStorageBuffer64</code> addressing
+model is enabled.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the <code>PhysicalStorageBuffer64</code> addressing model is enabled:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>All instructions that support memory access operands and that use a
+physical pointer <strong class="purple">must</strong> include the <code>Aligned</code> operand.</p>
+</li>
+<li>
+<p>Any access chain instruction that accesses into a <code>RowMajor</code> matrix
+<strong class="purple">must</strong> only be used as the <code>Pointer</code> operand to <code>OpLoad</code> or
+<code>OpStore</code>.</p>
+</li>
+<li>
+<p><code>OpConvertUToPtr</code> and <code>OpConvertPtrToU</code> <strong class="purple">must</strong> use an integer type
+whose <code>Width</code> is 64.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="spirvenv-module-validation-runtime"><a class="anchor" href="#spirvenv-module-validation-runtime"></a>Runtime SPIR-V Validation</h4>
+<div class="paragraph">
+<p>Rules which <strong class="purple">must</strong> be validated at runetime as they depend on knowledge of
+the implementation and its capabilities or knowledge of runtime information
+such as enabled features.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <a href="chap31.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is enabled and
+<a href="chap31.html#features-vulkanMemoryModelDeviceScope"><code>vulkanMemoryModelDeviceScope</code></a>
+is not enabled, <strong>Device</strong> memory scope <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>If <a href="chap31.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
+enabled, <strong>Device</strong> memory scope only extends to the queue family, not the
+whole device.</p>
+</li>
+<li>
+<p>If <a href="chap31.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> is not
+enabled, <strong>QueueFamily</strong> memory scope <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p>The converted bit width, signedness, and numeric type of the <code>Image</code>
+<code>Format</code> operand of an <code>OpTypeImage</code> <strong class="purple">must</strong> match the <code>Sampled</code>
+<code>Type</code>, as defined in <a href="#spirvenv-format-type-matching">Image Format and Type Matching</a>.</p>
+</li>
+<li>
+<p>The <code>Result</code> <code>Type</code> operand of <code>OpImageRead</code> <strong class="purple">must</strong> be a vector
+of four components.</p>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-shaderStorageImageWriteWithoutFormat">shaderStorageImageWriteWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonWritable</code>.</p>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-shaderStorageImageReadWithoutFormat">shaderStorageImageReadWithoutFormat</a>
+is not enabled and an <code>OpTypeImage</code> has “Image Format” operand of
+<code>Unknown</code>, any variables created with the given type <strong class="purple">must</strong> be
+decorated with <code>NonReadable</code>.</p>
+</li>
+<li>
+<p>Any <code>BuiltIn</code> decoration that corresponds only to Vulkan features or
+extensions that have not been enabled <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p><code>OpTypeRuntimeArray</code> <strong class="purple">must</strong> only be used for an array of variables
+with storage class <code>Uniform</code>,
+<code>StorageBuffer</code>,
+or <code>UniformConstant</code>, or for the outermost dimension of an array of
+arrays of such variables if the
+<a href="chap31.html#features-runtimeDescriptorArray">runtimeDescriptorArray</a> feature is
+enabled,</p>
+</li>
+<li>
+<p>If an instruction loads from or stores to a resource (including atomics
+and image instructions) and the resource descriptor being accessed is
+not dynamically uniform, then the operand corresponding to that resource
+(e.g. the pointer or sampled image operand) <strong class="purple">must</strong> be decorated with
+<code>NonUniform</code>.</p>
+</li>
+<li>
+<p>“Result Type” for <strong>Non Uniform Group Operations</strong> <strong class="purple">must</strong> be limited to
+32-bit floating-point, 32-bit integer, boolean, or vectors of these
+types.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>Float64</code> capability is enabled, 64-bit floating-point and
+vector of 64-bit floating-point types are also permitted.</p>
+</li>
+<li>
+<p>If the <code>Int8</code> capability is enabled and the
+<a href="chap31.html#features-subgroup-extended-types">shaderSubgroupExtendedTypes</a>
+feature is <code>VK_TRUE</code>, 8-bit integer and vector of 8-bit integer
+types are also permitted.</p>
+</li>
+<li>
+<p>If the <code>Int16</code> capability is enabled and the
+<a href="chap31.html#features-subgroup-extended-types">shaderSubgroupExtendedTypes</a>
+feature is <code>VK_TRUE</code>, 16-bit integer and vector of 16-bit integer
+types are also permitted.</p>
+</li>
+<li>
+<p>If the <code>Int64</code> capability is enabled and the
+<a href="chap31.html#features-subgroup-extended-types">shaderSubgroupExtendedTypes</a>
+feature is <code>VK_TRUE</code>, 64-bit integer and vector of 64-bit integer
+types are also permitted.</p>
+</li>
+<li>
+<p>If the <code>Float16</code> capability is enabled and the
+<a href="chap31.html#features-subgroup-extended-types">shaderSubgroupExtendedTypes</a>
+feature is <code>VK_TRUE</code>, 16-bit floating-point and vector of 16-bit
+floating-point types are also permitted.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-subgroupBroadcastDynamicId"><code>subgroupBroadcastDynamicId</code></a>
+is <code>VK_TRUE</code>, and the shader module version is 1.5 or higher, the
+“Index” for <code>OpGroupNonUniformQuadBroadcast</code> <strong class="purple">must</strong> be dynamically
+uniform within the derivative group.
+Otherwise, “Index” <strong class="purple">must</strong> be a constant.</p>
+</li>
+<li>
+<p>If
+<a href="chap31.html#features-subgroupBroadcastDynamicId"><code>subgroupBroadcastDynamicId</code></a>
+is <code>VK_TRUE</code>, and the shader module version is 1.5 or higher, the
+“Id” for <code>OpGroupNonUniformBroadcast</code> <strong class="purple">must</strong> be dynamically uniform
+within the subgroup.
+Otherwise, “Id” <strong class="purple">must</strong> be a constant.</p>
+</li>
+<li>
+<p><a href="#features-shaderBufferFloat32Atomics">shaderBufferFloat32Atomics</a> or
+<a href="#features-shaderBufferFloat32AtomicAdd">shaderBufferFloat32AtomicAdd</a>
+or <a href="#features-shaderBufferFloat64Atomics">shaderBufferFloat64Atomics</a> or
+<a href="#features-shaderBufferFloat64AtomicAdd">shaderBufferFloat64AtomicAdd</a>
+<strong class="purple">must</strong> be enabled for floating-point atomic operations to be supported on
+a <em>Pointer</em> with a <strong>Storage Class</strong> of <strong>StorageBuffer</strong>.</p>
 </li>
 <li>
 <p>If
@@ -3232,7 +3402,7 @@ values as defined below:</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.147<br>
+Version 1.2.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>

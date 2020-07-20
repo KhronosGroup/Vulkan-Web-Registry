@@ -104,6 +104,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_headless_surface.html"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_drm_format_modifier.html"> VK_EXT_image_drm_format_modifier </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_robustness.html"> VK_EXT_image_robustness </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_index_type_uint8.html"> VK_EXT_index_type_uint8 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_inline_uniform_block.html"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
@@ -121,6 +122,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sampler_filter_minmax.html"> VK_EXT_sampler_filter_minmax </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_scalar_block_layout.html"> VK_EXT_scalar_block_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_separate_stencil_usage.html"> VK_EXT_separate_stencil_usage </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_atomic_float.html"> VK_EXT_shader_atomic_float </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_demote_to_helper_invocation.html"> VK_EXT_shader_demote_to_helper_invocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_stencil_export.html"> VK_EXT_shader_stencil_export </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_ballot.html"> VK_EXT_shader_subgroup_ballot </a> </li>

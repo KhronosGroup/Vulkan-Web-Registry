@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.147 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.148 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.147 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.148 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.147,</span>
-<span id="revdate">2020-07-13 09:54:45Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.1.148,</span>
+<span id="revdate">2020-07-20 07:26:19Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -964,8 +964,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap15.html#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
 <li><a href="chap15.html#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
 <li><a href="chap15.html#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
-<li><a href="chap15.html#interfaces-resources">14.5. Shader Resource Interface</a></li>
-<li><a href="chap15.html#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
+<li><a href="chap15.html#interfaces-raypipeline">14.5. Ray Tracing Pipeline Interface</a></li>
+<li><a href="chap15.html#interfaces-resources">14.6. Shader Resource Interface</a></li>
+<li><a href="chap15.html#interfaces-builtin-variables">14.7. Built-In Variables</a></li>
 </ul>
 </li>
 <li><a href="chap16.html#textures">15. Image Operations</a>
@@ -1675,7 +1676,7 @@ The exact pipeline stages executed depend on the particular command that is
 used, and current command buffer state when the command was recorded.
 <a href="chap21.html#drawing">Drawing commands</a>, <a href="chap30.html#dispatch">dispatching commands</a>,
 <a href="chap20.html#copies">copy commands</a>, <a href="chap19.html#clears">clear commands</a>, and <a href="#synchronization">synchronization commands</a> all execute in different sets of
-<a href="#synchronization-pipeline-stages-types">pipeline stages</a>.
+<a href="#VkPipelineStageFlagBits">pipeline stages</a>.
 <a href="#synchronization">Synchronization commands</a> do not execute in a defined
 pipeline.</p>
 </div>
@@ -2203,8 +2204,9 @@ barriers.</p>
 </tr>
 </table>
 </div>
-<div id="synchronization-pipeline-graphics" class="paragraph">
-<p><a href="chap10.html#pipelines-graphics">Graphics pipelines</a> are executable on queues
+<div class="paragraph">
+<p><a id="synchronization-pipeline-stages-types"></a><a id="synchronization-pipeline-graphics"></a>
+<a href="chap10.html#pipelines-graphics">Graphics pipelines</a> are executable on queues
 supporting <code>VK_QUEUE_GRAPHICS_BIT</code>.
 Stages executed by graphics pipelines <strong class="purple">can</strong> only be specified in commands
 recorded for queues supporting <code>VK_QUEUE_GRAPHICS_BIT</code>.</p>
@@ -4434,8 +4436,8 @@ period.</p>
 <p>If the condition is satisfied when <code>vkWaitForFences</code> is called, then
 <code>vkWaitForFences</code> returns immediately.
 If the condition is not satisfied at the time <code>vkWaitForFences</code> is
-called, then <code>vkWaitForFences</code> will block and wait up to <code>timeout</code>
-nanoseconds for the condition to become satisfied.</p>
+called, then <code>vkWaitForFences</code> will block and wait until the condition
+is satisfied or the <code>timeout</code> has expired, whichever is sooner.</p>
 </div>
 <div class="paragraph">
 <p>If <code>timeout</code> is zero, then <code>vkWaitForFences</code> does not wait, but
@@ -4444,10 +4446,10 @@ simply returns the current state of the fences.
 satisfied, even though no actual wait was performed.</p>
 </div>
 <div class="paragraph">
-<p>If the specified timeout period expires before the condition is satisfied,
-<code>vkWaitForFences</code> returns <code>VK_TIMEOUT</code>.
-If the condition is satisfied before <code>timeout</code> nanoseconds has expired,
-<code>vkWaitForFences</code> returns <code>VK_SUCCESS</code>.</p>
+<p>If the condition is satisfied before the <code>timeout</code> has expired,
+<code>vkWaitForFences</code> returns <code>VK_SUCCESS</code>.
+Otherwise, <code>vkWaitForFences</code> returns <code>VK_TIMEOUT</code> after the
+<code>timeout</code> has expired.</p>
 </div>
 <div class="paragraph">
 <p>If device loss occurs (see <a href="chap5.html#devsandqueues-lost-device">Lost Device</a>) before
@@ -7153,8 +7155,8 @@ period.</p>
 <p>If the condition is satisfied when <code>vkWaitSemaphores</code> is called, then
 <code>vkWaitSemaphores</code> returns immediately.
 If the condition is not satisfied at the time <code>vkWaitSemaphores</code> is
-called, then <code>vkWaitSemaphores</code> will block and wait up to <code>timeout</code>
-nanoseconds for the condition to become satisfied.</p>
+called, then <code>vkWaitSemaphores</code> will block and wait until the condition
+is satisfied or the <code>timeout</code> has expired, whichever is sooner.</p>
 </div>
 <div class="paragraph">
 <p>If <code>timeout</code> is zero, then <code>vkWaitSemaphores</code> does not wait, but
@@ -7163,10 +7165,10 @@ simply returns information about the current state of the semaphore.
 satisfied, even though no actual wait was performed.</p>
 </div>
 <div class="paragraph">
-<p>If the specified timeout period expires before the condition is satisfied,
-<code>vkWaitSemaphores</code> returns <code>VK_TIMEOUT</code>.
-If the condition is satisfied before <code>timeout</code> nanoseconds has expired,
-<code>vkWaitSemaphores</code> returns <code>VK_SUCCESS</code>.</p>
+<p>If the condition is satisfied before the <code>timeout</code> has expired,
+<code>vkWaitSemaphores</code> returns <code>VK_SUCCESS</code>.
+Otherwise, <code>vkWaitSemaphores</code> returns <code>VK_TIMEOUT</code> after the
+<code>timeout</code> has expired.</p>
 </div>
 <div class="paragraph">
 <p>If device loss occurs (see <a href="chap5.html#devsandqueues-lost-device">Lost Device</a>) before
@@ -9067,7 +9069,7 @@ is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not 
 </li>
 <li>
 <p><a id="VUID-vkCmdSetEvent-stageMask-04093" href="#VUID-vkCmdSetEvent-stageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -9277,7 +9279,7 @@ is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not 
 </li>
 <li>
 <p><a id="VUID-vkCmdResetEvent-stageMask-04093" href="#VUID-vkCmdResetEvent-stageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -9604,7 +9606,7 @@ is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> n
 </li>
 <li>
 <p><a id="VUID-vkCmdWaitEvents-srcStageMask-04093" href="#VUID-vkCmdWaitEvents-srcStageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -9667,7 +9669,7 @@ is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> n
 </li>
 <li>
 <p><a id="VUID-vkCmdWaitEvents-dstStageMask-04093" href="#VUID-vkCmdWaitEvents-dstStageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -10057,7 +10059,7 @@ is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> n
 </li>
 <li>
 <p><a id="VUID-vkCmdPipelineBarrier-srcStageMask-04093" href="#VUID-vkCmdPipelineBarrier-srcStageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -10120,7 +10122,7 @@ is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> n
 </li>
 <li>
 <p><a id="VUID-vkCmdPipelineBarrier-dstStageMask-04093" href="#VUID-vkCmdPipelineBarrier-dstStageMask-04093"></a>
-If the <a href="#features-fragmentDensityMap">fragment density map</a> feature is
+If the <a href="chap39.html#features-fragmentDensityMap">fragment density map</a> feature is
 not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
 </li>
@@ -11873,7 +11875,7 @@ QueryPerformanceCounter(&amp;counter);
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.147<br>
+Version 1.1.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>

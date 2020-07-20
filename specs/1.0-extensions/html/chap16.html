@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.147 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.148 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.147 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.148 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.147,</span>
-<span id="revdate">2020-07-13 10:06:06Z</span>
-<br><span id="revremark">from git branch: github-master commit: ca63a59cc3803c95e9ce67bac3a2ee3bbcba34d1</span>
+<span id="revnumber">version 1.0.148,</span>
+<span id="revdate">2020-07-20 07:38:52Z</span>
+<br><span id="revremark">from git branch: github-master commit: 3c1ca55f2e0b4b9423cf9c0b30400b1a4d61c5d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -962,8 +962,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap15.html#interfaces-vertexinput">14.2. Vertex Input Interface</a></li>
 <li><a href="chap15.html#interfaces-fragmentoutput">14.3. Fragment Output Interface</a></li>
 <li><a href="chap15.html#interfaces-inputattachment">14.4. Fragment Input Attachment Interface</a></li>
-<li><a href="chap15.html#interfaces-resources">14.5. Shader Resource Interface</a></li>
-<li><a href="chap15.html#interfaces-builtin-variables">14.6. Built-In Variables</a></li>
+<li><a href="chap15.html#interfaces-raypipeline">14.5. Ray Tracing Pipeline Interface</a></li>
+<li><a href="chap15.html#interfaces-resources">14.6. Shader Resource Interface</a></li>
+<li><a href="chap15.html#interfaces-builtin-variables">14.7. Built-In Variables</a></li>
 </ul>
 </li>
 <li><a href="#textures">15. Image Operations</a>
@@ -2823,7 +2824,7 @@ by the compressed format.</p>
 The border color is:</p>
 </div>
 <table id="textures-border-replacement-color" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 22. Border Color <span class="eq">B</span>, Custom Border Color <a href="chap13.html#VkSamplerCustomBorderColorCreateInfoEXT">VkSamplerCustomBorderColorCreateInfoEXT</a>::<code>customBorderColor</code> <span class="eq">U</span></caption>
+<caption class="title">Table 23. Border Color <span class="eq">B</span>, Custom Border Color <a href="chap13.html#VkSamplerCustomBorderColorCreateInfoEXT">VkSamplerCustomBorderColorCreateInfoEXT</a>::<code>customBorderColor</code> <span class="eq">U</span></caption>
 <colgroup>
 <col style="width: 60%;">
 <col style="width: 40%;">
@@ -2894,7 +2895,7 @@ a saturating value for integers.</p>
 components in the image format</p>
 </div>
 <table id="textures-border-replacement-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 23. Border Texel Components After Replacement</caption>
+<caption class="title">Table 24. Border Texel Components After Replacement</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -2940,9 +2941,24 @@ In that case, an invalid texel is replaced as described by the
 <a href="chap39.html#features-robustBufferAccess"><code>robustBufferAccess</code> feature</a>.
 If the access is to an image resource and the x, y, z, or layer coordinate
 validation fails and
-<a href="#features-features-robustImageAccess2"><code>robustImageAccess2</code></a> is
-enabled, zero values <strong class="purple">must</strong> be returned.
+<a href="#features-features-robustImageAccess"><code>robustImageAccess</code></a> is enabled
+then zero <strong class="purple">must</strong> be returned for the R, G, and B channels, if present.
+Either zero or one <strong class="purple">must</strong> be returned for the A channel, if present.
+If
+<a href="chap39.html#features-robustImageAccess2"><code>robustImageAccess2</code></a> is enabled, zero
+values <strong class="purple">must</strong> be returned.
 If only the sample index was invalid, the values returned are undefined.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, if
+<a href="#features-features-robustImageAccess"><code>robustImageAccess</code></a> is enabled,
+but <a href="#features-features-robustImageAccess2"><code>robustImageAccess2</code></a> is
+not,
+any invalid texels <strong class="purple">may</strong> be expanded to four components prior to texel
+replacement.
+This means that components not present in the image format may be replaced
+with 0 or may undergo <a href="#textures-conversion-to-rgba">conversion to RGBA</a> as
+normal.</p>
 </div>
 <div class="paragraph">
 <p>Loads from a null descriptor return a four component color value of all
@@ -3003,7 +3019,7 @@ sampler.</p>
 based on the image base color:</p>
 </div>
 <table id="textures-texel-color-rgba-conversion-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 24. Texel Color After Conversion To RGBA</caption>
+<caption class="title">Table 25. Texel Color After Conversion To RGBA</caption>
 <colgroup>
 <col style="width: 40%;">
 <col style="width: 60%;">
@@ -4708,7 +4724,7 @@ derivatives, are determined by the major axis direction as specified in the
 following two tables.</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 75%;">
-<caption class="title">Table 25. Cube map face and coordinate selection</caption>
+<caption class="title">Table 26. Cube map face and coordinate selection</caption>
 <colgroup>
 <col style="width: 16.6666%;">
 <col style="width: 16.6666%;">
@@ -4779,7 +4795,7 @@ following two tables.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all" style="width: 75%;">
-<caption class="title">Table 26. Cube map derivative selection</caption>
+<caption class="title">Table 27. Cube map derivative selection</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -5438,8 +5454,8 @@ If the <code>Lod</code> is provided then it <strong class="purple">must</strong>
 <div class="paragraph">
 <p>If <span class="eq">d</span> does not lie in the range <span class="eq">[<code>baseMipLevel</code>,
 <code>baseMipLevel</code> +  <code>levelCount</code>)</span> then any values fetched are
-zero if <a href="#features-features-robustImageAccess2"><code>robustImageAccess2</code></a> is
-enabled, otherwise are
+zero if <a href="chap39.html#features-robustImageAccess2"><code>robustImageAccess2</code></a> is enabled,
+otherwise are
 undefined, and any writes (if supported) are discarded.</p>
 </div>
 </div>
@@ -5739,7 +5755,7 @@ Each bit in the returned footprint mask corresponds to an aligned block of
 texels whose size is given by the following table:</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 50%;">
-<caption class="title">Table 27. Texel footprint granularity values</caption>
+<caption class="title">Table 28. Texel footprint granularity values</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -6016,8 +6032,8 @@ granularity as-is and return a granularity value of zero.</p>
 </div>
 <div class="paragraph">
 <p><code>OpImageSampleFootprintNV</code> supports only two- and three-dimensional image
-accesses (<code>Dim2D</code> and <code>Dim3D</code>) and the footprint returned is undefined
-if a sampler uses an addressing mode other than
+accesses (<code>Dim2D</code> and <code>Dim3D</code>), and the footprint returned is
+undefined if a sampler uses an addressing mode other than
 <code>VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE</code>.</p>
 </div>
 </div>
@@ -6076,7 +6092,7 @@ instructions.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.147<br>
+Version 1.0.148<br>
 Last updated 2020-07-03 03:58:33 -0700
 </div>
 </div>
