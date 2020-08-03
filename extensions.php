@@ -72,6 +72,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_xcb_surface.html"> VK_KHR_xcb_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_xlib_surface.html"> VK_KHR_xlib_surface </a> </li>
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_4444_formats.html"> VK_EXT_4444_formats </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_astc_decode_mode.html"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_blend_operation_advanced.html"> VK_EXT_blend_operation_advanced </a> </li>
