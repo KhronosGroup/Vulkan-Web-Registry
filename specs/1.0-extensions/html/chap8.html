@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.151 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.152 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.151 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.152 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.151,</span>
-<span id="revdate">2020-08-17 02:06:22Z</span>
-<br><span id="revremark">from git branch: github-master commit: 68bedacc6014941d5c04d168ef62df82031e0ddc</span>
+<span id="revnumber">version 1.0.152,</span>
+<span id="revdate">2020-08-26 13:54:59Z</span>
+<br><span id="revremark">from git branch: github-master commit: ef2bc9f8b9b6693634b9e3ac345ac5ca15233208</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3181,6 +3181,11 @@ If any attachment is used by more than one <a href="#VkAttachmentReference">VkAt
 member, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSubpassDescription-None-04437" href="#VUID-VkSubpassDescription-None-04437"></a>
+Each attachment <strong class="purple">must</strong> follow the <a href="#attachment-type-imagelayout">image
+layout requirements</a> specified for its attachment type</p>
+</li>
+<li>
 <p><a id="VUID-VkSubpassDescription-flags-00856" href="#VUID-VkSubpassDescription-flags-00856"></a>
 If <code>flags</code> includes
 <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX</code>, it <strong class="purple">must</strong>
@@ -3224,6 +3229,11 @@ If <code>flags</code> includes
 If the render pass is created with
 <code>VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM</code> each of the elements of
 <code>pInputAttachments</code> <strong class="purple">must</strong> be <code>VK_ATTACHMENT_UNUSED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription-pDepthStencilAttachment-04438" href="#VUID-VkSubpassDescription-pDepthStencilAttachment-04438"></a>
+<code>pDepthStencilAttachment</code> and <code>pColorAttachments</code> must not
+contain references to the same attachment</p>
 </li>
 </ul>
 </div>
@@ -3957,19 +3967,49 @@ subpass.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>An attachment used as both an input attachment and a color attachment <strong class="purple">must</strong>
-be in the
+<div id="attachment-type-imagelayout" class="paragraph">
+<p>Attachments have requirements for the image layout depending on the usage</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An attachment used only as a color attachment <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> or
 <code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code> or
-<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.
-An attachment used as an input attachment and depth/stencil attachment <strong class="purple">must</strong>
-be in the
+<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.</p>
+</li>
+<li>
+<p>An attachment used as both an input attachment and a color attachment
+<strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code> or
+<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.</p>
+</li>
+<li>
+<p>An attachment used only as a depth/stencil attachment <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code>,
 <code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code>,
 <code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code>,
 <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code>,
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>, or
-<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.
-An attachment <strong class="purple">must</strong> not be used as both a depth/stencil attachment and a
+<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.</p>
+</li>
+<li>
+<p>An attachment used as an input attachment and depth/stencil attachment
+<strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>An attachment <strong class="purple">must</strong> not be used as both a depth/stencil attachment and a
 color attachment.</p>
 </div>
 <div class="paragraph">
@@ -4914,6 +4954,11 @@ If any attachment is used by more than one <a href="#VkAttachmentReference">VkAt
 member, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSubpassDescription2-None-04439" href="#VUID-VkSubpassDescription2-None-04439"></a>
+Attachments <strong class="purple">must</strong> follow the <a href="#attachment-type-imagelayout">image layout
+requirements</a> based on the type of attachment it is being used as</p>
+</li>
+<li>
 <p><a id="VUID-VkSubpassDescription2-flags-03076" href="#VUID-VkSubpassDescription2-flags-03076"></a>
 If <code>flags</code> includes
 <code>VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX</code>, it <strong class="purple">must</strong>
@@ -4936,6 +4981,11 @@ is not <code>VK_ATTACHMENT_UNUSED</code>, then the <code>aspectMask</code> membe
 If the <code>attachment</code> member of any element of <code>pInputAttachments</code>
 is not <code>VK_ATTACHMENT_UNUSED</code>, then the <code>aspectMask</code> member
 <strong class="purple">must</strong> not include <code>VK_IMAGE_ASPECT_METADATA_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription2-pDepthStencilAttachment-04440" href="#VUID-VkSubpassDescription2-pDepthStencilAttachment-04440"></a>
+An attachment <strong class="purple">must</strong> not be used in both <code>pDepthStencilAttachment</code>
+and <code>pColorAttachments</code></p>
 </li>
 </ul>
 </div>
@@ -8928,7 +8978,7 @@ structure.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.151<br>
+Version 1.0.152<br>
 Last updated 2020-08-10 00:16:07 -0700
 </div>
 </div>
