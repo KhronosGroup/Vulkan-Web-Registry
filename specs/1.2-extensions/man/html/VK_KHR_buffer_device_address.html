@@ -865,6 +865,18 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li>
 <p>Promoted to Vulkan 1.2 Core</p>
 </li>
+<li>
+<p>This extension requires
+<a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_physical_storage_buffer.html"><code>SPV_KHR_physical_storage_buffer</code></a></p>
+</li>
+<li>
+<p>This extension provides API support for
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference.txt"><code>GL_EXT_buffer_reference</code></a>
+and
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference2.txt"><code>GL_EXT_buffer_reference2</code></a>
+and
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference_uvec2.txt"><code>GL_EXT_buffer_reference_uvec2</code></a></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -908,13 +920,45 @@ GLSL extension and
 SPIR-V extension.</p>
 </div>
 <div class="paragraph">
-<p>This extension also allows opaque addresses for buffers and memory objects
-to be queried and later supplied by a trace capture and replay tool, so that
-addresses used at replay time match the addresses used when the trace was
-captured.
+<p>Another way to describe this extension is that it adds "pointers to buffer
+memory in shaders".
+By calling <a href="vkGetBufferDeviceAddress.html">vkGetBufferDeviceAddress</a> with a <code>VkBuffer</code>, it will
+return a <code>VkDeviceAddress</code> value which represents the address of the
+start of the buffer.</p>
+</div>
+<div class="paragraph">
+<p><a href="vkGetBufferOpaqueCaptureAddress.html">vkGetBufferOpaqueCaptureAddress</a> and
+<a href="vkGetDeviceMemoryOpaqueCaptureAddress.html">vkGetDeviceMemoryOpaqueCaptureAddress</a> allow opaque addresses for
+buffers and memory objects to be queried for the current process.
+A trace capture and replay tool can then supply these addresses to be used
+at replay time to match the addresses used when the trace was captured.
 To enable tools to insert these queries, new memory allocation flags must be
 specified for memory objects that will be bound to buffers accessed via the
-<code>PhysicalStorageBuffer</code> storage class.</p>
+<code>PhysicalStorageBuffer</code> storage class.
+Note that this mechanism is intended only to support capture/replay tools,
+and is not recommended for use in other applications.</p>
+</div>
+<div class="paragraph">
+<p>There are various use cases this extension is designed for.
+It is required for ray tracing, useful for DX12 portability, and by allowing
+buffer addresses to be stored in memory it enables more complex data
+structures to be created.</p>
+</div>
+<div class="paragraph">
+<p>This extension can also be used to hardcode a dedicated debug channel into
+all shaders by querying a pointer at startup and pushing that into shaders
+as a run-time constant (e.g. specialization constant) that avoids impacting
+other descriptor limits.</p>
+</div>
+<div class="paragraph">
+<p>There are examples of usage in the
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference.txt"><code>GL_EXT_buffer_reference</code></a>
+spec for how to use this in a high-level shading language such as GLSL.
+The
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference2.txt"><code>GL_EXT_buffer_reference2</code></a>
+and
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference_uvec2.txt"><code>GL_EXT_buffer_reference_uvec2</code></a>
+extensions were also added to help cover a few additional edge cases.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1092,6 +1136,37 @@ the core functionality.</p>
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_examples"><a class="anchor" href="#_examples"></a>Examples</h3>
+<div class="paragraph">
+<p>There are various use cases this extensions is designed for.
+It&#8217;s required for ray tracing, useful for DX12 portability, and it allows
+storing buffer addresses in memory (enabling creating more complex data
+strcutures).</p>
+</div>
+<div class="paragraph">
+<p>This extension can also be used to hardcode a dedicated debug channel into
+all shaders without impacting other descriptor limits by querying a buffer
+device address at startup and pushing that into shaders as a run-time
+constant (e.g. specialization constant).</p>
+</div>
+<div class="paragraph">
+<p>There are examples of usage in the
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference.txt"><code>GL_EXT_buffer_reference</code></a>
+spec for how to use this in a high-level shading language such as GLSL.
+The
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference2.txt"><code>GL_EXT_buffer_reference2</code></a>
+and
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_buffer_reference_uvec2.txt"><code>GL_EXT_buffer_reference_uvec2</code></a>
+extensions were added to help cover a few edge cases missed by the original
+<code>GL_EXT_buffer_reference</code>.</p>
+</div>
+<div class="paragraph">
+<p>It is important to also be aware that the capture/replay mechanisms are
+meant for capture/replay tools, and should not be used general application
+usage.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1128,8 +1203,8 @@ Fixes and changes should be made to the generator scripts, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.152<br>
-Last updated 2020-08-26 06:27:20 -0700
+Version 1.2.153<br>
+Last updated 2020-09-06 19:44:49 -0700
 </div>
 </div>
 
