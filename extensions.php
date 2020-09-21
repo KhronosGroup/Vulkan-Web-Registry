@@ -5,6 +5,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_android_surface.html"> VK_KHR_android_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_bind_memory2.html"> VK_KHR_bind_memory2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_buffer_device_address.html"> VK_KHR_buffer_device_address </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_copy_commands2.html"> VK_KHR_copy_commands2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_create_renderpass2.html"> VK_KHR_create_renderpass2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_dedicated_allocation.html"> VK_KHR_dedicated_allocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_deferred_host_operations.html"> VK_KHR_deferred_host_operations </a> </li>
@@ -42,6 +43,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_executable_properties.html"> VK_KHR_pipeline_executable_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_library.html"> VK_KHR_pipeline_library </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_portability_subset.html"> VK_KHR_portability_subset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_push_descriptor.html"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_tracing.html"> VK_KHR_ray_tracing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_relaxed_block_layout.html"> VK_KHR_relaxed_block_layout </a> </li>
