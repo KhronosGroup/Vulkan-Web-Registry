@@ -127,6 +127,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_separate_stencil_usage.html"> VK_EXT_separate_stencil_usage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_atomic_float.html"> VK_EXT_shader_atomic_float </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_demote_to_helper_invocation.html"> VK_EXT_shader_demote_to_helper_invocation </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_image_atomic_int64.html"> VK_EXT_shader_image_atomic_int64 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_stencil_export.html"> VK_EXT_shader_stencil_export </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_ballot.html"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_vote.html"> VK_EXT_shader_subgroup_vote </a> </li>
