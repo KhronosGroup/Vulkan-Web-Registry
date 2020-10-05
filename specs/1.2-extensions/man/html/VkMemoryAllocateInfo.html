@@ -851,7 +851,13 @@ structure</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A <code>VkMemoryAllocateInfo</code> structure defines a memory import operation if
+<p>The internal data of an allocated device memory object <strong class="purple">must</strong> include a
+reference to implementation-specific resources, referred to as the memory
+object&#8217;s <em>payload</em>.
+Applications <strong class="purple">can</strong> also import and export that internal data to and from
+device memory objects to share data between Vulkan instances and other
+compatible APIs.
+A <code>VkMemoryAllocateInfo</code> structure defines a memory import operation if
 its <code>pNext</code> chain includes one of the following structures:</p>
 </div>
 <div class="ulist">
@@ -882,7 +888,10 @@ value</p>
 The implementation <strong class="purple">must</strong> query the size of these allocations from the OS.</p>
 </div>
 <div class="paragraph">
-<p>Importing memory <strong class="purple">must</strong> not modify the content of the memory.
+<p>Whether device memory objects constructed via a memory import operation hold
+a reference to their payload depends on the properties of the handle type
+used to perform the import, as defined below for each valid handle type.
+Importing memory <strong class="purple">must</strong> not modify the content of the memory.
 Implementations <strong class="purple">must</strong> ensure that importing memory does not enable the
 importing Vulkan instance to access any memory or resources in other Vulkan
 instances other than that corresponding to the memory object imported.
@@ -911,14 +920,20 @@ objects whenever possible.</p>
 </table>
 </div>
 <div class="paragraph">
+<p>Importing memory <strong class="purple">must</strong> not increase overall heap usage within a system.
+However, they <strong class="purple">must</strong> affect the following per-process values:
+  * <a href="VkPhysicalDeviceMaintenance3Properties.html">VkPhysicalDeviceMaintenance3Properties</a>::<code>maxMemoryAllocationCount</code>
+  * <a href="VkPhysicalDeviceMemoryBudgetPropertiesEXT.html">VkPhysicalDeviceMemoryBudgetPropertiesEXT</a>::<code>heapUsage</code></p>
+</div>
+<div class="paragraph">
 <p>When performing a memory import operation, it is the responsibility of the
-application to ensure the external handles meet all valid usage
-requirements.
+application to ensure the external handles and their associated payloads
+meet all valid usage requirements.
 However, implementations <strong class="purple">must</strong> perform sufficient validation of external
-handles to ensure that the operation results in a valid memory object which
-will not cause program termination, device loss, queue stalls, or corruption
-of other resources when used as allowed according to its allocation
-parameters.
+handles and payloads to ensure that the operation results in a valid memory
+object which will not cause program termination, device loss, queue stalls,
+or corruption of other resources when used as allowed according to its
+allocation parameters.
 If the external handle provided does not meet these requirements, the
 implementation <strong class="purple">must</strong> fail the memory import operation with the error code
 <code>VK_ERROR_INVALID_EXTERNAL_HANDLE</code>.</p>
@@ -967,7 +982,7 @@ If the parameters define an import operation, the external handle
 specified was created by the Vulkan API, and the external handle type is
 <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR</code>, then the values
 of <code>allocationSize</code> and <code>memoryTypeIndex</code> <strong class="purple">must</strong> match those
-specified when the memory object being imported was created</p>
+specified when the payload being imported was created.</p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryAllocateInfo-None-00643"></a> <span class="vuid">VUID-VkMemoryAllocateInfo-None-00643</span><br>
@@ -975,7 +990,7 @@ specified when the memory object being imported was created</p>
 If the parameters define an import operation and the external handle
 specified was created by the Vulkan API, the device mask specified by
 <a href="VkMemoryAllocateFlagsInfo.html">VkMemoryAllocateFlagsInfo</a> <strong class="purple">must</strong> match that specified when the
-memory object being imported was allocated</p>
+payload being imported was allocated.</p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryAllocateInfo-None-00644"></a> <span class="vuid">VUID-VkMemoryAllocateInfo-None-00644</span><br>
@@ -984,7 +999,7 @@ If the parameters define an import operation and the external handle
 specified was created by the Vulkan API, the list of physical devices
 that comprise the logical device passed to <a href="vkAllocateMemory.html">vkAllocateMemory</a> <strong class="purple">must</strong>
 match the list of physical devices that comprise the logical device on
-which the memory was originally allocated</p>
+which the payload was originally allocated.</p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryAllocateInfo-memoryTypeIndex-00645"></a> <span class="vuid">VUID-VkMemoryAllocateInfo-memoryTypeIndex-00645</span><br>
@@ -1002,7 +1017,7 @@ created by the Vulkan API, and the external handle type is
 <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR</code> or
 <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR</code>, then the
 values of <code>allocationSize</code> and <code>memoryTypeIndex</code> <strong class="purple">must</strong> match
-those specified when the memory object being imported was created</p>
+those specified when the payload being imported was created.</p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryAllocateInfo-allocationSize-00647"></a> <span class="vuid">VUID-VkMemoryAllocateInfo-allocationSize-00647</span><br>
@@ -1010,7 +1025,7 @@ those specified when the memory object being imported was created</p>
 If the parameters define an import operation and the external handle
 type is <code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT</code>,
 <code>allocationSize</code> <strong class="purple">must</strong> match the size specified when creating the
-Direct3D 12 heap from which the external handle was extracted</p>
+Direct3D 12 heap from which the payload was extracted.</p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryAllocateInfo-memoryTypeIndex-00648"></a> <span class="vuid">VUID-VkMemoryAllocateInfo-memoryTypeIndex-00648</span><br>
@@ -1273,8 +1288,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.155<br>
-Last updated 2020-09-27 22:04:42 -0700
+Version 1.2.156<br>
+Last updated 2020-10-04 19:08:31 -0700
 </div>
 </div>
 

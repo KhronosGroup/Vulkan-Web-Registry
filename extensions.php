@@ -89,6 +89,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_memory_report.html"> VK_EXT_device_memory_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_direct_mode_display.html"> VK_EXT_direct_mode_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_directfb_surface.html"> VK_EXT_directfb_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_discard_rectangles.html"> VK_EXT_discard_rectangles </a> </li>
