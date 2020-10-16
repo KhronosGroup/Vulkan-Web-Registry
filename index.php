@@ -227,13 +227,13 @@ include_once("../../assets/static_pages/khr_page_top.php");
     core API specification, and for registered Vulkan API extensions. </p>
 
 <p> All published extension specifications are included in the <tt><a
-    href="https://github.com/KhronosGroup/Vulkan-Docs/tree/master">master</a></tt>
+    href="https://github.com/KhronosGroup/Vulkan-Docs/tree/main">main</a></tt>
     git branch. Specifications and reference pages can be built with or
     without different combinations of extensions by appropriate invocation
     of the Makefile. </p>
 
 <p> All versions of the Vulkan Specification can be generated out of the
-    <tt>master</tt> branch. </p>
+    <tt>main</tt> branch. </p>
 
 <p> Other branches in the repository are of historical interest only. </p>
 

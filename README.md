@@ -5,7 +5,7 @@ Registry, including generated specifications and reference pages, and
 reference cards. The sources for these documents are mostly found in the
 separate https://github.com/KhronosGroup/Vulkan-Docs repository; this
 repository is used as a backing store for the web view of the registry at
-https://www.khronos.org/registry/vulkan/ . Commits to the master branch of
+https://www.khronos.org/registry/vulkan/ . Commits to the main branch of
 Vulkan-Web-Registry will be reflected in the web view.
 
 Interesting files in this repository include:
