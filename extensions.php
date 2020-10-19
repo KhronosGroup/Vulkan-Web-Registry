@@ -29,6 +29,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_capabilities.html"> VK_KHR_external_semaphore_capabilities </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_fd.html"> VK_KHR_external_semaphore_fd </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_win32.html"> VK_KHR_external_semaphore_win32 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_fragment_shading_rate.html"> VK_KHR_fragment_shading_rate </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_display_properties2.html"> VK_KHR_get_display_properties2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_memory_requirements2.html"> VK_KHR_get_memory_requirements2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_physical_device_properties2.html"> VK_KHR_get_physical_device_properties2 </a> </li>
@@ -57,6 +58,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_float_controls.html"> VK_KHR_shader_float_controls </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_non_semantic_info.html"> VK_KHR_shader_non_semantic_info </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_subgroup_extended_types.html"> VK_KHR_shader_subgroup_extended_types </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_terminate_invocation.html"> VK_KHR_shader_terminate_invocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shared_presentable_image.html"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_spirv_1_4.html"> VK_KHR_spirv_1_4 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_storage_buffer_storage_class.html"> VK_KHR_storage_buffer_storage_class </a> </li>

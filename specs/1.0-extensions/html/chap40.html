@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.157 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.158 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.157 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.158 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.157,</span>
-<span id="revdate">2020-10-12 06:51:07Z</span>
-<br><span id="revremark">from git branch: github-main commit: fa50015cb517fc3105ffdab1fc055e322a682265</span>
+<span id="revnumber">version 1.0.158,</span>
+<span id="revdate">2020-10-19 05:08:11Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9fd8fd599b47a67b2eb078b2f5c9e6a2adc922a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1091,12 +1091,13 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap27.html#primrast-order">26.3. Rasterization Order</a></li>
 <li><a href="chap27.html#primsrast-multisampling">26.4. Multisampling</a></li>
 <li><a href="chap27.html#primrast-samplelocations">26.5. Custom Sample Locations</a></li>
-<li><a href="chap27.html#primsrast-shading-rate-image">26.6. Shading Rate Image</a></li>
-<li><a href="chap27.html#primsrast-sampleshading">26.7. Sample Shading</a></li>
-<li><a href="chap27.html#primsrast-barycentric">26.8. Barycentric Interpolation</a></li>
-<li><a href="chap27.html#primsrast-points">26.9. Points</a></li>
-<li><a href="chap27.html#primsrast-lines">26.10. Line Segments</a></li>
-<li><a href="chap27.html#primsrast-polygons">26.11. Polygons</a></li>
+<li><a href="chap27.html#primsrast-fragment-shading-rate">26.6. Fragment Shading Rates</a></li>
+<li><a href="chap27.html#primsrast-shading-rate-image">26.7. Shading Rate Image</a></li>
+<li><a href="chap27.html#primsrast-sampleshading">26.8. Sample Shading</a></li>
+<li><a href="chap27.html#primsrast-barycentric">26.9. Barycentric Interpolation</a></li>
+<li><a href="chap27.html#primsrast-points">26.10. Points</a></li>
+<li><a href="chap27.html#primsrast-lines">26.11. Line Segments</a></li>
+<li><a href="chap27.html#primsrast-polygons">26.12. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap28.html#fragops">27. Fragment Operations</a>
@@ -2176,20 +2177,19 @@ image instructions.</p>
 </li>
 <li>
 <p><a id="limits-minInterpolationOffset"></a> <code>minInterpolationOffset</code> is the
-minimum negative offset value for the <code>offset</code> operand of the
-<code>InterpolateAtOffset</code> extended instruction.</p>
+base minimum (inclusive) negative offset value for the <code>Offset</code>
+operand of the <code>InterpolateAtOffset</code> extended instruction.</p>
 </li>
 <li>
 <p><a id="limits-maxInterpolationOffset"></a> <code>maxInterpolationOffset</code> is the
-maximum positive offset value for the <code>offset</code> operand of the
-<code>InterpolateAtOffset</code> extended instruction.</p>
+base maximum (inclusive) positive offset value for the <code>Offset</code>
+operand of the <code>InterpolateAtOffset</code> extended instruction.</p>
 </li>
 <li>
 <p><a id="limits-subPixelInterpolationOffsetBits"></a>
-<code>subPixelInterpolationOffsetBits</code> is the number of subpixel
-fractional bits that the <code>x</code> and <code>y</code> offsets to the
-<code>InterpolateAtOffset</code> extended instruction <strong class="purple">may</strong> be rounded to as
-fixed-point values.</p>
+<code>subPixelInterpolationOffsetBits</code> is the number of fractional bits
+that the <code>x</code> and <code>y</code> offsets to the <code>InterpolateAtOffset</code>
+extended instruction <strong class="purple">may</strong> be rounded to as fixed-point values.</p>
 </li>
 <li>
 <p><a id="limits-maxFramebufferWidth"></a> <code>maxFramebufferWidth</code> is the maximum
@@ -2243,6 +2243,7 @@ includes a stencil component.</p>
 number of color attachments that <strong class="purple">can</strong> be used by a subpass in a render
 pass.
 The <code>colorAttachmentCount</code> member of the <code>VkSubpassDescription</code>
+or <code>VkSubpassDescription2</code>
 structure <strong class="purple">must</strong> be less than or equal to this limit.</p>
 </li>
 <li>
@@ -5641,6 +5642,277 @@ is filled with the implementation-dependent limits.</p>
 </div>
 </div>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPhysicalDeviceFragmentShadingRatePropertiesKHR</code> structure is
+defined as:</p>
+</div>
+<div id="VkPhysicalDeviceFragmentShadingRatePropertiesKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkPhysicalDeviceFragmentShadingRatePropertiesKHR {
+    VkStructureType          sType;
+    <span class="directive">void</span>*                    pNext;
+    VkExtent2D               minFragmentShadingRateAttachmentTexelSize;
+    VkExtent2D               maxFragmentShadingRateAttachmentTexelSize;
+    uint32_t                 maxFragmentShadingRateAttachmentTexelSizeAspectRatio;
+    VkBool32                 primitiveFragmentShadingRateWithMultipleViewports;
+    VkBool32                 layeredShadingRateAttachments;
+    VkBool32                 fragmentShadingRateNonTrivialCombinerOps;
+    VkExtent2D               maxFragmentSize;
+    uint32_t                 maxFragmentSizeAspectRatio;
+    uint32_t                 maxFragmentShadingRateCoverageSamples;
+    VkSampleCountFlagBits    maxFragmentShadingRateRasterizationSamples;
+    VkBool32                 fragmentShadingRateWithShaderDepthStencilWrites;
+    VkBool32                 fragmentShadingRateWithSampleMask;
+    VkBool32                 fragmentShadingRateWithShaderSampleMask;
+    VkBool32                 fragmentShadingRateWithConservativeRasterization;
+    VkBool32                 fragmentShadingRateWithFragmentShaderInterlock;
+    VkBool32                 fragmentShadingRateWithCustomSampleLocations;
+    VkBool32                 fragmentShadingRateStrictMultiplyCombiner;
+} VkPhysicalDeviceFragmentShadingRatePropertiesKHR;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The members of the <code>VkPhysicalDeviceFragmentShadingRatePropertiesKHR</code>
+structure describe the following implementation-dependent properties related
+to <a href="#primsrast-primsrast-fragment-shading-rate">fragment shading rates</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><a id="limits-minFragmentShadingRateAttachmentTexelSize"></a>
+<code>minFragmentShadingRateAttachmentTexelSize</code> indicates minimum
+supported width and height of the portion of the framebuffer
+corresponding to each texel in a fragment shading rate attachment.
+Each value <strong class="purple">must</strong> be less than or equal to the values in
+<code>maxFragmentShadingRateAttachmentTexelSize</code>.
+Each value <strong class="purple">must</strong> be a power-of-two.
+It <strong class="purple">must</strong> be <span class="eq">(0,0)</span> if the <a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not supported.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentShadingRateAttachmentTexelSize"></a>
+<code>maxFragmentShadingRateAttachmentTexelSize</code> indicates maximum
+supported width and height of the portion of the framebuffer
+corresponding to each texel in a fragment shading rate attachment.
+Each value <strong class="purple">must</strong> be greater than or equal to the values in
+<code>minFragmentShadingRateAttachmentTexelSize</code>.
+Each value <strong class="purple">must</strong> be a power-of-two.
+It <strong class="purple">must</strong> be <span class="eq">(0,0)</span> if the <a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not supported.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentShadingRateAttachmentTexelSizeAspectRatio"></a>
+<code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code> indicates the
+maximum ratio between the width and height of the portion of the
+framebuffer corresponding to each texel in a fragment shading rate
+attachment.
+<code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code> <strong class="purple">must</strong> be a
+power-of-two value, and <strong class="purple">must</strong> be less than or equal to
+<span class="eq">max(<code>maxFragmentShadingRateAttachmentTexelSize.width</code> /
+minFragmentShadingRateAttachmentTexelSize.height,
+<code>maxFragmentShadingRateAttachmentTexelSize.height</code> /
+minFragmentShadingRateAttachmentTexelSize.width)</span>.
+It <strong class="purple">must</strong> be 0 if the <a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not supported.</p>
+</li>
+<li>
+<p><a id="limits-primitiveFragmentShadingRateWithMultipleViewports"></a>
+    <code>primitiveFragmentShadingRateWithMultipleViewports</code> specifies
+    whether the <a href="chap27.html#primsrast-fragment-shading-rate-primitive">primitive
+    fragment shading rate</a> <strong class="purple">can</strong> be used when multiple viewports are used.
+    If this value is <code>VK_FALSE</code>, only a single viewport <strong class="purple">must</strong> be used,
+    and applications <strong class="purple">must</strong> not write to the
+    <code>ViewportMaskNV</code> or
+    <code>ViewportIndex</code> built-in when setting <code>PrimitiveShadingRateKHR</code>.
+    It <strong class="purple">must</strong> be <code>VK_FALSE</code> if
+    the <a href="chap48.html#VK_EXT_shader_viewport_index_layer">VK_EXT_shader_viewport_index_layer</a> extension,
+or
+    the <a href="chap39.html#features-geometryShader"><code>geometryShader</code></a> feature is not
+    supported, or if the <a href="chap39.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a> feature is not supported.</p>
+</li>
+<li>
+<p><a id="limits-layeredShadingRateAttachments"></a>
+    <code>layeredShadingRateAttachments</code> specifies whether a shading rate
+    attachment image view <strong class="purple">can</strong> be created with multiple layers.
+    If this value is <code>VK_FALSE</code>, when creating an image view with a
+    <code>usage</code> that includes
+    <code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>,
+    <code>layerCount</code> <strong class="purple">must</strong> be <code>1</code>.
+    It <strong class="purple">must</strong> be <code>VK_FALSE</code> if
+    the <a href="chap39.html#features-multiview"><code>multiview</code></a> feature,
+    the <a href="chap48.html#VK_EXT_shader_viewport_index_layer">VK_EXT_shader_viewport_index_layer</a> extension,
+or
+    the <a href="chap39.html#features-geometryShader"><code>geometryShader</code></a> feature is not
+    supported, or if the <a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not supported.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateNonTrivialCombinerOps"></a>
+<code>fragmentShadingRateNonTrivialCombinerOps</code> specifies whether
+<a href="chap27.html#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a> enums other than
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code> or
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR</code> <strong class="purple">can</strong> be used.
+It <strong class="purple">must</strong> be <code>VK_FALSE</code> unless either the
+<a href="chap39.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a> or
+<a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is supported.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentSize"></a> <code>maxFragmentSize</code> indicates the maximum
+supported width and height of a fragment.
+Its <code>width</code> and <code>height</code> members <strong class="purple">must</strong> both be power-of-two
+values.
+This limit is purely informational, and is not validated.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentSizeAspectRatio"></a> <code>maxFragmentSizeAspectRatio</code>
+indicates the maximum ratio between the width and height of a fragment.
+<code>maxFragmentSizeAspectRatio</code> <strong class="purple">must</strong> be a power-of-two value, and
+<strong class="purple">must</strong> be less than or equal to the maximum of the <code>width</code> and
+<code>height</code> members of <code>maxFragmentSize</code>.
+This limit is purely informational, and is not validated.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentShadingRateCoverageSamples"></a>
+<code>maxFragmentShadingRateCoverageSamples</code> specifies the maximum number
+of coverage samples supported in a single fragment.
+<code>maxFragmentShadingRateCoverageSamples</code> <strong class="purple">must</strong> be less than or equal
+to the product of the <code>width</code> and <code>height</code> members of
+<code>maxFragmentSize</code>, and the sample count reported by
+<code>maxFragmentShadingRateRasterizationSamples</code>.
+<code>maxFragmentShadingRateCoverageSamples</code> <strong class="purple">must</strong> be less than or equal
+to <span class="eq"><code>maxSampleMaskWords</code> * 32</span> if
+<code>fragmentShadingRateWithShaderSampleMask</code> is supported.
+This limit is purely informational, and is not validated.</p>
+</li>
+<li>
+<p><a id="limits-maxFragmentShadingRateRasterizationSamples"></a>
+<code>maxFragmentShadingRateRasterizationSamples</code> specifies the maximum
+sample rate supported when a fragment covers multiple pixels.
+This limit is purely informational, and is not validated.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithShaderDepthStencilWrites"></a>
+<code>fragmentShadingRateWithShaderDepthStencilWrites</code> specifies whether
+the implementation supports writing <code>FragDepth</code>
+or <code>FragStencilRefEXT</code>
+from a fragment shader for multi-pixel fragments.
+If this value is <code>VK_FALSE</code>, writing to those built-ins will clamp
+the fragment shading rate to <span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithSampleMask"></a>
+<code>fragmentShadingRateWithSampleMask</code> specifies whether the the
+implementation supports setting valid bits of
+<a href="chap27.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::pSampleMask to <code>0</code> for
+multi-pixel fragments.
+If this value is <code>VK_FALSE</code>, zeroing valid bits in the sample mask
+will clamp the fragment shading rate to <span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithShaderSampleMask"></a>
+<code>fragmentShadingRateWithShaderSampleMask</code> specifies whether the
+implementation supports reading or writing <code>SampleMask</code> for
+multi-pixel fragments.
+If this value is <code>VK_FALSE</code>, using that built-in will clamp the
+fragment shading rate to <span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithConservativeRasterization"></a>
+<code>fragmentShadingRateWithConservativeRasterization</code>
+specifies whether <a href="chap27.html#primsrast-conservativeraster">conservative
+rasterization</a> is supported for multi-pixel fragments.
+It <strong class="purple">must</strong> be <code>VK_FALSE</code> if <a href="chap48.html#VK_EXT_conservative_rasterization">VK_EXT_conservative_rasterization</a> is
+not supported.
+If this value is <code>VK_FALSE</code>, using <a href="chap27.html#primsrast-conservativeraster">conservative rasterization</a> will clamp the fragment shading rate to
+<span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithFragmentShaderInterlock"></a>
+<code>fragmentShadingRateWithFragmentShaderInterlock</code>
+specifies whether <a href="chap9.html#shaders-fragment-shader-interlock">fragment shader
+interlock</a> is supported for multi-pixel fragments.
+It <strong class="purple">must</strong> be <code>VK_FALSE</code> if <a href="chap48.html#VK_EXT_fragment_shader_interlock">VK_EXT_fragment_shader_interlock</a> is
+not supported.
+If this value is <code>VK_FALSE</code>, using
+<a href="chap9.html#shaders-fragment-shader-interlock">fragment shader interlock</a> will
+clamp the fragment shading rate to <span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateWithCustomSampleLocations"></a>
+<code>fragmentShadingRateWithCustomSampleLocations</code>
+specifies whether <a href="chap27.html#primrast-samplelocations">custom sample locations</a>
+are supported for multi-pixel fragments.
+It <strong class="purple">must</strong> be <code>VK_FALSE</code> if <a href="chap48.html#VK_EXT_sample_locations">VK_EXT_sample_locations</a> is not
+supported.
+If this value is <code>VK_FALSE</code>, using <a href="chap27.html#primrast-samplelocations">custom sample locations</a> will clamp the fragment shading rate to
+<span class="eq">(1,1)</span>.</p>
+</li>
+<li>
+<p><a id="limits-fragmentShadingRateStrictMultiplyCombiner"></a>
+<code>fragmentShadingRateStrictMultiplyCombiner</code> specifies whether
+VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR accurately performs a
+multiplication or not.
+Implementations where this value is <code>VK_FALSE</code> will instead combine
+rates with an addition.
+If <code>fragmentShadingRateNonTrivialCombinerOps</code> is <code>VK_FALSE</code>,
+implementations <strong class="purple">must</strong> report this as <code>VK_FALSE</code>.
+If <code>fragmentShadingRateNonTrivialCombinerOps</code> is <code>VK_TRUE</code>,
+implementations <strong class="purple">should</strong> report this as <code>VK_TRUE</code>.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Multiplication of the combiner rates using the fragment width/height in
+linear space is equivalent to an addition of those values in log2 space.
+Some implementations inadvertently implemented an addition in linear space
+due to unclear requirements originating outside of this specification.
+This resulted in <a href="#limits-fragmentShadingRateStrictMultiplyCombiner"><code>fragmentShadingRateStrictMultiplyCombiner</code></a> being added.
+Fortunately, this only affects situations where a rate of 1 in either
+dimension is combined with another rate of 1.
+All other combinations result in the exact same result as if multiplication
+was performed in linear space due to the clamping logic, and the fact that
+both the sum and product of 2 and 2 are equal.
+In many cases, this limit will not affect the correct operation of
+applications.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceFragmentShadingRatePropertiesKHR</code> structure is
+included in the <code>pNext</code> chain of <a href="chap5.html#VkPhysicalDeviceProperties2">VkPhysicalDeviceProperties2</a>, it
+is filled with the implementation-dependent limits.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceFragmentShadingRatePropertiesKHR-sType-sType" href="#VUID-VkPhysicalDeviceFragmentShadingRatePropertiesKHR-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceFragmentShadingRatePropertiesKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="sect2">
 <h3 id="limits-minmax"><a class="anchor" href="#limits-minmax"></a>39.1. Limit Requirements</h3>
 <div class="paragraph">
@@ -5653,7 +5925,7 @@ If an implementation supports a feature, the limits reported are the same
 whether or not the feature is enabled.</p>
 </div>
 <table id="limits-types" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 48. Required Limit Types</caption>
+<caption class="title">Table 51. Required Limit Types</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 50%;">
@@ -6572,10 +6844,95 @@ whether or not the feature is enabled.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>robustUniformBufferAccessSizeAlignment</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap48.html#VK_EXT_robustness2">VK_EXT_robustness2</a></code></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2 × <code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>minFragmentShadingRateAttachmentTexelSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2 × <code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateAttachmentTexelSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>primitiveFragmentShadingRateWithMultipleViewports</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layeredShadingRateAttachments</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateNonTrivialCombinerOps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2 × <code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentSizeAspectRatio</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint32_t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateCoverageSamples</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#VkSampleCountFlagBits">VkSampleCountFlagBits</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateRasterizationSamples</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithShaderDepthStencilWrites</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithSampleMask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithShaderSampleMask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithConservativeRasterization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithFragmentShaderInterlock</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithCustomSampleLocations</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VkBool32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateStrictMultiplyCombiner</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap39.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a></code></p></td>
+</tr>
 </tbody>
 </table>
 <table id="limits-required" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 49. Required Limits</caption>
+<caption class="title">Table 52. Required Limits</caption>
 <colgroup>
 <col style="width: 50.7246%;">
 <col style="width: 13.0434%;">
@@ -7893,6 +8250,114 @@ whether or not the feature is enabled.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">256</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>minFragmentShadingRateAttachmentTexelSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(0,0)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(32,32)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateAttachmentTexelSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(0,0)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(8,8)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>primitiveFragmentShadingRateWithMultipleViewports</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layeredShadingRateAttachments</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateNonTrivialCombinerOps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(2,2)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(4,4)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentSizeAspectRatio</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateCoverageSamples</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxFragmentShadingRateRasterizationSamples</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_SAMPLE_COUNT_4_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithShaderDepthStencilWrites</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithSampleMask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithShaderSampleMask</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithConservativeRasterization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithFragmentShaderInterlock</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateWithCustomSampleLocations</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fragmentShadingRateStrictMultiplyCombiner</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">implementation-dependent</p></td>
+</tr>
 </tbody>
 </table>
 <div class="dlist">
@@ -8153,7 +8618,7 @@ device.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.157<br>
+Version 1.0.158<br>
 Last updated 2020-08-29 21:21:32 -0700
 </div>
 </div>

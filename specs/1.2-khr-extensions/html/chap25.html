@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.157 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.158 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.157 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.158 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.157,</span>
-<span id="revdate">2020-10-12 06:30:36Z</span>
-<br><span id="revremark">from git branch: github-main commit: fa50015cb517fc3105ffdab1fc055e322a682265</span>
+<span id="revnumber">version 1.2.158,</span>
+<span id="revdate">2020-10-19 04:47:03Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9fd8fd599b47a67b2eb078b2f5c9e6a2adc922a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1054,10 +1054,11 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
 <li><a href="#primrast-order">24.2. Rasterization Order</a></li>
 <li><a href="#primsrast-multisampling">24.3. Multisampling</a></li>
-<li><a href="#primsrast-sampleshading">24.4. Sample Shading</a></li>
-<li><a href="#primsrast-points">24.5. Points</a></li>
-<li><a href="#primsrast-lines">24.6. Line Segments</a></li>
-<li><a href="#primsrast-polygons">24.7. Polygons</a></li>
+<li><a href="#primsrast-fragment-shading-rate">24.4. Fragment Shading Rates</a></li>
+<li><a href="#primsrast-sampleshading">24.5. Sample Shading</a></li>
+<li><a href="#primsrast-points">24.6. Points</a></li>
+<li><a href="#primsrast-lines">24.7. Line Segments</a></li>
+<li><a href="#primsrast-polygons">24.8. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#fragops">25. Fragment Operations</a>
@@ -1741,6 +1742,9 @@ that generated the fragment.</p>
 <div class="paragraph">
 <p>Single pixel fragments
 have one set of samples.
+Multi-pixel fragments defined by setting the
+<a href="#primsrast-fragment-shading-rate">fragment shading rate</a> have one set of
+samples per pixel.
 Each set of samples has a number of samples determined by
 <a href="#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>rasterizationSamples</code>.
 Each sample in a set is assigned a unique <em>sample index</em> <span class="eq">i</span> in the
@@ -1753,6 +1757,470 @@ is the number of sets in the fragment.
 If the fragment contains a single set of samples, the <em>coverage index</em> is
 always equal to the <em>sample index</em>.</p>
 </div>
+<div id="primsrast-multisampling-coverage-mask-vrfs" class="paragraph">
+<p>If the <a href="#primsrast-fragment-shading-rate">fragment shading rate</a> is set,
+the coverage index <span class="eq">j</span> is determined as a function of the <em>pixel index</em>
+<span class="eq">p</span>, the <em>sample index</em> <span class="eq">i</span>, and the number of rasterization samples
+<span class="eq">r</span> as:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">j = i + r × ((f<sub>w</sub> * f<sub>h</sub>) - 1 - p)</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where the pixel index <span class="eq">p</span> is determined as a function of the pixel’s
+framebuffer location <span class="eq">(x,y)</span> and the fragment size <span class="eq">(f<sub>w</sub>,f<sub>h</sub>)</span>:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">p<sub>x</sub> = x % f<sub>w</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">p<sub>y</sub> = y % f<sub>h</sub></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">p = p<sub>x</sub> + (p<sub>y</sub> * f<sub>w</sub>)</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The table below illustrates the pixel index for multi-pixel fragments:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 28. Pixel indices - 1 wide</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">1x1</th>
+<th class="tableblock halign-left valign-top">1x2</th>
+<th class="tableblock halign-left valign-top">1x4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_1x1.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 27.77969 26.901191" height="101.67381" width="104.99409">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:window-height="1018" inkscape:window-width="960" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="13.121973" inkscape:cx="4.4991286" inkscape:zoom="2.0930361" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-89.436898" originx="-20.366723" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,-11.729621)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.854018,12.251027 18.520828,1.8e-5 v 18.520833 l -18.520817,-0.001 -1.1e-5,-18.519799" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(-22.751249,-5.5676023)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 6.614579,10e-4 m 5.291666,0 6.614583,-9.1e-5" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path sodipodi:nodetypes="cccc" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="m 31.562353,30.77186 -2e-6,-6.614583 m 0,-5.291666 3e-6,-6.614582" id="path1473" inkscape:connector-curvature="0"></path>
+    <g transform="translate(0.83905268,0.28766514)" id="g545">
+      <g transform="translate(-3.7341421,26.933758)" id="g277">
+        <text id="text121-3-7-8" y="-4.0993972" x="35.296494" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583" y="-4.0993972" x="35.296494" id="tspan119-1-8-3" sodipodi:role="line">y</tspan></text>
+        <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="33.31522" y="-4.6513033" id="text121-3-7-8-9"><tspan sodipodi:role="line" id="tspan239" x="33.31522" y="-4.6513033">f</tspan></text>
+      </g>
+    </g>
+    <text transform="scale(0.98828059,1.0118584)" style="stroke-width:0.00380337" id="text23" font-size="4.18372px" fill="#ff0000" y="22.779236" x="45.329342">0</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_1x2.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 27.779696 45.528409" height="172.07588" width="104.99412">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview showguides="false" inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="954" inkscape:window-height="1010" inkscape:window-width="958" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="-15.114603" inkscape:cx="29.873733" inkscape:zoom="1.48" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-70.809709" originx="-20.366718" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,6.8975958)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.854017,-6.2698068 h 18.520834 l 10e-7,37.0416328 -18.520823,-0.001 -1.2e-5,-37.0406328 m 18.520835,18.5208318 -18.520823,-10e-4" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(-22.751244,-5.5676207)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 6.614584,10e-4 m 5.291667,0 6.614583,-6.3e-5" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path sodipodi:nodetypes="cccc" style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="m 31.562353,30.77186 -3e-6,-15.875 m 0,-5.2916663 4e-6,-15.8750005" id="path1473" inkscape:connector-curvature="0"></path>
+    <g id="g277" transform="translate(-2.8950905,17.961006)">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="35.296494" y="-4.0993972" id="text121-3-7-8"><tspan sodipodi:role="line" id="tspan119-1-8-3" x="35.296494" y="-4.0993972" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583">y</tspan></text>
+      <text id="text121-3-7-8-9" y="-4.6513033" x="33.31522" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="-4.6513033" x="33.31522" id="tspan239" sodipodi:role="line">f</tspan></text>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.674101" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="4.4754329" x="45.329346">1</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_1x4.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 27.779696 82.720522" height="312.6445" width="104.99412">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="954" inkscape:window-height="1010" inkscape:window-width="958" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="285.32692" inkscape:cx="152.58531" inkscape:zoom="1.48" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-33.617598" originx="-20.366717" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,44.089711)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.85402,-43.312509 18.520832,10e-4 v 74.083335 l -18.520823,-0.001 -9e-6,-74.083337 m 18.520832,55.563536 -18.520823,-10e-4 m -7e-6,-18.5208395 18.52083,0.00101 m 0,-18.5208335 -18.52083,-9.73e-4" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(-22.751244,-5.5676207)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 6.614584,10e-4 m 5.291667,0 6.614583,-6.3e-5" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="M 31.562353,30.77186 V -3.6239751 m 10e-7,-5.2916661 V -43.311476" id="path1473" inkscape:connector-curvature="0"></path>
+    <g id="g277" transform="translate(-2.9074896,-0.27595285)">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="35.296494" y="-4.0993972" id="text121-3-7-8"><tspan sodipodi:role="line" id="tspan119-1-8-3" x="35.296494" y="-4.0993972" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583">y</tspan></text>
+      <text id="text121-3-7-8-9" y="-4.6513033" x="33.31522" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="-4.6513033" x="33.31522" id="tspan239" sodipodi:role="line">f</tspan></text>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.525417" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="4.3267488" x="45.329346">1</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-2" font-size="4.18372px" fill="#ff0000" y="-13.977032" x="45.32935">2</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-8" font-size="4.18372px" fill="#ff0000" y="-32.385925" x="45.329346">3</text>
+  </g>
+</svg></span></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 29. Pixel indices - 2 wide</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">2x1</th>
+<th class="tableblock halign-left valign-top">2x2</th>
+<th class="tableblock halign-left valign-top">2x4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_2x1.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 46.406909 26.901191" height="101.67381" width="175.39618">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:window-height="1018" inkscape:window-width="960" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="-37.066166" inkscape:cx="161.67627" inkscape:zoom="1.48" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-89.436907" originx="-20.366719" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,-11.729621)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.854018,12.251027 37.041663,9e-6 v 18.520833 l -37.041652,-10e-4 -1.1e-5,-18.519799 m 18.520834,0 1.1e-5,18.519799" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(-13.49083,-5.5676114)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 15.874997,10e-4 m 5.291667,0 15.874999,-4.1e-5" style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path sodipodi:nodetypes="cccc" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="m 31.562353,30.77186 -2e-6,-6.614583 m 0,-5.291666 3e-6,-6.614582" id="path1473" inkscape:connector-curvature="0"></path>
+    <g transform="translate(0.83905268,0.28766514)" id="g545">
+      <g transform="translate(-3.7341421,26.933758)" id="g277">
+        <text id="text121-3-7-8" y="-4.0993972" x="35.296494" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583" y="-4.0993972" x="35.296494" id="tspan119-1-8-3" sodipodi:role="line">y</tspan></text>
+        <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="33.31522" y="-4.6513033" id="text121-3-7-8-9"><tspan sodipodi:role="line" id="tspan239" x="33.31522" y="-4.6513033">f</tspan></text>
+      </g>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.779236" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="22.884348" x="64.069801">1</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="175.39619" height="172.07588" viewBox="0 0 46.406913 45.528409" version="1.1" id="svg8" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" sodipodi:docname="pixel_index_2x2.svg">
+  <defs id="defs2">
+    <marker inkscape:isstock="true" style="overflow:visible" id="marker1483" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path1481" inkscape:connector-curvature="0"></path>
+    </marker>
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="Arrow1Lend" style="overflow:visible" inkscape:isstock="true" inkscape:collect="always">
+      <path id="path977" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)" inkscape:connector-curvature="0"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="1.48" inkscape:cx="169.6136" inkscape:cy="69.828393" inkscape:document-units="px" inkscape:current-layer="layer1" showgrid="true" inkscape:snap-object-midpoints="true" inkscape:snap-text-baseline="true" inkscape:window-width="1920" inkscape:window-height="1018" inkscape:window-x="-1926" inkscape:window-y="-6" inkscape:window-maximized="1" fit-margin-top="1" fit-margin-right="1" fit-margin-bottom="1" fit-margin-left="1" units="px" inkscape:snap-center="true" inkscape:document-rotation="0">
+    <inkscape:grid type="xygrid" id="grid12" originx="-20.366717" originy="-70.809709" dotted="false"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-28.116567,6.8975975)">
+    <path style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="m 36.854018,-6.2698085 h 37.041668 l 10e-7,37.0416345 -37.041658,-0.001 -1.1e-5,-37.0406345 m 18.520834,0 1.1e-5,37.0406345 m 18.520824,-18.519802 -37.041658,-10e-4" id="path1171" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccccccc"></path>
+    <g transform="translate(-13.490826,-5.5676219)" id="g271">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="69.692329" y="43.525604" id="text121-3-7-8-0"><tspan y="43.525604" x="69.692329" sodipodi:role="line" id="tspan265">x</tspan></text>
+      <text id="text121-3-7-8-9-1" y="42.973698" x="67.711052" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="42.973698" x="67.711052" id="tspan239-0" sodipodi:role="line" style="stroke-width:0.264583">f</tspan></text>
+    </g>
+    <path style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 36.854018,36.062494 15.875002,10e-4 m 5.291666,0 15.875001,-3.1e-5" id="path972" inkscape:connector-curvature="0" sodipodi:nodetypes="cccc"></path>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path1473" d="m 31.562353,30.77186 -1e-6,-15.875001 m 0,-5.2916671 2e-6,-15.8750004" style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)"></path>
+    <g transform="translate(-2.8950893,17.961004)" id="g277">
+      <text id="text121-3-7-8" y="-4.0993972" x="35.296494" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583" y="-4.0993972" x="35.296494" id="tspan119-1-8-3" sodipodi:role="line">y</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="33.31522" y="-4.6513033" id="text121-3-7-8-9"><tspan sodipodi:role="line" id="tspan239" x="33.31522" y="-4.6513033">f</tspan></text>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.674099" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="22.779211" x="64.069809">1</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-2" font-size="4.18372px" fill="#ff0000" y="4.4754314" x="45.32935">2</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-8" font-size="4.18372px" fill="#ff0000" y="4.3703194" x="64.069809">3</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_2x4.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 46.406913 82.720522" height="312.6445" width="175.39619">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="1" inkscape:window-y="-6" inkscape:window-x="-1926" inkscape:window-height="1018" inkscape:window-width="1920" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="208.74124" inkscape:cx="196.91567" inkscape:zoom="1.48" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-33.617599" originx="-20.366716" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,44.089711)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.85402,-43.312509 37.041667,10e-4 v 74.083335 l -37.041658,-0.001 -9e-6,-74.083337 m 18.520836,0 7e-6,74.083337 m 18.520824,-18.519802 -37.041658,-10e-4 m -7e-6,-18.5208395 37.041665,0.00101 m 0,-18.5208335 -37.041665,-9.76e-4" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(-13.490826,-5.5676219)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 15.875002,10e-4 m 5.291666,0 15.875001,-3.1e-5" style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="M 31.562353,30.77186 V -3.6239751 m 10e-7,-5.2916661 V -43.311476" id="path1473" inkscape:connector-curvature="0"></path>
+    <g id="g277" transform="translate(-2.9074896,-0.27595285)">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="35.296494" y="-4.0993972" id="text121-3-7-8"><tspan sodipodi:role="line" id="tspan119-1-8-3" x="35.296494" y="-4.0993972" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583">y</tspan></text>
+      <text id="text121-3-7-8-9" y="-4.6513033" x="33.31522" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="-4.6513033" x="33.31522" id="tspan239" sodipodi:role="line">f</tspan></text>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.525415" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="22.630529" x="64.069809">1</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-2" font-size="4.18372px" fill="#ff0000" y="4.3267484" x="45.32935">2</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-8" font-size="4.18372px" fill="#ff0000" y="4.2216382" x="64.069809">3</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-1" font-size="4.18372px" fill="#ff0000" y="-14.082145" x="64.069801">5</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-11" font-size="4.18372px" fill="#ff0000" y="-14.082145" x="45.329342">4</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-27" font-size="4.18372px" fill="#ff0000" y="-32.385925" x="64.069809">7</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-77" font-size="4.18372px" fill="#ff0000" y="-32.385925" x="45.329342">6</text>
+  </g>
+</svg></span></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 30. Pixel indices - 4 wide</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">4x1</th>
+<th class="tableblock halign-left valign-top">4x2</th>
+<th class="tableblock halign-left valign-top">4x4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_4x1.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 83.599029 26.901193" height="101.67381" width="315.96481">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:window-height="1018" inkscape:window-width="960" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="-24.670431" inkscape:cx="169.31763" inkscape:zoom="2.0930361" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-89.436916" originx="-20.366717" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,-11.729621)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.854018,12.251027 h 74.083332 l 1e-5,18.520799 -74.083331,-0.001 -1.1e-5,-18.519799 m 18.520834,0 1.1e-5,18.519799 m 18.520832,0 -1e-5,-18.519799 m 18.520834,0 1.5e-5,18.519799" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(5.0424113,-5.8514966)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 34.395836,10e-4 m 5.291669,0 h 34.395837" style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path sodipodi:nodetypes="cccc" style="fill:none;stroke:#000000;stroke-width:0.132291px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="m 31.562353,30.77186 -2e-6,-6.614583 m 0,-5.291666 3e-6,-6.614582" id="path1473" inkscape:connector-curvature="0"></path>
+    <g transform="translate(0.83905268,0.28766514)" id="g545">
+      <g transform="translate(-3.7341421,26.933758)" id="g277">
+        <text id="text121-3-7-8" y="-4.0993972" x="35.296494" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583" y="-4.0993972" x="35.296494" id="tspan119-1-8-3" sodipodi:role="line">y</tspan></text>
+        <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="33.31522" y="-4.6513033" id="text121-3-7-8-9"><tspan sodipodi:role="line" id="tspan239" x="33.31522" y="-4.6513033">f</tspan></text>
+      </g>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.779238" x="45.329342">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="22.88435" x="64.069809">1</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-2" font-size="4.18372px" fill="#ff0000" y="22.88435" x="82.810272">2</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-8" font-size="4.18372px" fill="#ff0000" y="22.779238" x="101.55073">3</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="pixel_index_4x2.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 83.599029 45.528413" height="172.0759" width="315.96481">
+  <defs id="defs2">
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="marker1483" style="overflow:visible" inkscape:isstock="true">
+      <path inkscape:connector-curvature="0" id="path1481" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)"></path>
+    </marker>
+    <marker inkscape:collect="always" inkscape:isstock="true" style="overflow:visible" id="Arrow1Lend" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path inkscape:connector-curvature="0" transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path977"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview inkscape:document-rotation="0" inkscape:snap-center="true" units="px" fit-margin-left="1" fit-margin-bottom="1" fit-margin-right="1" fit-margin-top="1" inkscape:window-maximized="0" inkscape:window-y="0" inkscape:window-x="0" inkscape:window-height="1018" inkscape:window-width="960" inkscape:snap-text-baseline="true" inkscape:snap-object-midpoints="true" showgrid="true" inkscape:current-layer="layer1" inkscape:document-units="px" inkscape:cy="106.05324" inkscape:cx="172.63552" inkscape:zoom="1.7437838" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base">
+    <inkscape:grid dotted="false" originy="-70.809709" originx="-20.366716" id="grid12" type="xygrid"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(-28.116567,6.8975986)" id="layer1" inkscape:groupmode="layer" inkscape:label="Layer 1">
+    <path sodipodi:nodetypes="ccccccccccccc" inkscape:connector-curvature="0" id="path1171" d="m 36.854019,-6.2698096 h 74.083331 l 1e-5,37.0416356 -74.083331,-0.001 -10e-6,-37.0406356 m 18.520834,0 10e-6,37.0406356 m 18.520832,0 -8e-6,-37.0406356 m 18.520833,0 1.4e-5,37.0406356 m 18.520826,-18.519802 -74.083331,-10e-4" style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"></path>
+    <g id="g271" transform="translate(5.0424113,-5.8514966)">
+      <text id="text121-3-7-8-0" y="43.525604" x="69.692329" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan id="tspan265" sodipodi:role="line" x="69.692329" y="43.525604">x</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="67.711052" y="42.973698" id="text121-3-7-8-9-1"><tspan style="stroke-width:0.264583" sodipodi:role="line" id="tspan239-0" x="67.711052" y="42.973698">f</tspan></text>
+    </g>
+    <path sodipodi:nodetypes="cccc" inkscape:connector-curvature="0" id="path972" d="m 36.854018,36.062494 34.395836,10e-4 m 5.291669,0 h 34.395837" style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"></path>
+    <path sodipodi:nodetypes="cccc" style="fill:none;stroke:#000000;stroke-width:0.187088px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)" d="m 31.562353,30.77186 -1e-6,-15.875002 m 0,-5.2916673 2e-6,-15.8750003" id="path1473" inkscape:connector-curvature="0"></path>
+    <g id="g277" transform="translate(-2.9074907,18.244879)">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="35.296494" y="-4.0993972" id="text121-3-7-8"><tspan sodipodi:role="line" id="tspan119-1-8-3" x="35.296494" y="-4.0993972" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583">y</tspan></text>
+      <text id="text121-3-7-8-9" y="-4.6513033" x="33.31522" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="-4.6513033" x="33.31522" id="tspan239" sodipodi:role="line">f</tspan></text>
+    </g>
+    <text x="45.329342" y="22.674097" fill="#ff0000" font-size="4.18372px" id="text23" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">0</text>
+    <text x="64.069809" y="22.779209" fill="#ff0000" font-size="4.18372px" id="text23-7" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">1</text>
+    <text x="82.810272" y="22.779209" fill="#ff0000" font-size="4.18372px" id="text23-2" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">2</text>
+    <text x="101.55073" y="22.674097" fill="#ff0000" font-size="4.18372px" id="text23-8" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">3</text>
+    <text x="101.55073" y="4.370317" fill="#ff0000" font-size="4.18372px" id="text23-27" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">7</text>
+    <text x="82.810265" y="4.370317" fill="#ff0000" font-size="4.18372px" id="text23-77" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">6</text>
+    <text x="64.069801" y="4.370317" fill="#ff0000" font-size="4.18372px" id="text23-1" style="stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">5</text>
+    <text x="45.329342" y="4.370317" fill="#ff0000" font-size="4.18372px" id="text23-11" style="letter-spacing:0px;stroke-width:0.00380336" transform="scale(0.98828058,1.0118584)">4</text>
+  </g>
+</svg></span></p></td>
+<td class="tableblock halign-left valign-bottom"><p class="tableblock"><span class="image"><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="315.96481" height="312.6445" viewBox="0 0 83.599029 82.720522" version="1.1" id="svg8" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" sodipodi:docname="pixel_index_4x4.svg">
+  <defs id="defs2">
+    <marker inkscape:isstock="true" style="overflow:visible" id="marker1483" refX="0" refY="0" orient="auto" inkscape:stockid="Arrow1Lend">
+      <path transform="matrix(-0.8,0,0,-0.8,-10,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path1481" inkscape:connector-curvature="0"></path>
+    </marker>
+    <marker inkscape:stockid="Arrow1Lend" orient="auto" refY="0" refX="0" id="Arrow1Lend" style="overflow:visible" inkscape:isstock="true" inkscape:collect="always">
+      <path id="path977" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.8,0,0,-0.8,-10,0)" inkscape:connector-curvature="0"></path>
+    </marker>
+  </defs>
+  <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0" inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="2.0930361" inkscape:cx="170.48768" inkscape:cy="152.56606" inkscape:document-units="px" inkscape:current-layer="layer1" showgrid="true" inkscape:snap-object-midpoints="true" inkscape:snap-text-baseline="true" inkscape:window-width="960" inkscape:window-height="1018" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="0" fit-margin-top="1" fit-margin-right="1" fit-margin-bottom="1" fit-margin-left="1" units="px" inkscape:snap-center="true" inkscape:document-rotation="0">
+    <inkscape:grid type="xygrid" id="grid12" originx="-20.366714" originy="-33.617597" dotted="false"></inkscape:grid>
+  </sodipodi:namedview>
+  <metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-28.116566,44.089714)">
+    <path style="fill:none;stroke:#808080;stroke-width:0.264583;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="m 36.85402,-43.312509 74.08334,10e-4 v 74.083335 l -74.083331,-0.001 -9e-6,-74.083337 m 18.520836,0 7e-6,74.083337 m 18.520832,0 -7e-6,-74.083337 m 18.520832,0 1.4e-5,74.083337 m 18.520826,-18.519802 -74.083331,-10e-4 m -7e-6,-18.5208395 74.083338,0.00103 m 0,-18.5208335 -74.083338,-0.001" id="path1171" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccccccccccccccc"></path>
+    <g transform="translate(5.0424113,-5.8514966)" id="g271">
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82223px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="69.692329" y="43.525604" id="text121-3-7-8-0"><tspan y="43.525604" x="69.692329" sodipodi:role="line" id="tspan265">x</tspan></text>
+      <text id="text121-3-7-8-9-1" y="42.973698" x="67.711052" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan y="42.973698" x="67.711052" id="tspan239-0" sodipodi:role="line" style="stroke-width:0.264583">f</tspan></text>
+    </g>
+    <path style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" d="m 36.854018,36.062494 34.395836,10e-4 m 5.291669,0 h 34.395837" id="path972" inkscape:connector-curvature="0" sodipodi:nodetypes="cccc"></path>
+    <path inkscape:connector-curvature="0" id="path1473" d="M 31.562353,30.77186 V -3.6239751 m 10e-7,-5.2916661 V -43.311476" style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker1483)"></path>
+    <g transform="translate(-2.9074896,-0.27595285)" id="g277">
+      <text id="text121-3-7-8" y="-4.0993972" x="35.296494" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" xml:space="preserve"><tspan style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;stroke-width:0.264583" y="-4.0993972" x="35.296494" id="tspan119-1-8-3" sodipodi:role="line">y</tspan></text>
+      <text xml:space="preserve" style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583" x="33.31522" y="-4.6513033" id="text121-3-7-8-9"><tspan sodipodi:role="line" id="tspan239" x="33.31522" y="-4.6513033">f</tspan></text>
+    </g>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23" font-size="4.18372px" fill="#ff0000" y="22.777164" x="45.30484">0</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-7" font-size="4.18372px" fill="#ff0000" y="22.882277" x="64.045311">1</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-2" font-size="4.18372px" fill="#ff0000" y="22.882277" x="82.785767">2</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-8" font-size="4.18372px" fill="#ff0000" y="22.777164" x="101.52623">3</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-27" font-size="4.18372px" fill="#ff0000" y="4.4733834" x="101.52623">7</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-77" font-size="4.18372px" fill="#ff0000" y="4.4733834" x="82.785759">6</text>
+    <text transform="scale(0.98828058,1.0118584)" style="stroke-width:0.00380336" id="text23-1" font-size="4.18372px" fill="#ff0000" y="4.4733834" x="64.045296">5</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-11" font-size="4.18372px" fill="#ff0000" y="4.4733834" x="45.30484">4</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-86" font-size="4.18372px" fill="#ff0000" y="-13.858997" x="45.288502">8</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-7-0" font-size="4.18372px" fill="#ff0000" y="-13.753885" x="64.028969">9</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-2-7" font-size="4.18372px" fill="#ff0000" y="-13.828354" x="81.334328">10</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-8-8" font-size="4.18372px" fill="#ff0000" y="-13.822226" x="100.15957">11</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-27-2" font-size="4.18372px" fill="#ff0000" y="-32.157669" x="100.08501">15</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-77-7" font-size="4.18372px" fill="#ff0000" y="-32.126007" x="81.297562">14</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-1-9" font-size="4.18372px" fill="#ff0000" y="-32.131111" x="62.613274">13</text>
+    <text transform="scale(0.98828058,1.0118584)" style="letter-spacing:0px;stroke-width:0.00380336" id="text23-11-4" font-size="4.18372px" fill="#ff0000" y="-32.099449" x="43.851364">12</text>
+  </g>
+</svg></span></p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
 <p>The coverage mask includes <span class="eq">B</span> bits packed into <span class="eq">W</span> words, defined
 as:</p>
@@ -1787,7 +2255,7 @@ fragment.</p>
 </div>
 <div style="page-break-after: always;"></div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 28. Standard sample locations</caption>
+<caption class="title">Table 31. Standard sample locations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -2038,7 +2506,812 @@ fragment.</p>
 </table>
 </div>
 <div class="sect2">
-<h3 id="primsrast-sampleshading"><a class="anchor" href="#primsrast-sampleshading"></a>24.4. Sample Shading</h3>
+<h3 id="primsrast-fragment-shading-rate"><a class="anchor" href="#primsrast-fragment-shading-rate"></a>24.4. Fragment Shading Rates</h3>
+<div class="paragraph">
+<p>The features advertised by
+<a href="chap35.html#VkPhysicalDeviceFragmentShadingRateFeaturesKHR">VkPhysicalDeviceFragmentShadingRateFeaturesKHR</a> allow an application to
+control the <a href="chap47.html#glossary-shading-rate">shading rate</a> of a given fragment
+shader invocation.</p>
+</div>
+<div class="paragraph">
+<p>The fragment shading rate strongly interacts with <a href="#primsrast-multisampling">Multisampling</a>, and the set of available rates for an implementation <strong class="purple">may</strong>
+be restricted by sample rate.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query available shading rates, call:</p>
+</div>
+<div id="vkGetPhysicalDeviceFragmentShadingRatesKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+VkResult vkGetPhysicalDeviceFragmentShadingRatesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pFragmentShadingRateCount,
+    VkPhysicalDeviceFragmentShadingRateKHR*     pFragmentShadingRates);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>physicalDevice</code> is the handle to the physical device whose
+properties will be queried.</p>
+</li>
+<li>
+<p><code>pFragmentShadingRateCount</code> is a pointer to an integer related to
+the number of fragment shading rates available or queried, as described
+below.</p>
+</li>
+<li>
+<p><code>pFragmentShadingRates</code> is either <code>NULL</code> or a pointer to an array of
+<a href="#VkPhysicalDeviceFragmentShadingRateKHR">VkPhysicalDeviceFragmentShadingRateKHR</a> structures.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pFragmentShadingRates</code> is <code>NULL</code>, then the number of fragment
+shading rates available is returned in <code>pFragmentShadingRateCount</code>.
+Otherwise, <code>pFragmentShadingRateCount</code> <strong class="purple">must</strong> point to a variable set by
+the user to the number of elements in the <code>pFragmentShadingRates</code> array,
+and on return the variable is overwritten with the number of structures
+actually written to <code>pFragmentShadingRates</code>.
+If <code>pFragmentShadingRateCount</code> is less than the number of fragment
+shading rates available, at most <code>pFragmentShadingRateCount</code> structures
+will be written, and <code>VK_INCOMPLETE</code> will be returned instead of
+<code>VK_SUCCESS</code>, to indicate that not all the available fragment shading
+rates were returned.</p>
+</div>
+<div class="paragraph">
+<p>The returned array of fragment shading rates <strong class="purple">must</strong> be ordered from largest
+<code>fragmentSize.width</code> value to smallest, and each set of fragment shading
+rates with the same <code>fragmentSize.width</code> value <strong class="purple">must</strong> be ordered from
+largest <code>fragmentSize.height</code> to smallest.
+Any two entries in the array <strong class="purple">must</strong> not have the same <code>fragmentSize</code>
+values.</p>
+</div>
+<div class="paragraph">
+<p>For any entry in the array, the following rules also apply:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The value of <code>fragmentSize.width</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap36.html#limits-maxFragmentSize"><code>maxFragmentSize.width</code></a>.</p>
+</li>
+<li>
+<p>The value of <code>fragmentSize.width</code> <strong class="purple">must</strong> be greater than or equal to
+<code>1</code>.</p>
+</li>
+<li>
+<p>The value of <code>fragmentSize.width</code> <strong class="purple">must</strong> be a power-of-two.</p>
+</li>
+<li>
+<p>The value of <code>fragmentSize.height</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap36.html#limits-maxFragmentSize"><code>maxFragmentSize.height</code></a>.</p>
+</li>
+<li>
+<p>The value of <code>fragmentSize.height</code> <strong class="purple">must</strong> be greater than or equal to
+<code>1</code>.</p>
+</li>
+<li>
+<p>The value of <code>fragmentSize.height</code> <strong class="purple">must</strong> be a power-of-two.</p>
+</li>
+<li>
+<p>The highest sample count in <code>sampleCounts</code> <strong class="purple">must</strong> be less than or
+equal to <a href="chap36.html#limits-maxFragmentShadingRateRasterizationSamples"><code>maxFragmentShadingRateRasterizationSamples</code></a>.</p>
+</li>
+<li>
+<p>The product of <code>fragmentSize.width</code>, <code>fragmentSize.height</code>, and
+the highest sample count in <code>sampleCounts</code> <strong class="purple">must</strong> be less than or
+equal to <a href="chap36.html#limits-maxFragmentShadingRateCoverageSamples"><code>maxFragmentShadingRateCoverageSamples</code></a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Implementations <strong class="purple">must</strong> support at least the following shading rates:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><code>sampleCounts</code></th>
+<th class="tableblock halign-left valign-top"><code>fragmentSize</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_SAMPLE_COUNT_1_BIT</code> | <code>VK_SAMPLE_COUNT_4_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">{2,2}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_SAMPLE_COUNT_1_BIT</code> | <code>VK_SAMPLE_COUNT_4_BIT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">{2,1}</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">~0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">{1,1}</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>If <a href="chap36.html#limits-framebufferColorSampleCounts"><code>framebufferColorSampleCounts</code></a>, includes <code>VK_SAMPLE_COUNT_2_BIT</code>,
+the required rates <strong class="purple">must</strong> also include <code>VK_SAMPLE_COUNT_2_BIT</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Including the {1,1} fragment size is done for completeness; it has no actual
+effect on the support of rendering without setting the fragment size.
+All sample counts are supported for this rate.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-physicalDevice-parameter" href="#VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-physicalDevice-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-physicalDevice-parameter</span><br>
+ <code>physicalDevice</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRateCount-parameter" href="#VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRateCount-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRateCount-parameter</span><br>
+ <code>pFragmentShadingRateCount</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint32_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRates-parameter" href="#VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRates-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceFragmentShadingRatesKHR-pFragmentShadingRates-parameter</span><br>
+ If the value referenced by <code>pFragmentShadingRateCount</code> is not <code>0</code>, and <code>pFragmentShadingRates</code> is not <code>NULL</code>, <code>pFragmentShadingRates</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pFragmentShadingRateCount</code> <a href="#VkPhysicalDeviceFragmentShadingRateKHR">VkPhysicalDeviceFragmentShadingRateKHR</a> structures</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPhysicalDeviceFragmentShadingRateKHR</code> structure is defined as</p>
+</div>
+<div id="VkPhysicalDeviceFragmentShadingRateKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkPhysicalDeviceFragmentShadingRateKHR {
+    VkStructureType       sType;
+    <span class="directive">void</span>*                 pNext;
+    VkSampleCountFlags    sampleCounts;
+    VkExtent2D            fragmentSize;
+} VkPhysicalDeviceFragmentShadingRateKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>sampleCounts</code> is a bitmask of sample counts for which the shading
+rate described by <code>fragmentSize</code> is supported.</p>
+</li>
+<li>
+<p><code>fragmentSize</code> is a <a href="chap3.html#VkExtent2D">VkExtent2D</a> describing the width and height
+of a supported shading rate.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceFragmentShadingRateKHR-sType-sType" href="#VUID-VkPhysicalDeviceFragmentShadingRateKHR-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceFragmentShadingRateKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceFragmentShadingRateKHR-pNext-pNext" href="#VUID-VkPhysicalDeviceFragmentShadingRateKHR-pNext-pNext"></a> <span class="vuid">VUID-VkPhysicalDeviceFragmentShadingRateKHR-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Fragment shading rates <strong class="purple">can</strong> be set at three points, with the three rates
+combined to determine the final shading rate.</p>
+</div>
+<div class="sect3">
+<h4 id="primsrast-fragment-shading-rate-pipeline"><a class="anchor" href="#primsrast-fragment-shading-rate-pipeline"></a>24.4.1. Pipeline Fragment Shading Rate</h4>
+<div class="paragraph">
+<p>The <em>pipeline fragment shading rate</em> <strong class="purple">can</strong> be set on a per-draw basis by
+either setting the rate in a graphics pipeline, or dynamically via
+<a href="#vkCmdSetFragmentShadingRateKHR">vkCmdSetFragmentShadingRateKHR</a>.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPipelineFragmentShadingRateStateCreateInfoKHR</code> structure is
+defined as:</p>
+</div>
+<div id="VkPipelineFragmentShadingRateStateCreateInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkPipelineFragmentShadingRateStateCreateInfoKHR {
+    VkStructureType                       sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                           pNext;
+    VkExtent2D                            fragmentSize;
+    VkFragmentShadingRateCombinerOpKHR    combinerOps[<span class="integer">2</span>];
+} VkPipelineFragmentShadingRateStateCreateInfoKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>fragmentSize</code> specifies a <a href="chap3.html#VkExtent2D">VkExtent2D</a> structure containing the
+fragment size used to define the pipeline fragment shading rate for draw
+commands using this pipeline.</p>
+</li>
+<li>
+<p><code>combinerOps</code> specifies a <a href="#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a>
+value determining how the
+<a href="#primsrast-fragment-shading-rate-pipeline">pipeline</a>,
+<a href="#primsrast-fragment-shading-rate-primitive">primitive</a>, and
+<a href="#primsrast-fragment-shading-rate-attachment">attachment shading rates</a>
+are <a href="#primsrast-fragment-shading-rate-combining">combined</a> for fragments
+generated by drawing commands using the created pipeline.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>pNext</code> chain of <a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a> includes a
+<code>VkPipelineFragmentShadingRateStateCreateInfoKHR</code> structure, then that
+structure includes parameters that control the pipeline fragment shading
+rate.</p>
+</div>
+<div class="paragraph">
+<p>If this structure is not present, <code>fragmentSize</code> is considered to be
+equal to <span class="eq">(1,1)</span>, and both elements of <code>combinerOps</code> are considered
+to be equal to <code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-sType-sType" href="#VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-sType-sType"></a> <span class="vuid">VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-combinerOps-parameter" href="#VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-combinerOps-parameter"></a> <span class="vuid">VUID-VkPipelineFragmentShadingRateStateCreateInfoKHR-combinerOps-parameter</span><br>
+ Any given element of <code>combinerOps</code> <strong class="purple">must</strong> be a valid <a href="#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>If a pipeline state object is created with
+<code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> enabled, the pipeline
+fragment shading rate and combiner operation is set by the command:</p>
+</div>
+<div id="vkCmdSetFragmentShadingRateKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="directive">void</span> vkCmdSetFragmentShadingRateKHR(
+    VkCommandBuffer                             commandBuffer,
+    <span class="directive">const</span> VkExtent2D*                           pFragmentSize,
+    <span class="directive">const</span> VkFragmentShadingRateCombinerOpKHR    combinerOps[<span class="integer">2</span>]);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>pFragmentSize</code> specifies the pipeline fragment shading rate for
+subsequent draw commands.</p>
+</li>
+<li>
+<p><code>combinerOps</code> specifies a <a href="#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a>
+determining how the
+<a href="#primsrast-fragment-shading-rate-pipeline">pipeline</a>,
+<a href="#primsrast-fragment-shading-rate-primitive">primitive</a>, and
+<a href="#primsrast-fragment-shading-rate-attachment">attachment shading rates</a>
+are <a href="#primsrast-fragment-shading-rate-combining">combined</a> for fragments
+generated by subsequent drawing commands.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04507" href="#VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04507"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04507</span><br>
+
+If <a href="chap35.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a> is not enabled,
+<code>pFragmentSize</code>-&gt;<code>width</code> <strong class="purple">must</strong> be <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04508" href="#VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04508"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04508</span><br>
+
+If <a href="chap35.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a> is not enabled,
+<code>pFragmentSize</code>-&gt;<code>height</code> <strong class="purple">must</strong> be <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04509" href="#VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04509"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pipelineFragmentShadingRate-04509</span><br>
+
+One of <a href="chap35.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a>,
+<a href="chap35.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a>, or
+<a href="chap35.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-primitiveFragmentShadingRate-04510" href="#VUID-vkCmdSetFragmentShadingRateKHR-primitiveFragmentShadingRate-04510"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-primitiveFragmentShadingRate-04510</span><br>
+
+If the <a href="#feature-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code> feature</a> is not enabled,
+<code>combinerOps</code>[0] <strong class="purple">must</strong> be
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-attachmentFragmentShadingRate-04511" href="#VUID-vkCmdSetFragmentShadingRateKHR-attachmentFragmentShadingRate-04511"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-attachmentFragmentShadingRate-04511</span><br>
+
+If the <a href="#feature-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code> feature</a> is not enabled,
+<code>combinerOps</code>[1] <strong class="purple">must</strong> be
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-fragmentSizeNonTrivialCombinerOps-04512" href="#VUID-vkCmdSetFragmentShadingRateKHR-fragmentSizeNonTrivialCombinerOps-04512"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-fragmentSizeNonTrivialCombinerOps-04512</span><br>
+
+If the <a href="chap36.html#limits-fragmentShadingRateNonTrivialCombinerOps"><code>fragmentSizeNonTrivialCombinerOps</code></a> limit is not supported,
+elements of <code>combinerOps</code> <strong class="purple">must</strong> be either
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code> or
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04513" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04513"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04513</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>width</code> <strong class="purple">must</strong> be greater than or equal to <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04514" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04514"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04514</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>height</code> <strong class="purple">must</strong> be greater than or equal to <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04515" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04515"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04515</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>width</code> <strong class="purple">must</strong> be a power-of-two value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04516" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04516"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04516</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>height</code> <strong class="purple">must</strong> be a power-of-two value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04517" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04517"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04517</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>width</code> <strong class="purple">must</strong> be less than or equal to <code>4</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04518" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04518"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-04518</span><br>
+
+<code>pFragmentSize</code>-&gt;<code>height</code> <strong class="purple">must</strong> be less than or equal to <code>4</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-parameter" href="#VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-parameter" href="#VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-parameter"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-pFragmentSize-parameter</span><br>
+ <code>pFragmentSize</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap3.html#VkExtent2D">VkExtent2D</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-combinerOps-parameter" href="#VUID-vkCmdSetFragmentShadingRateKHR-combinerOps-parameter"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-combinerOps-parameter</span><br>
+ Any given element of <code>combinerOps</code> <strong class="purple">must</strong> be a valid <a href="#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a> value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-recording" href="#VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-cmdpool" href="#VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdSetFragmentShadingRateKHR-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="primsrast-fragment-shading-rate-primitive"><a class="anchor" href="#primsrast-fragment-shading-rate-primitive"></a>24.4.2. Primitive Fragment Shading Rate</h4>
+<div class="paragraph">
+<p>The <em>primitive fragment shading rate</em> <strong class="purple">can</strong> be set via the
+<a href="#interfaces-builtin-variables-fragmentshadingrate"><code>PrimitiveShadingRateKHR</code></a> built-in in the last active vertex processing
+shader stage.
+The rate associated with a given primitive is sourced from the value written
+to <code>PrimitiveShadingRateKHR</code> by that primitive’s
+<a href="chap24.html#vertexpostproc-flatshading">provoking vertex</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="primsrast-fragment-shading-rate-attachment"><a class="anchor" href="#primsrast-fragment-shading-rate-attachment"></a>24.4.3. Attachment Fragment Shading Rate</h4>
+<div class="paragraph">
+<p>The <em>attachment shading rate</em> <strong class="purple">can</strong> be set by including
+<a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> in a subpass to define a
+<em>fragment shading rate attachment</em>.
+Each pixel in the framebuffer is assigned an attachment fragment shading
+rate by the corresponding texel in the fragment shading rate attachment,
+according to:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x' = floor(x / region<sub>x</sub>)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y' = floor(y / region<sub>y</sub>)</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">x'</span> and <span class="eq">y'</span> are the coordinates of a texel in the fragment
+shading rate attachment, <span class="eq">x</span> and <span class="eq">y</span> are the coordinates of the
+pixel in the framebuffer, and <span class="eq">region<sub>x</sub></span> and <span class="eq">region<sub>y</sub></span> are the
+size of the region each texel corresponds to, as defined by the
+<code>shadingRateAttachmentTexelSize</code> member of
+<a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a>.</p>
+</div>
+<div class="paragraph">
+<p>If <a href="chap8.html#VkRenderPassMultiviewCreateInfo">multiview is enabled</a> and the shading
+rate attachment has multiple layers, the shading rate attachment texel is
+selected from the layer determined by the
+<a href="chap15.html#interfaces-builtin-variables-viewindex"><code>ViewIndex</code></a> built-in.
+If <a href="chap8.html#VkRenderPassMultiviewCreateInfo">multiview is disabled</a>, and both the
+shading rate attachment and the framebuffer have multiple layers, the
+shading rate attachment texel is selected from the layer determined by the
+<a href="chap15.html#interfaces-builtin-variables-layer"><code>Layer</code></a> built-in.
+Otherwise, the texel is unconditionally selected from the first layer of the
+attachment.</p>
+</div>
+<div class="paragraph">
+<p>The fragment size is encoded into the first component of the identified
+texel, according as follows:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">size<sub>w</sub> = 2<sup>((texel/4)&amp;3)</sup></span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">size<sub>h</sub> = 2<sup>(texel&amp;3)</sup></span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">texel</span> is the value in the first component of the identified
+texel, and <span class="eq">size<sub>w</sub></span> and <span class="eq">size<sub>h</sub></span> are the width and height of the
+fragment size, decoded from the texel.</p>
+</div>
+<div class="paragraph">
+<p>If no fragment shading rate attachment is specified, this size is calculated
+as <span class="eq">size<sub>w</sub> = size<sub>h</sub> = 1</span>.
+Applications <strong class="purple">must</strong> not specify a width or height greater than 4 by this
+method.</p>
+</div>
+<div class="paragraph">
+<p>The <em>Fragment Shading Rate</em> enumeration in SPIR-V adheres to the above
+encoding.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="primsrast-fragment-shading-rate-combining"><a class="anchor" href="#primsrast-fragment-shading-rate-combining"></a>24.4.4. Combining the Fragment Shading Rates</h4>
+<div class="paragraph">
+<p>The final rate (<span class="eq">C<sub>xy</sub>'</span>) used for fragment shading <strong class="purple">must</strong> be one of the
+rates returned by <a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the
+sample count used by rasterization.</p>
+</div>
+<div class="paragraph">
+<p>If any of the following conditions are met, <span class="eq">C<sub>xy</sub>'</span> <strong class="purple">must</strong> be set to
+<span class="eq">{1,1}</span>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <a href="#primsrast-sampleshading">Sample Shading</a> is enabled.</p>
+</li>
+<li>
+<p>The <a href="chap36.html#limits-fragmentShadingRateWithSampleMask"><code>fragmentShadingRateWithSampleMask</code></a> limit is not supported, and
+<a href="#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>pSampleMask</code> contains a
+zero value in any bit used by fragment operations.</p>
+</li>
+<li>
+<p>The <a href="chap36.html#limits-fragmentShadingRateWithShaderSampleMask"><code>fragmentShadingRateWithShaderSampleMask</code></a> is not supported, and
+the fragment shader has <code>SampleMask</code> in the input or output
+interface.</p>
+</li>
+<li>
+<p>The <a href="chap36.html#limits-fragmentShadingRateWithShaderDepthStencilWrites"><code>fragmentShadingRateWithShaderDepthStencilWrites</code></a> limit is not
+supported, and the fragment shader declares the <code>FragDepth</code>
+built-in.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Otherwise, each of the specified shading rates are combined and then used to
+derive the value of <span class="eq">C<sub>xy</sub>'</span>.
+As there are three ways to specify shading rates, two combiner operations
+are specified - between the
+<a href="#primsrast-fragment-shading-rate-pipeline">pipeline</a> and
+<a href="#primsrast-fragment-shading-rate-primitive">primitive</a> shading rates, and
+between the result of that and the
+<a href="#primsrast-fragment-shading-rate-attachment">attachment shading rate</a>.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The equation used for each combiner operation is defined by
+<code>VkFragmentShadingRateCombinerOpKHR</code>:</p>
+</div>
+<div id="VkFragmentShadingRateCombinerOpKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkFragmentShadingRateCombinerOpKHR {
+    VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR = <span class="integer">0</span>,
+    VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR = <span class="integer">1</span>,
+    VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR = <span class="integer">2</span>,
+    VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR = <span class="integer">3</span>,
+    VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR = <span class="integer">4</span>,
+} VkFragmentShadingRateCombinerOpKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code> specifies a combiner
+operation of <span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>) = A<sub>xy</sub></span>.</p>
+</li>
+<li>
+<p><code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_REPLACE_KHR</code> specifies a
+combiner operation of <span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>) = B<sub>xy</sub></span>.</p>
+</li>
+<li>
+<p><code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MIN_KHR</code> specifies a combiner
+operation of <span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>) = min(A<sub>xy</sub>,B<sub>xy</sub>)</span>.</p>
+</li>
+<li>
+<p><code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MAX_KHR</code> specifies a combiner
+operation of <span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>) = max(A<sub>xy</sub>,B<sub>xy</sub>)</span>.</p>
+</li>
+<li>
+<p><code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR</code> combiner operation of
+<span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>) = A<sub>xy</sub>*B<sub>xy</sub></span>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">combine(A<sub>xy</sub>,B<sub>xy</sub>)</span> is the combine operation, and <span class="eq">A<sub>xy</sub></span>
+and <span class="eq">B<sub>xy</sub></span> are the inputs to the operation.</p>
+</div>
+<div class="paragraph">
+<p>If <a href="chap36.html#limits-fragmentShadingRateStrictMultiplyCombiner"><code>fragmentShadingRateStrictMultiplyCombiner</code></a> is <code>VK_FALSE</code>, using
+<code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_MUL_KHR</code> with values of 1 for both
+A and B in the same dimension results in the value 2 being produced for that
+dimension.
+See the definition of <a href="chap36.html#limits-fragmentShadingRateStrictMultiplyCombiner"><code>fragmentShadingRateStrictMultiplyCombiner</code></a> for more information.</p>
+</div>
+<div class="paragraph">
+<p>These operations are performed in a component-wise fashion.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>This is used to generate a combined fragment area using the equation:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">C<sub>xy</sub> = combine(A<sub>xy</sub>,B<sub>xy</sub>)</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">C<sub>xy</sub></span> is the combined fragment area result, and <span class="eq">A<sub>xy</sub></span> and
+<span class="eq">B<sub>xy</sub></span> are the fragment areas of the fragment shading rates being
+combined.</p>
+</div>
+<div class="paragraph">
+<p>Two combine operations are performed, first with <span class="eq">A<sub>xy</sub></span> equal to the
+<a href="#primsrast-fragment-shading-rate-pipeline">pipeline fragment shading rate</a>
+and <span class="eq">B<sub>xy</sub></span> equal to the <a href="#primsrast-fragment-shading-rate-primitive">primitive fragment shading rate</a>, with the <span class="eq">combine()</span> operation
+selected by combinerOps[0].
+A second combination is then performed, with <span class="eq">A<sub>xy</sub></span> equal to the result
+of the first combination and <span class="eq">B<sub>xy</sub></span> equal to the
+<a href="#primsrast-fragment-shading-rate-attachment">attachment fragment shading
+rate</a>, with the <span class="eq">combine()</span> operation selected by combinerOps[1].
+The result of the second combination is used as the final fragment shading
+rate, reported via the <a href="#interfaces-builtin-variables-shadingrate"><code>ShadingRateKHR</code> built-in</a>.</p>
+</div>
+<div class="paragraph">
+<p>Implementations <strong class="purple">may</strong> clamp the <span class="eq">C<sub>xy</sub></span> result of each combiner operation
+separately, or only after the second combiner operation.</p>
+</div>
+<div class="paragraph">
+<p>If the final combined rate is one of the rates returned by
+<a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample count used
+by rasterization, <span class="eq">C<sub>xy</sub>' = C<sub>xy</sub></span>.
+If swapping the y and x axes of <span class="eq">C<sub>xy</sub></span> results in one of the rates
+returned by <a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample
+count used by rasterization, implementations <strong class="purple">may</strong> choose a final rate where
+<span class="eq">C<sub>x</sub>' = C<sub>y</sub></span> and <span class="eq">C<sub>y</sub>' = C<sub>x</sub></span>.
+Otherwise, <span class="eq">C<sub>xy</sub>'</span> is derived from <span class="eq">C<sub>xy</sub></span> as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq">C<sub>xy</sub>'</span> <strong class="purple">must</strong> be one of the rates returned by
+<a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample count
+used by rasterization.</p>
+</li>
+<li>
+<p><span class="eq">C<sub>x</sub>'</span> <strong class="purple">must</strong> be in the range <span class="eq">[1, C<sub>x</sub>]</span>.</p>
+</li>
+<li>
+<p><span class="eq">C<sub>y</sub>'</span> <strong class="purple">must</strong> be in the range <span class="eq">[1, C<sub>y</sub>]</span>.</p>
+</li>
+<li>
+<p>If there are multiple supported rates matching the above criteria, the
+following steps are applied in order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Keep only rates with the highest area (<span class="eq">C<sub>x</sub>' × C<sub>y</sub>'</span>).</p>
+</li>
+<li>
+<p>Keep only rates with the lowest aspect ration (<span class="eq">C<sub>x</sub>' + 
+C<sub>y</sub>'</span>).</p>
+</li>
+<li>
+<p>In cases where a wide (e.g. 4x1) and tall (e.g. 1x4) rate remain, the
+implementation <strong class="purple">may</strong> choose either rate.
+However, it <strong class="purple">must</strong> choose this rate consistently for the same shading
+rates,
+and combiner operations for the lifetime of the <a href="chap5.html#VkDevice">VkDevice</a>.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="primsrast-sampleshading"><a class="anchor" href="#primsrast-sampleshading"></a>24.5. Sample Shading</h3>
 <div class="paragraph">
 <p>Sample shading <strong class="purple">can</strong> be used to specify a minimum number of unique samples to
 process for each fragment.
@@ -2079,7 +3352,7 @@ In this case <code>minSampleShadingFactor</code> takes the value of
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-points"><a class="anchor" href="#primsrast-points"></a>24.5. Points</h3>
+<h3 id="primsrast-points"><a class="anchor" href="#primsrast-points"></a>24.6. Points</h3>
 <div class="paragraph">
 <p>A point is drawn by generating a set of fragments in the shape of a square
 centered around the vertex of the point.
@@ -2121,7 +3394,7 @@ If an unsupported size is requested, the nearest supported size is used
 instead.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-points-basic"><a class="anchor" href="#primsrast-points-basic"></a>24.5.1. Basic Point Rasterization</h4>
+<h4 id="primsrast-points-basic"><a class="anchor" href="#primsrast-points-basic"></a>24.6.1. Basic Point Rasterization</h4>
 <div class="paragraph">
 <p>Point rasterization produces a fragment for each fragment area group of
 framebuffer pixels with one or more sample points that intersect a region
@@ -2158,7 +3431,7 @@ vertex for the point.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-lines"><a class="anchor" href="#primsrast-lines"></a>24.6. Line Segments</h3>
+<h3 id="primsrast-lines"><a class="anchor" href="#primsrast-lines"></a>24.7. Line Segments</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2286,7 +3559,7 @@ If an unsupported width is requested, the nearest supported width is used
 instead.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-lines-basic"><a class="anchor" href="#primsrast-lines-basic"></a>24.6.1. Basic Line Segment Rasterization</h4>
+<h4 id="primsrast-lines-basic"><a class="anchor" href="#primsrast-lines-basic"></a>24.7.1. Basic Line Segment Rasterization</h4>
 <div class="paragraph">
 <p>Rasterized
 line segments produce fragments which intersect a rectangle centered on the
@@ -2460,7 +3733,7 @@ Line Segment Rasterization</a>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-lines-bresenham"><a class="anchor" href="#primsrast-lines-bresenham"></a>24.6.2. Bresenham Line Segment Rasterization</h4>
+<h4 id="primsrast-lines-bresenham"><a class="anchor" href="#primsrast-lines-bresenham"></a>24.7.2. Bresenham Line Segment Rasterization</h4>
 <div class="paragraph">
 <p>Non-strict lines <strong class="purple">may</strong> also follow these rasterization rules for
 non-antialiased lines.</p>
@@ -2708,7 +3981,7 @@ those pixels (unless masked out or killed).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-polygons"><a class="anchor" href="#primsrast-polygons"></a>24.7. Polygons</h3>
+<h3 id="primsrast-polygons"><a class="anchor" href="#primsrast-polygons"></a>24.8. Polygons</h3>
 <div class="paragraph">
 <p>A polygon results from the decomposition of a triangle strip, triangle fan
 or a series of independent triangles.
@@ -2717,7 +3990,7 @@ several variables in the <a href="#VkPipelineRasterizationStateCreateInfo">VkPip
 structure.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-polygons-basic"><a class="anchor" href="#primsrast-polygons-basic"></a>24.7.1. Basic Polygon Rasterization</h4>
+<h4 id="primsrast-polygons-basic"><a class="anchor" href="#primsrast-polygons-basic"></a>24.8.1. Basic Polygon Rasterization</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2971,7 +4244,7 @@ independently and a division performed for each fragment).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-polygonmode"><a class="anchor" href="#primsrast-polygonmode"></a>24.7.2. Polygon Mode</h4>
+<h4 id="primsrast-polygonmode"><a class="anchor" href="#primsrast-polygonmode"></a>24.8.2. Polygon Mode</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3015,7 +4288,7 @@ culled before these modes are applied.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-depthbias"><a class="anchor" href="#primsrast-depthbias"></a>24.7.3. Depth Bias</h4>
+<h4 id="primsrast-depthbias"><a class="anchor" href="#primsrast-depthbias"></a>24.8.3. Depth Bias</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3237,7 +4510,7 @@ Secondary</p></td>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.157<br>
+Version 1.2.158<br>
 Last updated 2020-08-29 21:21:32 -0700
 </div>
 </div>

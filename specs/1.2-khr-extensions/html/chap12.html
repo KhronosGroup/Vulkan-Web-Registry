@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.157 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.158 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.157 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.158 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.157,</span>
-<span id="revdate">2020-10-12 06:30:36Z</span>
-<br><span id="revremark">from git branch: github-main commit: fa50015cb517fc3105ffdab1fc055e322a682265</span>
+<span id="revnumber">version 1.2.158,</span>
+<span id="revdate">2020-10-19 04:47:03Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9fd8fd599b47a67b2eb078b2f5c9e6a2adc922a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1054,10 +1054,11 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap25.html#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
 <li><a href="chap25.html#primrast-order">24.2. Rasterization Order</a></li>
 <li><a href="chap25.html#primsrast-multisampling">24.3. Multisampling</a></li>
-<li><a href="chap25.html#primsrast-sampleshading">24.4. Sample Shading</a></li>
-<li><a href="chap25.html#primsrast-points">24.5. Points</a></li>
-<li><a href="chap25.html#primsrast-lines">24.6. Line Segments</a></li>
-<li><a href="chap25.html#primsrast-polygons">24.7. Polygons</a></li>
+<li><a href="chap25.html#primsrast-fragment-shading-rate">24.4. Fragment Shading Rates</a></li>
+<li><a href="chap25.html#primsrast-sampleshading">24.5. Sample Shading</a></li>
+<li><a href="chap25.html#primsrast-points">24.6. Points</a></li>
+<li><a href="chap25.html#primsrast-lines">24.7. Line Segments</a></li>
+<li><a href="chap25.html#primsrast-polygons">24.8. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#fragops">25. Fragment Operations</a>
@@ -3353,6 +3354,20 @@ include <code>VK_IMAGE_CREATE_ALIAS_BIT</code>, <code>flags</code> <strong class
 <code>VK_IMAGE_CREATE_DISJOINT_BIT</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageCreateInfo-imageType-02082" href="#VUID-VkImageCreateInfo-imageType-02082"></a> <span class="vuid">VUID-VkImageCreateInfo-imageType-02082</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>,
+<code>imageType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_2D</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-samples-02083" href="#VUID-VkImageCreateInfo-samples-02083"></a> <span class="vuid">VUID-VkImageCreateInfo-samples-02083</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>,
+<code>samples</code> <strong class="purple">must</strong> be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageCreateInfo-imageView2DOn3DImage-04459" href="#VUID-VkImageCreateInfo-imageView2DOn3DImage-04459"></a> <span class="vuid">VUID-VkImageCreateInfo-imageView2DOn3DImage-04459</span><br>
 
 If the <code><a href="chap44.html#VK_KHR_portability_subset">VK_KHR_portability_subset</a></code> extension is enabled, and
@@ -3677,6 +3692,9 @@ intended usage of an image, are:</p>
     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT = <span class="hex">0x00000020</span>,
     VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT = <span class="hex">0x00000040</span>,
     VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT = <span class="hex">0x00000080</span>,
+    VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV = <span class="hex">0x00000100</span>,
+  <span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+    VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR = VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV,
 } VkImageUsageFlagBits;</code></pre>
 </div>
 </div>
@@ -3732,6 +3750,13 @@ be used to create a <code>VkImageView</code> suitable for occupying
 <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>; be read from a shader as an
 input attachment; and be used as an input attachment in a framebuffer.</p>
 </li>
+<li>
+<p><code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> specifies
+that the image <strong class="purple">can</strong> be used to create a <code>VkImageView</code> suitable for
+use as a
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -3771,6 +3796,9 @@ input attachment; and be used as an input attachment in a framebuffer.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -4610,10 +4638,13 @@ subresource layout mapping that is valid for either of those image layouts.</p>
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR = <span class="integer">1000001002</span>,
   <span class="comment">// Provided by VK_KHR_shared_presentable_image</span>
     VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR = <span class="integer">1000111000</span>,
+    VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV = <span class="integer">1000164003</span>,
   <span class="comment">// Provided by VK_KHR_maintenance2</span>
     VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL,
   <span class="comment">// Provided by VK_KHR_maintenance2</span>
     VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL_KHR = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL,
+  <span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+    VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR = VK_IMAGE_LAYOUT_SHADING_RATE_OPTIMAL_NV,
   <span class="comment">// Provided by VK_KHR_separate_depth_stencil_layouts</span>
     VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL_KHR = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
   <span class="comment">// Provided by VK_KHR_separate_depth_stencil_layouts</span>
@@ -4748,6 +4779,16 @@ after calling <a href="chap30.html#vkAcquireNextImageKHR">vkAcquireNextImageKHR<
 <li>
 <p><code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code> is valid only for shared
 presentable images, and <strong class="purple">must</strong> be used for any usage the image supports.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR</code> <strong class="purple">must</strong>
+    only be used as a
+    <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+    attachment</a>
+or
+    This layout is valid only for image subresources of images created with
+    the <code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> usage
+    bit enabled.</p>
 </li>
 </ul>
 </div>
@@ -5540,6 +5581,31 @@ contiguously to a single <code>VkDeviceMemory</code> object</p>
 <code>subresourceRange</code> and <code>viewType</code> <strong class="purple">must</strong> be compatible with the
 image, as described in the
 <a href="#resources-image-views-compatibility">compatibility table</a></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-image-02086" href="#VUID-VkImageViewCreateInfo-image-02086"></a> <span class="vuid">VUID-VkImageViewCreateInfo-image-02086</span><br>
+
+If <code>image</code> was created with <code>usage</code> containing
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>,
+<code>viewType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_VIEW_TYPE_2D</code> or
+<code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-usage-04550" href="#VUID-VkImageViewCreateInfo-usage-04550"></a> <span class="vuid">VUID-VkImageViewCreateInfo-usage-04550</span><br>
+
+If the <code>usage</code> for the image view includes
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>, then the
+image view’s <a href="#resources-image-view-format-features">format features</a>
+<strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-usage-04551" href="#VUID-VkImageViewCreateInfo-usage-04551"></a> <span class="vuid">VUID-VkImageViewCreateInfo-usage-04551</span><br>
+
+If the <code>usage</code> for the image view includes
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> and
+<a href="chap36.html#limits-layeredShadingRateAttachments"><code>layeredShadingRateAttachments</code></a> is <code>VK_FALSE</code>,
+<code>subresourceRange.layerCount</code> <strong class="purple">must</strong> be <code>1</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-02661" href="#VUID-VkImageViewCreateInfo-pNext-02661"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-02661</span><br>
@@ -10743,7 +10809,7 @@ address is being queried.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.157<br>
+Version 1.2.158<br>
 Last updated 2020-08-29 21:21:32 -0700
 </div>
 </div>

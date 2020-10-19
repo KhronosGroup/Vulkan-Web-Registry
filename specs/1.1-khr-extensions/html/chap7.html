@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.157 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.158 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.157 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.158 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.157,</span>
-<span id="revdate">2020-10-12 06:44:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: fa50015cb517fc3105ffdab1fc055e322a682265</span>
+<span id="revnumber">version 1.1.158,</span>
+<span id="revdate">2020-10-19 05:01:20Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9fd8fd599b47a67b2eb078b2f5c9e6a2adc922a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1054,10 +1054,11 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap25.html#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
 <li><a href="chap25.html#primrast-order">24.2. Rasterization Order</a></li>
 <li><a href="chap25.html#primsrast-multisampling">24.3. Multisampling</a></li>
-<li><a href="chap25.html#primsrast-sampleshading">24.4. Sample Shading</a></li>
-<li><a href="chap25.html#primsrast-points">24.5. Points</a></li>
-<li><a href="chap25.html#primsrast-lines">24.6. Line Segments</a></li>
-<li><a href="chap25.html#primsrast-polygons">24.7. Polygons</a></li>
+<li><a href="chap25.html#primsrast-fragment-shading-rate">24.4. Fragment Shading Rates</a></li>
+<li><a href="chap25.html#primsrast-sampleshading">24.5. Sample Shading</a></li>
+<li><a href="chap25.html#primsrast-points">24.6. Points</a></li>
+<li><a href="chap25.html#primsrast-lines">24.7. Line Segments</a></li>
+<li><a href="chap25.html#primsrast-polygons">24.8. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#fragops">25. Fragment Operations</a>
@@ -1661,6 +1662,9 @@ stalls or cache flushing.</p>
     VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR = <span class="hex">0x00200000</span>,
   <span class="comment">// Provided by VK_KHR_ray_tracing</span>
     VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR = <span class="hex">0x02000000</span>,
+    VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV = <span class="hex">0x00400000</span>,
+  <span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+    VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR = VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV,
 } VkPipelineStageFlagBits;</code></pre>
 </div>
 </div>
@@ -1804,12 +1808,23 @@ graphics pipeline stages, and is equivalent to the logical OR of:</p>
 <li>
 <p><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code></p>
 </li>
+<li>
+<p><code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
 </ul>
 </div>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> specifies all commands
 supported on the queue it is used with.</p>
+</li>
+<li>
+<p><code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>
+specifies the stage of the pipeline where the
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a>
+is read to determine the fragment shading rate for portions of a
+rasterized primitive.</p>
 </li>
 </ul>
 </div>
@@ -1961,6 +1976,10 @@ and <a href="chap5.html#devsandqueues-queues">Queues</a>.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">None required</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_QUEUE_COMPUTE_BIT</code></p></td>
 </tr>
@@ -2049,6 +2068,9 @@ stages matching the order specified here:</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT</code></p>
+</li>
+<li>
+<p><code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code></p>
@@ -2170,6 +2192,9 @@ includes accesses via the access types specified in that mask.</p>
     VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR = <span class="hex">0x00200000</span>,
   <span class="comment">// Provided by VK_KHR_ray_tracing</span>
     VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR = <span class="hex">0x00400000</span>,
+    VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV = <span class="hex">0x00800000</span>,
+  <span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+    VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR = VK_ACCESS_SHADING_RATE_IMAGE_READ_BIT_NV,
 } VkAccessFlagBits;</code></pre>
 </div>
 </div>
@@ -2266,6 +2291,12 @@ setting all <code>READ</code> access flags that are valid where it is used.</p>
 <p><code>VK_ACCESS_MEMORY_WRITE_BIT</code> specifies all write accesses.
 It is always valid in any access mask, and is treated as equivalent to
 setting all <code>WRITE</code> access flags that are valid where it is used.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR</code> specifies
+    read access to a
+fragment shading rate attachment
+    during rasterization.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR</code> specifies read
@@ -2374,6 +2405,10 @@ perform that type of access.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_MEMORY_WRITE_BIT</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR</code></p></td>
@@ -10430,6 +10465,18 @@ and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
 </li>
 <li>
+<p><a id="VUID-VkImageMemoryBarrier-oldLayout-02088" href="#VUID-VkImageMemoryBarrier-oldLayout-02088"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-02088</span><br>
+
+If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
+<a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
+<code>oldLayout</code> and <code>newLayout</code> define a
+<a href="#synchronization-image-layout-transitions">image layout transition</a>,
+and <code>oldLayout</code> or <code>newLayout</code> is
+<code>VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR</code> then
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> set</p>
+</li>
+<li>
 <p><a id="VUID-VkImageMemoryBarrier-image-01671" href="#VUID-VkImageMemoryBarrier-image-01671"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-01671</span><br>
 
 If <code>image</code> has a single-plane color format or is not <em>disjoint</em>,
@@ -10985,7 +11032,7 @@ waited on by a different physical device.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.157<br>
+Version 1.1.158<br>
 Last updated 2020-08-29 21:21:32 -0700
 </div>
 </div>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.157 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.158 - A Specification (with KHR extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,12 +797,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="book toc2 toc-left" style="max-width: 100%;">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.157 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.158 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.157,</span>
-<span id="revdate">2020-10-12 06:57:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: fa50015cb517fc3105ffdab1fc055e322a682265</span>
+<span id="revnumber">version 1.0.158,</span>
+<span id="revdate">2020-10-19 05:14:50Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9fd8fd599b47a67b2eb078b2f5c9e6a2adc922a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1052,10 +1052,11 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="chap25.html#primsrast-discard">24.1. Discarding Primitives Before Rasterization</a></li>
 <li><a href="chap25.html#primrast-order">24.2. Rasterization Order</a></li>
 <li><a href="chap25.html#primsrast-multisampling">24.3. Multisampling</a></li>
-<li><a href="chap25.html#primsrast-sampleshading">24.4. Sample Shading</a></li>
-<li><a href="chap25.html#primsrast-points">24.5. Points</a></li>
-<li><a href="chap25.html#primsrast-lines">24.6. Line Segments</a></li>
-<li><a href="chap25.html#primsrast-polygons">24.7. Polygons</a></li>
+<li><a href="chap25.html#primsrast-fragment-shading-rate">24.4. Fragment Shading Rates</a></li>
+<li><a href="chap25.html#primsrast-sampleshading">24.5. Sample Shading</a></li>
+<li><a href="chap25.html#primsrast-points">24.6. Points</a></li>
+<li><a href="chap25.html#primsrast-lines">24.7. Line Segments</a></li>
+<li><a href="chap25.html#primsrast-polygons">24.8. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap26.html#fragops">25. Fragment Operations</a>
@@ -1295,10 +1296,12 @@ contents <strong class="purple">must</strong> be preserved throughout the subpas
 <p>A subpass <em>uses an attachment</em> if the attachment is a color, depth/stencil,
 resolve,
 depth/stencil resolve,
+fragment shading rate,
 or input attachment for that subpass (as determined by the
 <code>pColorAttachments</code>, <code>pDepthStencilAttachment</code>,
 <code>pResolveAttachments</code>,
 <a href="#VkSubpassDescriptionDepthStencilResolve">VkSubpassDescriptionDepthStencilResolve</a>::<code>pDepthStencilResolveAttachment</code>,
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a>,
 and <code>pInputAttachments</code> members of <a href="#VkSubpassDescription">VkSubpassDescription</a>,
 respectively).
 A subpass does not use an attachment if that attachment is preserved by the
@@ -1311,7 +1314,13 @@ subpass that uses that attachment.</p>
 <div class="paragraph">
 <p>The subpasses in a render pass all render to the same dimensions, and
 fragments for pixel (x,y,layer) in one subpass <strong class="purple">can</strong> only read attachment
-contents written by previous subpasses at that same (x,y,layer) location.</p>
+contents written by previous subpasses at that same (x,y,layer) location.
+For multi-pixel fragments, the pixel read from an input attachment is
+selected from the pixels covered by that fragment in an implementation-
+dependent manner.
+However, this selection <strong class="purple">must</strong> be made consistently for any fragment with the
+same shading rate
+for the lifetime of the <a href="chap5.html#VkDevice">VkDevice</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -3613,10 +3622,20 @@ subpass.</p>
 </ul>
 </div>
 <div id="attachment-type-imagelayout" class="paragraph">
-<p>Attachments have requirements for the image layout depending on the usage</p>
+<p>Attachments have requirements for a valid image layout depending on the
+usage</p>
 </div>
 <div class="ulist">
 <ul>
+<li>
+<p>An attachment used as an input attachment <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code>,
+<code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code>, or
+<code>VK_IMAGE_LAYOUT_GENERAL</code> layout.</p>
+</li>
 <li>
 <p>An attachment used only as a color attachment <strong class="purple">must</strong> be in the
 <code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> or
@@ -3995,6 +4014,13 @@ be less than <code>subpassCount</code></p>
 
 The <code>dstSubpass</code> member of each element of <code>pDependencies</code> <strong class="purple">must</strong>
 be less than <code>subpassCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRenderPassCreateInfo2-pAttachmentImageInfos-04520" href="#VUID-VkRenderPassCreateInfo2-pAttachmentImageInfos-04520"></a> <span class="vuid">VUID-VkRenderPassCreateInfo2-pAttachmentImageInfos-04520</span><br>
+
+If any element of <code>pAttachmentImageInfos</code> is used as a fragment
+shading rate attachment in any subpass, it <strong class="purple">must</strong> not be used as any
+other attachment in the render pass</p>
 </li>
 </ul>
 </div>
@@ -4544,6 +4570,13 @@ be preserved throughout the subpass.</p>
 <a href="#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewMasks</code> has on each
 corresponding subpass.</p>
 </div>
+<div class="paragraph">
+<p>If an instance of <a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> is included
+in the <code>pNext</code> chain, <code>pFragmentShadingRateAttachment</code> is not
+<code>NULL</code>, and its <code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+the identified attachment defines a fragment shading rate attachment for
+that subpass.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -4694,6 +4727,15 @@ is not <code>VK_ATTACHMENT_UNUSED</code>, then the <code>aspectMask</code> membe
 
 An attachment <strong class="purple">must</strong> not be used in both <code>pDepthStencilAttachment</code>
 and <code>pColorAttachments</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDescription2-pFragmentShadingRateAttachment-04522" href="#VUID-VkSubpassDescription2-pFragmentShadingRateAttachment-04522"></a> <span class="vuid">VUID-VkSubpassDescription2-pFragmentShadingRateAttachment-04522</span><br>
+
+If the <code>pFragmentShadingRateAttachment</code> member of a
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> structure included in the
+<code>pNext</code> chain is not <code>NULL</code>, and its <code>attachment</code> member is not
+<code>VK_ATTACHMENT_UNUSED</code>, that attachment <strong class="purple">must</strong> not be used as any
+other attachment in this subpass</p>
 </li>
 </ul>
 </div>
@@ -5004,6 +5046,157 @@ operation is the maximum of the sample values.</p>
 <div class="paragraph">
 <p><code>VkResolveModeFlags</code> is a bitmask type for setting a mask of zero or
 more <a href="#VkResolveModeFlagBits">VkResolveModeFlagBits</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkFragmentShadingRateAttachmentInfoKHR</code> structure is defined as:</p>
+</div>
+<div id="VkFragmentShadingRateAttachmentInfoKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_fragment_shading_rate</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkFragmentShadingRateAttachmentInfoKHR {
+    VkStructureType                  sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                      pNext;
+    <span class="directive">const</span> VkAttachmentReference2*    pFragmentShadingRateAttachment;
+    VkExtent2D                       shadingRateAttachmentTexelSize;
+} VkFragmentShadingRateAttachmentInfoKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>pFragmentShadingRateAttachment</code> is an optional
+<a href="#VkAttachmentReference2KHR">VkAttachmentReference2KHR</a> structure defining the fragment shading
+rate attachment for this subpass.</p>
+</li>
+<li>
+<p><code>shadingRateAttachmentTexelSize</code> specifies the size of the portion
+of the framebuffer corresponding to each texel in
+<code>pFragmentShadingRateAttachment</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If no shading rate attachment is specified, or if this structure isn’t
+specified, the implementation behaves as if a valid shading rate attachment
+was specified with all texels specifying a single pixel per fragment.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04523" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04523"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04523</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code> then it <strong class="purple">must</strong>
+have a format whose features contain
+<code>VK_FORMAT_FEATURE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04524" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04524"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04524</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>, its
+<code>layout</code> member <strong class="purple">must</strong> be equal to <code>VK_IMAGE_LAYOUT_GENERAL</code> or
+<code>VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04525" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04525"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04525</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.width</code> <strong class="purple">must</strong> be a power of two value</p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04526" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04526"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04526</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.width</code> <strong class="purple">must</strong> be less than or equal
+to <a href="chap36.html#limits-maxFragmentShadingRateAttachmentTexelSize"><code>maxFragmentShadingRateAttachmentTexelSize.width</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04527" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04527"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04527</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.width</code> <strong class="purple">must</strong> be greater than or
+equal to <a href="chap36.html#limits-minFragmentShadingRateAttachmentTexelSize"><code>minFragmentShadingRateAttachmentTexelSize.width</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04528" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04528"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04528</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.height</code> <strong class="purple">must</strong> be a power of two
+value</p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04529" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04529"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04529</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.height</code> <strong class="purple">must</strong> be less than or equal
+to <a href="chap36.html#limits-maxFragmentShadingRateAttachmentTexelSize"><code>maxFragmentShadingRateAttachmentTexelSize.height</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04530" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04530"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04530</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>,
+<code>shadingRateAttachmentTexelSize.height</code> <strong class="purple">must</strong> be greater than or
+equal to <a href="chap36.html#limits-minFragmentShadingRateAttachmentTexelSize"><code>minFragmentShadingRateAttachmentTexelSize.height</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04531" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04531"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04531</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>, the quotient
+of <code>shadingRateAttachmentTexelSize.width</code> and
+<code>shadingRateAttachmentTexelSize.height</code> <strong class="purple">must</strong> be less than or equal
+to <a href="chap36.html#limits-maxFragmentShadingRateAttachmentTexelSizeAspectRatio"><code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04532" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04532"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-04532</span><br>
+
+If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code> and its
+<code>attachment</code> member is not <code>VK_ATTACHMENT_UNUSED</code>, the quotient
+of <code>shadingRateAttachmentTexelSize.height</code> and
+<code>shadingRateAttachmentTexelSize.width</code> <strong class="purple">must</strong> be less than or equal
+to <a href="chap36.html#limits-maxFragmentShadingRateAttachmentTexelSizeAspectRatio"><code>maxFragmentShadingRateAttachmentTexelSizeAspectRatio</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-sType-sType" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-sType-sType"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter" href="#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter</span><br>
+ <code>pFragmentShadingRateAttachment</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="#VkAttachmentReference2">VkAttachmentReference2</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -5958,19 +6151,91 @@ that matches the <code>samples</code> value specified by the corresponding
 <code>VkAttachmentDescription</code> in <code>renderPass</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00882" href="#VUID-VkFramebufferCreateInfo-pAttachments-00882"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-pAttachments-00882</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04533" href="#VUID-VkFramebufferCreateInfo-flags-04533"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04533</span><br>
 
 If <code>flags</code> does not include
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
-<code>pAttachments</code> <strong class="purple">must</strong> have dimensions at least as large as the
-corresponding framebuffer dimension</p>
+<code>pAttachments</code> that is used as an input, color, resolve, or
+depth/stencil attachment by <code>renderPass</code> <strong class="purple">must</strong> have been created
+with a VkImageCreateInfo::<code>width</code> greater than or equal to
+<code>width</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-renderPass-02743" href="#VUID-VkFramebufferCreateInfo-renderPass-02743"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-renderPass-02743</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04534" href="#VUID-VkFramebufferCreateInfo-flags-04534"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04534</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
+<code>pAttachments</code> that is used as an input, color, resolve, or
+depth/stencil attachment by <code>renderPass</code> <strong class="purple">must</strong> have been created
+with a VkImageCreateInfo::<code>height</code> greater than or equal to
+<code>height</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04535" href="#VUID-VkFramebufferCreateInfo-flags-04535"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04535</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
+<code>pAttachments</code> that is used as an input, color, resolve, or
+depth/stencil attachment by <code>renderPass</code> <strong class="purple">must</strong> have been created
+with a VkImageViewCreateInfo::<code>subresourceRange.pname</code>:layerCount
+greater than or equal to <code>layers</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-renderPass-04536" href="#VUID-VkFramebufferCreateInfo-renderPass-04536"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-renderPass-04536</span><br>
 
 If <code>renderPass</code> was specified with non-zero view masks, each element
-of <code>pAttachments</code> <strong class="purple">must</strong> have a <code>layerCount</code> greater than the
-index of the most significant bit set in any of those view masks</p>
+of <code>pAttachments</code> that is used as an input, color, resolve, or
+depth/stencil attachment by <code>renderPass</code> <strong class="purple">must</strong> have a
+<code>layerCount</code> greater than the index of the most significant bit set
+in any of those view masks</p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04537" href="#VUID-VkFramebufferCreateInfo-flags-04537"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04537</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>renderPass</code> was
+specified with non-zero view masks, each element of <code>pAttachments</code>
+that is used as a <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment
+shading rate attachment</a> by <code>renderPass</code> <strong class="purple">must</strong> have a
+<code>layerCount</code> that is either <code>1</code>, or greater than the index of the
+most significant bit set in any of those view masks</p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04538" href="#VUID-VkFramebufferCreateInfo-flags-04538"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04538</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, and <code>renderPass</code> was not
+specified with non-zero view masks, each element of <code>pAttachments</code>
+that is used as a <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment
+shading rate attachment</a> by <code>renderPass</code> <strong class="purple">must</strong> have a
+<code>layerCount</code> that is either <code>1</code>, or greater than <code>layers</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04539" href="#VUID-VkFramebufferCreateInfo-flags-04539"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04539</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, an element of
+<code>pAttachments</code> that is used as a
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a> <strong class="purple">must</strong> have a width at least as large as
+<span class="eq">⌈<code>width</code> \ <code>texelWidth</code>⌉</span>, where <code>texelWidth</code>
+is the largest value of <code>shadingRateAttachmentTexelSize.width</code> in a
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
+attachment</p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04540" href="#VUID-VkFramebufferCreateInfo-flags-04540"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04540</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, an element of
+<code>pAttachments</code> that is used as a
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a> <strong class="purple">must</strong> have a height at least as large as
+<span class="eq">⌈<code>height</code> \ <code>texelHeight</code>⌉</span>, where
+<code>texelHeight</code> is the largest value of
+<code>shadingRateAttachmentTexelSize.height</code> in a
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
+attachment</p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-pAttachments-00883" href="#VUID-VkFramebufferCreateInfo-pAttachments-00883"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-pAttachments-00883</span><br>
@@ -6044,32 +6309,75 @@ is not enabled, <code>flags</code> <strong class="purple">must</strong> not incl
 <p><a id="VUID-VkFramebufferCreateInfo-flags-03190" href="#VUID-VkFramebufferCreateInfo-flags-03190"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03190</span><br>
 
 If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
-<code>pNext</code> chain <strong class="purple">must</strong> include a
-<a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure</p>
+<code>pNext</code> chain <strong class="purple">must</strong> include an instance of
+<a href="#VkFramebufferAttachmentsCreateInfoKHR">VkFramebufferAttachmentsCreateInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-flags-03191" href="#VUID-VkFramebufferCreateInfo-flags-03191"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03191</span><br>
 
 If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
-<code>attachmentImageInfoCount</code> member of a
-<a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
-<code>pNext</code> chain <strong class="purple">must</strong> be equal to either zero or <code>attachmentCount</code></p>
+<code>attachmentImageInfoCount</code> member of an instance of
+<a href="#VkFramebufferAttachmentsCreateInfoKHR">VkFramebufferAttachmentsCreateInfoKHR</a> in the <code>pNext</code> chain
+<strong class="purple">must</strong> be equal to either zero or <code>attachmentCount</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-flags-03192" href="#VUID-VkFramebufferCreateInfo-flags-03192"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03192</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04541" href="#VUID-VkFramebufferCreateInfo-flags-04541"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04541</span><br>
 
 If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
 <code>width</code> member of any element of the <code>pAttachmentImageInfos</code>
-member of a <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included
-in the <code>pNext</code> chain <strong class="purple">must</strong> be greater than or equal to <code>width</code></p>
+member of an instance of <a href="#VkFramebufferAttachmentsCreateInfoKHR">VkFramebufferAttachmentsCreateInfoKHR</a> in
+the <code>pNext</code> chain that is used as an input, color, resolve or
+depth/stencil attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or
+equal to <code>width</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-flags-03193" href="#VUID-VkFramebufferCreateInfo-flags-03193"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03193</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04542" href="#VUID-VkFramebufferCreateInfo-flags-04542"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04542</span><br>
 
 If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
 <code>height</code> member of any element of the <code>pAttachmentImageInfos</code>
-member of a <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included
-in the <code>pNext</code> chain <strong class="purple">must</strong> be greater than or equal to <code>height</code></p>
+member of an instance of <a href="#VkFramebufferAttachmentsCreateInfoKHR">VkFramebufferAttachmentsCreateInfoKHR</a> in
+the <code>pNext</code> chain that is used as an input, color, resolve or
+depth/stencil attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or
+equal to <code>height</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04543" href="#VUID-VkFramebufferCreateInfo-flags-04543"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04543</span><br>
+
+If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
+<code>width</code> member of any element of the <code>pAttachmentImageInfos</code>
+member of an instance of <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the
+<code>pNext</code> chain that is used as a
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a> <strong class="purple">must</strong> be greater than or equal to <span class="eq">⌈<code>width</code> \
+<code>texelWidth</code>⌉</span>, where <code>texelWidth</code> is the largest value of
+<code>shadingRateAttachmentTexelSize.width</code> in a
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
+attachment</p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04544" href="#VUID-VkFramebufferCreateInfo-flags-04544"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04544</span><br>
+
+If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
+<code>height</code> member of any element of the <code>pAttachmentImageInfos</code>
+member of an instance of <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the
+<code>pNext</code> chain that is used as a
+<a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
+attachment</a> <strong class="purple">must</strong> be greater than or equal to <span class="eq">⌈<code>height</code>
+\ <code>texelHeight</code>⌉</span>, where <code>texelHeight</code> is the largest value
+of <code>shadingRateAttachmentTexelSize.height</code> in a
+<a href="#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
+attachment</p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04545" href="#VUID-VkFramebufferCreateInfo-flags-04545"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04545</span><br>
+
+If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
+<code>layerCount</code> member of any element of the
+<code>pAttachmentImageInfos</code> member of an instance of
+<a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the <code>pNext</code> chain that
+is used as a <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment
+shading rate attachment</a> <strong class="purple">must</strong> be either <code>1</code>, or greater than or equal
+to <code>layers</code></p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-renderPass-03198" href="#VUID-VkFramebufferCreateInfo-renderPass-03198"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-renderPass-03198</span><br>
@@ -6078,26 +6386,32 @@ If multiview is enabled for <code>renderPass</code>, and <code>flags</code> incl
 <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the <code>layerCount</code> member
 of any element of the <code>pAttachmentImageInfos</code> member of a
 <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
-<code>pNext</code> chain <strong class="purple">must</strong> be greater than the maximum bit index set in the
-view mask in the subpasses in which it is used in <code>renderPass</code></p>
+<code>pNext</code> chain used as an input, color, resolve, or depth/stencil
+attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than the maximum bit
+index set in the view mask in the subpasses in which it is used in
+<code>renderPass</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-renderPass-03199" href="#VUID-VkFramebufferCreateInfo-renderPass-03199"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-renderPass-03199</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-renderPass-04546" href="#VUID-VkFramebufferCreateInfo-renderPass-04546"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-renderPass-04546</span><br>
 
 If multiview is not enabled for <code>renderPass</code>, and <code>flags</code>
 includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the <code>layerCount</code>
 member of any element of the <code>pAttachmentImageInfos</code> member of a
 <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
-<code>pNext</code> chain <strong class="purple">must</strong> be greater than or equal to <code>layers</code></p>
+<code>pNext</code> chain used as an input, color, resolve, or depth/stencil
+attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or equal to
+<code>layers</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-flags-03200" href="#VUID-VkFramebufferCreateInfo-flags-03200"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03200</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04547" href="#VUID-VkFramebufferCreateInfo-flags-04547"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04547</span><br>
 
 If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
 <code>layerCount</code> member of any element of the
 <code>pAttachmentImageInfos</code> member of a
 <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
-<code>pNext</code> chain <strong class="purple">must</strong> be greater than or equal to <code>layers</code></p>
+<code>pNext</code> chain used as an input, color, resolve, or depth/stencil
+attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or equal to
+<code>layers</code></p>
 </li>
 <li>
 <p><a id="VUID-VkFramebufferCreateInfo-flags-03201" href="#VUID-VkFramebufferCreateInfo-flags-03201"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-03201</span><br>
@@ -6158,6 +6472,25 @@ If <code>flags</code> does not include
 <code>pAttachments</code> <strong class="purple">must</strong> have been created with
 <a href="chap12.html#VkImageViewCreateInfo">VkImageViewCreateInfo</a>::<code>viewType</code> not equal to
 <code>VK_IMAGE_VIEW_TYPE_3D</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04548" href="#VUID-VkFramebufferCreateInfo-flags-04548"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04548</span><br>
+
+If <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
+<code>pAttachments</code> that is used as a fragment shading rate attachment by
+<code>renderPass</code> <strong class="purple">must</strong> have been created with a <code>usage</code> value
+including <code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkFramebufferCreateInfo-flags-04549" href="#VUID-VkFramebufferCreateInfo-flags-04549"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-04549</span><br>
+
+If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the
+<code>usage</code> member of any element of the <code>pAttachmentImageInfos</code>
+member of a <a href="#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included
+in the <code>pNext</code> chain that refers to an attachment used as a fragment
+shading rate attachment by <code>renderPass</code> <strong class="purple">must</strong> include
+<code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -8489,7 +8822,7 @@ structure.</p>
 </div></div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.157<br>
+Version 1.0.158<br>
 Last updated 2020-08-29 21:21:32 -0700
 </div>
 </div>
