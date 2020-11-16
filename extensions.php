@@ -208,6 +208,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_fill_rectangle.html"> VK_NV_fill_rectangle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_fragment_coverage_to_color.html"> VK_NV_fragment_coverage_to_color </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_fragment_shader_barycentric.html"> VK_NV_fragment_shader_barycentric </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_fragment_shading_rate_enums.html"> VK_NV_fragment_shading_rate_enums </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_framebuffer_mixed_samples.html"> VK_NV_framebuffer_mixed_samples </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_geometry_shader_passthrough.html"> VK_NV_geometry_shader_passthrough </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_glsl_shader.html"> VK_NV_glsl_shader </a> </li>
