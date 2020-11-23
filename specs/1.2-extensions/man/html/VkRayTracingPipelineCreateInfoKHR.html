@@ -812,7 +812,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="VkRayTracingPipelineCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing_pipeline
 typedef struct VkRayTracingPipelineCreateInfoKHR {
     VkStructureType                                      sType;
     const void*                                          pNext;
@@ -821,9 +821,10 @@ typedef struct VkRayTracingPipelineCreateInfoKHR {
     const VkPipelineShaderStageCreateInfo*               pStages;
     uint32_t                                             groupCount;
     const VkRayTracingShaderGroupCreateInfoKHR*          pGroups;
-    uint32_t                                             maxRecursionDepth;
-    VkPipelineLibraryCreateInfoKHR                       libraries;
+    uint32_t                                             maxPipelineRayRecursionDepth;
+    const VkPipelineLibraryCreateInfoKHR*                pLibraryInfo;
     const VkRayTracingPipelineInterfaceCreateInfoKHR*    pLibraryInterface;
+    const VkPipelineDynamicStateCreateInfo*              pDynamicState;
     VkPipelineLayout                                     layout;
     VkPipeline                                           basePipelineHandle;
     int32_t                                              basePipelineIndex;
@@ -866,17 +867,25 @@ of the shader stages to be included in each shader group in the ray
 tracing pipeline.</p>
 </li>
 <li>
-<p><code>maxRecursionDepth</code> is the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#ray-tracing-recursion-depth" target="_blank" rel="noopener">maximum
-recursion depth</a> of shaders executed by this pipeline.</p>
+<p><code>maxPipelineRayRecursionDepth</code> is the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#ray-tracing-recursion-depth" target="_blank" rel="noopener">maximum recursion depth</a> of shaders executed by this pipeline.</p>
 </li>
 <li>
-<p><code>libraries</code> is a <a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a> structure
-defining pipeline libraries to include.</p>
+<p><code>pLibraryInfo</code> is a pointer to a
+<a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a> structure defining pipeline
+libraries to include.</p>
 </li>
 <li>
 <p><code>pLibraryInterface</code> is a pointer to a
 <a href="VkRayTracingPipelineInterfaceCreateInfoKHR.html">VkRayTracingPipelineInterfaceCreateInfoKHR</a> structure defining
 additional information when using pipeline libraries.</p>
+</li>
+<li>
+<p><code>pDynamicState</code> is a pointer to a
+<a href="VkPipelineDynamicStateCreateInfo.html">VkPipelineDynamicStateCreateInfo</a> structure, and is used to
+indicate which properties of the pipeline state object are dynamic and
+<strong class="purple">can</strong> be changed independently of the pipeline state.
+This <strong class="purple">can</strong> be <code>NULL</code>, which means no state in the pipeline is considered
+dynamic.</p>
 </li>
 <li>
 <p><code>layout</code> is the description of binding locations used by both the
@@ -909,7 +918,7 @@ Instead, pipeline libraries define common shaders and shader groups which
 <strong class="purple">can</strong> be included in future pipeline creation.</p>
 </div>
 <div class="paragraph">
-<p>If pipeline libraries are included in <code>libraries</code>, shaders defined in
+<p>If pipeline libraries are included in <code>pLibraryInfo</code>, shaders defined in
 those libraries are treated as if they were defined as additional entries in
 <code>pStages</code>, appended in the order they appear in the <code>pLibraries</code>
 array and in the <code>pStages</code> array when those libraries were defined.</p>
@@ -925,10 +934,10 @@ created, referencing those specified in the pipeline library, not in the
 pipeline that includes it.</p>
 </div>
 <div class="paragraph">
-<p>If the <a href="VkDeferredOperationInfoKHR.html">VkDeferredOperationInfoKHR</a> structure is included in the
-<code>pNext</code> chain of <a href="VkRayTracingPipelineCreateInfoKHR.html">VkRayTracingPipelineCreateInfoKHR</a>, the operation
-of this pipeline creation is <em>deferred</em>, as defined in the
-<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#deferred-host-operations" target="_blank" rel="noopener">Deferred Host Operations</a> chapter.</p>
+<p>The default stack size for a pipeline if
+<code>VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR</code> is not provided
+is computed as described in <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#ray-tracing-pipeline-stack" target="_blank" rel="noopener">Ray Tracing
+Pipeline Stack</a>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -963,12 +972,6 @@ flag, and <code>basePipelineIndex</code> is not <code>-1</code>, <code>basePipel
 If <code>flags</code> contains the <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>
 flag, and <code>basePipelineHandle</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>,
 <code>basePipelineIndex</code> <strong class="purple">must</strong> be <code>-1</code></p>
-</li>
-<li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-stage-03425"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-stage-03425</span><br>
-
-The <code>stage</code> member of at least one element of <code>pStages</code> <strong class="purple">must</strong> be
-<code>VK_SHADER_STAGE_RAYGEN_BIT_KHR</code></p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pStages-03426"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pStages-03426</span><br>
@@ -1007,10 +1010,18 @@ If the <a href="#features-pipelineCreationCacheControl"><code>pipelineCreationCa
 <code>VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT_EXT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-maxRecursionDepth-03464"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-maxRecursionDepth-03464</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-stage-03425"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-stage-03425</span><br>
 
-<code>maxRecursionDepth</code> <strong class="purple">must</strong> be less than or equal to
-<a href="VkPhysicalDeviceRayTracingPropertiesKHR.html">VkPhysicalDeviceRayTracingPropertiesKHR</a>::<code>maxRecursionDepth</code></p>
+If <code>flags</code> does not include
+<code>VK_PIPELINE_CREATE_LIBRARY_BIT_KHR</code>, the <code>stage</code> member of at
+least one element of <code>pStages</code>, including those implicitly added by
+<code>pLibraryInfo</code>, <strong class="purple">must</strong> be <code>VK_SHADER_STAGE_RAYGEN_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-maxPipelineRayRecursionDepth-03589"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-maxPipelineRayRecursionDepth-03589</span><br>
+
+<code>maxPipelineRayRecursionDepth</code> <strong class="purple">must</strong> be less than or equal to
+<a href="VkPhysicalDeviceRayTracingPipelinePropertiesKHR.html">VkPhysicalDeviceRayTracingPipelinePropertiesKHR</a>::<code>maxRayRecursionDepth</code></p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-flags-03465"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-flags-03465</span><br>
@@ -1019,32 +1030,48 @@ If <code>flags</code> includes <code>VK_PIPELINE_CREATE_LIBRARY_BIT_KHR</code>,
 <code>pLibraryInterface</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-libraryCount-03466"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-libraryCount-03466</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03590"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03590</span><br>
 
-If the <code>libraryCount</code> member of <code>libraries</code> is greater than <code>0</code>,
-<code>pLibraryInterface</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
+If <code>pLibraryInfo</code> is not <code>NULL</code> and its <code>libraryCount</code> member is
+greater than <code>0</code>, its <code>pLibraryInterface</code> member <strong class="purple">must</strong> not be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03467"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03467</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03591"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03591</span><br>
 
-Each element of the <code>pLibraries</code> member of <code>libraries</code> <strong class="purple">must</strong>
-have been created with the value of <code>maxRecursionDepth</code> equal to
-that in this pipeline</p>
+Each element of the <code>pLibraries</code> member of <code>pLibraryInfo</code> <strong class="purple">must</strong>
+have been created with the value of <code>maxPipelineRayRecursionDepth</code>
+equal to that in this pipeline</p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03468"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03468</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03592"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03592</span><br>
 
-Each element of the <code>pLibraries</code> member of <code>libraries</code> <strong class="purple">must</strong>
-have been created with a <code>layout</code> that is compatible with the
-<code>layout</code> in this pipeline</p>
+If <code>pLibraryInfo</code> is not <code>NULL</code>, each element of its
+<code>pLibraries</code> member <strong class="purple">must</strong> have been created with a <code>layout</code> that
+is compatible with the <code>layout</code> in this pipeline</p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03469"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraries-03469</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03593"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03593</span><br>
 
-Each element of the <code>pLibraries</code> member of <code>libraries</code> <strong class="purple">must</strong>
-have been created with values of the <code>maxPayloadSize</code>,
-<code>maxAttributeSize</code>, and <code>maxCallableSize</code> members of
-<code>pLibraryInterface</code> equal to those in this pipeline</p>
+If <code>pLibraryInfo</code> is not <code>NULL</code>, each element of its
+<code>pLibraries</code> member <strong class="purple">must</strong> have been created with values of the
+<code>maxPipelineRayPayloadSize</code> and <code>maxPipelineRayHitAttributeSize</code>
+members of <code>pLibraryInterface</code> equal to those in this pipeline</p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-flags-03594"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-flags-03594</span><br>
+
+If <code>flags</code> includes
+<code>VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR</code>,
+each element of the <code>pLibraries</code> member of <code>libraries</code> <strong class="purple">must</strong>
+have been created with the
+<code>VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR</code>
+bit set</p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03595"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03595</span><br>
+
+If the <a href="VK_KHR_pipeline_library.html" target="_blank" rel="noopener">VK_KHR_pipeline_library</a> extension is not enabled,
+<code>pLibraryInfo</code> and <code>pLibraryInterface</code> <strong class="purple">must</strong> be <code>NULL</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-flags-03470"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-flags-03470</span><br>
@@ -1069,30 +1096,53 @@ for any element of <code>pGroups</code> with a <code>type</code> of
 <code>VK_SHADER_UNUSED_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPrimitiveCulling-03472"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPrimitiveCulling-03472</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-rayTraversalPrimitiveCulling-03596"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-rayTraversalPrimitiveCulling-03596</span><br>
 
-If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-rayTracingPrimitiveCulling" target="_blank" rel="noopener"><code>rayTracingPrimitiveCulling</code></a> feature is not enabled, <code>flags</code>
+If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-rayTraversalPrimitiveCulling" target="_blank" rel="noopener"><code>rayTraversalPrimitiveCulling</code></a> feature is not enabled, <code>flags</code>
 <strong class="purple">must</strong> not include
 <code>VK_PIPELINE_CREATE_RAY_TRACING_SKIP_AABBS_BIT_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPrimitiveCulling-03473"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPrimitiveCulling-03473</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-rayTraversalPrimitiveCulling-03597"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-rayTraversalPrimitiveCulling-03597</span><br>
 
-If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-rayTracingPrimitiveCulling" target="_blank" rel="noopener"><code>rayTracingPrimitiveCulling</code></a> feature is not enabled, <code>flags</code>
+If the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-rayTraversalPrimitiveCulling" target="_blank" rel="noopener"><code>rayTraversalPrimitiveCulling</code></a> feature is not enabled, <code>flags</code>
 <strong class="purple">must</strong> not include
 <code>VK_PIPELINE_CREATE_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-libraries-02958"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-libraries-02958</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-flags-03598"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-flags-03598</span><br>
 
-If <code>libraries.libraryCount</code> is zero, then <code>stageCount</code> <strong class="purple">must</strong> not
-be zero</p>
+If <code>flags</code> includes
+<code>VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR</code>,
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-rayTracingPipelineShaderGroupHandleCaptureReplay" target="_blank" rel="noopener"><code>rayTracingPipelineShaderGroupHandleCaptureReplay</code></a> <strong class="purple">must</strong> be
+enabled</p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-libraries-02959"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-libraries-02959</span><br>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPipelineShaderGroupHandleCaptureReplay-03599"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-rayTracingPipelineShaderGroupHandleCaptureReplay-03599</span><br>
 
-If <code>libraries.libraryCount</code> is zero, then <code>groupCount</code> <strong class="purple">must</strong> not
-be zero</p>
+If
+<a href="VkPhysicalDeviceRayTracingPipelineFeaturesKHR.html">VkPhysicalDeviceRayTracingPipelineFeaturesKHR</a>::<code>rayTracingPipelineShaderGroupHandleCaptureReplay</code>
+is <code>VK_TRUE</code> and the <code>pShaderGroupCaptureReplayHandle</code> member of
+any element of <code>pGroups</code> is not <code>NULL</code>, <code>flags</code> <strong class="purple">must</strong> include
+<code>VK_PIPELINE_CREATE_RAY_TRACING_SHADER_GROUP_HANDLE_CAPTURE_REPLAY_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03600"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03600</span><br>
+
+If <code>pLibraryInfo</code> is not <code>NULL</code> and its <code>libraryCount</code> is <code>0</code>,
+<code>stageCount</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03601"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-03601</span><br>
+
+If <code>pLibraryInfo</code> is not <code>NULL</code> and its <code>libraryCount</code> is <code>0</code>,
+<code>groupCount</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pDynamicStates-03602"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pDynamicStates-03602</span><br>
+
+Any element of the <code>pDynamicStates</code> member of <code>pDynamicState</code>
+<strong class="purple">must</strong> be <code>VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -1109,7 +1159,7 @@ be zero</p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkDeferredOperationInfoKHR.html">VkDeferredOperationInfoKHR</a> or <a href="VkPipelineCreationFeedbackCreateInfoEXT.html">VkPipelineCreationFeedbackCreateInfoEXT</a></p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="VkPipelineCreationFeedbackCreateInfoEXT.html">VkPipelineCreationFeedbackCreateInfoEXT</a></p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-sType-unique</span><br>
@@ -1128,12 +1178,16 @@ be zero</p>
  If <code>groupCount</code> is not <code>0</code>, <code>pGroups</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>groupCount</code> valid <a href="VkRayTracingShaderGroupCreateInfoKHR.html">VkRayTracingShaderGroupCreateInfoKHR</a> structures</p>
 </li>
 <li>
-<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-libraries-parameter"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-libraries-parameter</span><br>
- <code>libraries</code> <strong class="purple">must</strong> be a valid <a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a> structure</p>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-parameter"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInfo-parameter</span><br>
+ If <code>pLibraryInfo</code> is not <code>NULL</code>, <code>pLibraryInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInterface-parameter"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pLibraryInterface-parameter</span><br>
  If <code>pLibraryInterface</code> is not <code>NULL</code>, <code>pLibraryInterface</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="VkRayTracingPipelineInterfaceCreateInfoKHR.html">VkRayTracingPipelineInterfaceCreateInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-pDynamicState-parameter"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-pDynamicState-parameter</span><br>
+ If <code>pDynamicState</code> is not <code>NULL</code>, <code>pDynamicState</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="VkPipelineDynamicStateCreateInfo.html">VkPipelineDynamicStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkRayTracingPipelineCreateInfoKHR-layout-parameter"></a> <span class="vuid">VUID-VkRayTracingPipelineCreateInfoKHR-layout-parameter</span><br>
@@ -1153,7 +1207,7 @@ be zero</p>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkPipeline.html">VkPipeline</a>, <a href="VkPipelineCreateFlags.html">VkPipelineCreateFlags</a>, <a href="VkPipelineLayout.html">VkPipelineLayout</a>, <a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a>, <a href="VkPipelineShaderStageCreateInfo.html">VkPipelineShaderStageCreateInfo</a>, <a href="VkRayTracingPipelineInterfaceCreateInfoKHR.html">VkRayTracingPipelineInterfaceCreateInfoKHR</a>, <a href="VkRayTracingShaderGroupCreateInfoKHR.html">VkRayTracingShaderGroupCreateInfoKHR</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkCreateRayTracingPipelinesKHR.html">vkCreateRayTracingPipelinesKHR</a></p>
+<p><a href="VkPipeline.html">VkPipeline</a>, <a href="VkPipelineCreateFlags.html">VkPipelineCreateFlags</a>, <a href="VkPipelineDynamicStateCreateInfo.html">VkPipelineDynamicStateCreateInfo</a>, <a href="VkPipelineLayout.html">VkPipelineLayout</a>, <a href="VkPipelineLibraryCreateInfoKHR.html">VkPipelineLibraryCreateInfoKHR</a>, <a href="VkPipelineShaderStageCreateInfo.html">VkPipelineShaderStageCreateInfo</a>, <a href="VkRayTracingPipelineInterfaceCreateInfoKHR.html">VkRayTracingPipelineInterfaceCreateInfoKHR</a>, <a href="VkRayTracingShaderGroupCreateInfoKHR.html">VkRayTracingShaderGroupCreateInfoKHR</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkCreateRayTracingPipelinesKHR.html">vkCreateRayTracingPipelinesKHR</a></p>
 </div>
 </div>
 </div>
@@ -1183,8 +1237,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.161<br>
-Last updated 2020-11-15 22:16:55 -0800
+Version 1.2.162<br>
+Last updated 2020-11-22 22:47:02 -0800
 </div>
 </div>
 

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>VkAccelerationStructureMemoryRequirementsInfoKHR(3)</title>
+<title>VkAccelerationStructureBuildRangeInfoKHR(3)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -796,10 +796,10 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="manpage">
 <div id="header">
-<h1>VkAccelerationStructureMemoryRequirementsInfoKHR(3) Manual Page</h1>
+<h1>VkAccelerationStructureBuildRangeInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkAccelerationStructureMemoryRequirementsInfoKHR - Structure specifying acceleration to query for memory requirements</p>
+<p>VkAccelerationStructureBuildRangeInfoKHR - Structure specifying build offsets and counts for acceleration structure builds</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -808,19 +808,17 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <code>VkAccelerationStructureMemoryRequirementsInfoKHR</code> structure is
-defined as:</p>
+<p><code>VkAccelerationStructureBuildRangeInfoKHR</code> is defined as:</p>
 </div>
-<div id="VkAccelerationStructureMemoryRequirementsInfoKHR" class="listingblock">
+<div id="VkAccelerationStructureBuildRangeInfoKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing
-typedef struct VkAccelerationStructureMemoryRequirementsInfoKHR {
-    VkStructureType                                     sType;
-    const void*                                         pNext;
-    VkAccelerationStructureMemoryRequirementsTypeKHR    type;
-    VkAccelerationStructureBuildTypeKHR                 buildType;
-    VkAccelerationStructureKHR                          accelerationStructure;
-} VkAccelerationStructureMemoryRequirementsInfoKHR;</code></pre>
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_acceleration_structure
+typedef struct VkAccelerationStructureBuildRangeInfoKHR {
+    uint32_t    primitiveCount;
+    uint32_t    primitiveOffset;
+    uint32_t    firstVertex;
+    uint32_t    transformOffset;
+} VkAccelerationStructureBuildRangeInfoKHR;</code></pre>
 </div>
 </div>
 </div>
@@ -831,30 +829,20 @@ typedef struct VkAccelerationStructureMemoryRequirementsInfoKHR {
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>primitiveCount</code> defines the number of primitives for a
+corresponding acceleration structure geometry.</p>
 </li>
 <li>
-<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
-structure.</p>
+<p><code>primitiveOffset</code> defines an offset in bytes into the memory where
+primitive data is defined.</p>
 </li>
 <li>
-<p><code>buildType</code> selects the build types whose memory requirements are
-being queried.</p>
+<p><code>firstVertex</code> is the index of the first vertex to build from for
+triangle geometry.</p>
 </li>
 <li>
-<p><code>type</code> selects the type of memory requirement being queried.
-<code>VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_KHR</code>
-returns the memory requirements for the object itself.
-<code>VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR</code>
-returns the memory requirements for the scratch memory when doing a
-build.
-<code>VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_UPDATE_SCRATCH_KHR</code>
-returns the memory requirements for the scratch memory when doing an
-update.</p>
-</li>
-<li>
-<p><code>accelerationStructure</code> is the acceleration structure to be queried
-for memory requirements.</p>
+<p><code>transformOffset</code> defines an offset in bytes into the memory where a
+transform matrix is defined.</p>
 </li>
 </ul>
 </div>
@@ -863,30 +851,106 @@ for memory requirements.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
+<div class="paragraph">
+<p>The primitive count and primitive offset are interpreted differently
+depending on the <a href="VkGeometryTypeKHR.html">VkGeometryTypeKHR</a> used:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-sType-sType"></a> <span class="vuid">VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-sType-sType</span><br>
- <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR</code></p>
+<p>For geometries of type <code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>,
+<code>primitiveCount</code> is the number of triangles to be built, where each
+triangle is treated as 3 vertices.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the geometry uses indices, <span class="eq"><code>primitiveCount</code> × 3</span>
+indices are consumed from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>indexData</code>,
+starting at an offset of <code>primitiveOffset</code>.
+The value of <code>firstVertex</code> is added to the index values before
+fetching vertices.</p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+<p>If the geometry does not use indices, <span class="eq"><code>primitiveCount</code> ×
+3</span> vertices are consumed from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>vertexData</code>,
+starting at an offset of <span class="eq"><code>primitiveOffset</code> + 
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>vertexStride</code>
+× <code>firstVertex</code></span>.</p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-type-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-type-parameter</span><br>
- <code>type</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureMemoryRequirementsTypeKHR.html">VkAccelerationStructureMemoryRequirementsTypeKHR</a> value</p>
+<p>A single <a href="VkTransformMatrixKHR.html">VkTransformMatrixKHR</a> structure is consumed from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>transformData</code>,
+at an offset of <code>transformOffset</code>.
+This transformation matrix is used by all triangles.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-buildType-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-buildType-parameter</span><br>
- <code>buildType</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureBuildTypeKHR.html">VkAccelerationStructureBuildTypeKHR</a> value</p>
+<p>For geometries of type <code>VK_GEOMETRY_TYPE_AABBS_KHR</code>,
+<code>primitiveCount</code> is the number of axis-aligned bounding boxes.
+<code>primitiveCount</code> <a href="VkAabbPositionsKHR.html">VkAabbPositionsKHR</a> structures are consumed
+from <a href="VkAccelerationStructureGeometryAabbsDataKHR.html">VkAccelerationStructureGeometryAabbsDataKHR</a>::<code>data</code>,
+starting at an offset of <code>primitiveOffset</code>.</p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-accelerationStructure-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMemoryRequirementsInfoKHR-accelerationStructure-parameter</span><br>
- <code>accelerationStructure</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
+<p>For geometries of type <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code>,
+<code>primitiveCount</code> is the number of acceleration structures.
+<code>primitiveCount</code> <a href="VkAccelerationStructureInstanceKHR.html">VkAccelerationStructureInstanceKHR</a> structures
+are consumed from
+<a href="VkAccelerationStructureGeometryInstancesDataKHR.html">VkAccelerationStructureGeometryInstancesDataKHR</a>::<code>data</code>,
+starting at an offset of <code>primitiveOffset</code>.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03656"></a> <span class="vuid">VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03656</span><br>
+
+For geometries of type <code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>, if the
+geometry uses indices, the offset <code>primitiveOffset</code> from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>indexData</code>
+<strong class="purple">must</strong> be a multiple of the element size of
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>indexType</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03657"></a> <span class="vuid">VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03657</span><br>
+
+For geometries of type <code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>, if the
+geometry doesn&#8217;t use indices, the offset <code>primitiveOffset</code> from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>vertexData</code>
+<strong class="purple">must</strong> be a multiple of the component size of
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>vertexFormat</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildRangeInfoKHR-transformOffset-03658"></a> <span class="vuid">VUID-VkAccelerationStructureBuildRangeInfoKHR-transformOffset-03658</span><br>
+
+For geometries of type <code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>, the offset
+<code>transformOffset</code> from
+<a href="VkAccelerationStructureGeometryTrianglesDataKHR.html">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>transformData</code>
+<strong class="purple">must</strong> be a multiple of 16</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03659"></a> <span class="vuid">VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03659</span><br>
+
+For geometries of type <code>VK_GEOMETRY_TYPE_AABBS_KHR</code>, the offset
+<code>primitiveOffset</code> from
+<a href="VkAccelerationStructureGeometryAabbsDataKHR.html">VkAccelerationStructureGeometryAabbsDataKHR</a>::<code>data</code> <strong class="purple">must</strong> be a
+multiple of 8</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03660"></a> <span class="vuid">VUID-VkAccelerationStructureBuildRangeInfoKHR-primitiveOffset-03660</span><br>
+
+For geometries of type <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code>, the offset
+<code>primitiveOffset</code> from
+<a href="VkAccelerationStructureGeometryInstancesDataKHR.html">VkAccelerationStructureGeometryInstancesDataKHR</a>::<code>data</code> <strong class="purple">must</strong>
+be a multiple of 16</p>
 </li>
 </ul>
 </div>
@@ -898,7 +962,7 @@ for memory requirements.</p>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkAccelerationStructureBuildTypeKHR.html">VkAccelerationStructureBuildTypeKHR</a>, <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a>, <a href="VkAccelerationStructureMemoryRequirementsTypeKHR.html">VkAccelerationStructureMemoryRequirementsTypeKHR</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkGetAccelerationStructureMemoryRequirementsKHR.html">vkGetAccelerationStructureMemoryRequirementsKHR</a></p>
+<p><a href="vkBuildAccelerationStructuresKHR.html">vkBuildAccelerationStructuresKHR</a>, <a href="vkCmdBuildAccelerationStructuresKHR.html">vkCmdBuildAccelerationStructuresKHR</a></p>
 </div>
 </div>
 </div>
@@ -906,7 +970,7 @@ for memory requirements.</p>
 <h2 id="_document_notes"><a class="anchor" href="#_document_notes"></a>Document Notes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#VkAccelerationStructureMemoryRequirementsInfoKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
+<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#VkAccelerationStructureBuildRangeInfoKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
 </div>
 <div class="paragraph">
 <p>This page is extracted from the Vulkan Specification.
@@ -928,8 +992,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.161<br>
-Last updated 2020-11-15 22:16:55 -0800
+Version 1.2.162<br>
+Last updated 2020-11-22 22:47:02 -0800
 </div>
 </div>
 

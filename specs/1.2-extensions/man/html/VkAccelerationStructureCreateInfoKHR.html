@@ -812,16 +812,16 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="VkAccelerationStructureCreateInfoKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_acceleration_structure
 typedef struct VkAccelerationStructureCreateInfoKHR {
-    VkStructureType                                            sType;
-    const void*                                                pNext;
-    VkDeviceSize                                               compactedSize;
-    VkAccelerationStructureTypeKHR                             type;
-    VkBuildAccelerationStructureFlagsKHR                       flags;
-    uint32_t                                                   maxGeometryCount;
-    const VkAccelerationStructureCreateGeometryTypeInfoKHR*    pGeometryInfos;
-    VkDeviceAddress                                            deviceAddress;
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkAccelerationStructureCreateFlagsKHR    createFlags;
+    VkBuffer                                 buffer;
+    VkDeviceSize                             offset;
+    VkDeviceSize                             size;
+    VkAccelerationStructureTypeKHR           type;
+    VkDeviceAddress                          deviceAddress;
 } VkAccelerationStructureCreateInfoKHR;</code></pre>
 </div>
 </div>
@@ -840,33 +840,29 @@ typedef struct VkAccelerationStructureCreateInfoKHR {
 structure.</p>
 </li>
 <li>
-<p><code>compactedSize</code> is the size from the result of
-<a href="vkCmdWriteAccelerationStructuresPropertiesKHR.html">vkCmdWriteAccelerationStructuresPropertiesKHR</a> if this acceleration
-structure is going to be the target of a compacting copy.</p>
+<p><code>createFlags</code> is a bitmask of
+<a href="VkAccelerationStructureCreateFlagBitsKHR.html">VkAccelerationStructureCreateFlagBitsKHR</a> specifying additional
+creation parameters of the acceleration structure.</p>
+</li>
+<li>
+<p><code>buffer</code> is the buffer on which the acceleration structure will be
+stored.</p>
+</li>
+<li>
+<p><code>offset</code> is an offset in bytes from the base address of the buffer
+at which the acceleration structure will be stored, and <strong class="purple">must</strong> be a
+multiple of <code>256</code>.</p>
+</li>
+<li>
+<p><code>size</code> is the size required for the acceleration structure.</p>
 </li>
 <li>
 <p><code>type</code> is a <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a> value specifying
 the type of acceleration structure that will be created.</p>
 </li>
 <li>
-<p><code>flags</code> is a bitmask of
-<a href="VkBuildAccelerationStructureFlagBitsKHR.html">VkBuildAccelerationStructureFlagBitsKHR</a> specifying additional
-parameters of the acceleration structure.</p>
-</li>
-<li>
-<p><code>maxGeometryCount</code> specifies the number of geometries that will be
-in the new acceleration structure.</p>
-</li>
-<li>
-<p><code>pGeometryInfos</code> is an array of <code>maxGeometryCount</code>
-<a href="VkAccelerationStructureCreateGeometryTypeInfoKHR.html">VkAccelerationStructureCreateGeometryTypeInfoKHR</a> structures, which
-describe the maximum size and format of the data that will be built into
-the acceleration structure.</p>
-</li>
-<li>
 <p><code>deviceAddress</code> is the device address requested for the acceleration
-structure if the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-raytracing-ascapturereplay" target="_blank" rel="noopener"><code>rayTracingAccelerationStructureCaptureReplay</code></a> feature is being
-used.</p>
+structure if the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#features-accelerationStructureCaptureReplay" target="_blank" rel="noopener"><code>accelerationStructureCaptureReplay</code></a> feature is being used.</p>
 </li>
 </ul>
 </div>
@@ -882,14 +878,59 @@ used.</p>
 <p>If <code>deviceAddress</code> is not zero, <code>deviceAddress</code> <strong class="purple">must</strong> be an address
 retrieved from an identically created acceleration structure on the same
 implementation.
-The acceleration structure <strong class="purple">must</strong> also be bound to an identically created
-<code>VkDeviceMemory</code> object.</p>
+The acceleration structure <strong class="purple">must</strong> also be placed on an identically created
+<code>buffer</code> and at the same <code>offset</code>.</p>
 </div>
 <div class="paragraph">
-<p>Apps <strong class="purple">should</strong> avoid creating acceleration structures with app-provided
-addresses and implementation-provided addresses in the same process, to
-reduce the likelihood of <code>VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR</code>
-errors.</p>
+<p>Applications <strong class="purple">should</strong> avoid creating acceleration structures with
+application-provided addresses and implementation-provided addresses in the
+same process, to reduce the likelihood of
+<code>VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR</code> errors.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The expected usage for this is that a trace capture/replay tool will add the
+<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT</code> flag to all buffers
+that use <code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT</code>, and
+<code>VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT</code> to all buffers used as
+storage for an acceleration structure where <code>deviceAddress</code> is not zero.
+During capture the tool will save the queried opaque device addresses in the
+trace.
+During replay, the buffers will be created specifying the original address
+so any address values stored in the trace data will remain valid.</p>
+</div>
+<div class="paragraph">
+<p>Implementations are expected to separate such buffers in the GPU address
+space so normal allocations will avoid using these addresses.
+Apps/tools should avoid mixing app-provided and implementation-provided
+addresses for buffers created with
+<code>VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT</code>, to avoid address
+space allocation conflicts.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Applications <strong class="purple">should</strong> create an acceleration structure with a specific
+<a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a> other than
+<code>VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the acceleration structure will be the target of a build operation, the
+required size for an acceleration structure <strong class="purple">can</strong> be queried with
+<a href="vkGetAccelerationStructureBuildSizesKHR.html">vkGetAccelerationStructureBuildSizesKHR</a>.
+If the acceleration structure is going to be the target of a compacting
+copy, <a href="vkCmdWriteAccelerationStructuresPropertiesKHR.html">vkCmdWriteAccelerationStructuresPropertiesKHR</a> or
+<a href="vkWriteAccelerationStructuresPropertiesKHR.html">vkWriteAccelerationStructuresPropertiesKHR</a> <strong class="purple">can</strong> be used to obtain the
+compacted size required.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -897,88 +938,41 @@ errors.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-compactedSize-03490"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-compactedSize-03490</span><br>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-deviceAddress-03612"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-deviceAddress-03612</span><br>
 
-If <code>compactedSize</code> is not <code>0</code> then <code>maxGeometryCount</code> <strong class="purple">must</strong> be
-<code>0</code></p>
+If <code>deviceAddress</code> is not zero, <code>createFlags</code> <strong class="purple">must</strong> include
+<code>VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-compactedSize-02993"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-compactedSize-02993</span><br>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-createFlags-03613"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-createFlags-03613</span><br>
 
-If <code>compactedSize</code> is <code>0</code> then <code>maxGeometryCount</code> <strong class="purple">must</strong> not be
-<code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03491"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03491</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
-then <code>maxGeometryCount</code> <strong class="purple">must</strong> be less than or equal to
-<a href="VkPhysicalDeviceRayTracingPropertiesKHR.html">VkPhysicalDeviceRayTracingPropertiesKHR</a>::<code>maxGeometryCount</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03492"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03492</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR</code> then
-the <code>maxPrimitiveCount</code> member of each element of the
-<code>pGeometryInfos</code> array <strong class="purple">must</strong> be less than or equal to
-<a href="VkPhysicalDeviceRayTracingPropertiesKHR.html">VkPhysicalDeviceRayTracingPropertiesKHR</a>::<code>maxInstanceCount</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-maxPrimitiveCount-03493"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-maxPrimitiveCount-03493</span><br>
-
-The total number of triangles in all geometries <strong class="purple">must</strong> be less than or
-equal to
-<a href="VkPhysicalDeviceRayTracingPropertiesKHR.html">VkPhysicalDeviceRayTracingPropertiesKHR</a>::<code>maxPrimitiveCount</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-maxPrimitiveCount-03494"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-maxPrimitiveCount-03494</span><br>
-
-The total number of AABBs in all geometries <strong class="purple">must</strong> be less than or equal
-to
-<a href="VkPhysicalDeviceRayTracingPropertiesKHR.html">VkPhysicalDeviceRayTracingPropertiesKHR</a>::<code>maxPrimitiveCount</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03495"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03495</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR</code> and
-<code>compactedSize</code> is <code>0</code>, <code>maxGeometryCount</code> <strong class="purple">must</strong> be <code>1</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03496"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03496</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR</code> and
-<code>compactedSize</code> is <code>0</code>, the <code>geometryType</code> member of elements of
-<code>pGeometryInfos</code> <strong class="purple">must</strong> be <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03497"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03497</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
-and <code>compactedSize</code> is <code>0</code>, the <code>geometryType</code> member of
-elements of <code>pGeometryInfos</code> <strong class="purple">must</strong> not be
-<code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-03498"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-03498</span><br>
-
-If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
-then the <code>geometryType</code> member of each geometry in
-<code>pGeometryInfos</code> <strong class="purple">must</strong> be the same</p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-flags-03499"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-flags-03499</span><br>
-
-If <code>flags</code> has the
-<code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR</code> bit set,
-then it <strong class="purple">must</strong> not have the
-<code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR</code> bit set</p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-deviceAddress-03500"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-deviceAddress-03500</span><br>
-
-If <code>deviceAddress</code> is not <code>0</code>,
-<a href="VkPhysicalDeviceRayTracingFeaturesKHR.html">VkPhysicalDeviceRayTracingFeaturesKHR</a>::<code>rayTracingAccelerationStructureCaptureReplay</code>
+If <code>createFlags</code> includes
+<code>VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR</code>,
+<a href="VkPhysicalDeviceAccelerationStructureFeaturesKHR.html">VkPhysicalDeviceAccelerationStructureFeaturesKHR</a>::<code>accelerationStructureCaptureReplay</code>
 <strong class="purple">must</strong> be <code>VK_TRUE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-buffer-03614"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-buffer-03614</span><br>
+
+<code>buffer</code> <strong class="purple">must</strong> have been created with a <code>usage</code> value containing
+<code>VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-buffer-03615"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-buffer-03615</span><br>
+
+<code>buffer</code> <strong class="purple">must</strong> not have been created with
+<code>VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-offset-03616"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-offset-03616</span><br>
+
+The sum of <code>offset</code> and <code>size</code> <strong class="purple">must</strong> be less than the size of
+<code>buffer</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-offset-03734"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-offset-03734</span><br>
+
+<code>offset</code> <strong class="purple">must</strong> be a multiple of <code>256</code> bytes</p>
 </li>
 </ul>
 </div>
@@ -998,16 +992,16 @@ If <code>deviceAddress</code> is not <code>0</code>,
  <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-createFlags-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-createFlags-parameter</span><br>
+ <code>createFlags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkAccelerationStructureCreateFlagBitsKHR.html">VkAccelerationStructureCreateFlagBitsKHR</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-buffer-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-buffer-parameter</span><br>
+ <code>buffer</code> <strong class="purple">must</strong> be a valid <a href="VkBuffer.html">VkBuffer</a> handle</p>
+</li>
+<li>
 <p><a id="VUID-VkAccelerationStructureCreateInfoKHR-type-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-type-parameter</span><br>
  <code>type</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a> value</p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-flags-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-flags-parameter</span><br>
- <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkBuildAccelerationStructureFlagBitsKHR.html">VkBuildAccelerationStructureFlagBitsKHR</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureCreateInfoKHR-pGeometryInfos-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureCreateInfoKHR-pGeometryInfos-parameter</span><br>
- If <code>maxGeometryCount</code> is not <code>0</code>, <code>pGeometryInfos</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>maxGeometryCount</code> valid <a href="VkAccelerationStructureCreateGeometryTypeInfoKHR.html">VkAccelerationStructureCreateGeometryTypeInfoKHR</a> structures</p>
 </li>
 </ul>
 </div>
@@ -1019,7 +1013,7 @@ If <code>deviceAddress</code> is not <code>0</code>,
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkAccelerationStructureCreateGeometryTypeInfoKHR.html">VkAccelerationStructureCreateGeometryTypeInfoKHR</a>, <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a>, <a href="VkBuildAccelerationStructureFlagsKHR.html">VkBuildAccelerationStructureFlagsKHR</a>, <code>VkDeviceAddress</code>, <code>VkDeviceSize</code>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkCreateAccelerationStructureKHR.html">vkCreateAccelerationStructureKHR</a></p>
+<p><a href="VkAccelerationStructureCreateFlagsKHR.html">VkAccelerationStructureCreateFlagsKHR</a>, <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a>, <a href="VkBuffer.html">VkBuffer</a>, <code>VkDeviceAddress</code>, <code>VkDeviceSize</code>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkCreateAccelerationStructureKHR.html">vkCreateAccelerationStructureKHR</a></p>
 </div>
 </div>
 </div>
@@ -1049,8 +1043,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.161<br>
-Last updated 2020-11-15 22:16:55 -0800
+Version 1.2.162<br>
+Last updated 2020-11-22 22:47:02 -0800
 </div>
 </div>
 

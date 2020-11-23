@@ -812,7 +812,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 <div id="vkCmdCopyAccelerationStructureToMemoryKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_acceleration_structure
 void vkCmdCopyAccelerationStructureToMemoryKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo);</code></pre>
@@ -822,19 +822,6 @@ void vkCmdCopyAccelerationStructureToMemoryKHR(
 </div>
 <div class="sect1">
 <h2 id="_parameters"><a class="anchor" href="#_parameters"></a>Parameters</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This command produces the same results as
-<a href="vkCopyAccelerationStructureToMemoryKHR.html">vkCopyAccelerationStructureToMemoryKHR</a>, but writes its result to a
-device address, and is executed on the device rather than the host.
-The output <strong class="purple">may</strong> not necessarily be bit-for-bit identical, but it can be
-equally used by either <a href="vkCmdCopyMemoryToAccelerationStructureKHR.html">vkCmdCopyMemoryToAccelerationStructureKHR</a> or
-<a href="vkCopyMemoryToAccelerationStructureKHR.html">vkCopyMemoryToAccelerationStructureKHR</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -848,6 +835,30 @@ recorded.</p>
 copy operation.</p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Accesses to <code>pInfo</code>-&gt;<code>src</code> <strong class="purple">must</strong> be <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-dependencies" target="_blank" rel="noopener">synchronized</a> with the
+<code>VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code>
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-pipeline-stages" target="_blank" rel="noopener">pipeline stage</a> and an
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-access-types" target="_blank" rel="noopener">access type</a> of
+<code>VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR</code>.
+Accesses to the buffer indicated by <code>pInfo</code>-&gt;<code>dst.deviceAddress</code>
+<strong class="purple">must</strong> be synchronized with the
+<code>VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> pipeline stage
+and an access type of <code>VK_ACCESS_TRANSFER_WRITE_BIT</code>.</p>
+</div>
+<div class="paragraph">
+<p>This command produces the same results as
+<a href="vkCopyAccelerationStructureToMemoryKHR.html">vkCopyAccelerationStructureToMemoryKHR</a>, but writes its result to a
+device address, and is executed on the device rather than the host.
+The output <strong class="purple">may</strong> not necessarily be bit-for-bit identical, but it can be
+equally used by either <a href="vkCmdCopyMemoryToAccelerationStructureKHR.html">vkCmdCopyMemoryToAccelerationStructureKHR</a> or
+<a href="vkCopyMemoryToAccelerationStructureKHR.html">vkCopyMemoryToAccelerationStructureKHR</a>.</p>
 </div>
 <div class="paragraph">
 <p>The defined header structure for the serialized data consists of:</p>
@@ -868,7 +879,7 @@ comparison using <a href="vkGetDeviceAccelerationStructureCompatibilityKHR.html"
 </li>
 <li>
 <p>A 64-bit integer of the deserialized size to be passed in to
-<code>VkAccelerationStructureCreateInfoKHR</code>::<code>compactedSize</code></p>
+<code>VkAccelerationStructureCreateInfoKHR</code>::<code>size</code></p>
 </li>
 <li>
 <p>A 64-bit integer of the count of the number of acceleration structure
@@ -885,7 +896,9 @@ or
 are tightly packed in the buffer following the count.
 The application is expected to store a mapping between those handles and the
 original application-generated bottom-level acceleration structures to
-provide when deserializing.</p>
+provide when deserializing.
+The serialized data is written to the buffer (or read from the buffer)
+according to the host endianness.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -893,35 +906,28 @@ provide when deserializing.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-None-04048"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-None-04048</span><br>
+<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03739"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03739</span><br>
 
-All <code>VkDeviceOrHostAddressConstKHR</code> referenced by this command <strong class="purple">must</strong>
-contain valid device addresses for a buffer bound to device memory.
-If the buffer is non-sparse then it <strong class="purple">must</strong> be bound completely and
-contiguously to a single VkDeviceMemory object</p>
+<code>pInfo</code>-&gt;<code>dst.deviceAddress</code> <strong class="purple">must</strong> be a valid device address
+for a buffer bound to device memory.</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03740"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03740</span><br>
+
+<code>pInfo</code>-&gt;<code>dst.deviceAddress</code> <strong class="purple">must</strong> be aligned to <code>256</code> bytes</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03741"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pInfo-03741</span><br>
+
+If the buffer pointed to by <code>pInfo</code>-&gt;<code>dst.deviceAddress</code> is
+non-sparse then it <strong class="purple">must</strong> be bound completely and contiguously to a
+single <a href="VkDeviceMemory.html">VkDeviceMemory</a> object</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-None-03559"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-None-03559</span><br>
 
-All <code>VkAccelerationStructureKHR</code> objects referenced by this command
-<strong class="purple">must</strong> be bound to device memory</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pNext-03560"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-pNext-03560</span><br>
-
-The <a href="VkDeferredOperationInfoKHR.html">VkDeferredOperationInfoKHR</a> structure <strong class="purple">must</strong> not be included in
-the <code>pNext</code> chain of the
-<a href="VkCopyAccelerationStructureToMemoryInfoKHR.html">VkCopyAccelerationStructureToMemoryInfoKHR</a> structure</p>
-</li>
-</ul>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdCopyAccelerationStructureToMemoryKHR-mode-03412"></a> <span class="vuid">VUID-vkCmdCopyAccelerationStructureToMemoryKHR-mode-03412</span><br>
-
-<code>mode</code> <strong class="purple">must</strong> be
-<code>VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR</code></p>
+The <code>buffer</code> used to create <code>pInfo</code>-&gt;<code>src</code> <strong class="purple">must</strong> be bound
+to device memory</p>
 </li>
 </ul>
 </div>
@@ -1037,8 +1043,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.161<br>
-Last updated 2020-11-15 22:16:55 -0800
+Version 1.2.162<br>
+Last updated 2020-11-22 22:47:02 -0800
 </div>
 </div>
 

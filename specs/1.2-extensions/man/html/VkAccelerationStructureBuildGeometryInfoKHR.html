@@ -813,17 +813,17 @@ as:</p>
 </div>
 <div id="VkAccelerationStructureBuildGeometryInfoKHR" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_ray_tracing
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_acceleration_structure
 typedef struct VkAccelerationStructureBuildGeometryInfoKHR {
     VkStructureType                                     sType;
     const void*                                         pNext;
     VkAccelerationStructureTypeKHR                      type;
     VkBuildAccelerationStructureFlagsKHR                flags;
-    VkBool32                                            update;
+    VkBuildAccelerationStructureModeKHR                 mode;
     VkAccelerationStructureKHR                          srcAccelerationStructure;
     VkAccelerationStructureKHR                          dstAccelerationStructure;
-    VkBool32                                            geometryArrayOfPointers;
     uint32_t                                            geometryCount;
+    const VkAccelerationStructureGeometryKHR*           pGeometries;
     const VkAccelerationStructureGeometryKHR* const*    ppGeometries;
     VkDeviceOrHostAddressKHR                            scratchData;
 } VkAccelerationStructureBuildGeometryInfoKHR;</code></pre>
@@ -853,35 +853,30 @@ the type of acceleration structure being built.</p>
 parameters of the acceleration structure.</p>
 </li>
 <li>
-<p><code>update</code> specifies whether to update <code>dstAccelerationStructure</code>
-with the data in <code>srcAccelerationStructure</code> or not.</p>
+<p><code>mode</code> is a <a href="VkBuildAccelerationStructureModeKHR.html">VkBuildAccelerationStructureModeKHR</a> value
+specifying the type of operation to perform.</p>
 </li>
 <li>
 <p><code>srcAccelerationStructure</code> points to an existing acceleration
 structure that is to be used to update the <code>dst</code> acceleration
-structure when <code>update</code> is <code>VK_TRUE</code>.</p>
+structure when <code>mode</code> is
+<code>VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR</code>.</p>
 </li>
 <li>
 <p><code>dstAccelerationStructure</code> points to the target acceleration
 structure for the build.</p>
 </li>
 <li>
-<p><code>geometryArrayOfPointers</code> specifies whether <code>ppGeometries</code> is
-used as a pointer to an array of pointers or a pointer to a pointer to
-an array.</p>
-</li>
-<li>
 <p><code>geometryCount</code> specifies the number of geometries that will be
 built into <code>dstAccelerationStructure</code>.</p>
 </li>
 <li>
-<p><code>ppGeometries</code> is either a pointer to an array of pointers to
-<a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a> structures if
-<code>geometryArrayOfPointers</code> is <code>VK_TRUE</code>, or a pointer to a
-pointer to an array of <a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a>
-structures if it is <code>VK_FALSE</code>.
-Each element of the array describes the data used to build each
-acceleration structure geometry.</p>
+<p><code>pGeometries</code> is a pointer to an array of
+<a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a> structures.</p>
+</li>
+<li>
+<p><code>ppGeometries</code> is a pointer to an array of pointers to
+<a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a> structures.</p>
 </li>
 <li>
 <p><code>scratchData</code> is the device or host address to memory that will be
@@ -894,30 +889,22 @@ used as scratch memory for the build.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
 <div class="paragraph">
-<p>Elements of <code>ppGeometries</code> are accessed as follows, based on
-<code>geometryArrayOfPointers</code>:</p>
+<p>Only one of <code>pGeometries</code> or <code>ppGeometries</code> <strong class="purple">can</strong> be a valid pointer,
+the other <strong class="purple">must</strong> be <code>NULL</code>.
+Each element of the non-<code>NULL</code> array describes the data used to build each
+acceleration structure geometry.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">if (geometryArrayOfPointers) {
-    use *(ppGeometries[i]);
-} else {
-    use (*ppGeometries)[i];
-}</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
+<div id="acceleration-structure-geometry-index" class="paragraph">
+<p>The index of each element of the <code>pGeometries</code> or <code>ppGeometries</code>
+members of <a href="VkAccelerationStructureBuildGeometryInfoKHR.html">VkAccelerationStructureBuildGeometryInfoKHR</a> is used as the
+<em>geometry index</em> during ray traversal.
+The geometry index is available in ray shaders via the
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#interfaces-builtin-variables-raygeometryindex" target="_blank" rel="noopener"><code>RayGeometryIndexKHR</code>
+built-in</a>, and is <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#shader-binding-table-hit-shader-indexing" target="_blank" rel="noopener">used to
+determine hit and intersection shaders executed during traversal</a>.
+The geometry index is available to ray queries via the
+<code>OpRayQueryGetIntersectionGeometryIndexKHR</code> instruction.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -925,31 +912,75 @@ used as scratch memory for the build.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03537"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03537</span><br>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03654"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03654</span><br>
 
-If <code>update</code> is <code>VK_TRUE</code>, <code>srcAccelerationStructure</code> <strong class="purple">must</strong>
-not be <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a></p>
+<code>type</code> <strong class="purple">must</strong> not be <code>VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03538"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03538</span><br>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-pGeometries-03788"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-pGeometries-03788</span><br>
 
-If <code>update</code> is <code>VK_TRUE</code>, <code>srcAccelerationStructure</code> <strong class="purple">must</strong>
-have been built before with
-<code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR</code> set in
-<a href="VkAccelerationStructureBuildGeometryInfoKHR.html">VkAccelerationStructureBuildGeometryInfoKHR</a>::<code>flags</code></p>
+Only one of <code>pGeometries</code> or <code>ppGeometries</code> <strong class="purple">can</strong> be a valid
+pointer, the other <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-scratchData-03539"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-scratchData-03539</span><br>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03789"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03789</span><br>
 
-<code>scratchData</code> <strong class="purple">must</strong> have been created with
-<code>VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR</code> usage flag</p>
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR</code>, the
+<code>geometryType</code> member of elements of either <code>pGeometries</code> or
+<code>ppGeometries</code> <strong class="purple">must</strong> be <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03540"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-update-03540</span><br>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03790"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03790</span><br>
 
-If <code>update</code> is <code>VK_TRUE</code>, the <code>srcAccelerationStructure</code> and
-<code>dstAccelerationStructure</code> objects <strong class="purple">must</strong> either be the same object
-or not have any <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#resources-memory-aliasing" target="_blank" rel="noopener">memory aliasing</a></p>
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR</code>,
+<code>geometryCount</code> <strong class="purple">must</strong> be <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03791"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03791</span><br>
+
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
+the <code>geometryType</code> member of elements of either <code>pGeometries</code> or
+<code>ppGeometries</code> <strong class="purple">must</strong> not be <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03792"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03792</span><br>
+
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
+then the <code>geometryType</code> member of each geometry in either
+<code>pGeometries</code> or <code>ppGeometries</code> <strong class="purple">must</strong> be the same</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03793"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03793</span><br>
+
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
+then <code>geometryCount</code> <strong class="purple">must</strong> be less than or equal to
+<a href="VkPhysicalDeviceAccelerationStructurePropertiesKHR.html">VkPhysicalDeviceAccelerationStructurePropertiesKHR</a>::<code>maxGeometryCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03794"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03794</span><br>
+
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
+and the <code>geometryType</code> member of either <code>pGeometries</code> or
+<code>ppGeometries</code> is <code>VK_GEOMETRY_TYPE_AABBS_KHR</code>, the total number
+of AABBs in all geometries <strong class="purple">must</strong> be less than or equal to
+<a href="VkPhysicalDeviceAccelerationStructurePropertiesKHR.html">VkPhysicalDeviceAccelerationStructurePropertiesKHR</a>::<code>maxPrimitiveCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03795"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-03795</span><br>
+
+If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR</code>
+and the <code>geometryType</code> member of either <code>pGeometries</code> or
+<code>ppGeometries</code> is <code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>, the total
+number of triangles in all geometries <strong class="purple">must</strong> be less than or equal to
+<a href="VkPhysicalDeviceAccelerationStructurePropertiesKHR.html">VkPhysicalDeviceAccelerationStructurePropertiesKHR</a>::<code>maxPrimitiveCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-03796"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-03796</span><br>
+
+If <code>flags</code> has the
+<code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR</code> bit set,
+then it <strong class="purple">must</strong> not have the
+<code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR</code> bit set</p>
 </li>
 </ul>
 </div>
@@ -966,11 +997,7 @@ or not have any <a href="https://www.khronos.org/registry/vulkan/specs/1.2-exten
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="VkDeferredOperationInfoKHR.html">VkDeferredOperationInfoKHR</a></p>
-</li>
-<li>
-<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-sType-unique</span><br>
- The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-type-parameter</span><br>
@@ -981,12 +1008,24 @@ or not have any <a href="https://www.khronos.org/registry/vulkan/specs/1.2-exten
  <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkBuildAccelerationStructureFlagBitsKHR.html">VkBuildAccelerationStructureFlagBitsKHR</a> values</p>
 </li>
 <li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-mode-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-mode-parameter</span><br>
+ <code>mode</code> <strong class="purple">must</strong> be a valid <a href="VkBuildAccelerationStructureModeKHR.html">VkBuildAccelerationStructureModeKHR</a> value</p>
+</li>
+<li>
 <p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-srcAccelerationStructure-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-srcAccelerationStructure-parameter</span><br>
  If <code>srcAccelerationStructure</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>srcAccelerationStructure</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-dstAccelerationStructure-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-dstAccelerationStructure-parameter</span><br>
- <code>dstAccelerationStructure</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
+ If <code>dstAccelerationStructure</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, <code>dstAccelerationStructure</code> <strong class="purple">must</strong> be a valid <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-pGeometries-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-pGeometries-parameter</span><br>
+ If <code>geometryCount</code> is not <code>0</code>, and <code>pGeometries</code> is not <code>NULL</code>, <code>pGeometries</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>geometryCount</code> valid <a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-ppGeometries-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-ppGeometries-parameter</span><br>
+ If <code>geometryCount</code> is not <code>0</code>, and <code>ppGeometries</code> is not <code>NULL</code>, <code>ppGeometries</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>geometryCount</code> valid pointers to valid <a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a> structures</p>
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-scratchData-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-scratchData-parameter</span><br>
@@ -1006,7 +1045,7 @@ or not have any <a href="https://www.khronos.org/registry/vulkan/specs/1.2-exten
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a>, <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a>, <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a>, <code>VkBool32</code>, <a href="VkBuildAccelerationStructureFlagsKHR.html">VkBuildAccelerationStructureFlagsKHR</a>, <a href="VkDeviceOrHostAddressKHR.html">VkDeviceOrHostAddressKHR</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkBuildAccelerationStructureKHR.html">vkBuildAccelerationStructureKHR</a>, <a href="vkCmdBuildAccelerationStructureIndirectKHR.html">vkCmdBuildAccelerationStructureIndirectKHR</a>, <a href="vkCmdBuildAccelerationStructureKHR.html">vkCmdBuildAccelerationStructureKHR</a></p>
+<p><a href="VkAccelerationStructureGeometryKHR.html">VkAccelerationStructureGeometryKHR</a>, <a href="VkAccelerationStructureKHR.html">VkAccelerationStructureKHR</a>, <a href="VkAccelerationStructureTypeKHR.html">VkAccelerationStructureTypeKHR</a>, <a href="VkBuildAccelerationStructureFlagsKHR.html">VkBuildAccelerationStructureFlagsKHR</a>, <a href="VkBuildAccelerationStructureModeKHR.html">VkBuildAccelerationStructureModeKHR</a>, <a href="VkDeviceOrHostAddressKHR.html">VkDeviceOrHostAddressKHR</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="vkBuildAccelerationStructuresKHR.html">vkBuildAccelerationStructuresKHR</a>, <a href="vkCmdBuildAccelerationStructuresIndirectKHR.html">vkCmdBuildAccelerationStructuresIndirectKHR</a>, <a href="vkCmdBuildAccelerationStructuresKHR.html">vkCmdBuildAccelerationStructuresKHR</a>, <a href="vkGetAccelerationStructureBuildSizesKHR.html">vkGetAccelerationStructureBuildSizesKHR</a></p>
 </div>
 </div>
 </div>
@@ -1036,8 +1075,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.161<br>
-Last updated 2020-11-15 22:16:55 -0800
+Version 1.2.162<br>
+Last updated 2020-11-22 22:47:02 -0800
 </div>
 </div>
 
