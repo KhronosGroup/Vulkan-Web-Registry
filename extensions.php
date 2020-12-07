@@ -194,6 +194,7 @@
     <li> <b>  NN Extensions (Nintendo Co., Ltd.)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NN_vi_surface.html"> VK_NN_vi_surface </a> </li>
     <li> <b>  NV Extensions (NVIDIA Corporation)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_acquire_winrt_display.html"> VK_NV_acquire_winrt_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_clip_space_w_scaling.html"> VK_NV_clip_space_w_scaling </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_compute_shader_derivatives.html"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_cooperative_matrix.html"> VK_NV_cooperative_matrix </a> </li>
@@ -234,4 +235,6 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_rotated_copy_commands.html"> VK_QCOM_rotated_copy_commands </a> </li>
+    <li> <b>  VALVE Extensions (Valve Corporation)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_VALVE_mutable_descriptor_type.html"> VK_VALVE_mutable_descriptor_type </a> </li>
 </ul>

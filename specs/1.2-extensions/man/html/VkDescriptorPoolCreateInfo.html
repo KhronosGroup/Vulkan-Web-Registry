@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.10">
+<meta name="generator" content="Asciidoctor 2.0.12">
 <title>VkDescriptorPoolCreateInfo(3)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
@@ -756,6 +756,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <link rel="preload" href="../katex/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="">
 <link rel="preload" href="../katex/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="">
 <link rel="preload" href="../katex/fonts/KaTeX_Typewriter-Regular.woff2" as="font" type="font/woff2" crossorigin=""><link rel="stylesheet" href="../../katex/katex.min.css">
+<!--ChunkedSearchJSMarker-->
 <style>
     #loading_msg {
         width: 100%;
@@ -803,6 +804,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
+<!--ChunkedSearchboxMarker-->
 <div id="content" class="loadable" ><script>hideLoadableContent();</script>
 <div class="sect1">
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
@@ -900,6 +902,27 @@ pools (including this one) created with this bit set exceeds
 <code>maxUpdateAfterBindDescriptorsInAllPools</code>, or if fragmentation of the
 underlying hardware resources occurs.</p>
 </div>
+<div class="paragraph">
+<p>If a <code>pPoolSizes</code>[i]::<code>type</code> is
+<code>VK_DESCRIPTOR_TYPE_MUTABLE_VALVE</code>, a
+<a href="VkMutableDescriptorTypeCreateInfoVALVE.html">VkMutableDescriptorTypeCreateInfoVALVE</a> struct in the <code>pNext</code> chain
+<strong class="purple">can</strong> be used to specify which mutable descriptor types <strong class="purple">can</strong> be allocated
+from the pool.
+If present in the <code>pNext</code> chain,
+<a href="VkMutableDescriptorTypeCreateInfoVALVE.html">VkMutableDescriptorTypeCreateInfoVALVE</a>::<code>pMutableDescriptorTypeLists</code>[i]
+specifies which kind of <code>VK_DESCRIPTOR_TYPE_MUTABLE_VALVE</code> descriptors
+<strong class="purple">can</strong> be allocated from this pool entry.
+If <a href="VkMutableDescriptorTypeCreateInfoVALVE.html">VkMutableDescriptorTypeCreateInfoVALVE</a> does not exist in the
+<code>pNext</code> chain, or
+<a href="VkMutableDescriptorTypeCreateInfoVALVE.html">VkMutableDescriptorTypeCreateInfoVALVE</a>::<code>pMutableDescriptorTypeLists</code>[i]
+is out of range, the descriptor pool allocates enough memory to be able to
+allocate a <code>VK_DESCRIPTOR_TYPE_MUTABLE_VALVE</code> descriptor with any
+supported <a href="VkDescriptorType.html">VkDescriptorType</a> as a mutable descriptor.
+A mutable descriptor <strong class="purple">can</strong> be allocated from a pool entry if the type list in
+<a href="VkDescriptorSetLayoutCreateInfo.html">VkDescriptorSetLayoutCreateInfo</a> is a subset of the type list declared
+in the descriptor pool, or if the pool entry is created without a descriptor
+type list.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -909,6 +932,30 @@ underlying hardware resources occurs.</p>
 <p><a id="VUID-VkDescriptorPoolCreateInfo-maxSets-00301"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-maxSets-00301</span><br>
 
 <code>maxSets</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkDescriptorPoolCreateInfo-flags-04607"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-flags-04607</span><br>
+
+If <code>flags</code> has the
+<code>VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_VALVE</code> bit set, then the
+<code>VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT</code> bit <strong class="purple">must</strong> not be
+set</p>
+</li>
+<li>
+<p><a id="VUID-VkDescriptorPoolCreateInfo-mutableDescriptorType-04608"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-mutableDescriptorType-04608</span><br>
+
+If
+<a href="VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE.html">VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE</a>::<code>mutableDescriptorType</code>
+is not enabled, <code>pPoolSizes</code> <strong class="purple">must</strong> not contain a
+<code>descriptorType</code> of <code>VK_DESCRIPTOR_TYPE_MUTABLE_VALVE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkDescriptorPoolCreateInfo-flags-04609"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-flags-04609</span><br>
+
+If <code>flags</code> has the
+<code>VK_DESCRIPTOR_POOL_CREATE_HOST_ONLY_BIT_VALVE</code> bit set,
+<a href="VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE.html">VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE</a>::<code>mutableDescriptorType</code>
+<strong class="purple">must</strong> be enabled</p>
 </li>
 </ul>
 </div>
@@ -925,7 +972,7 @@ underlying hardware resources occurs.</p>
 </li>
 <li>
 <p><a id="VUID-VkDescriptorPoolCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="VkDescriptorPoolInlineUniformBlockCreateInfoEXT.html">VkDescriptorPoolInlineUniformBlockCreateInfoEXT</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkDescriptorPoolInlineUniformBlockCreateInfoEXT.html">VkDescriptorPoolInlineUniformBlockCreateInfoEXT</a> or <a href="VkMutableDescriptorTypeCreateInfoVALVE.html">VkMutableDescriptorTypeCreateInfoVALVE</a></p>
 </li>
 <li>
 <p><a id="VUID-VkDescriptorPoolCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkDescriptorPoolCreateInfo-sType-unique</span><br>
@@ -983,8 +1030,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.163<br>
-Last updated 2020-11-29 23:53:06 -0800
+Version 1.2.164<br>
+Last updated 2020-12-07 03:19:04 -0800
 </div>
 </div>
 
