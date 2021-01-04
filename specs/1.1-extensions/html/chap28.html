@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.165 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.166 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -890,12 +890,12 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.165 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.166 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.165,</span>
-<span id="revdate">2020-12-14 05:59:20Z</span>
-<br><span id="revremark">from git branch: github-main commit: ffbc67c499b92e864ad51275e606468975b5e397</span>
+<span id="revnumber">version 1.1.166,</span>
+<span id="revdate">2021-01-04 03:41:09Z</span>
+<br><span id="revremark">from git branch: github-main commit: d7aab06b9be7a245945ec3f9cee772c27fbadc26</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1071,6 +1071,7 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 <li><a href="chap17.html#textures-sample-operations">16.8. Image Sample Operations</a></li>
 <li><a href="chap17.html#textures-footprint">16.9. Texel Footprint Evaluation</a></li>
 <li><a href="chap17.html#textures-instructions">16.10. Image Operation Steps</a></li>
+<li><a href="chap17.html#textures-queries">16.11. Image Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap18.html#fragmentdensitymapops">17. Fragment Density Map Operations</a>
@@ -4287,36 +4288,31 @@ separately, or only after the second combiner operation.</p>
 <p>If the final combined rate is one of the rates returned by
 <a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample count used
 by rasterization, <span class="eq">C<sub>xy</sub>' = C<sub>xy</sub></span>.
-If swapping the y and x axes of <span class="eq">C<sub>xy</sub></span> results in one of the rates
-returned by <a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample
-count used by rasterization, implementations <strong class="purple">may</strong> choose a final rate where
-<span class="eq">C<sub>x</sub>' = C<sub>y</sub></span> and <span class="eq">C<sub>y</sub>' = C<sub>x</sub></span>.
-Otherwise, <span class="eq">C<sub>xy</sub>'</span> is derived from <span class="eq">C<sub>xy</sub></span> as follows:</p>
+Otherwise, <span class="eq">C<sub>xy</sub>'</span> is selected from the rates returned by
+<a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample count used
+by rasterization.
+From this list of supported rates, the following steps are applied in order,
+to select a single value:</p>
 </div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Keep only rates where <span class="eq">C<sub>x</sub>'</span> is less than <span class="eq">C<sub>x</sub></span> and
+<span class="eq">C<sub>y</sub>'</span> is less than <span class="eq">C<sub>y</sub></span>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><span class="eq">C<sub>xy</sub>'</span> <strong class="purple">must</strong> be one of the rates returned by
-<a href="#vkGetPhysicalDeviceFragmentShadingRatesKHR">vkGetPhysicalDeviceFragmentShadingRatesKHR</a> for the sample count
-used by rasterization.</p>
+<p>Implementations <strong class="purple">may</strong> also keep rates where <span class="eq">C<sub>x</sub>'</span> is less than
+<span class="eq">C<sub>y</sub></span> and <span class="eq">C<sub>y</sub>'</span> is less than <span class="eq">C<sub>x</sub></span></p>
 </li>
-<li>
-<p><span class="eq">C<sub>x</sub>'</span> <strong class="purple">must</strong> be in the range <span class="eq">[1, C<sub>x</sub>]</span>.</p>
+</ul>
+</div>
 </li>
-<li>
-<p><span class="eq">C<sub>y</sub>'</span> <strong class="purple">must</strong> be in the range <span class="eq">[1, C<sub>y</sub>]</span>.</p>
-</li>
-<li>
-<p>If there are multiple supported rates matching the above criteria, the
-following steps are applied in order:</p>
-<div class="olist arabic">
-<ol class="arabic">
 <li>
 <p>Keep only rates with the highest area (<span class="eq">C<sub>x</sub>' × C<sub>y</sub>'</span>).</p>
 </li>
 <li>
-<p>Keep only rates with the lowest aspect ration (<span class="eq">C<sub>x</sub>' + 
-C<sub>y</sub>'</span>).</p>
+<p>Keep only rates with the lowest aspect ratio (<span class="eq">C<sub>x</sub>' +  C<sub>y</sub>'</span>).</p>
 </li>
 <li>
 <p>In cases where a wide (e.g. 4x1) and tall (e.g. 1x4) rate remain, the
@@ -4327,9 +4323,6 @@ render pass transform,
 and combiner operations for the lifetime of the <a href="chap6.html#VkDevice">VkDevice</a>.</p>
 </li>
 </ol>
-</div>
-</li>
-</ul>
 </div>
 </div>
 <div class="sect3">
@@ -4919,10 +4912,6 @@ If <code>shadingRateImageEnable</code> is <code>VK_TRUE</code>, <code>viewportCo
 <li>
 <p><a id="VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-sType-sType" href="#VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-sType-sType"></a> <span class="vuid">VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-sType-sType</span><br>
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-viewportCount-arraylength" href="#VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-viewportCount-arraylength"></a> <span class="vuid">VUID-VkPipelineViewportShadingRateImageStateCreateInfoNV-viewportCount-arraylength</span><br>
- <code>viewportCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -8429,7 +8418,7 @@ fully covered by the generating primitive.</p>
 </div></div>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.165<br>
+Version 1.1.166<br>
 Last updated 2020-11-22 22:45:40 -0800
 </div>
 </div>
