@@ -75,8 +75,10 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_wayland_surface.html"> VK_KHR_wayland_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_win32_keyed_mutex.html"> VK_KHR_win32_keyed_mutex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_win32_surface.html"> VK_KHR_win32_surface </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_workgroup_memory_explicit_layout.html"> VK_KHR_workgroup_memory_explicit_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_xcb_surface.html"> VK_KHR_xcb_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_xlib_surface.html"> VK_KHR_xlib_surface </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_zero_initialize_workgroup_memory.html"> VK_KHR_zero_initialize_workgroup_memory </a> </li>
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_4444_formats.html"> VK_EXT_4444_formats </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
