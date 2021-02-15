@@ -889,6 +889,33 @@ structures.</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p><code>vkCmdWaitEvents</code> is largely similar to <a href="vkCmdWaitEvents2KHR.html">vkCmdWaitEvents2KHR</a>, but
+<strong class="purple">can</strong> only wait on signal operations defined by <a href="vkCmdSetEvent.html">vkCmdSetEvent</a>.
+As <a href="vkCmdSetEvent.html">vkCmdSetEvent</a> doesn&#8217;t define any access scopes,
+<code>vkCmdWaitEvents</code> defines the first access scope for each event signal
+operation in addition to its own access scopes.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Since <a href="vkCmdSetEvent.html">vkCmdSetEvent</a> doesn&#8217;t have any dependency information beyond a
+stage mask, implementations do not have the same opportunity to perform
+<a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-dependencies-available-and-visible" target="_blank" rel="noopener">availability and
+visibility operations</a> or <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-image-layout-transitions" target="_blank" rel="noopener">image
+layout transitions</a> in advance as they do with <a href="vkCmdSetEvent2KHR.html">vkCmdSetEvent2KHR</a> and
+<a href="vkCmdWaitEvents2KHR.html">vkCmdWaitEvents2KHR</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
 <p>When <code>vkCmdWaitEvents</code> is submitted to a queue, it defines a memory
 dependency between prior event signal operations on the same queue or the
 host, and subsequent commands.
@@ -939,54 +966,6 @@ defined by elements of the <code>pMemoryBarriers</code>,
 each define a set of <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-memory-barriers" target="_blank" rel="noopener">memory barriers</a>.
 If no memory barriers are specified, then the second access scope includes
 no accesses.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p><a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a> is used with <a href="vkCmdSetEvent.html">vkCmdSetEvent</a> to define a memory
-dependency between two sets of action commands, roughly in the same way as
-pipeline barriers, but split into two commands such that work between the
-two <strong class="purple">may</strong> execute unhindered.</p>
-</div>
-<div class="paragraph">
-<p>Unlike <a href="vkCmdPipelineBarrier.html">vkCmdPipelineBarrier</a>, a <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#synchronization-queue-transfers" target="_blank" rel="noopener">queue family ownership transfer</a> <strong class="purple">cannot</strong> be performed using
-<a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a>.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Applications <strong class="purple">should</strong> be careful to avoid race conditions when using events.
-There is no direct ordering guarantee between a <a href="vkCmdResetEvent.html">vkCmdResetEvent</a>
-command and <a href="vkCmdSetEvent.html">vkCmdSetEvent</a> or <a href="vkCmdWaitEvents.html">vkCmdWaitEvents</a> commands submitted
-after it.
-Similarly, there is no ordering guarantee between sequential
-<a href="vkCmdSetEvent.html">vkCmdSetEvent</a> commands, leading to a race condition on the event
-status.
-Waiting on an event in these cases without additional synchronization can
-result in a data race.
-Another execution dependency (e.g. a pipeline barrier or semaphore with
-<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>) is needed to prevent such race
-conditions.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1061,6 +1040,12 @@ structure that was used to create the <code>VkCommandPool</code> that
 <a href="#synchronization-pipeline-stages-supported">table of supported pipeline
 stages</a></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-srcStageMask-03937"></a> <span class="vuid">VUID-vkCmdWaitEvents-srcStageMask-03937</span><br>
+
+If the <a href="#features-synchronization2"><code>synchronization2</code></a> feature is
+not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -1132,6 +1117,12 @@ structure that was used to create the <code>VkCommandPool</code> that
 <code>commandBuffer</code> was allocated from, as specified in the
 <a href="#synchronization-pipeline-stages-supported">table of supported pipeline
 stages</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-dstStageMask-03937"></a> <span class="vuid">VUID-vkCmdWaitEvents-dstStageMask-03937</span><br>
+
+If the <a href="#features-synchronization2"><code>synchronization2</code></a> feature is
+not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -1236,6 +1227,12 @@ any element of <code>pBufferMemoryBarriers</code> or <code>pImageMemoryBarriers<
 <code>commandBuffer</code>&#8217;s current device mask <strong class="purple">must</strong> include exactly one
 physical device</p>
 </li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-pEvents-03847"></a> <span class="vuid">VUID-vkCmdWaitEvents-pEvents-03847</span><br>
+
+Members of <code>pEvents</code> <strong class="purple">must</strong> not have been signaled by
+<a href="vkCmdSetEvent2KHR.html">vkCmdSetEvent2KHR</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -1258,16 +1255,8 @@ physical device</p>
  <code>srcStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="VkPipelineStageFlagBits.html">VkPipelineStageFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdWaitEvents-srcStageMask-requiredbitmask"></a> <span class="vuid">VUID-vkCmdWaitEvents-srcStageMask-requiredbitmask</span><br>
- <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdWaitEvents-dstStageMask-parameter"></a> <span class="vuid">VUID-vkCmdWaitEvents-dstStageMask-parameter</span><br>
  <code>dstStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="VkPipelineStageFlagBits.html">VkPipelineStageFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-dstStageMask-requiredbitmask"></a> <span class="vuid">VUID-vkCmdWaitEvents-dstStageMask-requiredbitmask</span><br>
- <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdWaitEvents-pMemoryBarriers-parameter"></a> <span class="vuid">VUID-vkCmdWaitEvents-pMemoryBarriers-parameter</span><br>
@@ -1383,8 +1372,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.169<br>
-Last updated 2021-02-01 22:53:27 -0800
+Version 1.2.170<br>
+Last updated 2021-02-14 21:28:41 -0800
 </div>
 </div>
 

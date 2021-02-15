@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.169 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.170 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -890,12 +890,12 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.169 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.170 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.169,</span>
-<span id="revdate">2021-02-02 07:21:26Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1eae55f4c780fb0f0aa990071fe158d2a70e7429</span>
+<span id="revnumber">version 1.0.170,</span>
+<span id="revdate">2021-02-15 05:59:29Z</span>
+<br><span id="revremark">from git branch: github-main commit: 815e07c850d642d996292f5cdec25d41ecdff0d0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -8345,6 +8345,291 @@ The <code>layerCount</code> member of <code>srcSubresource</code> and
 <div class="paragraph">
 <p>To write a 32-bit marker value into a buffer as a pipelined operation, call:</p>
 </div>
+<div id="vkCmdWriteBufferMarker2AMD" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_synchronization2 with VK_AMD_buffer_marker</span>
+<span class="directive">void</span> vkCmdWriteBufferMarker2AMD(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlags2KHR                    stage,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    uint32_t                                    marker);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>stage</code> specifies the pipeline stage whose completion triggers the
+marker write.</p>
+</li>
+<li>
+<p><code>dstBuffer</code> is the buffer where the marker will be written.</p>
+</li>
+<li>
+<p><code>dstOffset</code> is the byte offset into the buffer where the marker will
+be written.</p>
+</li>
+<li>
+<p><code>marker</code> is the 32-bit value of the marker.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The command will write the 32-bit marker value into the buffer only after
+all preceding commands have finished executing up to at least the specified
+pipeline stage.
+This includes the completion of other preceding
+<code>vkCmdWriteBufferMarker2AMD</code> commands so long as their specified
+pipeline stages occur either at the same time or earlier than this command’s
+specified <code>pipelineStage</code>.</p>
+</div>
+<div class="paragraph">
+<p>While consecutive buffer marker writes with the same <code>pipelineStage</code>
+parameter implicitly complete in submission order, memory and execution
+dependencies between buffer marker writes and other operations <strong class="purple">must</strong> still
+be explicitly ordered using synchronization commands.
+The access scope for buffer marker writes falls under the
+<code>VK_ACCESS_TRANSFER_WRITE_BIT</code>, and the pipeline stages for identifying
+the synchronization scope <strong class="purple">must</strong> include both <code>pipelineStage</code> and
+<code>VK_PIPELINE_STAGE_TRANSFER_BIT</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Similar to <code>vkCmdWriteTimestamp2KHR</code>, if an implementation is unable to
+write a marker at any specific pipeline stage, it <strong class="purple">may</strong> instead do so at any
+logically later stage.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Implementations <strong class="purple">may</strong> only support a limited number of pipelined marker write
+operations in flight at a given time.
+Thus an excessive number of marker write operations <strong class="purple">may</strong> degrade command
+execution performance.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03929" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03929"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03929</span><br>
+
+If the <a href="chap41.html#features-geometryShader">geometry shaders</a> feature is not
+enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03930" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03930"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03930</span><br>
+
+If the <a href="chap41.html#features-tessellationShader">tessellation shaders</a> feature is
+not enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_TESSELLATION_CONTROL_SHADER_BIT_KHR</code> or
+<code>VK_PIPELINE_STAGE_2_TESSELLATION_EVALUATION_SHADER_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03931" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03931"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03931</span><br>
+
+If the <a href="chap41.html#features-conditionalRendering">conditional rendering</a> feature
+is not enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_CONDITIONAL_RENDERING_BIT_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03932" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03932"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03932</span><br>
+
+If the <a href="chap41.html#features-fragmentDensityMap">fragment density map</a> feature is
+not enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_FRAGMENT_DENSITY_PROCESS_BIT_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03933" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03933"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03933</span><br>
+
+If the <a href="chap41.html#features-transformFeedback">transform feedback</a> feature is not
+enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03934" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03934"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03934</span><br>
+
+If the <a href="chap41.html#features-meshShader">mesh shaders</a> feature is not enabled,
+<code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_MESH_SHADER_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03935" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03935"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03935</span><br>
+
+If the <a href="chap41.html#features-taskShader">task shaders</a> feature is not enabled,
+<code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_TASK_SHADER_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03936" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03936"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03936</span><br>
+
+If the <a href="chap41.html#features-shadingRateImage">shading rate image</a> feature is not
+enabled, <code>stage</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_SHADING_RATE_IMAGE_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-synchronization2-03893" href="#VUID-vkCmdWriteBufferMarker2AMD-synchronization2-03893"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-synchronization2-03893</span><br>
+
+The <a href="chap41.html#features-synchronization2"><code>synchronization2</code></a> feature <strong class="purple">must</strong>
+be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03894" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03894"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03894</span><br>
+
+<code>stage</code> <strong class="purple">must</strong> include only a single pipeline stage</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-03895" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-03895"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-03895</span><br>
+
+<code>stage</code> <strong class="purple">must</strong> include only stages that are valid for the queue
+family that was used to create the command pool that <code>commandBuffer</code>
+was allocated from</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03896" href="#VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03896"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03896</span><br>
+
+<code>dstOffset</code> <strong class="purple">must</strong> be less than or equal to the size of
+<code>dstBuffer</code> minus <code>4</code>.</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03897" href="#VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03897"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03897</span><br>
+
+<code>dstBuffer</code> <strong class="purple">must</strong> have been created with the
+<code>VK_BUFFER_USAGE_TRANSFER_DST_BIT</code> usage flag</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03898" href="#VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03898"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-03898</span><br>
+
+If <code>dstBuffer</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
+contiguously to a single <code>VkDeviceMemory</code> object</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03899" href="#VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03899"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-dstOffset-03899</span><br>
+
+<code>dstOffset</code> <strong class="purple">must</strong> be a multiple of <code>4</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-parameter" href="#VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap7.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-parameter" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-parameter"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-parameter</span><br>
+ <code>stage</code> <strong class="purple">must</strong> be a valid combination of <a href="chap8.html#VkPipelineStageFlagBits2KHR">VkPipelineStageFlagBits2KHR</a> values</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-stage-requiredbitmask" href="#VUID-vkCmdWriteBufferMarker2AMD-stage-requiredbitmask"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-stage-requiredbitmask</span><br>
+ <code>stage</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-parameter" href="#VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-parameter"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-dstBuffer-parameter</span><br>
+ <code>dstBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap13.html#VkBuffer">VkBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-recording" href="#VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap7.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-cmdpool" href="#VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support transfer, graphics, or compute operations</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWriteBufferMarker2AMD-commonparent" href="#VUID-vkCmdWriteBufferMarker2AMD-commonparent"></a> <span class="vuid">VUID-vkCmdWriteBufferMarker2AMD-commonparent</span><br>
+ Both of <code>commandBuffer</code>, and <code>dstBuffer</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap6.html#VkDevice">VkDevice</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap7.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap9.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
+Graphics<br>
+Compute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Transfer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To write a 32-bit marker value into a buffer as a pipelined operation, call:</p>
+</div>
 <div id="vkCmdWriteBufferMarkerAMD" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_AMD_buffer_marker</span>
@@ -9127,7 +9412,7 @@ The <code>layerCount</code> member of <code>srcSubresource</code> and
 </div></div>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.169<br>
+Version 1.0.170<br>
 Last updated 2021-02-01 22:51:50 -0800
 </div>
 </div>

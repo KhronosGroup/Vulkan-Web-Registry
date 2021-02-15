@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.169 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.170 - A Specification (with all registered Vulkan extensions)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -890,12 +890,12 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.169 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.170 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.169,</span>
-<span id="revdate">2021-02-02 06:53:27Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1eae55f4c780fb0f0aa990071fe158d2a70e7429</span>
+<span id="revnumber">version 1.2.170,</span>
+<span id="revdate">2021-02-15 05:28:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 815e07c850d642d996292f5cdec25d41ecdff0d0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3936,16 +3936,8 @@ If the <a href="chap41.html#features-taskShader">task shaders</a> feature is not
  <code>srcStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap8.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDependency-srcStageMask-requiredbitmask" href="#VUID-VkSubpassDependency-srcStageMask-requiredbitmask"></a> <span class="vuid">VUID-VkSubpassDependency-srcStageMask-requiredbitmask</span><br>
- <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-<li>
 <p><a id="VUID-VkSubpassDependency-dstStageMask-parameter" href="#VUID-VkSubpassDependency-dstStageMask-parameter"></a> <span class="vuid">VUID-VkSubpassDependency-dstStageMask-parameter</span><br>
  <code>dstStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap8.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkSubpassDependency-dstStageMask-requiredbitmask" href="#VUID-VkSubpassDependency-dstStageMask-requiredbitmask"></a> <span class="vuid">VUID-VkSubpassDependency-dstStageMask-requiredbitmask</span><br>
- <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDependency-srcAccessMask-parameter" href="#VUID-VkSubpassDependency-srcAccessMask-parameter"></a> <span class="vuid">VUID-VkSubpassDependency-srcAccessMask-parameter</span><br>
@@ -4008,7 +4000,7 @@ if each view were a separate attachment.</p>
 same bound transform feedback buffers, a subpass dependency <strong class="purple">must</strong> be
 included (either directly or via some intermediate subpasses) between them.</p>
 </div>
-<div class="paragraph">
+<div id="renderpass-implicit-dependencies" class="paragraph">
 <p>If there is no subpass dependency from <code>VK_SUBPASS_EXTERNAL</code> to the
 first subpass that uses an attachment, then an implicit subpass dependency
 exists from <code>VK_SUBPASS_EXTERNAL</code> to the first subpass it is used in.
@@ -4021,7 +4013,7 @@ The subpass dependency operates as if defined with the following parameters:</p>
 <pre class="CodeRay highlight"><code data-lang="c">VkSubpassDependency implicitDependency = {
     .srcSubpass = VK_SUBPASS_EXTERNAL;
     .dstSubpass = firstSubpass; <span class="comment">// First subpass attachment is used in</span>
-    .srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    .srcStageMask = VK_PIPELINE_STAGE_NONE_KHR;
     .dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     .srcAccessMask = <span class="integer">0</span>;
     .dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
@@ -4048,7 +4040,7 @@ The subpass dependency operates as if defined with the following parameters:</p>
     .srcSubpass = lastSubpass; <span class="comment">// Last subpass attachment is used in</span>
     .dstSubpass = VK_SUBPASS_EXTERNAL;
     .srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-    .dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    .dstStageMask = VK_PIPELINE_STAGE_NONE_KHR;
     .srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                      VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     .dstAccessMask = <span class="integer">0</span>;
@@ -6151,6 +6143,13 @@ the destination subpass depend on.</p>
 <a href="#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewOffsets</code> has on each
 corresponding subpass dependency.</p>
 </div>
+<div class="paragraph">
+<p>If an instance of <a href="chap8.html#VkMemoryBarrier2KHR">VkMemoryBarrier2KHR</a> is included in the <code>pNext</code>
+chain, <code>srcStageMask</code>, <code>dstStageMask</code>, <code>srcAccessMask</code>, and
+<code>dstAccessMask</code> parameters are ignored.
+The synchronization and access scopes instead are defined by the parameters
+of <a href="chap8.html#VkMemoryBarrier2KHR">VkMemoryBarrier2KHR</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -6302,23 +6301,19 @@ If the <a href="chap41.html#features-taskShader">task shaders</a> feature is not
 </li>
 <li>
 <p><a id="VUID-VkSubpassDependency2-pNext-pNext" href="#VUID-VkSubpassDependency2-pNext-pNext"></a> <span class="vuid">VUID-VkSubpassDependency2-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap8.html#VkMemoryBarrier2KHR">VkMemoryBarrier2KHR</a></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-sType-unique" href="#VUID-VkSubpassDependency2-sType-unique"></a> <span class="vuid">VUID-VkSubpassDependency2-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDependency2-srcStageMask-parameter" href="#VUID-VkSubpassDependency2-srcStageMask-parameter"></a> <span class="vuid">VUID-VkSubpassDependency2-srcStageMask-parameter</span><br>
  <code>srcStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap8.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkSubpassDependency2-srcStageMask-requiredbitmask" href="#VUID-VkSubpassDependency2-srcStageMask-requiredbitmask"></a> <span class="vuid">VUID-VkSubpassDependency2-srcStageMask-requiredbitmask</span><br>
- <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-<li>
 <p><a id="VUID-VkSubpassDependency2-dstStageMask-parameter" href="#VUID-VkSubpassDependency2-dstStageMask-parameter"></a> <span class="vuid">VUID-VkSubpassDependency2-dstStageMask-parameter</span><br>
  <code>dstStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="chap8.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkSubpassDependency2-dstStageMask-requiredbitmask" href="#VUID-VkSubpassDependency2-dstStageMask-requiredbitmask"></a> <span class="vuid">VUID-VkSubpassDependency2-dstStageMask-requiredbitmask</span><br>
- <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDependency2-srcAccessMask-parameter" href="#VUID-VkSubpassDependency2-srcAccessMask-parameter"></a> <span class="vuid">VUID-VkSubpassDependency2-srcAccessMask-parameter</span><br>
@@ -9861,7 +9856,7 @@ structure.</p>
 </div></div>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.169<br>
+Version 1.2.170<br>
 Last updated 2021-02-01 22:51:50 -0800
 </div>
 </div>

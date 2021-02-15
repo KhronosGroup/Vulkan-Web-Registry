@@ -68,6 +68,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_surface_protected_capabilities.html"> VK_KHR_surface_protected_capabilities </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_swapchain.html"> VK_KHR_swapchain </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_swapchain_mutable_format.html"> VK_KHR_swapchain_mutable_format </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_synchronization2.html"> VK_KHR_synchronization2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_timeline_semaphore.html"> VK_KHR_timeline_semaphore </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_uniform_buffer_standard_layout.html"> VK_KHR_uniform_buffer_standard_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_variable_pointers.html"> VK_KHR_variable_pointers </a> </li>

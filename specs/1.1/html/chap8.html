@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.169 - A Specification</title>
+<title>Vulkan® 1.1.170 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -890,12 +890,12 @@ table.CodeRay td.code{padding:0 0 0 .75em}
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.169 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.170 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.169,</span>
-<span id="revdate">2021-02-02 07:19:01Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1eae55f4c780fb0f0aa990071fe158d2a70e7429</span>
+<span id="revnumber">version 1.1.170,</span>
+<span id="revdate">2021-02-15 05:57:00Z</span>
+<br><span id="revremark">from git branch: github-main commit: 815e07c850d642d996292f5cdec25d41ecdff0d0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1666,10 +1666,7 @@ stalls or cache flushing.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> is equivalent to
-<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
-<code>0</code> when specified in the second synchronization scope, but specifies no
-stages in the first scope.</p>
+<p><code>VK_PIPELINE_STAGE_NONE_KHR</code> specifies no stages of execution.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code> specifies the stage of the
@@ -1749,12 +1746,6 @@ compute shader.</p>
 </div>
 </li>
 <li>
-<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> is equivalent to
-<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
-<code>0</code> when specified in the first synchronization scope, but specifies no
-stages in the second scope.</p>
-</li>
-<li>
 <p><code>VK_PIPELINE_STAGE_HOST_BIT</code> specifies a pseudo-stage indicating
 execution on the host of reads/writes of device memory.
 This stage is not invoked by any commands recorded in a command buffer.</p>
@@ -1798,8 +1789,20 @@ graphics pipeline stages, and is equivalent to the logical OR of:</p>
 </div>
 </li>
 <li>
-<p><code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> specifies all commands
-supported on the queue it is used with.</p>
+<p><code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> specifies all operations
+performed by all commands supported on the queue it is used with.</p>
+</li>
+<li>
+<p><code>VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT</code> is equivalent to
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
+<code>0</code> when specified in the second synchronization scope, but specifies no
+stage of execution when specified in the first scope.</p>
+</li>
+<li>
+<p><code>VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT</code> is equivalent to
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code> with <a href="#VkAccessFlags">VkAccessFlags</a> set to
+<code>0</code> when specified in the first synchronization scope, but specifies no
+stage of execution when specified in the second scope.</p>
 </li>
 </ul>
 </div>
@@ -2596,18 +2599,19 @@ This order is determined as follows:</p>
 <ol class="arabic">
 <li>
 <p>The initial order is determined by the order in which
-<a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a> commands are executed on the host, for a single
-queue, from first to last.</p>
+<a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>
+commands are executed on the host, for a single queue, from first to
+last.</p>
 </li>
 <li>
 <p>The order in which <a href="chap7.html#VkSubmitInfo">VkSubmitInfo</a> structures are specified in the
-<code>pSubmits</code> parameter of <a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>, from lowest index to
-highest.</p>
+<code>pSubmits</code> parameter of <a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>,
+from lowest index to highest.</p>
 </li>
 <li>
 <p>The order in which command buffers are specified in the
-<code>pCommandBuffers</code> member of <a href="chap7.html#VkSubmitInfo">VkSubmitInfo</a>, from lowest index to
-highest.</p>
+<code>pCommandBuffers</code> member of <a href="chap7.html#VkSubmitInfo">VkSubmitInfo</a>
+from lowest index to highest.</p>
 </li>
 <li>
 <p>The order in which commands were recorded to a command buffer on the
@@ -2622,23 +2626,21 @@ does not directly include commands inside a render pass.</p>
 </li>
 <li>
 <p>For commands recorded inside a render pass, this includes all other
-commands recorded inside the same subpass, including the
-<a href="chap9.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a> and <a href="chap9.html#vkCmdEndRenderPass">vkCmdEndRenderPass</a> commands that
-delimit the same render pass instance; it does not include commands
-recorded to other subpasses.</p>
-</li>
-</ul>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p><a href="chap4.html#fundamentals-queueoperation-command-types">State commands</a> do not execute
+     commands recorded inside the same subpass, including the
+     <a href="chap9.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a> and <a href="chap9.html#vkCmdEndRenderPass">vkCmdEndRenderPass</a> commands that
+     delimit the same render pass instance; it does not include commands
+     recorded to other subpasses.
+<a href="chap4.html#fundamentals-queueoperation-command-types">State commands</a> do not execute
 any operations on the device, instead they set the state of the command
 buffer when they execute on the host, in the order that they are recorded.
 <a href="chap4.html#fundamentals-queueoperation-command-types">Action commands</a> consume the
 current state of the command buffer when they are recorded, and will execute
 state changes on the device as required to match the recorded state.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p><a href="chap18.html#queries-order">Query commands</a>, <a href="chap21.html#drawing-primitive-order">the order of
@@ -4134,8 +4136,9 @@ In the case of <a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>, the second 
 limited to operations on the pipeline stages determined by the
 <a href="#synchronization-pipeline-stages-masks">destination stage mask</a> specified
 by the corresponding element of <code>pWaitDstStageMask</code>.
-Also, in the case of <a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>, the second synchronization scope
-additionally includes all commands that occur later in
+Also, in the case of
+<a href="chap7.html#vkQueueSubmit">vkQueueSubmit</a>, the second synchronization scope additionally includes
+all commands that occur later in
 <a href="#synchronization-submission-order">submission order</a>.</p>
 </div>
 <div class="paragraph">
@@ -4493,7 +4496,8 @@ object is returned.</p>
 structure.</p>
 </li>
 <li>
-<p><code>flags</code> is reserved for future use.</p>
+<p><code>flags</code> is a bitmask of <a href="#VkEventCreateFlagBits">VkEventCreateFlagBits</a> defining
+additional creation parameters.</p>
 </li>
 </ul>
 </div>
@@ -4529,8 +4533,22 @@ structure.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>VkEventCreateFlags</code> is a bitmask type for setting a mask, but is
-currently reserved for future use.</p>
+<p><code>VkEventCreateFlags</code> is a bitmask type for setting a mask of
+<a href="#VkEventCreateFlagBits">VkEventCreateFlagBits</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkEventCreateFlagBits" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkEventCreateFlagBits {
+} VkEventCreateFlagBits;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All values for this enum are defined by extensions.</p>
 </div>
 </div>
 </div>
@@ -4888,10 +4906,11 @@ operation occurs.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkResetEvent-event-01148" href="#VUID-vkResetEvent-event-01148"></a> <span class="vuid">VUID-vkResetEvent-event-01148</span><br>
+<p><a id="VUID-vkResetEvent-event-03821" href="#VUID-vkResetEvent-event-03821"></a> <span class="vuid">VUID-vkResetEvent-event-03821</span><br>
 
-<code>event</code> <strong class="purple">must</strong> not be waited on by a <code>vkCmdWaitEvents</code> command
-that is currently executing</p>
+There <strong class="purple">must</strong> be an execution dependency between <code>vkCmdResetEvent</code> and
+the execution of any <a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> that includes <code>event</code> in
+its <code>pEvents</code> parameter</p>
 </li>
 </ul>
 </div>
@@ -5241,10 +5260,11 @@ stages</a></p>
 <code>stageMask</code> <strong class="purple">must</strong> not include <code>VK_PIPELINE_STAGE_HOST_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdResetEvent-event-01156" href="#VUID-vkCmdResetEvent-event-01156"></a> <span class="vuid">VUID-vkCmdResetEvent-event-01156</span><br>
+<p><a id="VUID-vkCmdResetEvent-event-03834" href="#VUID-vkCmdResetEvent-event-03834"></a> <span class="vuid">VUID-vkCmdResetEvent-event-03834</span><br>
 
-When this command executes, <code>event</code> <strong class="purple">must</strong> not be waited on by a
-<code>vkCmdWaitEvents</code> command that is currently executing</p>
+There <strong class="purple">must</strong> be an execution dependency between <code>vkCmdResetEvent</code> and
+the execution of any <a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> that includes <code>event</code> in
+its <code>pEvents</code> parameter</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdResetEvent-commandBuffer-01157" href="#VUID-vkCmdResetEvent-commandBuffer-01157"></a> <span class="vuid">VUID-vkCmdResetEvent-commandBuffer-01157</span><br>
@@ -5499,18 +5519,12 @@ two <strong class="purple">may</strong> execute unhindered.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Applications <strong class="purple">should</strong> be careful to avoid race conditions when using events.
-There is no direct ordering guarantee between a <a href="#vkCmdResetEvent">vkCmdResetEvent</a>
-command and <a href="#vkCmdSetEvent">vkCmdSetEvent</a> or <a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> commands submitted
-after it.
-Similarly, there is no ordering guarantee between sequential
-<a href="#vkCmdSetEvent">vkCmdSetEvent</a> commands, leading to a race condition on the event
-status.
-Waiting on an event in these cases without additional synchronization can
-result in a data race.
+<p>Applications should be careful to avoid race conditions when using events.
+There is no direct ordering guarantee between <a href="#vkCmdWaitEvents">vkCmdWaitEvents</a> and
+<a href="#vkCmdResetEvent">vkCmdResetEvent</a>, or <a href="#vkCmdSetEvent">vkCmdSetEvent</a>.
 Another execution dependency (e.g. a pipeline barrier or semaphore with
-<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>) is needed to prevent such race
-conditions.</p>
+<code>VK_PIPELINE_STAGE_ALL_COMMANDS_BIT</code>) is needed to prevent such a race
+condition.</p>
 </div>
 </td>
 </tr>
@@ -5702,16 +5716,8 @@ physical device</p>
  <code>srcStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdWaitEvents-srcStageMask-requiredbitmask" href="#VUID-vkCmdWaitEvents-srcStageMask-requiredbitmask"></a> <span class="vuid">VUID-vkCmdWaitEvents-srcStageMask-requiredbitmask</span><br>
- <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-<li>
 <p><a id="VUID-vkCmdWaitEvents-dstStageMask-parameter" href="#VUID-vkCmdWaitEvents-dstStageMask-parameter"></a> <span class="vuid">VUID-vkCmdWaitEvents-dstStageMask-parameter</span><br>
  <code>dstStageMask</code> <strong class="purple">must</strong> be a valid combination of <a href="#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdWaitEvents-dstStageMask-requiredbitmask" href="#VUID-vkCmdWaitEvents-dstStageMask-requiredbitmask"></a> <span class="vuid">VUID-vkCmdWaitEvents-dstStageMask-requiredbitmask</span><br>
- <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdWaitEvents-pMemoryBarriers-parameter" href="#VUID-vkCmdWaitEvents-pMemoryBarriers-parameter"></a> <span class="vuid">VUID-vkCmdWaitEvents-pMemoryBarriers-parameter</span><br>
@@ -5825,13 +5831,12 @@ recorded.</p>
 </li>
 <li>
 <p><code>srcStageMask</code> is a bitmask of <a href="#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a>
-specifying the <a href="#synchronization-pipeline-stages-masks">source stage
-mask</a>.</p>
+specifying the <a href="#synchronization-pipeline-stages-masks">source stages</a>.</p>
 </li>
 <li>
 <p><code>dstStageMask</code> is a bitmask of <a href="#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a>
 specifying the <a href="#synchronization-pipeline-stages-masks">destination
-stage mask</a>.</p>
+stages</a>.</p>
 </li>
 <li>
 <p><code>dependencyFlags</code> is a bitmask of <a href="#VkDependencyFlagBits">VkDependencyFlagBits</a>
@@ -6272,8 +6277,8 @@ dependency</a>.</p>
 <div class="sect3">
 <h4 id="synchronization-pipeline-barriers-subpass-self-dependencies"><a class="anchor" href="#synchronization-pipeline-barriers-subpass-self-dependencies"></a>7.6.1. Subpass Self-dependency</h4>
 <div class="paragraph">
-<p>If <code>vkCmdPipelineBarrier</code> is called inside a render pass instance, the
-following restrictions apply.
+<p>If <a href="#vkCmdPipelineBarrier">vkCmdPipelineBarrier</a>
+is called inside a render pass instance, the following restrictions apply.
 For a given subpass to allow a pipeline barrier, the render pass <strong class="purple">must</strong>
 declare a <em>self-dependency</em> from that subpass to itself.
 That is, there <strong class="purple">must</strong> exist a subpass dependency with <code>srcSubpass</code> and
@@ -6576,9 +6581,10 @@ the special queue family values reserved for external memory transfers,
 as described in <a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
 </li>
 <li>
-<p><a id="VUID-VkBufferMemoryBarrier-buffer-01191" href="#VUID-VkBufferMemoryBarrier-buffer-01191"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-buffer-01191</span><br>
+<p><a id="VUID-VkBufferMemoryBarrier-synchronization2-03853" href="#VUID-VkBufferMemoryBarrier-synchronization2-03853"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-synchronization2-03853</span><br>
 
-If <code>buffer</code> was created with a sharing mode of
+If the <a href="#features-synchronization2"><code>synchronization2</code> feature</a> is
+not enabled, and <code>buffer</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
 <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
 <code>VK_QUEUE_FAMILY_IGNORED</code></p>
@@ -6784,76 +6790,76 @@ contiguously to a single <code>VkDeviceMemory</code> object</p>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
-have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> set</p>
+have been created with <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01209" href="#VUID-VkImageMemoryBarrier-oldLayout-01209"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01209</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL</code> then <code>image</code>
 <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01210" href="#VUID-VkImageMemoryBarrier-oldLayout-01210"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01210</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL</code> then <code>image</code>
 <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01211" href="#VUID-VkImageMemoryBarrier-oldLayout-01211"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01211</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong>
 have been created with <code>VK_IMAGE_USAGE_SAMPLED_BIT</code> or
-<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> set</p>
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01212" href="#VUID-VkImageMemoryBarrier-oldLayout-01212"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01212</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code> set</p>
+been created with <code>VK_IMAGE_USAGE_TRANSFER_SRC_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01213" href="#VUID-VkImageMemoryBarrier-oldLayout-01213"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01213</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL</code> then <code>image</code> <strong class="purple">must</strong> have
-been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> set</p>
+been created with <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01197" href="#VUID-VkImageMemoryBarrier-oldLayout-01197"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01197</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 <code>oldLayout</code> <strong class="purple">must</strong> be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or the current
 layout of the image subresources affected by the barrier</p>
@@ -6863,7 +6869,7 @@ layout of the image subresources affected by the barrier</p>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 <code>newLayout</code> <strong class="purple">must</strong> not be <code>VK_IMAGE_LAYOUT_UNDEFINED</code> or
 <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code></p>
@@ -6873,24 +6879,24 @@ If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define 
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> then
 <code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-oldLayout-01659" href="#VUID-VkImageMemoryBarrier-oldLayout-01659"></a> <span class="vuid">VUID-VkImageMemoryBarrier-oldLayout-01659</span><br>
 
 If <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> define a
 <a href="#synchronization-queue-transfers">queue family ownership transfer</a> or
-<code>oldLayout</code> and <code>newLayout</code> define a
+<code>oldLayout</code> and <code>newLayout</code> define an
 <a href="#synchronization-image-layout-transitions">image layout transition</a>,
 and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> then
 <code>image</code> <strong class="purple">must</strong> have been created with
-<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> set</p>
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-image-01671" href="#VUID-VkImageMemoryBarrier-image-01671"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-01671</span><br>
@@ -6953,9 +6959,10 @@ the special queue family values reserved for external memory transfers,
 as described in <a href="#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-image-01381" href="#VUID-VkImageMemoryBarrier-image-01381"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-01381</span><br>
+<p><a id="VUID-VkImageMemoryBarrier-synchronization2-03857" href="#VUID-VkImageMemoryBarrier-synchronization2-03857"></a> <span class="vuid">VUID-VkImageMemoryBarrier-synchronization2-03857</span><br>
 
-If <code>image</code> was created with a sharing mode of
+If the <a href="#features-synchronization2"><code>synchronization2</code> feature</a> is
+not enabled, and <code>image</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
 <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
 <code>VK_QUEUE_FAMILY_IGNORED</code></p>
@@ -7439,7 +7446,7 @@ waited on by a different physical device.</p>
 </div></div>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.169<br>
+Version 1.1.170<br>
 Last updated 2021-02-01 22:51:50 -0800
 </div>
 </div>
