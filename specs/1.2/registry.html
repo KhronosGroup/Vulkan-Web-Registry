@@ -801,9 +801,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>The Khronos<sup>®</sup> Vulkan<sup>®</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.2.173,</span>
-<span id="revdate">2021-03-21 13:58:48Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0d5fb72f39c4282edf1754ce5eed0654f7960cb4</span>
+<span id="revnumber">version 1.2.174,</span>
+<span id="revdate">2021-03-29 07:29:20Z</span>
+<br><span id="revremark">from git branch: github-main commit: 3fefdc503242ce529330c51a869ed99a069a3010</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -966,10 +966,10 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <li><a href="#_api_feature_walkthrough">20.2.1. API Feature Walkthrough</a></li>
 </ul>
 </li>
-<li><a href="#_how_to_add_a_compile_time_constant">20.3. How To Add A Compile Time Constant</a></li>
+<li><a href="#compile-time-constants">20.3. How To Add A Compile Time Constant</a></li>
 <li><a href="#_how_to_add_a_struct_or_union_type">20.4. How To Add A Struct or Union Type</a></li>
 <li><a href="#_how_to_add_an_enumerated_type">20.5. How To Add An Enumerated Type</a></li>
-<li><a href="#_how_to_add_bit_flags">20.6. How To Add Bit Flags</a>
+<li><a href="#adding-bitflags">20.6. How To Add Bit Flags</a>
 <ul class="sectlevel3">
 <li><a href="#_32_bit_flags">20.6.1. 32-bit Flags</a></li>
 </ul>
@@ -2031,15 +2031,19 @@ required, this results in</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>value</code> is an enumerant value in the form of a legal C constant
-(usually a literal decimal or hexadecimal integer, though arbitrary
-strings are allowed).</p>
+<p><code>value</code> is a numeric value in the form of a legal C expression when
+evaluated at compile time in the generated header files.
+This is usually either a literal integer value or the name of an alias
+for a previously defined value, though more complex expressions are
+sometimes employed for <a href="#compile-time-constants">compile time
+constants</a>.</p>
 </li>
 <li>
 <p><code>bitpos</code> is a literal integer bit position in a bitmask.
 The bit position must be in the range [0,30] when used as a flag bit in
 a <code>Vk*FlagBits</code> data type.
-Bit positions 31 and up may be used for values that are not flag bits.
+Bit positions 31 and up may be used for values that are not flag bits,
+or for <a href="#adding-bitflags">flag bits used with 64-bit flag types</a>.
 Exactly one of <code>value</code> and <code>bitpos</code> must be present in an <code>enum</code>
 tag.</p>
 </li>
@@ -2056,11 +2060,16 @@ attribute.
 May be used to address subtle incompatibilities.</p>
 </li>
 <li>
-<p><code>type</code> - optional. Used only when <code>value</code> is specified. C
-suffix for the value to force it to a specific type. Currently only
-<code>u</code> and <code>ull</code> are used, for <code>unsigned</code> 32- and 64-bit integer
-values, respectively. Separated from <code>value</code> since this eases
-parsing and sorting of values, and rarely used.</p>
+<p><code>type</code> - may be used only when <code>value</code> is specified.
+In this case, <code>type</code> is optional except when defining a
+<a href="#compile-time-constants">compile time constant</a>, in which case it is
+required when using some output generator paths.
+If present the attribute must be a C scalar type corresponding to the
+type of <code>value</code>, although only <code>uint32_t</code>, <code>uint64_t</code>, and <code>float</code>
+are currently meaningful.
+<code>type</code> is used by some output generators to generate constant
+declarations, although the default behavior is to use C <code>#define</code> for
+compile-time constants.</p>
 </li>
 <li>
 <p><code>alias</code> - optional. Name of another enumerant this is an alias
@@ -2073,6 +2082,26 @@ different <code>name</code> for the exact same <code>value</code> or <code>bitpo
 An additional preprocessor token used to protect an enum definition.</p>
 </li>
 </ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>In older versions of the schema, <code>type</code> was described as allowing only
+the C integer suffix types <code>u</code> and <code>ull</code>, which is inconsistent with the
+current definition.
+However, <code>type</code> was not actually used in the registry processing scripts
+or <code>vk.xml</code> at the time the current definition was introduced, so this is
+expected to be a benign change.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -3579,7 +3608,7 @@ specified features are generated.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_to_add_a_compile_time_constant"><a class="anchor" href="#_how_to_add_a_compile_time_constant"></a>20.3. How To Add A Compile Time Constant</h3>
+<h3 id="compile-time-constants"><a class="anchor" href="#compile-time-constants"></a>20.3. How To Add A Compile Time Constant</h3>
 <div class="paragraph">
 <p>Go to the desired <code>feature</code> or <code>extension</code> tag. Add (if not present) a
 nested <code>require</code> block labelled</p>
@@ -3768,7 +3797,7 @@ the C header unchanged.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_to_add_bit_flags"><a class="anchor" href="#_how_to_add_bit_flags"></a>20.6. How To Add Bit Flags</h3>
+<h3 id="adding-bitflags"><a class="anchor" href="#adding-bitflags"></a>20.6. How To Add Bit Flags</h3>
 <div class="paragraph">
 <p>Bit masks are defined by two types in the xml - the type of the mask
 itself, and the type of the valid flags.</p>
@@ -3779,12 +3808,13 @@ itself, and the type of the valid flags.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">typedef VkFlags64 VkExampleFlags;
+<pre class="highlight"><code class="language-c" data-lang="c">// Flag bits for VkExampleFlagBits
+typedef VkFlags64 VkExampleFlagBits;
+static const VkExampleFlagBits VK_EXAMPLE_NONE = 0;
+static const VkExampleFlagBits VK_EXAMPLE_FIRST_BIT = 0x00000001;
+static const VkExampleFlagBits VK_EXAMPLE_SECOND_BIT = 0x00000002;
 
-// Flag bits for VkExampleFlags
-static const VkExampleFlags VK_EXAMPLE_NONE = 0;
-static const VkExampleFlags VK_EXAMPLE_FIRST_BIT = 0x00000001;
-static const VkExampleFlags VK_EXAMPLE_SECOND_BIT = 0x00000002;</code></pre>
+typedef VkFlags64 VkExampleFlags;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4075,7 +4105,11 @@ files and Python scripts are logged in Github history.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>2021-04-04 - Expand the scope of the <code>optional</code> attribute <code>member</code>
+<p>2021-03-22 - Update allowed values for the <code>type</code> attribute of
+<code>enum</code> tags and make it mandatory (internal issue 2564).</p>
+</li>
+<li>
+<p>2021-01-11 - Expand the scope of the <code>optional</code> attribute <code>member</code>
 and <code>param</code> tags to specify that the member or parameter may be 0 for
 all scalar types, not just bitmasks and array sizes (internal issue
 2435).</p>
@@ -4284,8 +4318,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer" style="max-width: 100;">
 <div id="footer-text">
-Version 1.2.173<br>
-Last updated 2021-02-28 20:44:28 -0800
+Version 1.2.174<br>
+Last updated 2021-03-29 00:16:12 -0700
 </div>
 </div>
 

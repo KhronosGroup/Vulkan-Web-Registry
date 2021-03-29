@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.173 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.174 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.173 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.174 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.173,</span>
-<span id="revdate">2021-03-21 14:16:47Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0d5fb72f39c4282edf1754ce5eed0654f7960cb4</span>
+<span id="revnumber">version 1.0.174,</span>
+<span id="revdate">2021-03-29 07:46:43Z</span>
+<br><span id="revremark">from git branch: github-main commit: 3fefdc503242ce529330c51a869ed99a069a3010</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -747,7 +747,7 @@ Specification.</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
 <span class="comment">// Version of this file</span>
-<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">173</span></code></pre>
+<span class="preprocessor">#define</span> VK_HEADER_VERSION <span class="integer">174</span></code></pre>
 </div>
 </div>
 </div>
@@ -830,12 +830,12 @@ management, such as <a href="chap5.html#VkDevice">VkDevice</a>.</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
 
-<span class="preprocessor">#if</span> !defined(VK_DEFINE_NON_DISPATCHABLE_HANDLE)
-<span class="preprocessor">#if</span> defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) &amp;&amp; !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+<span class="preprocessor">#ifndef</span> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+    <span class="preprocessor">#if</span> (VK_USE_64_BIT_PTR_DEFINES==<span class="integer">1</span>)
         <span class="preprocessor">#define</span> VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) <span class="keyword">typedef</span> <span class="keyword">struct</span> object<span class="preprocessor">#</span><span class="preprocessor">#_T</span> *object;
-<span class="preprocessor">#else</span>
+    <span class="preprocessor">#else</span>
         <span class="preprocessor">#define</span> VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) <span class="keyword">typedef</span> uint64_t object;
-<span class="preprocessor">#endif</span>
+    <span class="preprocessor">#endif</span>
 <span class="preprocessor">#endif</span></code></pre>
 </div>
 </div>
@@ -887,8 +887,67 @@ It may be passed to and returned from Vulkan commands only when
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
 
-<span class="preprocessor">#define</span> VK_NULL_HANDLE <span class="integer">0</span></code></pre>
+<span class="preprocessor">#ifndef</span> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+    <span class="preprocessor">#if</span> (VK_USE_64_BIT_PTR_DEFINES==<span class="integer">1</span>)
+        <span class="preprocessor">#if</span> __cplusplus &gt;= <span class="integer">201103L</span>
+            <span class="preprocessor">#define</span> VK_NULL_HANDLE <span class="predefined-constant">nullptr</span>
+        <span class="preprocessor">#else</span>
+            <span class="preprocessor">#define</span> VK_NULL_HANDLE ((<span class="directive">void</span>*)<span class="integer">0</span>)
+        <span class="preprocessor">#endif</span>
+    <span class="preprocessor">#else</span>
+        <span class="preprocessor">#define</span> VK_NULL_HANDLE <span class="integer">0</span>ULL
+    <span class="preprocessor">#endif</span>
+<span class="preprocessor">#endif</span>
+<span class="preprocessor">#ifndef</span> VK_NULL_HANDLE
+    <span class="preprocessor">#define</span> VK_NULL_HANDLE <span class="integer">0</span>
+<span class="preprocessor">#endif</span></code></pre>
 </div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_USE_64_BIT_PTR_DEFINES</code> defines whether the default non-dispatchable
+handles are declared using either a 64-bit pointer type or a 64-bit unsigned
+integer type.</p>
+</div>
+<div class="paragraph">
+<p><code>VK_USE_64_BIT_PTR_DEFINES</code> is set to '1' to use a 64-bit pointer type
+or any other value to use a 64-bit unsigned integer type.</p>
+</div>
+<div id="VK_USE_64_BIT_PTR_DEFINES" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+
+<span class="preprocessor">#ifndef</span> VK_USE_64_BIT_PTR_DEFINES
+    <span class="preprocessor">#if</span> defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) &amp;&amp; !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+        <span class="preprocessor">#define</span> VK_USE_64_BIT_PTR_DEFINES <span class="integer">1</span>
+    <span class="preprocessor">#else</span>
+        <span class="preprocessor">#define</span> VK_USE_64_BIT_PTR_DEFINES <span class="integer">0</span>
+    <span class="preprocessor">#endif</span>
+<span class="preprocessor">#endif</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The <code>vulkan_core.h</code> header allows the <code>VK_USE_64_BIT_PTR_DEFINES</code>
+definition to be overridden by the application.
+This allows the application to select either a 64-bit pointer type or a
+64-bit unsigned integer type for non-dispatchable handles in the case where
+the predefined preprocessor check doesn’t identify the desired
+configuration.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 </div>
 </div>
@@ -1186,7 +1245,7 @@ or how long it will take if it does happen.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.173<br>
+Version 1.0.174<br>
 Last updated 2021-02-01 22:51:50 -0800
 </div>
 </div>
