@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.174 - A Specification</title>
+<title>Vulkan® 1.2.175 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.174 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.175 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.174,</span>
-<span id="revdate">2021-03-29 07:29:21Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3fefdc503242ce529330c51a869ed99a069a3010</span>
+<span id="revnumber">version 1.2.175,</span>
+<span id="revdate">2021-04-13 08:52:10Z</span>
+<br><span id="revremark">from git branch: github-main commit: b82ae46bb82c7a522509fd7b8f3d92a311c1b5a5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -548,8 +548,40 @@ Vulkan API maintains a version number.</p>
 <div class="sect3">
 <h4 id="extendingvulkan-coreversions-versionnumbers"><a class="anchor" href="chap30.html#extendingvulkan-coreversions-versionnumbers"></a>30.2.1. Version Numbers</h4>
 <div class="paragraph">
-<p>The Vulkan version number comprises three parts indicating the major, minor
-and patch version of the Vulkan API Specification.</p>
+<p>The Vulkan version number comprises four parts indicating the variant,
+major, minor and patch version of the Vulkan API Specification.</p>
+</div>
+<div class="paragraph">
+<p>The <em>variant</em> indicates the variant of the Vulkan API supported by the
+implementation.
+This is always 0 for the Vulkan API.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>A non-zero variant indicates the API is a variant of the Vulkan API and
+applications will typically need to be modified to run against it.
+The variant field was a later addition to the version number, added in
+version 1.2.175 of the Specification.
+As Vulkan uses variant 0, this change is fully backwards compatible with the
+previous version number format for Vulkan implementations.
+New version number macros have been added for this change and the old macros
+deprecated.
+For existing applications using the older format and macros, an
+implementation with non-zero variant will decode as a very high Vulkan
+version.
+The high version number should be detectable by applications performing
+suitable version checking.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>The <em>major version</em> indicates a significant change in the API, which will
@@ -576,7 +608,10 @@ follows:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>The major version is a 10-bit integer packed into bits 31-22.</p>
+<p>The variant is a 3-bit integer packed into bits 31-29.</p>
+</li>
+<li>
+<p>The major version is a 7-bit integer packed into bits 28-22.</p>
 </li>
 <li>
 <p>The minor version number is a 10-bit integer packed into bits 21-12.</p>
@@ -589,13 +624,56 @@ follows:</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p><code>VK_API_VERSION_VARIANT</code> extracts the API variant number from a packed
+version number:</p>
+</div>
+<div id="VK_API_VERSION_VARIANT" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="preprocessor">#define</span> VK_API_VERSION_VARIANT(version) ((uint32_t)(version) &gt;&gt; <span class="integer">29</span>)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_API_VERSION_MAJOR</code> extracts the API major version number from a
+packed version number:</p>
+</div>
+<div id="VK_API_VERSION_MAJOR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="preprocessor">#define</span> VK_API_VERSION_MAJOR(version) (((uint32_t)(version) &gt;&gt; <span class="integer">22</span>) &amp; <span class="hex">0x7F</span>U)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p><code>VK_VERSION_MAJOR</code> extracts the API major version number from a packed
 version number:</p>
 </div>
 <div id="VK_VERSION_MAJOR" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="comment">// DEPRECATED: This define is deprecated. VK_API_VERSION_MAJOR should be used instead.</span>
 <span class="preprocessor">#define</span> VK_VERSION_MAJOR(version) ((uint32_t)(version) &gt;&gt; <span class="integer">22</span>)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_API_VERSION_MINOR</code> extracts the API minor version number from a
+packed version number:</p>
+</div>
+<div id="VK_API_VERSION_MINOR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="preprocessor">#define</span> VK_API_VERSION_MINOR(version) (((uint32_t)(version) &gt;&gt; <span class="integer">12</span>) &amp; <span class="hex">0x3FF</span>U)</code></pre>
 </div>
 </div>
 </div>
@@ -609,7 +687,22 @@ version number:</p>
 <div id="VK_VERSION_MINOR" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="comment">// DEPRECATED: This define is deprecated. VK_API_VERSION_MINOR should be used instead.</span>
 <span class="preprocessor">#define</span> VK_VERSION_MINOR(version) (((uint32_t)(version) &gt;&gt; <span class="integer">12</span>) &amp; <span class="hex">0x3FF</span>U)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_API_VERSION_PATCH</code> extracts the API patch version number from a
+packed version number:</p>
+</div>
+<div id="VK_API_VERSION_PATCH" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="preprocessor">#define</span> VK_API_VERSION_PATCH(version) ((uint32_t)(version) &amp; <span class="hex">0xFFF</span>U)</code></pre>
 </div>
 </div>
 </div>
@@ -623,8 +716,39 @@ version number:</p>
 <div id="VK_VERSION_PATCH" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="comment">// DEPRECATED: This define is deprecated. VK_API_VERSION_PATCH should be used instead.</span>
 <span class="preprocessor">#define</span> VK_VERSION_PATCH(version) ((uint32_t)(version) &amp; <span class="hex">0xFFF</span>U)</code></pre>
 </div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_MAKE_API_VERSION</code> constructs an API version number.</p>
+</div>
+<div id="VK_MAKE_API_VERSION" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="preprocessor">#define</span> VK_MAKE_API_VERSION(variant, major, minor, patch) \
+    ((((uint32_t)(variant)) &lt;&lt; <span class="integer">29</span>) | (((uint32_t)(major)) &lt;&lt; <span class="integer">22</span>) | (((uint32_t)(minor)) &lt;&lt; <span class="integer">12</span>) | ((uint32_t)(patch)))</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>variant</code> is the variant number.</p>
+</li>
+<li>
+<p><code>major</code> is the major version number.</p>
+</li>
+<li>
+<p><code>minor</code> is the minor version number.</p>
+</li>
+<li>
+<p><code>patch</code> is the patch version number.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -636,6 +760,7 @@ version number:</p>
 <div id="VK_MAKE_VERSION" class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
+<span class="comment">// DEPRECATED: This define is deprecated. VK_MAKE_API_VERSION should be used instead.</span>
 <span class="preprocessor">#define</span> VK_MAKE_VERSION(major, minor, patch) \
     ((((uint32_t)(major)) &lt;&lt; <span class="integer">22</span>) | (((uint32_t)(minor)) &lt;&lt; <span class="integer">12</span>) | ((uint32_t)(patch)))</code></pre>
 </div>
@@ -664,7 +789,7 @@ version number:</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_0</span>
 <span class="comment">// Vulkan 1.0 version number</span>
-<span class="preprocessor">#define</span> VK_API_VERSION_1_0 VK_MAKE_VERSION(<span class="integer">1</span>, <span class="integer">0</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
+<span class="preprocessor">#define</span> VK_API_VERSION_1_0 VK_MAKE_API_VERSION(<span class="integer">0</span>, <span class="integer">1</span>, <span class="integer">0</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
 </div>
 </div>
 </div>
@@ -678,7 +803,7 @@ version number:</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_1</span>
 <span class="comment">// Vulkan 1.1 version number</span>
-<span class="preprocessor">#define</span> VK_API_VERSION_1_1 VK_MAKE_VERSION(<span class="integer">1</span>, <span class="integer">1</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
+<span class="preprocessor">#define</span> VK_API_VERSION_1_1 VK_MAKE_API_VERSION(<span class="integer">0</span>, <span class="integer">1</span>, <span class="integer">1</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
 </div>
 </div>
 </div>
@@ -692,7 +817,7 @@ version number:</p>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_VERSION_1_2</span>
 <span class="comment">// Vulkan 1.2 version number</span>
-<span class="preprocessor">#define</span> VK_API_VERSION_1_2 VK_MAKE_VERSION(<span class="integer">1</span>, <span class="integer">2</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
+<span class="preprocessor">#define</span> VK_API_VERSION_1_2 VK_MAKE_API_VERSION(<span class="integer">0</span>, <span class="integer">1</span>, <span class="integer">2</span>, <span class="integer">0</span>)<span class="comment">// Patch version should always be set to 0</span></code></pre>
 </div>
 </div>
 </div>
@@ -1856,6 +1981,14 @@ in “XML Tag” column above, as described in the “API Extensions
 (<code>extension</code> tag)” section of the <a href="chap2.html#vulkan-registry">registry schema
 documentation</a>.</p>
 </div>
+<div class="paragraph">
+<p>If the <code>vkCmdDispatchBase</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap31.html#VkPhysicalDeviceFeatures2">VkPhysicalDeviceFeatures2</a> structure passed to
+<a href="chap31.html#vkGetPhysicalDeviceFeatures2">vkGetPhysicalDeviceFeatures2</a>, it is filled in to indicate whether each
+corresponding feature is supported.
+<code>vkCmdDispatchBase</code> <strong class="purple">can</strong> also be used in the <code>pNext</code> chain of
+<a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> to selectively enable these features.</p>
+</div>
 </div>
 </div>
 </div>
@@ -1873,8 +2006,8 @@ documentation</a>.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.174<br>
-Last updated 2021-02-01 22:51:50 -0800
+Version 1.2.175<br>
+Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
 
