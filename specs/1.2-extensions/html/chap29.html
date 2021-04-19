@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.175 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.176 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.175 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.176 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.175,</span>
-<span id="revdate">2021-04-13 08:38:27Z</span>
-<br><span id="revremark">from git branch: github-main commit: b82ae46bb82c7a522509fd7b8f3d92a311c1b5a5</span>
+<span id="revnumber">version 1.2.176,</span>
+<span id="revdate">2021-04-19 04:31:54Z</span>
+<br><span id="revremark">from git branch: github-main commit: 67f599afee77b0e598e7a325f13b9878edcacdfd</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -208,7 +208,7 @@
 <ul class="sectlevel2">
 <li><a href="chap14.html#descriptorsets-types">14.1. Descriptor Types</a></li>
 <li><a href="chap14.html#descriptorsets-sets">14.2. Descriptor Sets</a></li>
-<li><a href="chap14.html#_physical_storage_buffer_access">14.3. Physical Storage Buffer Access</a></li>
+<li><a href="chap14.html#descriptorsets-physical-storage-buffer">14.3. Physical Storage Buffer Access</a></li>
 </ul>
 </li>
 <li><a href="chap15.html">15. Shader Interfaces</a>
@@ -706,7 +706,7 @@ structure.</p>
 <code>pAttachments</code>.</p>
 </li>
 <li>
-<p><code>pAttachments</code>: is a pointer to an array of per target attachment
+<p><code>pAttachments</code> is a pointer to an array of per target attachment
 states.</p>
 </li>
 <li>
@@ -1061,7 +1061,7 @@ from the enum:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The semantics of each enum value is described in the table below:</p>
+<p>The semantics of the enum values are described in the table below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 38. Blend Factors</caption>
@@ -1456,7 +1456,7 @@ Possible values of <a href="chap29.html#VkBlendOp">VkBlendOp</a>, specifying the
 </div>
 <div style="page-break-after: always;"></div>
 <div class="paragraph">
-<p>The semantics of each basic blend operations is described in the table
+<p>The semantics of the basic blend operations are described in the table
 below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -1570,8 +1570,8 @@ described in the “sRGB EOTF<sup>&nbsp;-1</sup>” section of the Khronos Data 
 Specification.</p>
 </div>
 <div class="paragraph">
-<p>If the framebuffer color attachment numeric format is not sRGB encoded then
-the resulting <span class="eq">c<sub>s</sub></span> values for R, G and B are unmodified.
+<p>If the numeric format of a framebuffer color attachment is not sRGB encoded
+then the resulting <span class="eq">c<sub>s</sub></span> values for R, G and B are unmodified.
 The value of A is never sRGB encoded.
 That is, the alpha component is always stored in memory as linear.</p>
 </div>
@@ -2399,6 +2399,9 @@ attachments.</p>
 <div class="paragraph">
 <p>Logical operations are controlled by the <code>logicOpEnable</code> and
 <code>logicOp</code> members of <a href="chap29.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a>.
+It can also be controlled by <a href="chap29.html#vkCmdSetLogicOpEXT">vkCmdSetLogicOpEXT</a> if graphics pipeline
+is created with <code>VK_DYNAMIC_STATE_LOGIC_OP_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
 If <code>logicOpEnable</code> is <code>VK_TRUE</code>, then a logical operation selected
 by <code>logicOp</code> is applied between each color attachment and the fragment’s
 corresponding output value, and blending of all attachments is treated as if
@@ -2545,6 +2548,121 @@ value:</p>
 <p>The result of the logical operation is then written to the color attachment
 as controlled by the component write mask, described in
 <a href="chap29.html#framebuffer-blendoperations">Blend Operations</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To dynamically set the logical operation to apply for blend state:</p>
+</div>
+<div id="vkCmdSetLogicOpEXT" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_EXT_extended_dynamic_state2</span>
+<span class="directive">void</span> vkCmdSetLogicOpEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkLogicOp                                   logicOp);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>logicOp</code> specifies the logical operation to apply for blend state.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This command sets the state for a given draw when the graphics pipeline is
+created with <code>VK_DYNAMIC_STATE_LOGIC_OP_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetLogicOpEXT-None-04867" href="chap29.html#VUID-vkCmdSetLogicOpEXT-None-04867"></a> <span class="vuid">VUID-vkCmdSetLogicOpEXT-None-04867</span><br>
+
+The <a href="chap41.html#features-extendedDynamicState2LogicOp">extendedDynamicState2LogicOp</a> feature <strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetLogicOpEXT-commandBuffer-parameter" href="chap29.html#VUID-vkCmdSetLogicOpEXT-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdSetLogicOpEXT-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetLogicOpEXT-logicOp-parameter" href="chap29.html#VUID-vkCmdSetLogicOpEXT-logicOp-parameter"></a> <span class="vuid">VUID-vkCmdSetLogicOpEXT-logicOp-parameter</span><br>
+ <code>logicOp</code> <strong class="purple">must</strong> be a valid <a href="chap29.html#VkLogicOp">VkLogicOp</a> value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetLogicOpEXT-commandBuffer-recording" href="chap29.html#VUID-vkCmdSetLogicOpEXT-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetLogicOpEXT-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetLogicOpEXT-commandBuffer-cmdpool" href="chap29.html#VUID-vkCmdSetLogicOpEXT-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdSetLogicOpEXT-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -2874,7 +2992,7 @@ Secondary</p></td>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.175<br>
+Version 1.2.176<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
