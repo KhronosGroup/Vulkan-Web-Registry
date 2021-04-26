@@ -132,6 +132,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_provoking_vertex.html"> VK_EXT_provoking_vertex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_robustness2.html"> VK_EXT_robustness2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sample_locations.html"> VK_EXT_sample_locations </a> </li>
