@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.177 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.178 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.177 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.178 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.177,</span>
-<span id="revdate">2021-04-26 00:13:55Z</span>
-<br><span id="revremark">from git branch: github-main commit: 88da24862cf91d692801c6ae64665d26d39f06c4</span>
+<span id="revnumber">version 1.0.178,</span>
+<span id="revdate">2021-05-10 10:12:49Z</span>
+<br><span id="revremark">from git branch: github-main commit: dfe3bcd0e1b7239e2d6ae8b6afe563780a711854</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -576,7 +576,7 @@ or input attachment for that subpass (as determined by the
 <code>pColorAttachments</code>, <code>pDepthStencilAttachment</code>,
 <code>pResolveAttachments</code>,
 <a href="chap8.html#VkSubpassDescriptionDepthStencilResolve">VkSubpassDescriptionDepthStencilResolve</a>::<code>pDepthStencilResolveAttachment</code>,
-<a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a>,
+<a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a>::<code>pFragmentShadingRateAttachment-&gt;attachment</code>,
 and <code>pInputAttachments</code> members of <a href="chap8.html#VkSubpassDescription">VkSubpassDescription</a>,
 respectively).
 A subpass does not use an attachment if that attachment is preserved by the
@@ -894,7 +894,7 @@ If the <code>pNext</code> chain includes a
 <a href="chap8.html#VkRenderPassInputAttachmentAspectCreateInfo">VkRenderPassInputAttachmentAspectCreateInfo</a> structure, the
 <code>inputAttachmentIndex</code> member of each element of its
 <code>pAspectReferences</code> member <strong class="purple">must</strong> be less than the value of
-<code>inputAttachmentCount</code> in the member of <code>pSubpasses</code> identified
+<code>inputAttachmentCount</code> in the element of <code>pSubpasses</code> identified
 by its <code>subpass</code> member</p>
 </li>
 <li>
@@ -1267,8 +1267,8 @@ specifying additional properties of the attachment.</p>
 image view that will be used for the attachment.</p>
 </li>
 <li>
-<p><code>samples</code> is the number of samples of the image as defined in
-<a href="chap38.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a>.</p>
+<p><code>samples</code> is a <a href="chap38.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a> value specifying the
+number of samples of the image.</p>
 </li>
 <li>
 <p><code>loadOp</code> is a <a href="chap8.html#VkAttachmentLoadOp">VkAttachmentLoadOp</a> value specifying how the
@@ -1784,11 +1784,6 @@ write to the attachment occurs during the current render pass.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To specify which aspects of an input attachment <strong class="purple">can</strong> be read, add a
-<a href="chap8.html#VkRenderPassInputAttachmentAspectCreateInfo">VkRenderPassInputAttachmentAspectCreateInfo</a> structure to the
-<code>pNext</code> chain of the <a href="chap8.html#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> structure:</p>
-</div>
-<div class="paragraph">
 <p>The <code>VkRenderPassInputAttachmentAspectCreateInfo</code> structure is defined
 as:</p>
 </div>
@@ -1833,6 +1828,11 @@ for a given input attachment within a given subpass.</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>To specify which aspects of an input attachment <strong class="purple">can</strong> be read, add a
+<a href="chap8.html#VkRenderPassInputAttachmentAspectCreateInfo">VkRenderPassInputAttachmentAspectCreateInfo</a> structure to the
+<code>pNext</code> chain of the <a href="chap8.html#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> structure:</p>
+</div>
+<div class="paragraph">
 <p>An application <strong class="purple">can</strong> access any aspect of an input attachment that does not
 have a specified aspect mask in the <code>pAspectReferences</code> array.
 Otherwise, an application <strong class="purple">must</strong> not access aspect(s) of an input attachment
@@ -1864,15 +1864,7 @@ other than those in its specified aspect mask.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <code>VkInputAttachmentAspectReference</code> structure specifies an aspect
-mask for a specific input attachment of a specific subpass in the render
-pass.</p>
-</div>
-<div class="paragraph">
-<p><code>subpass</code> and <code>inputAttachmentIndex</code> index into the render pass as:</p>
-</div>
-<div class="paragraph">
-<p><code>pCreateInfo-&gt;pSubpasses</code>[subpass].pInputAttachments[inputAttachmentIndex]</p>
+<p>The <code>VkSubpassDescription</code> structure is defined as:</p>
 </div>
 <div id="VkInputAttachmentAspectReference" class="listingblock">
 <div class="content">
@@ -1907,6 +1899,18 @@ of the specified subpass.</p>
 the specified subpass.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This structure specifies an aspect mask for a specific input attachment of a
+specific subpass in the render pass.</p>
+</div>
+<div class="paragraph">
+<p><code>subpass</code> and <code>inputAttachmentIndex</code> index into the render pass as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c"><span class="label">pname:</span>pCreateInfo-&gt;pSubpasses[subpass].pInputAttachments[inputAttachmentIndex]</code></pre>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1986,17 +1990,17 @@ for this subpass and their layouts.</p>
 </li>
 <li>
 <p><code>pColorAttachments</code> is a pointer to an array of
-<a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structures defining the color attachments
-for this subpass and their layouts.</p>
+<code>colorAttachmentCount</code> <a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structures
+defining the color attachments for this subpass and their layouts.</p>
 </li>
 <li>
-<p><code>pResolveAttachments</code> is an optional array of
+<p><code>pResolveAttachments</code> is <code>NULL</code> or a pointer to an array of
 <code>colorAttachmentCount</code> <a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structures
 defining the resolve attachments for this subpass and their layouts.</p>
 </li>
 <li>
-<p><code>pDepthStencilAttachment</code> is a pointer to a
-<a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structure specifying the depth/stencil
+<p><code>pDepthStencilAttachment</code> is a pointer to an array of
+<a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structures specifying the depth/stencil
 attachment for this subpass and its layout.</p>
 </li>
 <li>
@@ -2029,7 +2033,8 @@ decorated with a <code>Location</code> value of <strong>X</strong>, then it uses
 provided in <code>pColorAttachments</code>[<strong>X</strong>].
 If the <code>attachment</code> member of any element of <code>pColorAttachments</code> is
 <code>VK_ATTACHMENT_UNUSED</code>,
-then writes to the corresponding location by a fragment are discarded.</p>
+then writes to the corresponding location by a fragment shader are
+discarded.</p>
 </div>
 <div class="paragraph">
 <p>If
@@ -2205,8 +2210,8 @@ attachments in <code>pColorAttachments</code> are not
 <li>
 <p><a id="VUID-VkSubpassDescription-attachment-00853" href="chap8.html#VUID-VkSubpassDescription-attachment-00853"></a> <span class="vuid">VUID-VkSubpassDescription-attachment-00853</span><br>
 
-The <code>attachment</code> member of each element of
-<code>pPreserveAttachments</code> <strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
+Each element of <code>pPreserveAttachments</code> <strong class="purple">must</strong> not be
+<code>VK_ATTACHMENT_UNUSED</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDescription-pPreserveAttachments-00854" href="chap8.html#VUID-VkSubpassDescription-pPreserveAttachments-00854"></a> <span class="vuid">VUID-VkSubpassDescription-pPreserveAttachments-00854</span><br>
@@ -2477,14 +2482,14 @@ by <code>dstStageMask</code>.</p>
 </div>
 <div class="paragraph">
 <p>The first <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> is
-limited to access in the pipeline stages determined by the
+limited to accesses in the pipeline stages determined by the
 <a href="chap7.html#synchronization-pipeline-stages-masks">source stage mask</a> specified by
 <code>srcStageMask</code>.
 It is also limited to access types in the <a href="chap7.html#synchronization-access-masks">source access mask</a> specified by <code>srcAccessMask</code>.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> is
-limited to access in the pipeline stages determined by the
+limited to accesses in the pipeline stages determined by the
 <a href="chap7.html#synchronization-pipeline-stages-masks">destination stage mask</a> specified
 by <code>dstStageMask</code>.
 It is also limited to access types in the <a href="chap7.html#synchronization-access-masks">destination access mask</a> specified by <code>dstAccessMask</code>.</p>
@@ -2704,7 +2709,7 @@ Thus, it is a more compact representation which also makes clear the
 commonality and reuse that is present between views in a subpass.
 This interpretation motivates the answers to questions like “when does the
 load op apply” - it is on the first use of each view of an attachment, as
-if each view were a separate attachment.</p>
+if each view was a separate attachment.</p>
 </div>
 </td>
 </tr>
@@ -2788,7 +2793,7 @@ the visibility operations for all dependencies with that subpass as the
 <code>dstSubpass</code>.</p>
 </div>
 <div class="paragraph">
-<p>Automatic layout transitions away from <code>initialLayout</code> happens-after the
+<p>Automatic layout transitions away from <code>initialLayout</code> happen-after the
 availability operations for all dependencies with a <code>srcSubpass</code> equal
 to <code>VK_SUBPASS_EXTERNAL</code>, where <code>dstSubpass</code> uses the attachment
 that will be transitioned.
@@ -2799,7 +2804,7 @@ to <code>VK_SUBPASS_EXTERNAL</code>, where <code>dstSubpass</code> uses any alia
 attachment.</p>
 </div>
 <div class="paragraph">
-<p>Automatic layout transitions into <code>finalLayout</code> happens-before the
+<p>Automatic layout transitions into <code>finalLayout</code> happen-before the
 visibility operations for all dependencies with a <code>dstSubpass</code> equal to
 <code>VK_SUBPASS_EXTERNAL</code>, where <code>srcSubpass</code> uses the attachment that
 will be transitioned.
@@ -2878,8 +2883,8 @@ written and when it is subsequently read by later fragments.
 self-dependency</a> are the only way to achieve this, and one <strong class="purple">must</strong> be
 inserted every time a fragment will read values at a particular sample
 (x, y, layer, sample) coordinate, if those values have been written
-since the most recent pipeline barrier; or the since start of the
-subpass if there have been no pipeline barriers since the start of the
+since the most recent pipeline barrier; or since the start of the
+subpass, if there have been no pipeline barriers since the start of the
 subpass.</p>
 </li>
 </ul>
@@ -3382,8 +3387,8 @@ specifying additional properties of the attachment.</p>
 image that will be used for the attachment.</p>
 </li>
 <li>
-<p><code>samples</code> is the number of samples of the image as defined in
-<a href="chap38.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a>.</p>
+<p><code>samples</code> is a <a href="chap38.html#VkSampleCountFlagBits">VkSampleCountFlagBits</a> value specifying the
+number of samples of the image.</p>
 </li>
 <li>
 <p><code>loadOp</code> is a <a href="chap8.html#VkAttachmentLoadOp">VkAttachmentLoadOp</a> value specifying how the
@@ -3811,11 +3816,11 @@ for this subpass and their layouts.</p>
 </li>
 <li>
 <p><code>pColorAttachments</code> is a pointer to an array of
-<a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structures defining the color attachments
-for this subpass and their layouts.</p>
+<code>colorAttachmentCount</code> <a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structures
+defining the color attachments for this subpass and their layouts.</p>
 </li>
 <li>
-<p><code>pResolveAttachments</code> is an optional array of
+<p><code>pResolveAttachments</code> is <code>NULL</code> or a pointer to an array of
 <code>colorAttachmentCount</code> <a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structures
 defining the resolve attachments for this subpass and their layouts.</p>
 </li>
@@ -3954,8 +3959,8 @@ attachments in <code>pColorAttachments</code> are not
 <li>
 <p><a id="VUID-VkSubpassDescription2-attachment-03073" href="chap8.html#VUID-VkSubpassDescription2-attachment-03073"></a> <span class="vuid">VUID-VkSubpassDescription2-attachment-03073</span><br>
 
-The <code>attachment</code> member of any element of <code>pPreserveAttachments</code>
-<strong class="purple">must</strong> not be <code>VK_ATTACHMENT_UNUSED</code></p>
+Each element of <code>pPreserveAttachments</code> <strong class="purple">must</strong> not be
+<code>VK_ATTACHMENT_UNUSED</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDescription2-pPreserveAttachments-03074" href="chap8.html#VUID-VkSubpassDescription2-pPreserveAttachments-03074"></a> <span class="vuid">VUID-VkSubpassDescription2-pPreserveAttachments-03074</span><br>
@@ -3966,7 +3971,7 @@ element of any other member of the subpass description</p>
 <li>
 <p><a id="VUID-VkSubpassDescription2-layout-02528" href="chap8.html#VUID-VkSubpassDescription2-layout-02528"></a> <span class="vuid">VUID-VkSubpassDescription2-layout-02528</span><br>
 
-If any attachment is used by more than one <a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a>
+If any attachment is used by more than one <a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a>
 member, then each use <strong class="purple">must</strong> use the same <code>layout</code></p>
 </li>
 <li>
@@ -4060,7 +4065,7 @@ and <code>pColorAttachments</code></p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the <code>pNext</code> list of <code>VkSubpassDescription2</code> includes a
+<p>If the <code>pNext</code> chain of <code>VkSubpassDescription2</code> includes a
 <code>VkSubpassDescriptionDepthStencilResolve</code> structure, then that structure
 describes multisample resolve operations for the depth/stencil attachment in
 a subpass.</p>
@@ -4098,17 +4103,17 @@ a subpass.</p>
 structure.</p>
 </li>
 <li>
-<p><code>depthResolveMode</code> is a bitmask of <a href="chap8.html#VkResolveModeFlagBits">VkResolveModeFlagBits</a>
-describing the depth resolve mode.</p>
+<p><code>depthResolveMode</code> is a <a href="chap8.html#VkResolveModeFlagBits">VkResolveModeFlagBits</a> value describing
+the depth resolve mode.</p>
 </li>
 <li>
-<p><code>stencilResolveMode</code> is a bitmask of <a href="chap8.html#VkResolveModeFlagBits">VkResolveModeFlagBits</a>
+<p><code>stencilResolveMode</code> is a <a href="chap8.html#VkResolveModeFlagBits">VkResolveModeFlagBits</a> value
 describing the stencil resolve mode.</p>
 </li>
 <li>
-<p><code>pDepthStencilResolveAttachment</code> is an optional
-<a href="chap8.html#VkAttachmentReference">VkAttachmentReference</a> structure defining the depth/stencil resolve
-attachment for this subpass and its layout.</p>
+<p><code>pDepthStencilResolveAttachment</code> is <code>NULL</code> or a pointer to a
+<a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structure defining the depth/stencil
+resolve attachment for this subpass and its layout.</p>
 </li>
 </ul>
 </div>
@@ -4354,8 +4359,8 @@ more <a href="chap8.html#VkResolveModeFlagBits">VkResolveModeFlagBits</a>.</p>
 structure.</p>
 </li>
 <li>
-<p><code>pFragmentShadingRateAttachment</code> is an optional
-<a href="chap8.html#VkAttachmentReference2KHR">VkAttachmentReference2KHR</a> structure defining the fragment shading
+<p><code>pFragmentShadingRateAttachment</code> is <code>NULL</code> or a pointer to a
+<a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structure defining the fragment shading
 rate attachment for this subpass.</p>
 </li>
 <li>
@@ -4366,7 +4371,7 @@ of the framebuffer corresponding to each texel in
 </ul>
 </div>
 <div class="paragraph">
-<p>If no shading rate attachment is specified, or if this structure isn’t
+<p>If no shading rate attachment is specified, or if this structure is not
 specified, the implementation behaves as if a valid shading rate attachment
 was specified with all texels specifying a single pixel per fragment.</p>
 </div>
@@ -4463,7 +4468,7 @@ to <a href="chap38.html#limits-maxFragmentShadingRateAttachmentTexelSizeAspectRa
 </li>
 <li>
 <p><a id="VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter" href="chap8.html#VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter"></a> <span class="vuid">VUID-VkFragmentShadingRateAttachmentInfoKHR-pFragmentShadingRateAttachment-parameter</span><br>
- <code>pFragmentShadingRateAttachment</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structure</p>
+ If <code>pFragmentShadingRateAttachment</code> is not <code>NULL</code>, <code>pFragmentShadingRateAttachment</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap8.html#VkAttachmentReference2">VkAttachmentReference2</a> structure</p>
 </li>
 </ul>
 </div>
@@ -4508,7 +4513,7 @@ structure.</p>
 <li>
 <p><code>attachment</code> is either an integer value identifying an attachment at
 the corresponding index in
-<a href="chap8.html#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a>::<code>pAttachments</code>, or
+<a href="chap8.html#VkRenderPassCreateInfo2">VkRenderPassCreateInfo2</a>::<code>pAttachments</code>, or
 <code>VK_ATTACHMENT_UNUSED</code> to signify that this attachment is not used.</p>
 </li>
 <li>
@@ -5308,12 +5313,12 @@ attachment and non-attachment if both accesses are read-only.</p>
 </li>
 <li>
 <p>For depth/stencil attachments, each aspect <strong class="purple">can</strong> be used separately as
-attachments and non-attachments as long as the non-attachment accesses are
+attachment and non-attachment as long as the non-attachment accesses are
 also via an image subresource in either the
-<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> layout or
-the <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code> layout,
-and the attachment resource uses whichever of those two layouts the image
-accesses do not.</p>
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</code> layout
+or the <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL</code>
+layout, and the attachment resource uses whichever of those two layouts
+the image accesses do not.</p>
 </li>
 </ul>
 </div>
@@ -5500,7 +5505,7 @@ If <code>flags</code> does not include
 <code>pAttachments</code> that is used as a
 <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
 attachment</a> <strong class="purple">must</strong> have a width at least as large as
-<span class="eq">⌈<code>width</code> \ <code>texelWidth</code>⌉</span>, where <code>texelWidth</code>
+<span class="eq">⌈<code>width</code> / <code>texelWidth</code>⌉</span>, where <code>texelWidth</code>
 is the largest value of <code>shadingRateAttachmentTexelSize.width</code> in a
 <a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
 attachment</p>
@@ -5513,7 +5518,7 @@ If <code>flags</code> does not include
 <code>pAttachments</code> that is used as a
 <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
 attachment</a> <strong class="purple">must</strong> have a height at least as large as
-<span class="eq">⌈<code>height</code> \ <code>texelHeight</code>⌉</span>, where
+<span class="eq">⌈<code>height</code> / <code>texelHeight</code>⌉</span>, where
 <code>texelHeight</code> is the largest value of
 <code>shadingRateAttachmentTexelSize.height</code> in a
 <a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
@@ -5609,7 +5614,7 @@ If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>,
 <code>width</code> member of any element of the <code>pAttachmentImageInfos</code>
 member of an instance of <a href="chap8.html#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the
 <code>pNext</code> chain that is used as an input, color, resolve or
-depth/stencil attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or
+depth/stencil attachment in <code>renderPass</code> <strong class="purple">must</strong> be greater than or
 equal to <code>width</code></p>
 </li>
 <li>
@@ -5619,7 +5624,7 @@ If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>,
 <code>height</code> member of any element of the <code>pAttachmentImageInfos</code>
 member of an instance of <a href="chap8.html#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the
 <code>pNext</code> chain that is used as an input, color, resolve or
-depth/stencil attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or
+depth/stencil attachment in <code>renderPass</code> <strong class="purple">must</strong> be greater than or
 equal to <code>height</code></p>
 </li>
 <li>
@@ -5630,7 +5635,7 @@ If <code>flags</code> includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>,
 member of an instance of <a href="chap8.html#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> in the
 <code>pNext</code> chain that is used as a
 <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
-attachment</a> <strong class="purple">must</strong> be greater than or equal to <span class="eq">⌈<code>width</code> \
+attachment</a> <strong class="purple">must</strong> be greater than or equal to <span class="eq">⌈<code>width</code> /
 <code>texelWidth</code>⌉</span>, where <code>texelWidth</code> is the largest value of
 <code>shadingRateAttachmentTexelSize.width</code> in a
 <a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
@@ -5645,7 +5650,7 @@ member of an instance of <a href="chap8.html#VkFramebufferAttachmentsCreateInfo"
 <code>pNext</code> chain that is used as a
 <a href="chap25.html#primsrast-fragment-shading-rate-attachment">fragment shading rate
 attachment</a> <strong class="purple">must</strong> be greater than or equal to <span class="eq">⌈<code>height</code>
-\ <code>texelHeight</code>⌉</span>, where <code>texelHeight</code> is the largest value
+/ <code>texelHeight</code>⌉</span>, where <code>texelHeight</code> is the largest value
 of <code>shadingRateAttachmentTexelSize.height</code> in a
 <a href="chap8.html#VkFragmentShadingRateAttachmentInfoKHR">VkFragmentShadingRateAttachmentInfoKHR</a> which references that
 attachment</p>
@@ -5680,7 +5685,7 @@ If multiview is enabled for <code>renderPass</code>, and <code>flags</code> incl
 of any element of the <code>pAttachmentImageInfos</code> member of a
 <a href="chap8.html#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
 <code>pNext</code> chain used as an input, color, resolve, or depth/stencil
-attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than the maximum bit
+attachment in <code>renderPass</code> <strong class="purple">must</strong> be greater than the maximum bit
 index set in the view mask in the subpasses in which it is used in
 <code>renderPass</code></p>
 </li>
@@ -5692,7 +5697,7 @@ includes <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, the <code>layerCount<
 member of any element of the <code>pAttachmentImageInfos</code> member of a
 <a href="chap8.html#VkFramebufferAttachmentsCreateInfo">VkFramebufferAttachmentsCreateInfo</a> structure included in the
 <code>pNext</code> chain used as an input, color, resolve, or depth/stencil
-attachment in <code>pRenderPass</code> <strong class="purple">must</strong> be greater than or equal to
+attachment in <code>renderPass</code> <strong class="purple">must</strong> be greater than or equal to
 <code>layers</code></p>
 </li>
 <li>
@@ -5949,8 +5954,9 @@ array, matching the value of
 an image used with this framebuffer.</p>
 </li>
 <li>
-<p><code>pViewFormats</code> is an array which lists of all formats which <strong class="purple">can</strong> be
-used when creating views of the image, matching the value of
+<p><code>pViewFormats</code> is a pointer to an array of <a href="chap39.html#VkFormat">VkFormat</a> values
+specifying all of the formats which <strong class="purple">can</strong> be used when creating views of
+the image, matching the value of
 <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a>::<code>pViewFormats</code> used to create an
 image used with this framebuffer.</p>
 </li>
@@ -6286,7 +6292,7 @@ specified in the <code>framebuffer</code> member of <code>pRenderPassBegin</code
 <li>
 <p><a id="VUID-vkCmdBeginRenderPass-initialLayout-00900" href="chap8.html#VUID-vkCmdBeginRenderPass-initialLayout-00900"></a> <span class="vuid">VUID-vkCmdBeginRenderPass-initialLayout-00900</span><br>
 
-If any of the <code>initialLayout</code> members of the
+If the <code>initialLayout</code> member of any of the
 <code>VkAttachmentDescription</code> structures specified when creating the
 render pass specified in the <code>renderPass</code> member of
 <code>pRenderPassBegin</code> is not <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, then each
@@ -6562,7 +6568,7 @@ specified in the <code>framebuffer</code> member of <code>pRenderPassBegin</code
 <li>
 <p><a id="VUID-vkCmdBeginRenderPass2-initialLayout-03100" href="chap8.html#VUID-vkCmdBeginRenderPass2-initialLayout-03100"></a> <span class="vuid">VUID-vkCmdBeginRenderPass2-initialLayout-03100</span><br>
 
-If any of the <code>initialLayout</code> members of the
+If the <code>initialLayout</code> member of any of the
 <code>VkAttachmentDescription</code> structures specified when creating the
 render pass specified in the <code>renderPass</code> member of
 <code>pRenderPassBegin</code> is not <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, then each
@@ -7396,7 +7402,7 @@ granularity).</p>
 </li>
 <li>
 <p>the <code>offset.y</code> member in <code>renderArea</code> is a multiple of the
-<code>height</code> of the returned <a href="chap3.html#VkExtent2D">VkExtent2D</a> (the vertical
+<code>height</code> member of the returned <a href="chap3.html#VkExtent2D">VkExtent2D</a> (the vertical
 granularity).</p>
 </li>
 <li>
@@ -8050,7 +8056,7 @@ structure.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.177<br>
+Version 1.0.178<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.177 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.178 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.177 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.178 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.177,</span>
-<span id="revdate">2021-04-26 00:05:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: 88da24862cf91d692801c6ae64665d26d39f06c4</span>
+<span id="revnumber">version 1.0.178,</span>
+<span id="revdate">2021-05-10 10:04:59Z</span>
+<br><span id="revremark">from git branch: github-main commit: dfe3bcd0e1b7239e2d6ae8b6afe563780a711854</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -821,7 +821,7 @@ recorded to it move to the <em>pending state</em>.
 Once execution of the primary completes, so it does for any secondary
 recorded within it.
 After all executions of each command buffer complete, they each move to
-their appropriate completion state (either to the <em>execution state</em> or the
+their appropriate completion state (either to the <em>executable state</em> or the
 <em>invalid state</em>, as specified above).</p>
 </div>
 <div class="paragraph">
@@ -1545,12 +1545,29 @@ Each allocated command buffer begins in the initial state.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p><code>vkAllocateCommandBuffers</code> <strong class="purple">can</strong> be used to create multiple command
+<p><code>vkAllocateCommandBuffers</code> <strong class="purple">can</strong> be used to allocate multiple command
 buffers.
-If the creation of any of those command buffers fails, the implementation
-<strong class="purple">must</strong> destroy all successfully created command buffer objects from this
+If the allocation of any of those command buffers fails, the implementation
+<strong class="purple">must</strong> free all successfully allocatd command buffer objects from this
 command, set all entries of the <code>pCommandBuffers</code> array to <code>NULL</code> and
 return the error.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Filling <code>pCommandBuffers</code> with <code>NULL</code> values on failure is an exception
+to the default error behavior that output parameters will have undefined
+contents.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>When command buffers are first allocated, they are in the
@@ -1726,7 +1743,7 @@ buffer.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To reset command buffers, call:</p>
+<p>To reset a command buffer, call:</p>
 </div>
 <div id="vkResetCommandBuffer" class="listingblock">
 <div class="content">
@@ -2006,9 +2023,9 @@ VkResult vkBeginCommandBuffer(
 put in the recording state.</p>
 </li>
 <li>
-<p><code>pBeginInfo</code> points to a <a href="chap6.html#VkCommandBufferBeginInfo">VkCommandBufferBeginInfo</a> structure
-defining additional information about how the command buffer begins
-recording.</p>
+<p><code>pBeginInfo</code> is a pointer to a <a href="chap6.html#VkCommandBufferBeginInfo">VkCommandBufferBeginInfo</a>
+structure defining additional information about how the command buffer
+begins recording.</p>
 </li>
 </ul>
 </div>
@@ -2043,8 +2060,8 @@ If <code>commandBuffer</code> is a secondary command buffer, the
 If <code>commandBuffer</code> is a secondary command buffer and either the
 <code>occlusionQueryEnable</code> member of the <code>pInheritanceInfo</code> member
 of <code>pBeginInfo</code> is <code>VK_FALSE</code>, or the precise occlusion queries
-feature is not enabled, the <code>queryFlags</code> member of the
-<code>pInheritanceInfo</code> member <code>pBeginInfo</code> <strong class="purple">must</strong> not contain
+feature is not enabled, then
+<code>pBeginInfo-&gt;pInheritanceInfo-&gt;queryFlags</code> <strong class="purple">must</strong> not contain
 <code>VK_QUERY_CONTROL_PRECISE_BIT</code></p>
 </li>
 <li>
@@ -2673,8 +2690,8 @@ When <code>viewportScissor2D</code> is <code>VK_FALSE</code>, the behavior is as
 this value is zero.</p>
 </li>
 <li>
-<p><code>pViewportDepths</code> specifies the expected depth range for each
-inherited viewport.</p>
+<p><code>pViewportDepths</code> is a pointer to a <a href="chap26.html#VkViewport">VkViewport</a> structure
+specifying the expected depth range for each inherited viewport.</p>
 </li>
 </ul>
 </div>
@@ -3124,10 +3141,10 @@ command that has been submitted to another queue and is still in the
 <li>
 <p><a id="VUID-vkQueueSubmit2KHR-semaphore-03868" href="chap6.html#VUID-vkQueueSubmit2KHR-semaphore-03868"></a> <span class="vuid">VUID-vkQueueSubmit2KHR-semaphore-03868</span><br>
 
-The <code>semaphore</code> member of any element of the
-<code>pSignalSemaphoreInfos</code> member of any element of <code>pSubmits</code>
-<strong class="purple">must</strong> be unsignaled when the semaphore signal operation it defines is
-executed on the device</p>
+ The <code>semaphore</code> member of any
+binary semaphore element of the <code>pSignalSemaphoreInfos</code> member of any
+element of <code>pSubmits</code> <strong class="purple">must</strong> be unsignaled when the semaphore signal
+operation it defines is executed on the device</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit2KHR-stageMask-03869" href="chap6.html#VUID-vkQueueSubmit2KHR-stageMask-03869"></a> <span class="vuid">VUID-vkQueueSubmit2KHR-stageMask-03869</span><br>
@@ -3893,9 +3910,9 @@ stages</a></p>
 <li>
 <p><a id="VUID-vkQueueSubmit-pSignalSemaphores-00067" href="chap6.html#VUID-vkQueueSubmit-pSignalSemaphores-00067"></a> <span class="vuid">VUID-vkQueueSubmit-pSignalSemaphores-00067</span><br>
 
-Each element of the <code>pSignalSemaphores</code> member of any element of
-<code>pSubmits</code> <strong class="purple">must</strong> be unsignaled when the semaphore signal operation
-it defines is executed on the device</p>
+Each binary semaphore element of the <code>pSignalSemaphores</code> member of
+any element of <code>pSubmits</code> <strong class="purple">must</strong> be unsignaled when the semaphore
+signal operation it defines is executed on the device</p>
 </li>
 <li>
 <p><a id="VUID-vkQueueSubmit-pWaitSemaphores-00068" href="chap6.html#VUID-vkQueueSubmit-pWaitSemaphores-00068"></a> <span class="vuid">VUID-vkQueueSubmit-pWaitSemaphores-00068</span><br>
@@ -4597,8 +4614,15 @@ add a <a href="chap6.html#VkWin32KeyedMutexAcquireReleaseInfoKHR">VkWin32KeyedMu
 <div class="ulist">
 <ul>
 <li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
 <p><code>acquireCount</code> is the number of entries in the <code>pAcquireSyncs</code>,
-<code>pAcquireKeys</code>, and <code>pAcquireTimeoutMilliseconds</code> arrays.</p>
+<code>pAcquireKeys</code>, and <code>pAcquireTimeouts</code> arrays.</p>
 </li>
 <li>
 <p><code>pAcquireSyncs</code> is a pointer to an array of <a href="chap11.html#VkDeviceMemory">VkDeviceMemory</a>
@@ -4611,9 +4635,8 @@ Entries refer to the keyed mutex associated with the corresponding
 entries in <code>pAcquireSyncs</code>.</p>
 </li>
 <li>
-<p><code>pAcquireTimeoutMilliseconds</code> is a pointer to an array of timeout
-values, in millisecond units, for each acquire specified in
-<code>pAcquireKeys</code>.</p>
+<p><code>pAcquireTimeouts</code> is a pointer to an array of timeout values, in
+millisecond units, for each acquire specified in <code>pAcquireKeys</code>.</p>
 </li>
 <li>
 <p><code>releaseCount</code> is the number of entries in the <code>pReleaseSyncs</code>
@@ -5635,7 +5658,7 @@ Transfer</p></td>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.177<br>
+Version 1.0.178<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
