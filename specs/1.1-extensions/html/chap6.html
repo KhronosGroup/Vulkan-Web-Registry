@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.178 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.179 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.178 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.179 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.178,</span>
-<span id="revdate">2021-05-10 09:49:32Z</span>
-<br><span id="revremark">from git branch: github-main commit: dfe3bcd0e1b7239e2d6ae8b6afe563780a711854</span>
+<span id="revnumber">version 1.1.179,</span>
+<span id="revdate">2021-05-24 07:24:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: 112e8218bb35cc70ba2cf67bdc61e3412c864eec</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -77,10 +77,11 @@
 <li><a href="chap3.html#fundamentals-abi">3.4. Application Binary Interface</a></li>
 <li><a href="chap3.html#fundamentals-commandsyntax">3.5. Command Syntax and Duration</a></li>
 <li><a href="chap3.html#fundamentals-threadingbehavior">3.6. Threading Behavior</a></li>
-<li><a href="chap3.html#fundamentals-errors">3.7. Errors</a></li>
-<li><a href="chap3.html#fundamentals-numerics">3.8. Numeric Representation and Computation</a></li>
-<li><a href="chap3.html#fundamentals-fixedconv">3.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap3.html#fundamentals-common-objects">3.10. Common Object Types</a></li>
+<li><a href="chap3.html#fundamentals-validusage">3.7. Valid Usage</a></li>
+<li><a href="chap3.html#fundamentals-returncodes">3.8. <code>VkResult</code> Return Codes</a></li>
+<li><a href="chap3.html#fundamentals-numerics">3.9. Numeric Representation and Computation</a></li>
+<li><a href="chap3.html#fundamentals-fixedconv">3.10. Fixed-Point Data Conversions</a></li>
+<li><a href="chap3.html#fundamentals-common-objects">3.11. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap4.html">4. Initialization</a>
@@ -1583,7 +1584,7 @@ Each allocated command buffer begins in the initial state.</p>
 <p><code>vkAllocateCommandBuffers</code> <strong class="purple">can</strong> be used to allocate multiple command
 buffers.
 If the allocation of any of those command buffers fails, the implementation
-<strong class="purple">must</strong> free all successfully allocatd command buffer objects from this
+<strong class="purple">must</strong> free all successfully allocated command buffer objects from this
 command, set all entries of the <code>pCommandBuffers</code> array to <code>NULL</code> and
 return the error.</p>
 </div>
@@ -3159,6 +3160,19 @@ See <a href="chap5.html#devsandqueues-lost-device">Lost Device</a>.</p>
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-vkQueueSubmit2KHR-fence-04894" href="chap6.html#VUID-vkQueueSubmit2KHR-fence-04894"></a> <span class="vuid">VUID-vkQueueSubmit2KHR-fence-04894</span><br>
+
+If <code>fence</code> is not <a href="chap51.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> be
+unsignaled</p>
+</li>
+<li>
+<p><a id="VUID-vkQueueSubmit2KHR-fence-04895" href="chap6.html#VUID-vkQueueSubmit2KHR-fence-04895"></a> <span class="vuid">VUID-vkQueueSubmit2KHR-fence-04895</span><br>
+
+If <code>fence</code> is not <a href="chap51.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>fence</code> <strong class="purple">must</strong> not be
+associated with any other queue command that has not yet completed
+execution on that queue</p>
+</li>
+<li>
 <p><a id="VUID-vkQueueSubmit2KHR-synchronization2-03866" href="chap6.html#VUID-vkQueueSubmit2KHR-synchronization2-03866"></a> <span class="vuid">VUID-vkQueueSubmit2KHR-synchronization2-03866</span><br>
 
 The <a href="chap41.html#features-synchronization2"><code>synchronization2</code></a> feature <strong class="purple">must</strong>
@@ -4465,19 +4479,18 @@ structure.</p>
 specified in <code>pWaitSemaphoreValues</code>.</p>
 </li>
 <li>
-<p><code>pWaitSemaphoreValues</code> is an array of length
-<code>waitSemaphoreValueCount</code> containing values for the corresponding
-semaphores in <a href="chap6.html#VkSubmitInfo">VkSubmitInfo</a>::<code>pWaitSemaphores</code> to wait for.</p>
+<p><code>pWaitSemaphoreValues</code> is a pointer to an array of
+<code>waitSemaphoreValueCount</code> values for the corresponding semaphores in
+<a href="chap6.html#VkSubmitInfo">VkSubmitInfo</a>::<code>pWaitSemaphores</code> to wait for.</p>
 </li>
 <li>
 <p><code>signalSemaphoreValueCount</code> is the number of semaphore signal values
 specified in <code>pSignalSemaphoreValues</code>.</p>
 </li>
 <li>
-<p><code>pSignalSemaphoreValues</code> is an array of length
-<code>signalSemaphoreValueCount</code> containing values for the corresponding
-semaphores in <a href="chap6.html#VkSubmitInfo">VkSubmitInfo</a>::<code>pSignalSemaphores</code> to set when
-signaled.</p>
+<p><code>pSignalSemaphoreValues</code> is a pointer to an array
+<code>signalSemaphoreValueCount</code> values for the corresponding semaphores
+in <a href="chap6.html#VkSubmitInfo">VkSubmitInfo</a>::<code>pSignalSemaphores</code> to set when signaled.</p>
 </li>
 </ul>
 </div>
@@ -5811,7 +5824,7 @@ Transfer</p></td>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.178<br>
+Version 1.1.179<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

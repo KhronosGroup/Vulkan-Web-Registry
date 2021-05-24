@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.178 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.179 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.178 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.179 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.178,</span>
-<span id="revdate">2021-05-10 09:41:11Z</span>
-<br><span id="revremark">from git branch: github-main commit: dfe3bcd0e1b7239e2d6ae8b6afe563780a711854</span>
+<span id="revnumber">version 1.2.179,</span>
+<span id="revdate">2021-05-24 07:24:33Z</span>
+<br><span id="revremark">from git branch: github-main commit: 112e8218bb35cc70ba2cf67bdc61e3412c864eec</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -77,10 +77,11 @@
 <li><a href="chap3.html#fundamentals-abi">3.4. Application Binary Interface</a></li>
 <li><a href="chap3.html#fundamentals-commandsyntax">3.5. Command Syntax and Duration</a></li>
 <li><a href="chap3.html#fundamentals-threadingbehavior">3.6. Threading Behavior</a></li>
-<li><a href="chap3.html#fundamentals-errors">3.7. Errors</a></li>
-<li><a href="chap3.html#fundamentals-numerics">3.8. Numeric Representation and Computation</a></li>
-<li><a href="chap3.html#fundamentals-fixedconv">3.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap3.html#fundamentals-common-objects">3.10. Common Object Types</a></li>
+<li><a href="chap3.html#fundamentals-validusage">3.7. Valid Usage</a></li>
+<li><a href="chap3.html#fundamentals-returncodes">3.8. <code>VkResult</code> Return Codes</a></li>
+<li><a href="chap3.html#fundamentals-numerics">3.9. Numeric Representation and Computation</a></li>
+<li><a href="chap3.html#fundamentals-fixedconv">3.10. Fixed-Point Data Conversions</a></li>
+<li><a href="chap3.html#fundamentals-common-objects">3.11. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap4.html">4. Initialization</a>
@@ -2907,6 +2908,47 @@ std::async::launch(
 </div>
 </div>
 <div class="paragraph">
+<p>The following example illustrates extracting concurrency from a single
+deferred operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="comment">// create a deferred operation</span>
+VkDeferredOperationKHR hOp;
+VkResult result = vkCreateDeferredOperationKHR(device, pCallbacks, &amp;hOp);
+assert(result == VK_SUCCESS);
+
+result = vkDoSomethingExpensive(device, hOp, ...);
+assert( result == VK_OPERATION_DEFERRED_KHR );
+
+<span class="comment">// Query the maximum amount of concurrency and clamp to the desired maximum</span>
+uint32_t numLaunches = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, hOp), maxThreads);
+
+std::vector&lt;std::future&lt;<span class="directive">void</span>&gt; &gt; joins;
+
+<span class="keyword">for</span> (uint32_t i = <span class="integer">0</span>; i &lt; numLaunches; i++) {
+  joins.emplace_back(std::async::launch(
+    [ hOp ] ( )
+    {
+        vkDeferredOperationJoinKHR(device, hOp);
+                <span class="comment">// in a job system, a return of VK_THREAD_IDLE_KHR should queue another</span>
+                <span class="comment">// job, but it's not functionally required</span>
+    }
+  );
+}
+
+<span class="keyword">for</span> (<span class="directive">auto</span> &amp;f : joins) {
+  f.get();
+}
+
+result = vkGetDeferredOperationResultKHR(device, hOp);
+
+<span class="comment">// deferred operation is now complete.  'result' indicates success or failure</span>
+
+vkDestroyDeferredOperationKHR(device, hOp, pCallbacks);</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>The following example shows a subroutine which guarantees completion of a
 deferred operation, in the presence of multiple worker threads, and returns
 the result of the operation.</p>
@@ -3261,10 +3303,11 @@ a given device.</p>
 <div class="sect3">
 <h4 id="_issues_4"><a class="anchor" href="chap46.html#_issues_4"></a>Issues</h4>
 <div class="paragraph">
-<p>1) Which properties of a mode should be fixed in the mode info vs. settable
-in some other function when setting the mode? E.g., do we need to double the
-size of the mode pool to include both stereo and non-stereo modes? YUV and
-RGB scanout even if they both take RGB input images? BGR vs. RGB input? etc.</p>
+<p>1) Which properties of a mode should be fixed in the mode information vs.
+settable in some other function when setting the mode? E.g., do we need to
+double the size of the mode pool to include both stereo and non-stereo
+modes? YUV and RGB scanout even if they both take RGB input images? BGR vs.
+RGB input? etc.</p>
 </div>
 <div class="paragraph">
 <p><strong>PROPOSED RESOLUTION</strong>: Many modern displays support at most a handful of
@@ -3331,8 +3374,8 @@ construct).</p>
 </div>
 <div class="paragraph">
 <p><strong>PROPOSED RESOLUTION</strong>: Expose both.
-Display info structures will expose a set of predefined modes, as well as
-any attributes necessary to construct a customized mode.</p>
+Display information structures will expose a set of predefined modes, as
+well as any attributes necessary to construct a customized mode.</p>
 </div>
 <div class="paragraph">
 <p>6) Is it fine if we return the display and display mode handles in the
@@ -3543,7 +3586,7 @@ create a native Window.</p>
 in Bugzilla).</p>
 </li>
 <li>
-<p>Added native overlay handle to info structure.</p>
+<p>Added native overlay handle to information structure.</p>
 </li>
 <li>
 <p>Replaced , with ; in struct.</p>
@@ -11230,7 +11273,7 @@ vertical blanking period in which the queue is non-empty</p>
 </div>
 <div class="paragraph">
 <p>Not all surfaces will support all of these modes, so the modes supported
-will be returned using a surface info query.
+will be returned using a surface information query.
 All surfaces must support the FIFO queue mode.
 Applications must choose one of these modes up front when creating a
 swapchain.
@@ -11682,7 +11725,7 @@ the application.</p>
 </li>
 <li>
 <p>Renamed VkSurfaceCapabilityPropertiesKHR to VkSurfacePropertiesKHR to
-better convey the mutable nature of the info it contains.</p>
+better convey the mutable nature of the information it contains.</p>
 </li>
 </ul>
 </div>
@@ -19265,14 +19308,14 @@ the core functionality.</p>
 <h4 id="_description_50"><a class="anchor" href="chap46.html#_description_50"></a>Description</h4>
 <div class="paragraph">
 <p>This extension is based off the <code><a href="undefined">[VK_AMD_draw_indirect_count]</a></code> extension.
-This extension allows an application to source the number of draw calls for
+This extension allows an application to source the number of draws for
 indirect draw calls from a buffer.</p>
 </div>
 <div class="paragraph">
 <p>Applications might want to do culling on the GPU via a compute shader prior
-to the draw.
-This enables the application to generate arbitrary amounts of draw commands
-and execute them without host intervention.</p>
+to drawing.
+This enables the application to generate an arbitrary number of drawing
+commands and execute them without host intervention.</p>
 </div>
 </div>
 <div class="sect3">
@@ -25063,11 +25106,11 @@ in Vulkan:</p>
 <ul>
 <li>
 <p><code>BaseInstance</code>, which contains the <code>firstInstance</code> parameter
-passed to draw commands,</p>
+passed to drawing commands,</p>
 </li>
 <li>
 <p><code>BaseVertex</code>, which contains the <code>firstVertex</code> or
-<code>vertexOffset</code> parameter passed to draw commands, and</p>
+<code>vertexOffset</code> parameter passed to drawing commands, and</p>
 </li>
 <li>
 <p><code>DrawIndex</code>, which contains the index of the draw call currently
@@ -25098,7 +25141,7 @@ decorations:</p>
 <h4 id="_promotion_to_vulkan_1_1_21"><a class="anchor" href="chap46.html#_promotion_to_vulkan_1_1_21"></a>Promotion to Vulkan 1.1</h4>
 <div class="paragraph">
 <p>All functionality in this extension is included in core Vulkan 1.1, however
-a <a href="undefined">feature bit was added</a> to distinguish
+a <a href="chap37.html#features-shaderDrawParameters">feature bit was added</a> to distinguish
 whether it is actually available or not.</p>
 </div>
 </div>
@@ -27116,7 +27159,7 @@ The second, <code>VariablePointers</code>, is optional.</p>
 <div class="paragraph">
 <p>All functionality in this extension is included in core Vulkan 1.1, with the
 KHR suffix omitted, however support for the
-<a href="undefined"><code>variablePointersStorageBuffer</code></a> feature is made optional.
+<a href="chap37.html#features-variablePointersStorageBuffer"><code>variablePointersStorageBuffer</code></a> feature is made optional.
 The original type, enum and command names are still available as aliases of
 the core functionality.</p>
 </div>
@@ -27463,7 +27506,7 @@ VkPhysicalDeviceVulkanMemoryModelFeaturesKHR structure.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.178<br>
+Version 1.2.179<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

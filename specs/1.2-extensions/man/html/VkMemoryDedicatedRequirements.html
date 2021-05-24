@@ -810,13 +810,6 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To determine the dedicated allocation requirements of a buffer or image
-resource, add a <a href="VkMemoryDedicatedRequirements.html">VkMemoryDedicatedRequirements</a> structure to the
-<code>pNext</code> chain of the <a href="VkMemoryRequirements2.html">VkMemoryRequirements2</a> structure passed as the
-<code>pMemoryRequirements</code> parameter of <a href="vkGetBufferMemoryRequirements2.html">vkGetBufferMemoryRequirements2</a>
-or <a href="vkGetImageMemoryRequirements2.html">vkGetImageMemoryRequirements2</a>.</p>
-</div>
-<div class="paragraph">
 <p>The <code>VkMemoryDedicatedRequirements</code> structure is defined as:</p>
 </div>
 <div id="VkMemoryDedicatedRequirements" class="listingblock">
@@ -871,86 +864,66 @@ is required for this resource.</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When the implementation sets <code>requiresDedicatedAllocation</code> to
-<code>VK_TRUE</code>, it <strong class="purple">must</strong> also set <code>prefersDedicatedAllocation</code> to
-<code>VK_TRUE</code>.</p>
+<p>To determine the dedicated allocation requirements of a buffer or image
+resource, add a <a href="VkMemoryDedicatedRequirements.html">VkMemoryDedicatedRequirements</a> structure to the
+<code>pNext</code> chain of the <a href="VkMemoryRequirements2.html">VkMemoryRequirements2</a> structure passed as the
+<code>pMemoryRequirements</code> parameter of <a href="vkGetBufferMemoryRequirements2.html">vkGetBufferMemoryRequirements2</a>
+or <a href="vkGetImageMemoryRequirements2.html">vkGetImageMemoryRequirements2</a>, respectively.</p>
 </div>
 <div class="paragraph">
-<p>If the <code>VkMemoryDedicatedRequirements</code> structure is included in the
-<code>pNext</code> chain of the <a href="VkMemoryRequirements2.html">VkMemoryRequirements2</a> structure passed as the
-<code>pMemoryRequirements</code> parameter of a
-<a href="vkGetBufferMemoryRequirements2.html">vkGetBufferMemoryRequirements2</a> call, <code>requiresDedicatedAllocation</code>
-<strong class="purple">may</strong> be <code>VK_TRUE</code> under any of the following conditions:</p>
+<p>Constraints on the values returned for buffer resources are:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The <code>pNext</code> chain of <a href="VkBufferCreateInfo.html">VkBufferCreateInfo</a> for the call to
-<a href="vkCreateBuffer.html">vkCreateBuffer</a> used to create the buffer being queried included a
+<p><code>requiresDedicatedAllocation</code> <strong class="purple">may</strong> be <code>VK_TRUE</code> if the
+<code>pNext</code> chain of <a href="VkBufferCreateInfo.html">VkBufferCreateInfo</a> for the call to
+<code>vkCreateBuffer</code> used to create the buffer being queried included a
 <a href="VkExternalMemoryBufferCreateInfo.html">VkExternalMemoryBufferCreateInfo</a> structure, and any of the handle
 types specified in
 <a href="VkExternalMemoryBufferCreateInfo.html">VkExternalMemoryBufferCreateInfo</a>::<code>handleTypes</code> requires
 dedicated allocation, as reported by
 <a href="vkGetPhysicalDeviceExternalBufferProperties.html">vkGetPhysicalDeviceExternalBufferProperties</a> in
-<code>VkExternalBufferProperties</code>::<code>externalMemoryProperties.externalMemoryFeatures</code>.</p>
+<code>VkExternalBufferProperties</code>::<code>externalMemoryProperties.externalMemoryFeatures</code>.
+Otherwise, <code>requiresDedicatedAllocation</code> will be <code>VK_FALSE</code>.</p>
+</li>
+<li>
+<p>When the implementation sets <code>requiresDedicatedAllocation</code> to
+<code>VK_TRUE</code>, it <strong class="purple">must</strong> also set <code>prefersDedicatedAllocation</code> to
+<code>VK_TRUE</code>.</p>
+</li>
+<li>
+<p>If <code>VK_BUFFER_CREATE_SPARSE_BINDING_BIT</code> was set in
+<a href="VkBufferCreateInfo.html">VkBufferCreateInfo</a>::<code>flags</code> when <code>buffer</code> was created,
+then both <code>prefersDedicatedAllocation</code> and
+<code>requiresDedicatedAllocation</code> will be <code>VK_FALSE</code>.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>In all other cases, <code>requiresDedicatedAllocation</code> <strong class="purple">must</strong> be set to
-<code>VK_FALSE</code> by the implementation whenever a
-<code>VkMemoryDedicatedRequirements</code> structure is included in the <code>pNext</code>
-chain of the <code>VkMemoryRequirements2</code> structure passed to a call to
-<a href="vkGetBufferMemoryRequirements2.html">vkGetBufferMemoryRequirements2</a>.</p>
-</div>
-<div class="paragraph">
-<p>If the <code>VkMemoryDedicatedRequirements</code> structure is included in the
-<code>pNext</code> chain of the <code>VkMemoryRequirements2</code> structure passed as the
-<code>pMemoryRequirements</code> parameter of a
-<a href="vkGetBufferMemoryRequirements2.html">vkGetBufferMemoryRequirements2</a> call and
-<code>VK_BUFFER_CREATE_SPARSE_BINDING_BIT</code> was set in
-<a href="VkBufferCreateInfo.html">VkBufferCreateInfo</a>::<code>flags</code> when <code>buffer</code> was created then the
-implementation <strong class="purple">must</strong> set both <code>prefersDedicatedAllocation</code> and
-<code>requiresDedicatedAllocation</code> to <code>VK_FALSE</code>.</p>
-</div>
-<div class="paragraph">
-<p>If the <code>VkMemoryDedicatedRequirements</code> structure is included in the
-<code>pNext</code> chain of the <code>VkMemoryRequirements2</code> structure passed as the
-<code>pMemoryRequirements</code> parameter of a <a href="vkGetImageMemoryRequirements2.html">vkGetImageMemoryRequirements2</a>
-call, <code>requiresDedicatedAllocation</code> <strong class="purple">may</strong> be <code>VK_TRUE</code> under one of
-the following conditions:</p>
+<p>Constraints on the values returned for image resources are:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>The <code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> for the call to
+<p><code>requiresDedicatedAllocation</code> <strong class="purple">may</strong> be <code>VK_TRUE</code> if the
+<code>pNext</code> chain of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> for the call to
 <a href="vkCreateImage.html">vkCreateImage</a> used to create the image being queried included a
 <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a> structure, and any of the handle
 types specified in
 <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>::<code>handleTypes</code> requires
 dedicated allocation, as reported by
 <a href="vkGetPhysicalDeviceImageFormatProperties2.html">vkGetPhysicalDeviceImageFormatProperties2</a> in
-<code>VkExternalImageFormatProperties</code>::<code>externalMemoryProperties.externalMemoryFeatures</code>,
-the <code>requiresDedicatedAllocation</code> field will be set to
-<code>VK_TRUE</code>.</p>
+<code>VkExternalImageFormatProperties</code>::<code>externalMemoryProperties.externalMemoryFeatures</code>.
+Otherwise, <code>requiresDedicatedAllocation</code> will be <code>VK_FALSE</code>.</p>
+</li>
+<li>
+<p>If <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code> was set in
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>flags</code> when <code>image</code> was created, then
+both <code>prefersDedicatedAllocation</code> and
+<code>requiresDedicatedAllocation</code> will be <code>VK_FALSE</code>.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>In all other cases, <code>requiresDedicatedAllocation</code> <strong class="purple">must</strong> be set to
-<code>VK_FALSE</code> by the implementation whenever a
-<code>VkMemoryDedicatedRequirements</code> structure is included in the <code>pNext</code>
-chain of the <code>VkMemoryRequirements2</code> structure passed to a call to
-<a href="vkGetImageMemoryRequirements2.html">vkGetImageMemoryRequirements2</a>.</p>
-</div>
-<div class="paragraph">
-<p>If the <code>VkMemoryDedicatedRequirements</code> structure is included in the
-<code>pNext</code> chain of the <code>VkMemoryRequirements2</code> structure passed as the
-<code>pMemoryRequirements</code> parameter of a <a href="vkGetImageMemoryRequirements2.html">vkGetImageMemoryRequirements2</a>
-call and <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code> was set in
-<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>flags</code> when <code>image</code> was created then the
-implementation <strong class="purple">must</strong> set both <code>prefersDedicatedAllocation</code> and
-<code>requiresDedicatedAllocation</code> to <code>VK_FALSE</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1001,8 +974,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.178<br>
-Last updated 2021-05-10 02:32:36 -0700
+Version 1.2.179<br>
+Last updated 2021-05-24 00:24:38 -0700
 </div>
 </div>
 

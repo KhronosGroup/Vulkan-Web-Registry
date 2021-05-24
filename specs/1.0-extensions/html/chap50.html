@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.178 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.179 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.178 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.179 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.178,</span>
-<span id="revdate">2021-05-10 10:04:59Z</span>
-<br><span id="revremark">from git branch: github-main commit: dfe3bcd0e1b7239e2d6ae8b6afe563780a711854</span>
+<span id="revnumber">version 1.0.179,</span>
+<span id="revdate">2021-05-24 07:24:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: 112e8218bb35cc70ba2cf67bdc61e3412c864eec</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -77,10 +77,11 @@
 <li><a href="chap3.html#fundamentals-abi">3.4. Application Binary Interface</a></li>
 <li><a href="chap3.html#fundamentals-commandsyntax">3.5. Command Syntax and Duration</a></li>
 <li><a href="chap3.html#fundamentals-threadingbehavior">3.6. Threading Behavior</a></li>
-<li><a href="chap3.html#fundamentals-errors">3.7. Errors</a></li>
-<li><a href="chap3.html#fundamentals-numerics">3.8. Numeric Representation and Computation</a></li>
-<li><a href="chap3.html#fundamentals-fixedconv">3.9. Fixed-Point Data Conversions</a></li>
-<li><a href="chap3.html#fundamentals-common-objects">3.10. Common Object Types</a></li>
+<li><a href="chap3.html#fundamentals-validusage">3.7. Valid Usage</a></li>
+<li><a href="chap3.html#fundamentals-returncodes">3.8. <code>VkResult</code> Return Codes</a></li>
+<li><a href="chap3.html#fundamentals-numerics">3.9. Numeric Representation and Computation</a></li>
+<li><a href="chap3.html#fundamentals-fixedconv">3.10. Fixed-Point Data Conversions</a></li>
+<li><a href="chap3.html#fundamentals-common-objects">3.11. Common Object Types</a></li>
 </ul>
 </li>
 <li><a href="chap4.html">4. Initialization</a>
@@ -2531,7 +2532,7 @@ type of geometry)</p>
 <li>
 <p><a href="chap12.html#VkAccelerationStructureCreateInfoNV">VkAccelerationStructureCreateInfoNV</a> →
 <a href="chap12.html#VkAccelerationStructureCreateInfoKHR">VkAccelerationStructureCreateInfoKHR</a> (reshuffle geometry
-layout/info)</p>
+layout/information)</p>
 </li>
 <li>
 <p><a href="chap42.html#VkPhysicalDeviceRayTracingPropertiesNV">VkPhysicalDeviceRayTracingPropertiesNV</a> →
@@ -2553,7 +2554,7 @@ acceleration structure type)</p>
 <li>
 <p><a href="chap12.html#vkCreateAccelerationStructureNV">vkCreateAccelerationStructureNV</a> →
 <a href="chap12.html#vkCreateAccelerationStructureKHR">vkCreateAccelerationStructureKHR</a> (device address, different
-geometry layout/info)</p>
+geometry layout/information)</p>
 </li>
 <li>
 <p><a href="chap12.html#vkGetAccelerationStructureMemoryRequirementsNV">vkGetAccelerationStructureMemoryRequirementsNV</a> (deleted -
@@ -5281,6 +5282,47 @@ std::async::launch(
 </div>
 </div>
 <div class="paragraph">
+<p>The following example illustrates extracting concurrency from a single
+deferred operation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="cpp"><span class="comment">// create a deferred operation</span>
+VkDeferredOperationKHR hOp;
+VkResult result = vkCreateDeferredOperationKHR(device, pCallbacks, &amp;hOp);
+assert(result == VK_SUCCESS);
+
+result = vkDoSomethingExpensive(device, hOp, ...);
+assert( result == VK_OPERATION_DEFERRED_KHR );
+
+<span class="comment">// Query the maximum amount of concurrency and clamp to the desired maximum</span>
+uint32_t numLaunches = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, hOp), maxThreads);
+
+std::vector&lt;std::future&lt;<span class="directive">void</span>&gt; &gt; joins;
+
+<span class="keyword">for</span> (uint32_t i = <span class="integer">0</span>; i &lt; numLaunches; i++) {
+  joins.emplace_back(std::async::launch(
+    [ hOp ] ( )
+    {
+        vkDeferredOperationJoinKHR(device, hOp);
+                <span class="comment">// in a job system, a return of VK_THREAD_IDLE_KHR should queue another</span>
+                <span class="comment">// job, but it's not functionally required</span>
+    }
+  );
+}
+
+<span class="keyword">for</span> (<span class="directive">auto</span> &amp;f : joins) {
+  f.get();
+}
+
+result = vkGetDeferredOperationResultKHR(device, hOp);
+
+<span class="comment">// deferred operation is now complete.  'result' indicates success or failure</span>
+
+vkDestroyDeferredOperationKHR(device, hOp, pCallbacks);</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>The following example shows a subroutine which guarantees completion of a
 deferred operation, in the presence of multiple worker threads, and returns
 the result of the operation.</p>
@@ -7063,10 +7105,11 @@ a given device.</p>
 <div class="sect3">
 <h4 id="_issues_4"><a class="anchor" href="chap50.html#_issues_4"></a>Issues</h4>
 <div class="paragraph">
-<p>1) Which properties of a mode should be fixed in the mode info vs. settable
-in some other function when setting the mode? E.g., do we need to double the
-size of the mode pool to include both stereo and non-stereo modes? YUV and
-RGB scanout even if they both take RGB input images? BGR vs. RGB input? etc.</p>
+<p>1) Which properties of a mode should be fixed in the mode information vs.
+settable in some other function when setting the mode? E.g., do we need to
+double the size of the mode pool to include both stereo and non-stereo
+modes? YUV and RGB scanout even if they both take RGB input images? BGR vs.
+RGB input? etc.</p>
 </div>
 <div class="paragraph">
 <p><strong>PROPOSED RESOLUTION</strong>: Many modern displays support at most a handful of
@@ -7133,8 +7176,8 @@ construct).</p>
 </div>
 <div class="paragraph">
 <p><strong>PROPOSED RESOLUTION</strong>: Expose both.
-Display info structures will expose a set of predefined modes, as well as
-any attributes necessary to construct a customized mode.</p>
+Display information structures will expose a set of predefined modes, as
+well as any attributes necessary to construct a customized mode.</p>
 </div>
 <div class="paragraph">
 <p>6) Is it fine if we return the display and display mode handles in the
@@ -7345,7 +7388,7 @@ create a native Window.</p>
 in Bugzilla).</p>
 </li>
 <li>
-<p>Added native overlay handle to info structure.</p>
+<p>Added native overlay handle to information structure.</p>
 </li>
 <li>
 <p>Replaced , with ; in struct.</p>
@@ -8115,14 +8158,14 @@ Vulkan 1.2</p>
 <h4 id="_description_17"><a class="anchor" href="chap50.html#_description_17"></a>Description</h4>
 <div class="paragraph">
 <p>This extension is based off the <code><a href="chap50.html#VK_AMD_draw_indirect_count">VK_AMD_draw_indirect_count</a></code> extension.
-This extension allows an application to source the number of draw calls for
+This extension allows an application to source the number of draws for
 indirect draw calls from a buffer.</p>
 </div>
 <div class="paragraph">
 <p>Applications might want to do culling on the GPU via a compute shader prior
-to the draw.
-This enables the application to generate arbitrary amounts of draw commands
-and execute them without host intervention.</p>
+to drawing.
+This enables the application to generate an arbitrary number of drawing
+commands and execute them without host intervention.</p>
 </div>
 </div>
 <div class="sect3">
@@ -19072,11 +19115,11 @@ in Vulkan:</p>
 <ul>
 <li>
 <p><code>BaseInstance</code>, which contains the <code>firstInstance</code> parameter
-passed to draw commands,</p>
+passed to drawing commands,</p>
 </li>
 <li>
 <p><code>BaseVertex</code>, which contains the <code>firstVertex</code> or
-<code>vertexOffset</code> parameter passed to draw commands, and</p>
+<code>vertexOffset</code> parameter passed to drawing commands, and</p>
 </li>
 <li>
 <p><code>DrawIndex</code>, which contains the index of the draw call currently
@@ -22190,7 +22233,7 @@ vertical blanking period in which the queue is non-empty</p>
 </div>
 <div class="paragraph">
 <p>Not all surfaces will support all of these modes, so the modes supported
-will be returned using a surface info query.
+will be returned using a surface information query.
 All surfaces must support the FIFO queue mode.
 Applications must choose one of these modes up front when creating a
 swapchain.
@@ -22642,7 +22685,7 @@ the application.</p>
 </li>
 <li>
 <p>Renamed VkSurfaceCapabilityPropertiesKHR to VkSurfacePropertiesKHR to
-better convey the mutable nature of the info it contains.</p>
+better convey the mutable nature of the information it contains.</p>
 </li>
 </ul>
 </div>
@@ -29142,6 +29185,19 @@ Degenerate lines are those with zero length after quantization.</p>
 </ul>
 </div>
 </dd>
+<dt class="hdlist1"><strong>Special Uses</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap40.html#extendingvulkan-compatibility-specialuse">OpenGL / ES support</a></p>
+</li>
+<li>
+<p><a href="chap40.html#extendingvulkan-compatibility-specialuse">D3D support</a></p>
+</li>
+</ul>
+</div>
+</dd>
 <dt class="hdlist1"><strong>Contact</strong></dt>
 <dd>
 <div class="ulist">
@@ -31068,7 +31124,7 @@ of adding the new callback structure in this extension?</p>
 <div class="paragraph">
 <p><strong>RESOLVED</strong>: No.
 Our memory reporting layer that combines this information with other memory
-info it collects directly (e.g. bindings of resources to
+information it collects directly (e.g. bindings of resources to
 <a href="chap11.html#VkDeviceMemory">VkDeviceMemory</a>) would have to intercept all entry points that take a
 <a href="chap11.html#VkAllocationCallbacks">VkAllocationCallbacks</a> parameter and inject its own
 <code>pfnInternalAllocation</code> and <code>pfnInternalFree</code>.
@@ -36292,8 +36348,8 @@ access to an invalid Lod.</p>
 descriptor sets by storing inline uniform data within descriptor pool
 storage.
 Compared to push constants this new construct allows uniform data to be
-reused across multiple disjoint sets of draw or dispatch commands and <strong class="purple">may</strong>
-enable uniform data to be accessed with less indirections compared to
+reused across multiple disjoint sets of drawing or dispatching commands and
+<strong class="purple">may</strong> enable uniform data to be accessed with fewer indirections compared to
 uniforms backed by buffer memory.</p>
 </div>
 </div>
@@ -44787,8 +44843,8 @@ number of samples get a corresponding color output.</p>
 <h4 id="_description_157"><a class="anchor" href="chap50.html#_description_157"></a>Description</h4>
 <div class="paragraph">
 <p>This extension introduces <a href="chap10.html#VkPipelineCompilerControlCreateInfoAMD">VkPipelineCompilerControlCreateInfoAMD</a>
-structure that can be chained to a pipeline’s create info to specify
-additional flags that affect pipeline compilation.</p>
+structure that can be chained to a pipeline’s creation information to
+specify additional flags that affect pipeline compilation.</p>
 </div>
 </div>
 <div class="sect3">
@@ -46973,7 +47029,7 @@ would not be enough to make that code generic.</p>
 <p>2) The internal layout and therefore size of a <code>AHardwareBuffer</code>
 image may depend on native usage flags that do not have corresponding Vulkan
 counterparts.
-Do we provide this info to <a href="chap12.html#vkCreateImage">vkCreateImage</a> somehow, or allow the
+Do we provide this information to <a href="chap12.html#vkCreateImage">vkCreateImage</a> somehow, or allow the
 allocation size reported by <a href="chap12.html#vkGetImageMemoryRequirements">vkGetImageMemoryRequirements</a> to be
 approximate?</p>
 </div>
@@ -61454,7 +61510,7 @@ See the <a href="chap51.html#boilerplate-provisional-header">description</a> of 
 <p><a href="chap39.html#VkVideoEncodeH264CapabilitiesFlagBitsEXT">VkVideoEncodeH264CapabilitiesFlagBitsEXT</a></p>
 </li>
 <li>
-<p><a href="undefined">VkVideoEncodeH264CreateFlagBitsEXT</a></p>
+<p><a href="chap39.html#VkVideoEncodeH264CreateFlagBitsEXT">VkVideoEncodeH264CreateFlagBitsEXT</a></p>
 </li>
 <li>
 <p><a href="chap39.html#VkVideoEncodeH264InputModeFlagBitsEXT">VkVideoEncodeH264InputModeFlagBitsEXT</a></p>
@@ -61473,7 +61529,7 @@ See the <a href="chap51.html#boilerplate-provisional-header">description</a> of 
 <p><a href="undefined">VkVideoEncodeH264CapabilitiesFlagsEXT</a></p>
 </li>
 <li>
-<p><a href="undefined">VkVideoEncodeH264CreateFlagsEXT</a></p>
+<p><a href="chap39.html#VkVideoEncodeH264CreateFlagsEXT">VkVideoEncodeH264CreateFlagsEXT</a></p>
 </li>
 <li>
 <p><a href="undefined">VkVideoEncodeH264InputModeFlagsEXT</a></p>
@@ -63159,10 +63215,10 @@ Vulkan 1.2</p>
 <div class="sect3">
 <h4 id="_description_225"><a class="anchor" href="chap50.html#_description_225"></a>Description</h4>
 <div class="paragraph">
-<p>This extension allows an application to source the number of draw calls for
-indirect draw calls from a buffer.
-This enables applications to generate arbitrary amounts of draw commands and
-execute them without host intervention.</p>
+<p>This extension allows an application to source the number of draws for
+indirect drawing commands from a buffer.
+This enables applications to generate an arbitrary number of drawing
+commands and execute them without host intervention.</p>
 </div>
 </div>
 <div class="sect3">
@@ -65679,7 +65735,7 @@ buffers to a queue.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.178<br>
+Version 1.0.179<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
