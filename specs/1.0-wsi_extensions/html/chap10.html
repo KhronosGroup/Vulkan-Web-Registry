@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.179 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.180 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.179 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.180 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.179,</span>
-<span id="revdate">2021-05-24 07:24:37Z</span>
-<br><span id="revremark">from git branch: github-main commit: 112e8218bb35cc70ba2cf67bdc61e3412c864eec</span>
+<span id="revnumber">version 1.0.180,</span>
+<span id="revdate">2021-06-06 13:03:18Z</span>
+<br><span id="revremark">from git branch: github-main commit: b4e8cd820b2487bc892b391fb26b49501473a6a6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2441,6 +2441,14 @@ If the pipeline is being created with
 <a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure</p>
 </li>
 <li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pVertexInputState-04910" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pVertexInputState-04910"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pVertexInputState-04910</span><br>
+ If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-vertex-input">vertex input state</a>,
+and <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> is not set,
+<code>pVertexInputState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure</p>
+</li>
+<li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-02098" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-02098"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-02098</span><br>
 
 If the pipeline is being created with
@@ -2792,22 +2800,34 @@ This is available in ray tracing pipelines.</p>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR</code>
 specifies that an any-hit shader will always be present when an any-hit
-shader would be executed.</p>
+shader would be executed.
+A NULL any-hit shader is an any-hit shader which is effectively
+<code>VK_SHADER_UNUSED_KHR</code>, such as from a shader group consisting
+entirely of zeros.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR</code>
 specifies that a closest hit shader will always be present when a
-closest hit shader would be executed.</p>
+closest hit shader would be executed.
+A NULL closest hit shader is a closest hit shader which is effectively
+<code>VK_SHADER_UNUSED_KHR</code>, such as from a shader group consisting
+entirely of zeros.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR</code>
 specifies that a miss shader will always be present when a miss shader
-would be executed.</p>
+would be executed.
+A NULL miss shader is a miss shader which is effectively
+<code>VK_SHADER_UNUSED_KHR</code>, such as from a shader group consisting
+entirely of zeros.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR</code>
 specifies that an intersection shader will always be present when an
-intersection shader would be executed.</p>
+intersection shader would be executed.
+A NULL intersection shader is an intersection shader which is effectively
+<code>VK_SHADER_UNUSED_KHR</code>, such as from a shader group consisting
+entirely of zeros.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR</code> specifies
@@ -3255,6 +3275,19 @@ pipeline has valid Tessellation Control and Tessellation Evaluation shaders.</p>
 <div class="paragraph">
 <p>Ray tracing pipelines consist of multiple shader stages, fixed-function
 traversal stages, and a pipeline layout.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_SHADER_UNUSED_KHR</code> is a special shader index used to indicate that a
+ray generation, miss, or callable shader member is not used.</p>
+</div>
+<div id="VK_SHADER_UNUSED_KHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="preprocessor">#define</span> VK_SHADER_UNUSED_KHR              (~<span class="integer">0</span>U)</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="openblock">
 <div class="content">
@@ -4732,17 +4765,15 @@ trace call</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -4751,7 +4782,6 @@ trace call</p>
 Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -5232,7 +5262,7 @@ The previous contents of <code>dstCache</code> are included after the merge.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>The details of the merge operation are implementation dependent, but
+<p>The details of the merge operation are implementation-dependent, but
 implementations <strong class="purple">should</strong> merge the contents of the specified pipelines and
 prune duplicate entries.</p>
 </div>
@@ -5731,6 +5761,11 @@ less than <code>dataSize</code></p>
 The <code>size</code> member of each element of <code>pMapEntries</code> <strong class="purple">must</strong> be less
 than or equal to <code>dataSize</code> minus <code>offset</code></p>
 </li>
+<li>
+<p><a id="VUID-VkSpecializationInfo-constantID-04911" href="chap10.html#VUID-VkSpecializationInfo-constantID-04911"></a> <span class="vuid">VUID-VkSpecializationInfo-constantID-04911</span><br>
+ The <code>constantID</code> value of each element of <code>pMapEntries</code> <strong class="purple">must</strong>
+be unique within <code>pMapEntries</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -6204,17 +6239,15 @@ ray tracing pipeline</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -6224,7 +6257,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -7017,8 +7049,8 @@ representations associated with the pipeline executable, at most
 indicate that not all the available representations were returned.</p>
 </div>
 <div class="paragraph">
-<p>While the details of the internal representations remain implementation
-dependent, the implementation <strong class="purple">should</strong> order the internal representations in
+<p>While the details of the internal representations remain
+implementation-dependent, the implementation <strong class="purple">should</strong> order the internal representations in
 the order in which they occur in the compiled pipeline with the final shader
 assembly (if any) last.</p>
 </div>
@@ -7217,7 +7249,7 @@ null character.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.179<br>
+Version 1.0.180<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

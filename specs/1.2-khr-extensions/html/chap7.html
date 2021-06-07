@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.179 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.180 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.179 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.180 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.179,</span>
-<span id="revdate">2021-05-24 07:24:33Z</span>
-<br><span id="revremark">from git branch: github-main commit: 112e8218bb35cc70ba2cf67bdc61e3412c864eec</span>
+<span id="revnumber">version 1.2.180,</span>
+<span id="revdate">2021-06-06 12:33:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: b4e8cd820b2487bc892b391fb26b49501473a6a6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1902,17 +1902,25 @@ setting all <code>WRITE</code> access flags that are valid where it is used.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT_KHR</code> specifies read access to
-indirect buffers in the <code>VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR</code>
+    command data read from indirect buffers as part of an indirect
+build,
+trace,
+    drawing or dispatch command.
+    Such access occurs in the <code>VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT_KHR</code>
+    pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_2_INDEX_READ_BIT_KHR</code> specifies read access to an index buffer
+as part of an indexed drawing command, bound by
+<a href="chap20.html#vkCmdBindIndexBuffer">vkCmdBindIndexBuffer</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT_KHR</code>
 pipeline stage.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_INDEX_READ_BIT_KHR</code> specifies read access to an index
-buffer in the <code>VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT_KHR</code> pipeline
-stage.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT_KHR</code> specifies read access to
-a vertex buffer in the
+<p><code>VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT_KHR</code> specifies read access to a
+vertex buffer as part of a drawing command, bound by
+<a href="chap21.html#vkCmdBindVertexBuffers">vkCmdBindVertexBuffers</a>.
+Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT_KHR</code> pipeline stage.</p>
 </li>
 <li>
@@ -1922,7 +1930,9 @@ stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code> specifies read access to
-an <a href="chap8.html">input attachment</a> in the
+an <a href="chap8.html">input attachment</a> within a render pass during fragment
+shading.
+Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code> pipeline stage.</p>
 </li>
 <li>
@@ -1936,20 +1946,15 @@ stage.</p>
 <a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
 <a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
 <a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
-<a href="chap14.html#descriptorsets-storageimage">storage image</a> in any shader pipeline
-stage.</p>
+<a href="chap14.html#descriptorsets-storageimage">storage image</a>
+in any shader pipeline stage.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT_KHR</code> specifies write access to
-a <a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
-<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
-<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
-<a href="chap14.html#descriptorsets-storageimage">storage image</a> in any shader pipeline
-stage.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_2_SHADER_READ_BIT_KHR</code> is equivalent to the logical OR
-of:</p>
+<p><code>VK_ACCESS_2_SHADER_READ_BIT_KHR</code>
+specifies read access to a <a href="chap34.html#shader-binding-table">shader binding
+table</a> in any shader pipeline.
+In addition, it
+is equivalent to the logical OR of:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1965,83 +1970,132 @@ of:</p>
 </div>
 </li>
 <li>
+<p><code>VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT_KHR</code> specifies write access to
+a <a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
+<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
+<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
+<a href="chap14.html#descriptorsets-storageimage">storage image</a> in any shader pipeline
+stage.</p>
+</li>
+<li>
 <p><code>VK_ACCESS_2_SHADER_WRITE_BIT_KHR</code> is equivalent to
 <code>VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT_KHR</code>.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT_KHR</code> specifies read access to
-a <a href="chap8.html">color attachment</a>
-in the <code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR</code>
-pipeline stage.</p>
+<p><code>VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT_KHR</code> specifies read access to a
+<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR</code> pipeline stage.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT_KHR</code> specifies write access
-to a <a href="chap8.html">color or resolve attachment</a> in the
-<code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR</code> pipeline
-stage.</p>
+<p><code>VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT_KHR</code> specifies write access to a
+<a href="chap8.html">color, resolve, or depth/stencil resolve attachment</a>
+during a <a href="chap8.html">render pass</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR</code> pipeline stage.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT_KHR</code> specifies read
-access to a <a href="chap8.html">depth/stencil attachment</a> in the
+<p><code>VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT_KHR</code> specifies read access
+to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT_KHR</code> or
 <code>VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT_KHR</code> pipeline stages.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT_KHR</code> specifies write
-access to a <a href="chap8.html">depth/stencil attachment</a> in the
+access to a <a href="chap8.html">depth/stencil attachment</a>, via
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT_KHR</code> or
 <code>VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT_KHR</code> pipeline stages.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_TRANSFER_READ_BIT_KHR</code> specifies read access to an
-image or buffer in the <code>VK_PIPELINE_STAGE_2_COPY_BIT_KHR</code>,
+image or buffer in a <a href="chap19.html">copy</a> operation.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_COPY_BIT_KHR</code>,
 <code>VK_PIPELINE_STAGE_2_BLIT_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_RESOLVE_BIT_KHR</code> pipeline stages.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_TRANSFER_WRITE_BIT_KHR</code> specifies write access to an
-image or buffer in the <code>VK_PIPELINE_STAGE_2_COPY_BIT_KHR</code>,
+<p><code>VK_ACCESS_2_TRANSFER_WRITE_BIT_KHR</code> specifies write access to an image or
+buffer in a <a href="chap18.html">clear</a> or <a href="chap19.html">copy</a> operation.
+Such access occurs
+in the <code>VK_PIPELINE_STAGE_2_COPY_BIT_KHR</code>,
 <code>VK_PIPELINE_STAGE_2_BLIT_BIT_KHR</code>,
 <code>VK_PIPELINE_STAGE_2_CLEAR_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_RESOLVE_BIT_KHR</code> pipeline stages.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_HOST_READ_BIT_KHR</code> specifies read access to memory in
-the <code>VK_PIPELINE_STAGE_2_HOST_BIT_KHR</code> pipeline stage.</p>
+<p><code>VK_ACCESS_2_HOST_READ_BIT_KHR</code> specifies read access by a host operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_HOST_BIT_KHR</code> pipeline
+stage.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_2_HOST_WRITE_BIT_KHR</code> specifies write access to memory in
-the <code>VK_PIPELINE_STAGE_2_HOST_BIT_KHR</code> pipeline stage.</p>
+<p><code>VK_ACCESS_2_HOST_WRITE_BIT_KHR</code> specifies write access by a host
+operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_HOST_BIT_KHR</code> pipeline
+stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR</code> specifies read
-access to an acceleration structure in the
-<code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code>
-or <code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code> pipeline stages.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR</code> specifies write
-access to an acceleration structure in the
+access to an acceleration structure as part of a trace, build, or copy
+command, or to an <a href="chap32.html#acceleration-structure-scratch">acceleration
+structure scratch buffer</a> as part of a build command.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code> pipeline stage or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> pipeline
 stage.</p>
 </li>
 <li>
+<p><code>VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR</code> specifies write
+access to an acceleration structure or <a href="chap32.html#acceleration-structure-scratch">acceleration structure scratch buffer</a> as part of a build or copy
+command.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> pipeline
+stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR</code>
+specifies read access to a fragment shading rate attachment during
+rasterization.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>
+pipeline stage.</p>
+</li>
+<li>
 <p><code>VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR</code> specifies read access to an
 image or buffer resource as part of a <a href="chap35.html#video-decode-operations">video
-decode operation</a>.</p>
+decode operation</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR</code>
+pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR</code> specifies write access to
-an image or buffer resource as part of a <a href="chap35.html#video-decode-operations">video decode operation</a>.</p>
+an image or buffer resource as part of a <a href="chap35.html#video-decode-operations">video decode operation</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR</code>
+pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_VIDEO_ENCODE_READ_BIT_KHR</code> specifies read access to an
 image or buffer resource as part of a <a href="chap35.html#video-encode-operations">video
-encode operation</a>.</p>
+encode operation</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR</code>
+pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_VIDEO_ENCODE_WRITE_BIT_KHR</code> specifies write access to
-an image or buffer resource as part of a <a href="chap35.html#video-encode-operations">video encode operation</a>.</p>
+an image or buffer resource as part of a <a href="chap35.html#video-encode-operations">video encode operation</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR</code>
+pipeline stage.</p>
 </li>
 </ul>
 </div>
@@ -2144,90 +2198,6 @@ values for <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a>.</p>
 <p><code>VK_ACCESS_NONE_KHR</code> specifies no accesses.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> specifies read access to
-indirect command data read as part of an indirect
-build,
-trace,
-drawing or dispatching command.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_INDEX_READ_BIT</code> specifies read access to an index buffer
-as part of an indexed drawing command, bound by
-<a href="chap20.html#vkCmdBindIndexBuffer">vkCmdBindIndexBuffer</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code> specifies read access to a
-vertex buffer as part of a drawing command, bound by
-<a href="chap21.html#vkCmdBindVertexBuffers">vkCmdBindVertexBuffers</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_UNIFORM_READ_BIT</code> specifies read access to a
-<a href="chap14.html#descriptorsets-uniformbuffer">uniform buffer</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code> specifies read access to an
-<a href="chap8.html">input attachment</a> within a render pass during fragment
-shading.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_SHADER_READ_BIT</code> specifies read access to a
-<a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
-<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
-<a href="chap34.html#shader-binding-table">shader binding table</a>,
-<a href="chap14.html#descriptorsets-uniformtexelbuffer">uniform texel buffer</a>,
-<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>,
-<a href="chap14.html#descriptorsets-sampledimage">sampled image</a>, or
-<a href="chap14.html#descriptorsets-storageimage">storage image</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_SHADER_WRITE_BIT</code> specifies write access to a
-<a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
-<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
-<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
-<a href="chap14.html#descriptorsets-storageimage">storage image</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code> specifies read access to a
-<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> specifies write access to a
-<a href="chap8.html">color, resolve, or depth/stencil resolve attachment</a>
-during a <a href="chap8.html">render pass</a> or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read access
-to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
-access to a <a href="chap8.html">depth/stencil attachment</a>, via
-<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_TRANSFER_READ_BIT</code> specifies read access to an image or
-buffer in a <a href="chap19.html">copy</a> operation.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_TRANSFER_WRITE_BIT</code> specifies write access to an image or
-buffer in a <a href="chap18.html">clear</a> or <a href="chap19.html">copy</a> operation.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_HOST_READ_BIT</code> specifies read access by a host operation.
-Accesses of this type are not performed through a resource, but directly
-on memory.</p>
-</li>
-<li>
-<p><code>VK_ACCESS_HOST_WRITE_BIT</code> specifies write access by a host
-operation.
-Accesses of this type are not performed through a resource, but directly
-on memory.</p>
-</li>
-<li>
 <p><code>VK_ACCESS_MEMORY_READ_BIT</code> specifies all read accesses.
 It is always valid in any access mask, and is treated as equivalent to
 setting all <code>READ</code> access flags that are valid where it is used.</p>
@@ -2238,21 +2208,142 @@ It is always valid in any access mask, and is treated as equivalent to
 setting all <code>WRITE</code> access flags that are valid where it is used.</p>
 </li>
 <li>
-<p><code>VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR</code> specifies
-    read access to a
-fragment shading rate attachment
-    during rasterization.</p>
+<p><code>VK_ACCESS_INDIRECT_COMMAND_READ_BIT</code> specifies read access to
+    indirect command data read as part of an indirect
+build,
+trace,
+    drawing or dispatching command.
+    Such access occurs in the <code>VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT</code>
+    pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_INDEX_READ_BIT</code> specifies read access to an index buffer
+as part of an indexed drawing command, bound by
+<a href="chap20.html#vkCmdBindIndexBuffer">vkCmdBindIndexBuffer</a>.
+Such access occurs in the <code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code>
+pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT</code> specifies read access to a
+vertex buffer as part of a drawing command, bound by
+<a href="chap21.html#vkCmdBindVertexBuffers">vkCmdBindVertexBuffers</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_VERTEX_INPUT_BIT</code> pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_UNIFORM_READ_BIT</code> specifies read access to a
+<a href="chap14.html#descriptorsets-uniformbuffer">uniform buffer</a> in any shader pipeline
+stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_INPUT_ATTACHMENT_READ_BIT</code> specifies read access to an
+<a href="chap8.html">input attachment</a> within a render pass during fragment
+shading.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT</code> pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_SHADER_READ_BIT</code> specifies read access to a
+<a href="chap14.html#descriptorsets-uniformbuffer">uniform buffer</a>,
+<a href="chap14.html#descriptorsets-uniformtexelbuffer">uniform texel buffer</a>,
+<a href="chap14.html#descriptorsets-sampledimage">sampled image</a>,
+<a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
+<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
+<a href="chap34.html#shader-binding-table">shader binding table</a>,
+<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
+<a href="chap14.html#descriptorsets-storageimage">storage image</a>
+in any shader pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_SHADER_WRITE_BIT</code> specifies write access to a
+<a href="chap14.html#descriptorsets-storagebuffer">storage buffer</a>,
+<a href="chap14.html#descriptorsets-physical-storage-buffer">physical storage buffer</a>,
+<a href="chap14.html#descriptorsets-storagetexelbuffer">storage texel buffer</a>, or
+<a href="chap14.html#descriptorsets-storageimage">storage image</a>
+in any shader pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code> specifies read access to a
+<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> specifies write access to a
+<a href="chap8.html">color, resolve, or depth/stencil resolve attachment</a>
+during a <a href="chap8.html">render pass</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read access
+to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
+<code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stages.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
+access to a <a href="chap8.html">depth/stencil attachment</a>, via
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
+<code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stages.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_TRANSFER_READ_BIT</code> specifies read access to an image or
+buffer in a <a href="chap19.html">copy</a> operation.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT_KHR</code>
+pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_TRANSFER_WRITE_BIT</code> specifies write access to an image or
+buffer in a <a href="chap18.html">clear</a> or <a href="chap19.html">copy</a> operation.
+Such access occurs in the <code>VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT_KHR</code>
+pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_HOST_READ_BIT</code> specifies read access by a host operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.
+Such access occurs in the <code>VK_PIPELINE_STAGE_HOST_BIT</code> pipeline
+stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_HOST_WRITE_BIT</code> specifies write access by a host
+operation.
+Accesses of this type are not performed through a resource, but directly
+on memory.
+Such access occurs in the <code>VK_PIPELINE_STAGE_HOST_BIT</code> pipeline
+stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR</code> specifies read
 access to an acceleration structure as part of a trace, build, or copy
 command, or to an <a href="chap32.html#acceleration-structure-scratch">acceleration
-structure scratch buffer</a> as part of a build command.</p>
+structure scratch buffer</a> as part of a build command.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code> pipeline stage or
+<code>VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> pipeline
+stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR</code> specifies write
 access to an acceleration structure or <a href="chap32.html#acceleration-structure-scratch">acceleration structure scratch buffer</a> as part of a build or copy
-command.</p>
+command.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code> pipeline
+stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR</code>
+specifies read access to a fragment shading rate attachment during
+rasterization.
+Such access occurs in the
+<code>VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>
+pipeline stage.</p>
 </li>
 </ul>
 </div>
@@ -8813,17 +8904,15 @@ create the command pool that <code>commandBuffer</code> was allocated from</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -8833,7 +8922,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -9096,17 +9184,15 @@ physical device</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -9116,7 +9202,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -9293,17 +9378,15 @@ physical device.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -9313,7 +9396,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -9481,17 +9563,15 @@ physical device</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -9501,7 +9581,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -9777,17 +9856,15 @@ physical device</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -9797,7 +9874,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -10214,17 +10290,15 @@ Elements of <code>pEvents</code> <strong class="purple">must</strong> not have b
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -10234,7 +10308,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -10419,17 +10492,15 @@ create the command pool that <code>commandBuffer</code> was allocated from</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -10440,7 +10511,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
 Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -10857,17 +10927,15 @@ dependency flags</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -10878,7 +10946,6 @@ Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
 Graphics<br>
 Compute</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
@@ -12566,6 +12633,20 @@ not enabled, and <code>buffer</code> was created with a sharing mode of
 </div>
 </div>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_WHOLE_SIZE</code> is a special value indicating that the entire remaining
+length of a buffer following a given <code>offset</code> should be used. It <strong class="purple">can</strong> be
+specified for <a href="chap7.html#VkBufferMemoryBarrier">VkBufferMemoryBarrier</a>::<code>size</code> and other structures.</p>
+</div>
+<div id="VK_WHOLE_SIZE" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="preprocessor">#define</span> VK_WHOLE_SIZE                     (~<span class="integer">0</span>ULL)</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="synchronization-image-memory-barriers"><a class="anchor" href="chap7.html#synchronization-image-memory-barriers"></a>7.7.3. Image Memory Barriers</h4>
@@ -14106,19 +14187,56 @@ not enabled, and <code>image</code> was created with a sharing mode of
 <p>Resources created with a <a href="chap12.html#VkSharingMode">VkSharingMode</a> of
 <code>VK_SHARING_MODE_EXCLUSIVE</code> <strong class="purple">must</strong> have their ownership explicitly
 transferred from one queue family to another in order to access their
-content in a well-defined manner on a queue in a different queue family.
-Resources shared with external APIs or instances using external memory <strong class="purple">must</strong>
+content in a well-defined manner on a queue in a different queue family.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The special queue family index <code>VK_QUEUE_FAMILY_IGNORED</code> indicates that
+a queue family parameter or member is ignored.</p>
+</div>
+<div id="VK_QUEUE_FAMILY_IGNORED" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="preprocessor">#define</span> VK_QUEUE_FAMILY_IGNORED           (~<span class="integer">0</span>U)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Resources shared with external APIs or instances using external memory <strong class="purple">must</strong>
 also explicitly manage ownership transfers between local and external queues
 (or equivalent constructs in external APIs) regardless of the
-<a href="chap12.html#VkSharingMode">VkSharingMode</a> specified when creating them.
-The special queue family index <code>VK_QUEUE_FAMILY_EXTERNAL</code> represents any
+<a href="chap12.html#VkSharingMode">VkSharingMode</a> specified when creating them.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The special queue family index <code>VK_QUEUE_FAMILY_EXTERNAL</code> represents any
 queue external to the resource’s current Vulkan instance, as long as the
-queue uses the same underlying physical device
-or device group
-and uses the same driver version as the resource’s <a href="chap5.html#VkDevice">VkDevice</a>, as
+queue uses the same underlying
+device group or
+physical device,
+and the same driver version as the resource’s <a href="chap5.html#VkDevice">VkDevice</a>, as
 indicated by <a href="chap5.html#VkPhysicalDeviceIDProperties">VkPhysicalDeviceIDProperties</a>::<code>deviceUUID</code> and
-<a href="chap5.html#VkPhysicalDeviceIDProperties">VkPhysicalDeviceIDProperties</a>::<code>driverUUID</code>.
-If memory dependencies are correctly expressed between uses of such a
+<a href="chap5.html#VkPhysicalDeviceIDProperties">VkPhysicalDeviceIDProperties</a>::<code>driverUUID</code>.</p>
+</div>
+<div id="VK_QUEUE_FAMILY_EXTERNAL" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="preprocessor">#define</span> VK_QUEUE_FAMILY_EXTERNAL          (~<span class="integer">1</span>U)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or the equivalent</p>
+</div>
+<div id="VK_QUEUE_FAMILY_EXTERNAL_KHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="preprocessor">#define</span> VK_QUEUE_FAMILY_EXTERNAL_KHR      VK_QUEUE_FAMILY_EXTERNAL</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If memory dependencies are correctly expressed between uses of such a
 resource between two queues in different families, but no ownership transfer
 is defined, the contents of that resource are undefined for any read
 accesses performed by the second queue family.</p>
@@ -14334,17 +14452,15 @@ waiting with an infinite timeout for that fence to signal.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap7.html#synchronization-pipeline-stages-types">Pipeline Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -14352,7 +14468,6 @@ waiting with an infinite timeout for that fence to signal.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 </tr>
 </tbody>
 </table>
@@ -14549,7 +14664,7 @@ waited on by a different physical device.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.179<br>
+Version 1.2.180<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

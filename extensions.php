@@ -60,6 +60,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_float_controls.html"> VK_KHR_shader_float_controls </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_non_semantic_info.html"> VK_KHR_shader_non_semantic_info </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_subgroup_extended_types.html"> VK_KHR_shader_subgroup_extended_types </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_subgroup_uniform_control_flow.html"> VK_KHR_shader_subgroup_uniform_control_flow </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_terminate_invocation.html"> VK_KHR_shader_terminate_invocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shared_presentable_image.html"> VK_KHR_shared_presentable_image </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_spirv_1_4.html"> VK_KHR_spirv_1_4 </a> </li>
@@ -116,6 +117,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_fragment_shader_interlock.html"> VK_EXT_fragment_shader_interlock </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_full_screen_exclusive.html"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_global_priority.html"> VK_EXT_global_priority </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_global_priority_query.html"> VK_EXT_global_priority_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_hdr_metadata.html"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_headless_surface.html"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
