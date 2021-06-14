@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.180 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.181 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.180 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.181 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.180,</span>
-<span id="revdate">2021-06-06 12:49:01Z</span>
-<br><span id="revremark">from git branch: github-main commit: b4e8cd820b2487bc892b391fb26b49501473a6a6</span>
+<span id="revnumber">version 1.1.181,</span>
+<span id="revdate">2021-06-14 04:19:48Z</span>
+<br><span id="revremark">from git branch: github-main commit: ee9ed265a687fc31837081c6594530c6979235a4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -634,19 +634,19 @@ For single precision types, it is invalid if the sequence of components gets
 larger than 3.</p>
 </div>
 <div class="paragraph">
-<p>When a vertex shader input variable declared using a scalar or vector 32-bit
-data type is assigned a location, its value(s) are taken from the components
-of the input attribute specified with the corresponding
+<p>When a vertex shader input variable declared using a 16- or 32-bit scalar or
+vector data type is assigned a location, its value(s) are taken from the
+components of the input attribute specified with the corresponding
 <code>VkVertexInputAttributeDescription</code>::<code>location</code>.
 The components used depend on the type of variable and the <code>Component</code>
 decoration specified in the variable declaration, as identified in
-<a href="chap21.html#fxvertex-attrib-components">Input attribute components accessed by 32-bit input variables</a>.
-Any 32-bit scalar or vector input will consume a single location.
-For 32-bit data types, missing components are filled in with default values
-as described <a href="chap21.html#fxvertex-input-extraction">below</a>.</p>
+<a href="chap21.html#fxvertex-attrib-components">Input attribute components accessed by 16-bit and 32-bit input variables</a>.
+Any 16-bit or 32-bit scalar or vector input will consume a single location.
+For 16-bit and 32-bit data types, missing components are filled in with
+default values as described <a href="chap21.html#fxvertex-input-extraction">below</a>.</p>
 </div>
 <table id="fxvertex-attrib-components" class="tableblock frame-all grid-all" style="width: 65%;">
-<caption class="title">Table 25. Input attribute components accessed by 32-bit input variables</caption>
+<caption class="title">Table 25. Input attribute components accessed by 16-bit and 32-bit input variables</caption>
 <colgroup>
 <col style="width: 45.4545%;">
 <col style="width: 27.2727%;">
@@ -654,7 +654,7 @@ as described <a href="chap21.html#fxvertex-input-extraction">below</a>.</p>
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">32-bit data type</th>
+<th class="tableblock halign-left valign-top">16-bit or 32-bit data type</th>
 <th class="tableblock halign-left valign-top"><code>Component</code> decoration</th>
 <th class="tableblock halign-left valign-top">Components consumed</th>
 </tr>
@@ -1019,8 +1019,8 @@ width integer-type components.</p>
 <div class="paragraph">
 <p>Applications specify vertex input attribute and vertex input binding
 descriptions as part of graphics pipeline creation by setting the
-<a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a>::<code>pVertexInputState</code> pointer to
-a <a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure.</p>
+<a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a>::<code>pVertexInputState</code> pointer to a
+<a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure.</p>
 </div>
 <div class="openblock">
 <div class="content">
@@ -1579,14 +1579,24 @@ converted from the <code>VkVertexInputAttributeDescription</code>’s <code>form
 either floating-point, unsigned integer, or signed integer based on the base
 type of the format; the base type of the format <strong class="purple">must</strong> match the base type of
 the input variable in the shader.
+The input variable in the shader <strong class="purple">must</strong> be declared as a 64-bit data type if
+and only if <code>format</code> is a 64-bit data type.
 If <code>format</code> is a packed format, <code>attribAddress</code> <strong class="purple">must</strong> be a multiple of
 the size in bytes of the whole attribute data type as described in
 <a href="chap39.html#formats-packed">Packed Formats</a>.
 Otherwise, <code>attribAddress</code> <strong class="purple">must</strong> be a multiple of the size in bytes of the
 component type indicated by <code>format</code> (see <a href="chap39.html">Formats</a>).
-If the format does not include G, B, or A components, then those are filled
-with <span class="eq">(0,0,1)</span> as needed (using either 1.0f or integer 1 based on the
-format) for attributes that are not 64-bit data types.
+For attributes that are not 64-bit data types, each component is converted
+to the format of the input variable based on its type and size (as defined
+in the <a href="chap39.html#formats-definition">Format Definition</a> section for each
+<a href="chap39.html#VkFormat">VkFormat</a>), using the appropriate equations in <a href="chap3.html#fundamentals-fp16">16-Bit Floating-Point Numbers</a>, <a href="chap3.html#fundamentals-fp11">Unsigned 11-Bit
+Floating-Point Numbers</a>, <a href="chap3.html#fundamentals-fp10">Unsigned 10-Bit Floating-Point
+Numbers</a>, <a href="chap3.html#fundamentals-fixedconv">Fixed-Point Data Conversion</a>, and
+<a href="chap16.html#textures-sexp-RGB">Shared Exponent to RGB</a>.
+Signed integer components smaller than 32 bits are sign-extended.
+Attributes that are not 64-bit data types are expanded to four components in
+the same was as described in <a href="chap16.html#textures-conversion-to-rgba">conversion to
+RGBA</a>.
 The number of components in the vertex shader input variable need not
 exactly match the number of components in the format.
 If the vertex shader has fewer components, the extra components are
@@ -1607,7 +1617,7 @@ discarded.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.180<br>
+Version 1.1.181<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
