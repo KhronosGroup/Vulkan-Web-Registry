@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.181 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.182 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.181 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.182 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.181,</span>
-<span id="revdate">2021-06-14 04:22:54Z</span>
-<br><span id="revremark">from git branch: github-main commit: ee9ed265a687fc31837081c6594530c6979235a4</span>
+<span id="revnumber">version 1.0.182,</span>
+<span id="revdate">2021-06-20 01:35:22Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1b32e9d5beeee44d81520cbf35193047e60dbf6b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1169,6 +1169,7 @@ and
 </div>
 <div class="paragraph">
 <p>Accesses to other input buffers as identified by any used values of
+<a href="chap36.html#VkAccelerationStructureGeometryMotionTrianglesDataNV">VkAccelerationStructureGeometryMotionTrianglesDataNV</a>::<code>vertexData</code>,
 <a href="chap36.html#VkAccelerationStructureGeometryTrianglesDataKHR">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>vertexData</code>,
 <a href="chap36.html#VkAccelerationStructureGeometryTrianglesDataKHR">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>indexData</code>,
 <a href="chap36.html#VkAccelerationStructureGeometryTrianglesDataKHR">VkAccelerationStructureGeometryTrianglesDataKHR</a>::<code>transformData</code>,
@@ -2757,6 +2758,34 @@ determine hit and intersection shaders executed during traversal</a>.
 The geometry index is available to ray queries via the
 <code>OpRayQueryGetIntersectionGeometryIndexKHR</code> instruction.</p>
 </div>
+<div id="acceleration-structure-motion-instances" class="paragraph">
+<p>Setting <code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> in <code>flags</code>
+indicates that this build is a motion top level acceleration structure.
+A motion top level uses instances of format
+<a href="chap36.html#VkAccelerationStructureMotionInstanceNV">VkAccelerationStructureMotionInstanceNV</a> if
+<a href="chap36.html#VkAccelerationStructureGeometryInstancesDataKHR">VkAccelerationStructureGeometryInstancesDataKHR</a>::<code>arrayOfPointers</code>
+is <code>VK_FALSE</code>.</p>
+</div>
+<div class="paragraph">
+<p>If
+<a href="chap36.html#VkAccelerationStructureGeometryInstancesDataKHR">VkAccelerationStructureGeometryInstancesDataKHR</a>::<code>arrayOfPointers</code>
+is <code>VK_TRUE</code>, the pointer for any given element of the array of instance
+pointers consists of 4 bits of
+<code>VkAccelerationStructureMotionInstanceTypeNV</code> in the low 4 bits of the
+pointer identifying the type of structure at the pointer.
+The device address accessed is the value in the array with the low 4 bits
+set to zero.
+The structure at the pointer is one of
+<a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a>,
+<a href="chap36.html#VkAccelerationStructureMatrixMotionInstanceNV">VkAccelerationStructureMatrixMotionInstanceNV</a> or
+<a href="chap36.html#VkAccelerationStructureSRTMotionInstanceNV">VkAccelerationStructureSRTMotionInstanceNV</a>, depending on the type
+value encoded in the low 4 bits.</p>
+</div>
+<div class="paragraph">
+<p>A top level acceleration structure with either motion instances or vertex
+motion in its instances <strong class="purple">must</strong> set
+<code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> in <code>flags</code>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -2832,6 +2861,30 @@ If <code>flags</code> has the
 <code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR</code> bit set,
 then it <strong class="purple">must</strong> not have the
 <code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR</code> bit set</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-dstAccelerationStructure-04927" href="chap36.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-dstAccelerationStructure-04927"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-dstAccelerationStructure-04927</span><br>
+
+If <code>dstAccelerationStructure</code> was created with
+<code>VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV</code> set in
+<a href="chap12.html#VkAccelerationStructureCreateInfoKHR">VkAccelerationStructureCreateInfoKHR</a>::<code>flags</code>,
+<code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> <strong class="purple">must</strong> be set in
+<code>flags</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04928" href="chap36.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04928"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04928</span><br>
+
+If <code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> is set in
+<code>flags</code>, <code>dstAccelerationStructure</code> <strong class="purple">must</strong> have been created with
+<code>VK_ACCELERATION_STRUCTURE_CREATE_MOTION_BIT_NV</code> set in
+<a href="chap12.html#VkAccelerationStructureCreateInfoKHR">VkAccelerationStructureCreateInfoKHR</a>::<code>flags</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04929" href="chap36.html#VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04929"></a> <span class="vuid">VUID-VkAccelerationStructureBuildGeometryInfoKHR-flags-04929</span><br>
+
+If <code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> is set in
+<code>flags</code>, <code>type</code> <strong class="purple">must</strong> not be
+<code>VK_ACCELERATION_STRUCTURE_TYPE_GENERIC_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -3195,7 +3248,11 @@ smallest component of <code>vertexFormat</code></p>
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureGeometryTrianglesDataKHR-pNext-pNext" href="chap36.html#VUID-VkAccelerationStructureGeometryTrianglesDataKHR-pNext-pNext"></a> <span class="vuid">VUID-VkAccelerationStructureGeometryTrianglesDataKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap36.html#VkAccelerationStructureGeometryMotionTrianglesDataNV">VkAccelerationStructureGeometryMotionTrianglesDataNV</a></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureGeometryTrianglesDataKHR-sType-unique" href="chap36.html#VUID-VkAccelerationStructureGeometryTrianglesDataKHR-sType-unique"></a> <span class="vuid">VUID-VkAccelerationStructureGeometryTrianglesDataKHR-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkAccelerationStructureGeometryTrianglesDataKHR-vertexFormat-parameter" href="chap36.html#VUID-VkAccelerationStructureGeometryTrianglesDataKHR-vertexFormat-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureGeometryTrianglesDataKHR-vertexFormat-parameter</span><br>
@@ -3204,6 +3261,64 @@ smallest component of <code>vertexFormat</code></p>
 <li>
 <p><a id="VUID-VkAccelerationStructureGeometryTrianglesDataKHR-indexType-parameter" href="chap36.html#VUID-VkAccelerationStructureGeometryTrianglesDataKHR-indexType-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureGeometryTrianglesDataKHR-indexType-parameter</span><br>
  <code>indexType</code> <strong class="purple">must</strong> be a valid <a href="chap21.html#VkIndexType">VkIndexType</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkAccelerationStructureGeometryMotionTrianglesDataNV</code> structure is
+defined as:</p>
+</div>
+<div id="VkAccelerationStructureGeometryMotionTrianglesDataNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkAccelerationStructureGeometryMotionTrianglesDataNV {
+    VkStructureType                  sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                      pNext;
+    VkDeviceOrHostAddressConstKHR    vertexData;
+} VkAccelerationStructureGeometryMotionTrianglesDataNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>vertexData</code> is a pointer to vertex data for this geometry at time
+1.0</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>VkAccelerationStructureGeometryMotionTrianglesDataNV</code> is present in
+a geometry, the basic vertex positions are used for the position of the
+triangles in the geometry at time 0.0 and the <code>vertexData</code> in
+<code>VkAccelerationStructureGeometryMotionTrianglesDataNV</code> is used for the
+vertex positions at time 1.0, with positions linearly interpolated at
+intermediate times.</p>
+</div>
+<div class="paragraph">
+<p>Indexing for <code>VkAccelerationStructureGeometryMotionTrianglesDataNV</code>
+<code>vertexData</code> is equivalent to the basic vertex position data.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkAccelerationStructureGeometryMotionTrianglesDataNV-sType-sType" href="chap36.html#VUID-VkAccelerationStructureGeometryMotionTrianglesDataNV-sType-sType"></a> <span class="vuid">VUID-VkAccelerationStructureGeometryMotionTrianglesDataNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV</code></p>
 </li>
 </ul>
 </div>
@@ -3443,8 +3558,17 @@ of addresses or just an array.</p>
 <li>
 <p><code>data</code> is either the address of an array of device or host addresses
 referencing individual <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a>
-structures if <code>arrayOfPointers</code> is <code>VK_TRUE</code>, or the address of
-an array of <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a> structures.</p>
+structures
+or packed motion instance information as described in
+    <a href="chap36.html#acceleration-structure-motion-instances">motion instances</a>
+    if <code>arrayOfPointers</code> is <code>VK_TRUE</code>, or the address of
+an array of <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a>
+or <a href="chap36.html#VkAccelerationStructureMotionInstanceNV">VkAccelerationStructureMotionInstanceNV</a>
+structures.
+    Addresses and <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a> structures
+    are tightly packed.
+    <a href="chap36.html#VkAccelerationStructureMotionInstanceNV">VkAccelerationStructureMotionInstanceNV</a> have a stride of 160
+    bytes.</p>
 </li>
 </ul>
 </div>
@@ -3701,6 +3825,589 @@ zero or more <a href="chap36.html#VkGeometryInstanceFlagBitsKHR">VkGeometryInsta
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p><em>Acceleration structure motion instances</em> <strong class="purple">can</strong> be built into top-level
+acceleration structures.
+Each acceleration structure instance is a separate entry in the top-level
+acceleration structure which includes all the geometry of a bottom-level
+acceleration structure at a transformed location including a type of motion
+and parameters to determine the motion of the instance over time.</p>
+</div>
+<div class="paragraph">
+<p>An acceleration structure motion instance is defined by the structure:</p>
+</div>
+<div id="VkAccelerationStructureMotionInstanceNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkAccelerationStructureMotionInstanceNV {
+    VkAccelerationStructureMotionInstanceTypeNV     type;
+    VkAccelerationStructureMotionInstanceFlagsNV    flags;
+    VkAccelerationStructureMotionInstanceDataNV     data;
+} VkAccelerationStructureMotionInstanceNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>type</code> is a <a href="chap36.html#VkAccelerationStructureMotionInstanceTypeNV">VkAccelerationStructureMotionInstanceTypeNV</a>
+enumerant identifying which type of motion instance this is and which
+type of the union is valid.</p>
+</li>
+<li>
+<p><code>flags</code> is currently unused, but is required to keep natural
+alignment of <code>data</code>.</p>
+</li>
+<li>
+<p><code>data</code> is a <a href="chap36.html#VkAccelerationStructureMotionInstanceDataNV">VkAccelerationStructureMotionInstanceDataNV</a>
+containing motion instance data for this instance.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If writing this other than with a standard C compiler, note that the final
+structure should be 152 bytes in size.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkAccelerationStructureMotionInstanceNV-type-parameter" href="chap36.html#VUID-VkAccelerationStructureMotionInstanceNV-type-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMotionInstanceNV-type-parameter</span><br>
+ <code>type</code> <strong class="purple">must</strong> be a valid <a href="chap36.html#VkAccelerationStructureMotionInstanceTypeNV">VkAccelerationStructureMotionInstanceTypeNV</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureMotionInstanceNV-flags-zerobitmask" href="chap36.html#VUID-VkAccelerationStructureMotionInstanceNV-flags-zerobitmask"></a> <span class="vuid">VUID-VkAccelerationStructureMotionInstanceNV-flags-zerobitmask</span><br>
+ <code>flags</code> <strong class="purple">must</strong> be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureMotionInstanceNV-staticInstance-parameter" href="chap36.html#VUID-VkAccelerationStructureMotionInstanceNV-staticInstance-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMotionInstanceNV-staticInstance-parameter</span><br>
+ If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV</code>, the <code>staticInstance</code> member of <code>data</code> <strong class="purple">must</strong> be a valid <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureMotionInstanceNV-matrixMotionInstance-parameter" href="chap36.html#VUID-VkAccelerationStructureMotionInstanceNV-matrixMotionInstance-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMotionInstanceNV-matrixMotionInstance-parameter</span><br>
+ If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV</code>, the <code>matrixMotionInstance</code> member of <code>data</code> <strong class="purple">must</strong> be a valid <a href="chap36.html#VkAccelerationStructureMatrixMotionInstanceNV">VkAccelerationStructureMatrixMotionInstanceNV</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkAccelerationStructureMotionInstanceNV-srtMotionInstance-parameter" href="chap36.html#VUID-VkAccelerationStructureMotionInstanceNV-srtMotionInstance-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMotionInstanceNV-srtMotionInstance-parameter</span><br>
+ If <code>type</code> is <code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV</code>, the <code>srtMotionInstance</code> member of <code>data</code> <strong class="purple">must</strong> be a valid <a href="chap36.html#VkAccelerationStructureSRTMotionInstanceNV">VkAccelerationStructureSRTMotionInstanceNV</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Acceleration structure motion instance is defined by the union:</p>
+</div>
+<div id="VkAccelerationStructureMotionInstanceDataNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">union</span> VkAccelerationStructureMotionInstanceDataNV {
+    VkAccelerationStructureInstanceKHR               staticInstance;
+    VkAccelerationStructureMatrixMotionInstanceNV    matrixMotionInstance;
+    VkAccelerationStructureSRTMotionInstanceNV       srtMotionInstance;
+} VkAccelerationStructureMotionInstanceDataNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>staticInstance</code> is a <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a>
+structure containing data for a static instance.</p>
+</li>
+<li>
+<p><code>matrixMotionInstance</code> is a
+<a href="chap36.html#VkAccelerationStructureMatrixMotionInstanceNV">VkAccelerationStructureMatrixMotionInstanceNV</a> structure containing
+data for a matrix motion instance.</p>
+</li>
+<li>
+<p><code>srtMotionInstance</code> is a
+<a href="chap36.html#VkAccelerationStructureSRTMotionInstanceNV">VkAccelerationStructureSRTMotionInstanceNV</a> structure containing
+data for an SRT motion instance.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkAccelerationStructureMotionInstanceTypeNV</code> enumeration is defined
+as:</p>
+</div>
+<div id="VkAccelerationStructureMotionInstanceTypeNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">enum</span> VkAccelerationStructureMotionInstanceTypeNV {
+    VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV = <span class="integer">0</span>,
+    VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV = <span class="integer">1</span>,
+    VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV = <span class="integer">2</span>,
+} VkAccelerationStructureMotionInstanceTypeNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV</code> specifies
+that the instance is a static instance with no instance motion.</p>
+</li>
+<li>
+<p><code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV</code>
+specifies that the instance is a motion instance with motion specified
+by interpolation between two matrices.</p>
+</li>
+<li>
+<p><code>VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV</code>
+specifies that the instance is a motion instance with motion specified
+by interpolation in the SRT decomposition.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>An acceleration structure matrix motion instance is defined by the
+structure:</p>
+</div>
+<div id="VkAccelerationStructureMatrixMotionInstanceNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkAccelerationStructureMatrixMotionInstanceNV {
+    VkTransformMatrixKHR          transformT0;
+    VkTransformMatrixKHR          transformT1;
+    uint32_t                      instanceCustomIndex:<span class="integer">24</span>;
+    uint32_t                      mask:<span class="integer">8</span>;
+    uint32_t                      instanceShaderBindingTableRecordOffset:<span class="integer">24</span>;
+    VkGeometryInstanceFlagsKHR    flags:<span class="integer">8</span>;
+    uint64_t                      accelerationStructureReference;
+} VkAccelerationStructureMatrixMotionInstanceNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>transformT0</code> is a <a href="chap36.html#VkTransformMatrixKHR">VkTransformMatrixKHR</a> structure describing a
+transformation to be applied to the acceleration structure at time 0.</p>
+</li>
+<li>
+<p><code>transformT1</code> is a <a href="chap36.html#VkTransformMatrixKHR">VkTransformMatrixKHR</a> structure describing a
+transformation to be applied to the acceleration structure at time 1.</p>
+</li>
+<li>
+<p><code>instanceCustomIndex</code> is a 24-bit user-specified index value
+accessible to ray shaders in the <code>InstanceCustomIndexKHR</code> built-in.</p>
+</li>
+<li>
+<p><code>mask</code> is an 8-bit visibility mask for the geometry.
+The instance <strong class="purple">may</strong> only be hit if <code>rayMask &amp; instance.mask != 0</code></p>
+</li>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> is a 24-bit offset used in
+calculating the hit shader binding table index.</p>
+</li>
+<li>
+<p><code>flags</code> is an 8-bit mask of <a href="chap36.html#VkGeometryInstanceFlagBitsKHR">VkGeometryInstanceFlagBitsKHR</a>
+values to apply to this instance.</p>
+</li>
+<li>
+<p><code>accelerationStructureReference</code> is either:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a device address containing the value obtained from
+<a href="chap12.html#vkGetAccelerationStructureDeviceAddressKHR">vkGetAccelerationStructureDeviceAddressKHR</a>
+or
+<a href="chap12.html#vkGetAccelerationStructureHandleNV">vkGetAccelerationStructureHandleNV</a>
+     (used by device operations which reference acceleration structures) or,</p>
+</li>
+<li>
+<p>a <a href="chap12.html#VkAccelerationStructureKHR">VkAccelerationStructureKHR</a> object (used by host operations
+which reference acceleration structures).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The C language spec does not define the ordering of bit-fields, but in
+practice, this struct produces the correct layout with existing compilers.
+The intended bit pattern is for the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceCustomIndex</code> and <code>mask</code> occupy the same memory as if a
+single <code>uint32_t</code> was specified in their place</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceCustomIndex</code> occupies the 24 least significant bits of
+that memory</p>
+</li>
+<li>
+<p><code>mask</code> occupies the 8 most significant bits of that memory</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> and <code>flags</code> occupy the
+same memory as if a single <code>uint32_t</code> was specified in their place</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> occupies the 24 least
+significant bits of that memory</p>
+</li>
+<li>
+<p><code>flags</code> occupies the 8 most significant bits of that memory</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If a compiler produces code that diverges from that pattern, applications
+<strong class="purple">must</strong> employ another method to set values according to the correct bit
+pattern.</p>
+</div>
+<div class="paragraph">
+<p>The transform for a matrix motion instance at a point in time is derived by
+component-wise linear interpolation of the two transforms.
+That is, for a <code>time</code> in [0,1] the resulting transform is</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq"><code>transformT0</code> × (1 - <code>time</code>) + 
+<code>transformT1</code> × <code>time</code></span></p>
+</dd>
+</dl>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkAccelerationStructureMatrixMotionInstanceNV-flags-parameter" href="chap36.html#VUID-VkAccelerationStructureMatrixMotionInstanceNV-flags-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureMatrixMotionInstanceNV-flags-parameter</span><br>
+ <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="chap36.html#VkGeometryInstanceFlagBitsKHR">VkGeometryInstanceFlagBitsKHR</a> values</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>An acceleration structure SRT motion instance is defined by the structure:</p>
+</div>
+<div id="VkAccelerationStructureSRTMotionInstanceNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkAccelerationStructureSRTMotionInstanceNV {
+    VkSRTDataNV                   transformT0;
+    VkSRTDataNV                   transformT1;
+    uint32_t                      instanceCustomIndex:<span class="integer">24</span>;
+    uint32_t                      mask:<span class="integer">8</span>;
+    uint32_t                      instanceShaderBindingTableRecordOffset:<span class="integer">24</span>;
+    VkGeometryInstanceFlagsKHR    flags:<span class="integer">8</span>;
+    uint64_t                      accelerationStructureReference;
+} VkAccelerationStructureSRTMotionInstanceNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>transformT0</code> is a <a href="chap36.html#VkSRTDataNV">VkSRTDataNV</a> structure describing a
+transformation to be applied to the acceleration structure at time 0.</p>
+</li>
+<li>
+<p><code>transformT1</code> is a <a href="chap36.html#VkSRTDataNV">VkSRTDataNV</a> structure describing a
+transformation to be applied to the acceleration structure at time 1.</p>
+</li>
+<li>
+<p><code>instanceCustomIndex</code> is a 24-bit user-specified index value
+accessible to ray shaders in the <code>InstanceCustomIndexKHR</code> built-in.</p>
+</li>
+<li>
+<p><code>mask</code> is an 8-bit visibility mask for the geometry.
+The instance <strong class="purple">may</strong> only be hit if <code>rayMask &amp; instance.mask != 0</code></p>
+</li>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> is a 24-bit offset used in
+calculating the hit shader binding table index.</p>
+</li>
+<li>
+<p><code>flags</code> is an 8-bit mask of <a href="chap36.html#VkGeometryInstanceFlagBitsKHR">VkGeometryInstanceFlagBitsKHR</a>
+values to apply to this instance.</p>
+</li>
+<li>
+<p><code>accelerationStructureReference</code> is either:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a device address containing the value obtained from
+<a href="chap12.html#vkGetAccelerationStructureDeviceAddressKHR">vkGetAccelerationStructureDeviceAddressKHR</a>
+or
+<a href="chap12.html#vkGetAccelerationStructureHandleNV">vkGetAccelerationStructureHandleNV</a>
+     (used by device operations which reference acceleration structures) or,</p>
+</li>
+<li>
+<p>a <a href="chap12.html#VkAccelerationStructureKHR">VkAccelerationStructureKHR</a> object (used by host operations
+which reference acceleration structures).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The C language spec does not define the ordering of bit-fields, but in
+practice, this struct produces the correct layout with existing compilers.
+The intended bit pattern is for the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceCustomIndex</code> and <code>mask</code> occupy the same memory as if a
+single <code>uint32_t</code> was specified in their place</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceCustomIndex</code> occupies the 24 least significant bits of
+that memory</p>
+</li>
+<li>
+<p><code>mask</code> occupies the 8 most significant bits of that memory</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> and <code>flags</code> occupy the
+same memory as if a single <code>uint32_t</code> was specified in their place</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>instanceShaderBindingTableRecordOffset</code> occupies the 24 least
+significant bits of that memory</p>
+</li>
+<li>
+<p><code>flags</code> occupies the 8 most significant bits of that memory</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If a compiler produces code that diverges from that pattern, applications
+<strong class="purple">must</strong> employ another method to set values according to the correct bit
+pattern.</p>
+</div>
+<div class="paragraph">
+<p>The transform for a SRT motion instance at a point in time is derived from
+component-wise linear interpolation of the two SRT transforms.
+That is, for a <code>time</code> in [0,1] the resulting transform is</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq"><code>transformT0</code> × (1 - <code>time</code>) + 
+<code>transformT1</code> × <code>time</code></span></p>
+</dd>
+</dl>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkAccelerationStructureSRTMotionInstanceNV-flags-parameter" href="chap36.html#VUID-VkAccelerationStructureSRTMotionInstanceNV-flags-parameter"></a> <span class="vuid">VUID-VkAccelerationStructureSRTMotionInstanceNV-flags-parameter</span><br>
+ <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="chap36.html#VkGeometryInstanceFlagBitsKHR">VkGeometryInstanceFlagBitsKHR</a> values</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>An acceleration structure SRT transform is defined by the structure:</p>
+</div>
+<div id="VkSRTDataNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkSRTDataNV {
+    <span class="predefined-type">float</span>    sx;
+    <span class="predefined-type">float</span>    a;
+    <span class="predefined-type">float</span>    b;
+    <span class="predefined-type">float</span>    pvx;
+    <span class="predefined-type">float</span>    sy;
+    <span class="predefined-type">float</span>    c;
+    <span class="predefined-type">float</span>    pvy;
+    <span class="predefined-type">float</span>    sz;
+    <span class="predefined-type">float</span>    pvz;
+    <span class="predefined-type">float</span>    qx;
+    <span class="predefined-type">float</span>    qy;
+    <span class="predefined-type">float</span>    qz;
+    <span class="predefined-type">float</span>    qw;
+    <span class="predefined-type">float</span>    tx;
+    <span class="predefined-type">float</span>    ty;
+    <span class="predefined-type">float</span>    tz;
+} VkSRTDataNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sx</code> is the x component of the scale of the transform</p>
+</li>
+<li>
+<p><code>a</code> is one component of the shear for the transform</p>
+</li>
+<li>
+<p><code>b</code> is one component of the shear for the transform</p>
+</li>
+<li>
+<p><code>pvx</code> is the x component of the pivot point of the transform</p>
+</li>
+<li>
+<p><code>sy</code> is the y component of the scale of the transform</p>
+</li>
+<li>
+<p><code>c</code> is one component of the shear for the transform</p>
+</li>
+<li>
+<p><code>pvy</code> is the y component of the pivot point of the transform</p>
+</li>
+<li>
+<p><code>sz</code> is the z component of the scale of the transform</p>
+</li>
+<li>
+<p><code>pvz</code> is the z component of the pivot point of the transform</p>
+</li>
+<li>
+<p><code>qx</code> is the x component of the rotation quaternion</p>
+</li>
+<li>
+<p><code>qy</code> is the y component of the rotation quaternion</p>
+</li>
+<li>
+<p><code>qz</code> is the z component of the rotation quaternion</p>
+</li>
+<li>
+<p><code>qw</code> is the w component of the rotation quaternion</p>
+</li>
+<li>
+<p><code>tx</code> is the x component of the post-rotation translation</p>
+</li>
+<li>
+<p><code>ty</code> is the y component of the post-rotation translation</p>
+</li>
+<li>
+<p><code>tz</code> is the z component of the post-rotation translation</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This transform decomposition consists of three elements.
+The first is a matrix S, consisting of a scale, shear, and translation,
+usually used to define the pivot point of the following rotation.
+This matrix is constructed from the parameters above by:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.60004em;vertical-align:-1.55002em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="mord mathdefault">x</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">a</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">b</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">c</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">x</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span></span></span></span></span></span>
+</div>
+</div>
+<div class="paragraph">
+<p>The rotation quaternion is defined as:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq"><code>R</code> = [ <code>qx</code>, <code>qy</code>, <code>qz</code>, <code>qw</code> ]</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This is a rotation around a conceptual normalized axis <span class="eq">[ ax, ay, az ]</span>
+of amount <code>theta</code> such that:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[ <code>qx</code>, <code>qy</code>, <code>qz</code> ] = sin(<code>theta</code>/2)
+× [ <code>ax</code>, <code>ay</code>, <code>az</code> ]</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>and</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq"><code>qw</code> = cos(<code>theta</code>/2)</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Finally, the transform has a translation T constructed from the parameters
+above by:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:3.60004em;vertical-align:-1.55002em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎝</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎜</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎛</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span><span class="mord"><span class="mtable"><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">0</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:0.5em;"></span><span class="arraycolsep" style="width:0.5em;"></span><span class="col-align-c"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.21em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="mord mathdefault">x</span></span></span><span style="top:-3.0099999999999993em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span><span style="top:-1.8099999999999994em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.5500000000000007em;"><span></span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05002em;"><span style="top:-2.2500000000000004em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎠</span></span></span><span style="top:-2.8100000000000005em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎟</span></span></span><span style="top:-4.05002em;"><span class="pstrut" style="height:3.1550000000000002em;"></span><span class="delimsizinginner delim-size4"><span>⎞</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55002em;"><span></span></span></span></span></span></span></span></span></span></span></span>
+</div>
+</div>
+<div class="paragraph">
+<p>The effective derived transform is then given by</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq"><code>T</code> × <code>R</code> × <code>S</code></span></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p><code>VkAccelerationStructureBuildRangeInfoKHR</code> is defined as:</p>
 </div>
 <div id="VkAccelerationStructureBuildRangeInfoKHR" class="listingblock">
@@ -3781,8 +4488,9 @@ starting at an offset of <code>primitiveOffset</code>.</p>
 <li>
 <p>For geometries of type <code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code>,
 <code>primitiveCount</code> is the number of acceleration structures.
-<code>primitiveCount</code> <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a> structures
-are consumed from
+<code>primitiveCount</code> <a href="chap36.html#VkAccelerationStructureInstanceKHR">VkAccelerationStructureInstanceKHR</a>
+or <a href="chap36.html#VkAccelerationStructureMotionInstanceNV">VkAccelerationStructureMotionInstanceNV</a>
+    structures are consumed from
 <a href="chap36.html#VkAccelerationStructureGeometryInstancesDataKHR">VkAccelerationStructureGeometryInstancesDataKHR</a>::<code>data</code>,
 starting at an offset of <code>primitiveOffset</code>.</p>
 </li>
@@ -6054,6 +6762,18 @@ For any element of <code>pInfos</code>[i].<code>pGeometries</code> or
 value in <code>geometry.instances.data.hostAddress</code> must be a valid
 <a href="chap12.html#VkAccelerationStructureKHR">VkAccelerationStructureKHR</a> object</p>
 </li>
+<li>
+<p><a id="VUID-vkBuildAccelerationStructuresKHR-pInfos-04930" href="chap36.html#VUID-vkBuildAccelerationStructuresKHR-pInfos-04930"></a> <span class="vuid">VUID-vkBuildAccelerationStructuresKHR-pInfos-04930</span><br>
+
+For any element of <code>pInfos</code>[i].<code>pGeometries</code> or
+<code>pInfos</code>[i].<code>ppGeometries</code> with a <code>geometryType</code> of
+<code>VK_GEOMETRY_TYPE_INSTANCES_KHR</code> with
+<code>VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV</code> set, each
+<code>accelerationStructureReference</code> in any structure in
+<a href="chap36.html#VkAccelerationStructureMotionInstanceNV">VkAccelerationStructureMotionInstanceNV</a> value in
+<code>geometry.instances.data.hostAddress</code> must be a valid
+<a href="chap12.html#VkAccelerationStructureKHR">VkAccelerationStructureKHR</a> object</p>
+</li>
 </ul>
 </div>
 </div>
@@ -6813,7 +7533,7 @@ allocated with multiple instances</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.181<br>
+Version 1.0.182<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

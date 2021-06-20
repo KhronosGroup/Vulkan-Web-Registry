@@ -86,6 +86,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_zero_initialize_workgroup_memory.html"> VK_KHR_zero_initialize_workgroup_memory </a> </li>
     <li> <b>  EXT Extensions (Multivendor)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_4444_formats.html"> VK_EXT_4444_formats </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_drm_display.html"> VK_EXT_acquire_drm_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_astc_decode_mode.html"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_blend_operation_advanced.html"> VK_EXT_blend_operation_advanced </a> </li>
@@ -129,7 +130,9 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_budget.html"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_priority.html"> VK_EXT_memory_priority </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_surface.html"> VK_EXT_metal_surface </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multi_draw.html"> VK_EXT_multi_draw </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pci_bus_info.html"> VK_EXT_pci_bus_info </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_physical_device_drm.html"> VK_EXT_physical_device_drm </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
@@ -200,6 +203,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_display_timing.html"> VK_GOOGLE_display_timing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_hlsl_functionality1.html"> VK_GOOGLE_hlsl_functionality1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_user_type.html"> VK_GOOGLE_user_type </a> </li>
+    <li> <b>  HUAWEI Extensions (Huawei Technologies Co. Ltd.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_HUAWEI_subpass_shading.html"> VK_HUAWEI_subpass_shading </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_IMG_filter_cubic.html"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_IMG_format_pvrtc.html"> VK_IMG_format_pvrtc </a> </li>
@@ -236,6 +241,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_representative_fragment_test.html"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_sample_mask_override_coverage.html"> VK_NV_sample_mask_override_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_scissor_exclusive.html"> VK_NV_scissor_exclusive </a> </li>
