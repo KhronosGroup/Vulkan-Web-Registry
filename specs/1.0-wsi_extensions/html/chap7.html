@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.182 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.183 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.182 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.183 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.182,</span>
-<span id="revdate">2021-06-20 01:31:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1b32e9d5beeee44d81520cbf35193047e60dbf6b</span>
+<span id="revnumber">version 1.0.183,</span>
+<span id="revdate">2021-06-27 14:16:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1934d6f0eee2ca4a2794fed548521b11a33343a6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -439,6 +439,7 @@
 <li><a href="chap42.html#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="chap42.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="chap42.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="chap42.html#spirvenv-image-signedness">Signedness of SPIR-V Image Accesses</a></li>
 <li><a href="chap42.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="chap42.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
@@ -1020,7 +1021,9 @@ shader stage.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT_KHR</code> is
-equivalent to specifying all supported stages from:</p>
+equivalent to specifying all supported
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stages</a>:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -6374,7 +6377,7 @@ A mask of <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> prevents
 subsequent color attachment writes from executing until the semaphore
 signals.
 Some implementations <strong class="purple">may</strong> be able to execute transfer operations and/or
-vertex processing work before the semaphore is signaled.</p>
+pre-rasterization work before the semaphore is signaled.</p>
 </div>
 <div class="paragraph">
 <p>If an image layout transition needs to be performed on a presentable image
@@ -6414,7 +6417,9 @@ the image’s contents need not be preserved.</p>
 <p>This barrier accomplishes a dependency chain between previous presentation
 operations and subsequent color attachment output operations, with the
 layout transition performed in between, and does not introduce a dependency
-between previous work and any vertex processing stages.
+between previous work and any
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a>s.
 More precisely, the semaphore signals after the presentation operation
 completes, the semaphore wait stalls the
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> stage, and there is a
@@ -8568,14 +8573,14 @@ operation occurs.</p>
 <li>
 <p><a id="VUID-vkResetEvent-event-03821" href="chap7.html#VUID-vkResetEvent-event-03821"></a> <span class="vuid">VUID-vkResetEvent-event-03821</span><br>
 
-There <strong class="purple">must</strong> be an execution dependency between <code>vkCmdResetEvent</code> and
+There <strong class="purple">must</strong> be an execution dependency between <code>vkResetEvent</code> and
 the execution of any <a href="chap7.html#vkCmdWaitEvents">vkCmdWaitEvents</a> that includes <code>event</code> in
 its <code>pEvents</code> parameter</p>
 </li>
 <li>
 <p><a id="VUID-vkResetEvent-event-03822" href="chap7.html#VUID-vkResetEvent-event-03822"></a> <span class="vuid">VUID-vkResetEvent-event-03822</span><br>
 
-There <strong class="purple">must</strong> be an execution dependency between <code>vkCmdResetEvent</code> and
+There <strong class="purple">must</strong> be an execution dependency between <code>vkResetEvent</code> and
 the execution of any <a href="chap7.html#vkCmdWaitEvents2KHR">vkCmdWaitEvents2KHR</a> that includes <code>event</code>
 in its <code>pEvents</code> parameter</p>
 </li>
@@ -11055,16 +11060,18 @@ structure.</p>
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">first synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">first access scope</a>.</p>
+<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">first
+access scope</a>.</p>
 </li>
 <li>
 <p><code>dstStageMask</code> is a <a href="chap7.html#VkPipelineStageFlags2KHR">VkPipelineStageFlags2KHR</a> mask of pipeline
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">second synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">second access scope</a>.</p>
+<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">second
+access scope</a>.</p>
 </li>
 </ul>
 </div>
@@ -11140,6 +11147,7 @@ If <code>srcAccessMask</code> includes
 If <code>srcAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>srcStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -11379,6 +11387,7 @@ If <code>dstAccessMask</code> includes
 If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>dstStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -11720,16 +11729,18 @@ structure.</p>
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">first synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">first access scope</a>.</p>
+<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">first
+access scope</a>.</p>
 </li>
 <li>
 <p><code>dstStageMask</code> is a <a href="chap7.html#VkPipelineStageFlags2KHR">VkPipelineStageFlags2KHR</a> mask of pipeline
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">second synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">second access scope</a>.</p>
+<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">second
+access scope</a>.</p>
 </li>
 <li>
 <p><code>srcQueueFamilyIndex</code> is the source queue family for a
@@ -11861,6 +11872,7 @@ If <code>srcAccessMask</code> includes
 If <code>srcAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>srcStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -12100,6 +12112,7 @@ If <code>dstAccessMask</code> includes
 If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>dstStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -12643,16 +12656,18 @@ structure.</p>
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">first synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">first access scope</a>.</p>
+<p><code>srcAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">first
+access scope</a>.</p>
 </li>
 <li>
 <p><code>dstStageMask</code> is a <a href="chap7.html#VkPipelineStageFlags2KHR">VkPipelineStageFlags2KHR</a> mask of pipeline
 stages to be included in the <a href="chap7.html#synchronization-dependencies-scopes">second synchronization scope</a>.</p>
 </li>
 <li>
-<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of pipeline
-<a href="chap7.html#synchronization-dependencies-access-scopes">second access scope</a>.</p>
+<p><code>dstAccessMask</code> is a <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> mask of access flags to
+be included in the <a href="chap7.html#synchronization-dependencies-access-scopes">second
+access scope</a>.</p>
 </li>
 <li>
 <p><code>oldLayout</code> is the old layout in an
@@ -12818,6 +12833,7 @@ If <code>srcAccessMask</code> includes
 If <code>srcAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>srcStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -13057,6 +13073,7 @@ If <code>dstAccessMask</code> includes
 If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_INPUT_ATTACHMENT_READ_BIT_KHR</code>, <code>dstStageMask</code>
 <strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT_KHR</code>,
+<code>VK_PIPELINE_STAGE_2_SUBPASS_SHADING_BIT_HUAWEI</code>,
 <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT_KHR</code>, or
 <code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT_KHR</code></p>
 </li>
@@ -14504,7 +14521,7 @@ waited on by a different physical device.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.182<br>
+Version 1.0.183<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

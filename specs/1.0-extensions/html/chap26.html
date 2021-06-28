@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.182 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.183 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.182 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.183 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.182,</span>
-<span id="revdate">2021-06-20 01:35:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1b32e9d5beeee44d81520cbf35193047e60dbf6b</span>
+<span id="revnumber">version 1.0.183,</span>
+<span id="revdate">2021-06-27 14:19:26Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1934d6f0eee2ca4a2794fed548521b11a33343a6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -508,6 +508,7 @@
 <li><a href="chap46.html#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="chap46.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="chap46.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="chap46.html#spirvenv-image-signedness">Signedness of SPIR-V Image Accesses</a></li>
 <li><a href="chap46.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="chap46.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
@@ -601,8 +602,9 @@
 <h2 id="vertexpostproc"><a class="anchor" href="chap26.html"></a>26. Fixed-Function Vertex Post-Processing</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>After programmable vertex processing, the following fixed-function
-operations are applied to vertices of the resulting primitives:</p>
+<p>After <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stages</a>, the following fixed-function operations are applied to vertices of
+the resulting primitives:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -651,10 +653,13 @@ Viewport W Scaling</a>).</p>
 <h3 id="vertexpostproc-transform-feedback"><a class="anchor" href="chap26.html#vertexpostproc-transform-feedback"></a>26.1. Transform Feedback</h3>
 <div class="paragraph">
 <p>Before any other fixed-function vertex post-processing, vertex outputs from
-the last shader in the vertex processing stage <strong class="purple">can</strong> be written out to one or
-more transform feedback buffers bound to the command buffer.
-To capture vertex outputs the last vertex processing stage shader <strong class="purple">must</strong> be
-declared with the <code>Xfb</code> execution mode.
+the last shader in the
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> <strong class="purple">can</strong> be written out to one or more transform feedback buffers bound
+to the command buffer.
+To capture vertex outputs the last
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader <strong class="purple">must</strong> be declared with the <code>Xfb</code> execution mode.
 Outputs decorated with <code>XfbBuffer</code> will be written out to the
 corresponding transform feedback buffers bound to the command buffer when
 transform feedback is active.
@@ -1156,8 +1161,9 @@ containing
 <li>
 <p><a id="VUID-vkCmdBeginTransformFeedbackEXT-None-04128" href="chap26.html#VUID-vkCmdBeginTransformFeedbackEXT-None-04128"></a> <span class="vuid">VUID-vkCmdBeginTransformFeedbackEXT-None-04128</span><br>
 
-The last vertex processing stage of the bound graphics pipeline <strong class="purple">must</strong>
-have been declared with the <code>Xfb</code> execution mode</p>
+The last <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization
+shader stage</a> of the bound graphics pipeline <strong class="purple">must</strong> have been declared
+with the <code>Xfb</code> execution mode</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBeginTransformFeedbackEXT-None-02373" href="chap26.html#VUID-vkCmdBeginTransformFeedbackEXT-None-02373"></a> <span class="vuid">VUID-vkCmdBeginTransformFeedbackEXT-None-02373</span><br>
@@ -2978,25 +2984,28 @@ mask, but is currently reserved for future use.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>A <em>vertex processing stage</em> <strong class="purple">can</strong> direct each primitive to zero or more
-viewports.
+<p>A <em><a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a></em> <strong class="purple">can</strong> direct each primitive to zero or more viewports.
 The destination viewports for a primitive are selected by the last active
-vertex processing stage that has an output variable decorated with
-<code>ViewportIndex</code> (selecting a single viewport) or <code>ViewportMaskNV</code>
-(selecting multiple viewports).
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> that has an output variable decorated with <code>ViewportIndex</code>
+(selecting a single viewport) or <code>ViewportMaskNV</code> (selecting multiple
+viewports).
 The viewport transform uses the viewport corresponding to either the value
 assigned to <code>ViewportIndex</code> or one of the bits set in
 <code>ViewportMaskNV</code>, and taken from an implementation-dependent vertex of
 each primitive.
 If <code>ViewportIndex</code> or any of the bits in <code>ViewportMaskNV</code> are outside
 the range zero to <code>viewportCount</code> minus one for a primitive, or if the
-last active vertex processing stage did not assign a value to either
-<code>ViewportIndex</code> or <code>ViewportMaskNV</code> for all vertices of a primitive
-due to flow control, the values resulting from the viewport transformation
-of the vertices of such primitives are undefined.
-If the last vertex processing stage does not have an output decorated with
-<code>ViewportIndex</code> or <code>ViewportMaskNV</code>, the viewport numbered zero is
-used by the viewport transformation.</p>
+last active <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization
+shader stage</a> did not assign a value to either <code>ViewportIndex</code> or
+<code>ViewportMaskNV</code> for all vertices of a primitive due to flow control, the
+values resulting from the viewport transformation of the vertices of such
+primitives are undefined.
+If the last <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization
+shader stage</a> does not have an output decorated with <code>ViewportIndex</code> or
+<code>ViewportMaskNV</code>, the viewport numbered zero is used by the viewport
+transformation.</p>
 </div>
 <div class="paragraph">
 <p>A single vertex <strong class="purple">can</strong> be used in more than one individual primitive, in
@@ -3265,8 +3274,9 @@ When using a negative <code>height</code>, the application <strong class="purple
 <code>y</code> value to point to the lower left corner of the viewport instead of
 the upper left corner.
 Using the negative <code>height</code> allows the application to avoid having to
-negate the y component of the <code>Position</code> output from the last vertex
-processing stage in shaders that also target other graphics APIs.</p>
+negate the y component of the <code>Position</code> output from the last
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a>.</p>
 </div>
 <div class="paragraph">
 <p>The width and height of the <a href="chap42.html#limits-maxViewportDimensions">implementation-dependent maximum viewport dimensions</a> <strong class="purple">must</strong> be greater than
@@ -3365,7 +3375,7 @@ Unless <code><a href="chap50.html#VK_EXT_depth_range_unrestricted">VK_EXT_depth_
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.182<br>
+Version 1.0.183<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

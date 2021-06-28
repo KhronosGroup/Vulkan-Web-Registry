@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.182 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.183 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.182 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.183 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.182,</span>
-<span id="revdate">2021-06-20 01:31:58Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1b32e9d5beeee44d81520cbf35193047e60dbf6b</span>
+<span id="revnumber">version 1.1.183,</span>
+<span id="revdate">2021-06-27 14:16:18Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1934d6f0eee2ca4a2794fed548521b11a33343a6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -441,6 +441,7 @@
 <li><a href="chap42.html#spirvenv-capabilities">Capabilities</a></li>
 <li><a href="chap42.html#spirvenv-module-validation">Validation Rules within a Module</a></li>
 <li><a href="chap42.html#spirvenv-precision-operation">Precision and Operation of SPIR-V Instructions</a></li>
+<li><a href="chap42.html#spirvenv-image-signedness">Signedness of SPIR-V Image Accesses</a></li>
 <li><a href="chap42.html#spirvenv-format-type-matching">Image Format and Type Matching</a></li>
 <li><a href="chap42.html#spirvenv-image-formats">Compatibility Between SPIR-V Image Formats And Vulkan Formats</a></li>
 </ul>
@@ -598,6 +599,26 @@ that, when using SPIR-V versions 1.4 and earlier: <code>Block</code>,
 also decorate types and type members used by variables in the Private and
 Function storage classes.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>In this chapter, there are references to SPIR-V terms such as the
+<code>MeshNV</code> execution model.
+These terms will appear even in a build of the specification which does not
+support any extensions.
+This is as intended, since these terms appear in the unified SPIR-V
+specification without such qualifiers.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
 <div class="sect2">
 <h3 id="interfaces-iointerfaces"><a class="anchor" href="chap15.html#interfaces-iointerfaces"></a>15.1. Shader Input and Output Interfaces</h3>
 <div class="paragraph">
@@ -675,74 +696,74 @@ also be identified with a <code>Component</code> decoration.</p>
 <div class="sect3">
 <h4 id="interfaces-iointerfaces-matching"><a class="anchor" href="chap15.html#interfaces-iointerfaces-matching"></a>15.1.3. Interface Matching</h4>
 <div class="paragraph">
-<p>Interface matching rules only apply to built-ins when they are declared as
-members of the built-in interface block.</p>
-</div>
-<div class="paragraph">
-<p>Tessellation control
-shader per-vertex output variables and blocks, and tessellation control,
-tessellation evaluation, and geometry shader per-vertex input variables and
-blocks are required to be declared as arrays, with each element representing
-input or output values for a single vertex of a multi-vertex primitive.
-For the purposes of interface matching, the outermost array dimension of
-such variables and blocks is ignored.</p>
-</div>
-<div class="paragraph">
-<p>A user-defined output variable is considered to match an input variable in
-the subsequent stage if the two variables are declared with the same
-<code>Location</code> and <code>Component</code> decoration and match in type and
-decoration, except that <a href="chap9.html#shaders-interpolation-decorations">interpolation
-decorations</a> are not <strong class="purple">required</strong> to match.
-For the purposes of interface matching, variables declared without a
-<code>Component</code> decoration are considered to have a <code>Component</code> decoration
-of zero.</p>
-</div>
-<div class="paragraph">
-<p>Variables or block members declared as structures are considered to match in
-type if and only if the structure members match in type, decoration, number,
-and declaration order.
-Variables or block members declared as arrays are considered to match in
-type only if both declarations specify the same element type and size.</p>
-</div>
-<div class="paragraph">
-<p>At an interface between two non-fragment shader stages, the built-in
-interface block <strong class="purple">must</strong> match exactly, as described
-above.
-At an interface involving the fragment shader inputs, the presence or
-absence of any built-in output does not affect the interface matching.</p>
-</div>
-<div class="paragraph">
-<p>At an interface between two shader stages, the user-defined variable
-interface <strong class="purple">must</strong> match exactly, as described above.</p>
-</div>
-<div class="paragraph">
-<p>Any input value to a shader stage is well-defined as long as the preceding
-stage writes to a matching output, as described above.</p>
-</div>
-<div class="paragraph">
-<p>Additionally, scalar and vector inputs are well-defined if there is a
-corresponding output satisfying all of the following conditions:</p>
+<p>An output variable, block, or structure member in a given shader stage has
+an interface match with an input variable, block, or structure member in a
+subsequent shader stage if they both adhere to the following conditions:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>the input and output match exactly in decoration,</p>
+<p>They have equivalent decorations, other than:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap9.html#shaders-interpolation-decorations">Interpolation decorations</a></p>
 </li>
 <li>
-<p>the output is a vector with the same basic type and has at least as many
-components as the input, and</p>
-</li>
-<li>
-<p>the common component type of the input and output is
-16-bit integer or floating-point, or
-32-bit integer or floating-point (64-bit component types are excluded).</p>
+<p>one is not decorated with <code>Component</code> and the other is declared with
+a <code>Component</code> of <code>0</code></p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>Their types match as follows:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>if the input is declared in a tessellation control or geometry shader
+as an <code>OpTypeArray</code> with an <code>Element</code> <code>Type</code> equivalent to the
+<code>OpType*</code> declaration of the output, and neither is a structure
+member; or</p>
+</li>
+<li>
+<p>if in any other case they are declared with an equivalent <code>OpType*</code>
+declaration.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>If both are structures and every member has an interface match.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
 <div class="paragraph">
-<p>In this case, the components of the input will be taken from the first
-components of the output, and any extra components of the output will be
-ignored.</p>
+<p>The word "structure" above refers to both variables that have an
+<code>OpTypeStruct</code> type and interface blocks (which are also declared as
+<code>OpTypeStruct</code>).</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>All input variables and blocks <strong class="purple">must</strong> have an interface match in the
+preceding shader stage, except for built-in variables in fragment shaders.
+Shaders <strong class="purple">can</strong> declare and write to output variables that are not declared or
+read by the subsequent stage.</p>
+</div>
+<div class="paragraph">
+<p>The value of an input variable is undefined if the preceding stage does not
+write to a matching output variable, as described above.</p>
 </div>
 </div>
 <div class="sect3">
@@ -2167,10 +2188,10 @@ the shader.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>In the last vertex processing stage, these values will be linearly
-interpolated across the primitive and the portion of the primitive with
-interpolated distances less than 0 will be considered outside the clip
-volume.
+<p>In the last <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization
+shader stage</a>, these values will be linearly interpolated across the
+primitive and the portion of the primitive with interpolated distances less
+than 0 will be considered outside the clip volume.
 If <code>ClipDistance</code> is then used by a fragment shader, <code>ClipDistance</code>
 contains these linearly interpolated values.</p>
 </div>
@@ -3039,12 +3060,14 @@ the framebuffer layer index to which the primitive produced by that shader
 will be directed.</p>
 </div>
 <div class="paragraph">
-<p>If the last active vertex processing stage shader entry point’s interface
-does not include a variable decorated with <code>Layer</code>, then the first layer
-is used.
-If a vertex processing stage shader entry point’s interface includes a
-variable decorated with <code>Layer</code>, it <strong class="purple">must</strong> write the same value to
-<code>Layer</code> for all output vertices of a given primitive.
+<p>If the last active
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader entry point’s interface does not include a variable decorated
+with <code>Layer</code>, then the first layer is used.
+If a <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader entry point’s interface includes a variable decorated with
+<code>Layer</code>, it <strong class="purple">must</strong> write the same value to <code>Layer</code> for all output
+vertices of a given primitive.
 If the <code>Layer</code> value is less than 0 or greater than or equal to the
 number of layers in the framebuffer, then primitives <strong class="purple">may</strong> still be
 rasterized, fragment shaders <strong class="purple">may</strong> be executed, and the framebuffer values
@@ -3536,8 +3559,9 @@ two-component vector of 32-bit floating-point values</p>
 <p>Decorating a variable with the <code>PointSize</code> built-in decoration will make
 that variable contain the size of point primitives.
 The value written to the variable decorated with <code>PointSize</code> by the last
-vertex processing stage in the pipeline is used as the framebuffer-space
-size of points produced by rasterization.</p>
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> in the pipeline is used as the framebuffer-space size of points
+produced by rasterization.</p>
 </dd>
 </dl>
 </div>
@@ -3605,9 +3629,10 @@ The variable decorated with <code>PointSize</code> <strong class="purple">must</
 <dd>
 <p>Decorating a variable with the <code>Position</code> built-in decoration will make
 that variable contain the position of the current vertex.
-In the last vertex processing stage, the value of the variable decorated
-with <code>Position</code> is used in subsequent primitive assembly, clipping, and
-rasterization operations.</p>
+In the last <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization
+shader stage</a>, the value of the variable decorated with <code>Position</code> is
+used in subsequent primitive assembly, clipping, and rasterization
+operations.</p>
 </dd>
 </dl>
 </div>
@@ -3820,15 +3845,20 @@ decoration will make that variable contain the
 rate</a>.</p>
 <div class="paragraph">
 <p>The value written to the variable decorated with
-<code>PrimitiveShadingRateKHR</code> by the last vertex processing stage in the
-pipeline is used as the <a href="chap25.html#primsrast-fragment-shading-rate-primitive">primitive fragment shading rate</a>.
+<code>PrimitiveShadingRateKHR</code> by the last
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> in the pipeline is used as the
+<a href="chap25.html#primsrast-fragment-shading-rate-primitive">primitive fragment shading
+rate</a>.
 Outputs in previous shader stages are ignored.</p>
 </div>
 <div class="paragraph">
-<p>If the last active vertex processing stage shader entry point’s interface
-does not include a variable decorated with <code>PrimitiveShadingRateKHR</code>,
-then it is as if the shader specified a fragment shading rate value of 0,
-indicating a horizontal and vertical rate of 1 pixel.</p>
+<p>If the last active
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader entry point’s interface does not include a variable decorated
+with <code>PrimitiveShadingRateKHR</code>, then it is as if the shader specified a
+fragment shading rate value of 0, indicating a horizontal and vertical rate
+of 1 pixel.</p>
 </div>
 <div class="paragraph">
 <p>If a shader has <code>PrimitiveShadingRateKHR</code> in the output interface and
@@ -4911,12 +4941,14 @@ viewport transform and
 scissor rectangle.</p>
 </div>
 <div class="paragraph">
-<p>If the last active vertex processing stage shader entry point’s interface
-does not include a variable decorated with <code>ViewportIndex</code>, then the
-first viewport is used.
-If a vertex processing stage shader entry point’s interface includes a
-variable decorated with <code>ViewportIndex</code>, it <strong class="purple">must</strong> write the same value to
-<code>ViewportIndex</code> for all output vertices of a given primitive.</p>
+<p>If the last active
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader entry point’s interface does not include a variable decorated
+with <code>ViewportIndex</code>, then the first viewport is used.
+If a <a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+stage</a> shader entry point’s interface includes a variable decorated with
+<code>ViewportIndex</code>, it <strong class="purple">must</strong> write the same value to <code>ViewportIndex</code> for
+all output vertices of a given primitive.</p>
 </div>
 <div class="paragraph">
 <p>In a fragment shader, the variable decorated with <code>ViewportIndex</code>
@@ -5190,7 +5222,7 @@ floating-point values</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.182<br>
+Version 1.1.183<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
