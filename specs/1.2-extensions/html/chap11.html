@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.183 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.184 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.183 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.184 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.183,</span>
-<span id="revdate">2021-06-27 14:09:04Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1934d6f0eee2ca4a2794fed548521b11a33343a6</span>
+<span id="revnumber">version 1.2.184,</span>
+<span id="revdate">2021-07-05 12:24:53Z</span>
+<br><span id="revremark">from git branch: github-main commit: 02c265fb0af1eb5e82651e6c001d3790101adf96</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1607,6 +1607,10 @@ have its <code>propertyFlags</code> set to one of the following values:</p>
 <code>VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD</code> |<br>
 <code>VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD</code></p>
 </li>
+<li>
+<p><code>VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT</code> |<br>
+<code>VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV</code></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -2000,6 +2004,8 @@ indicating properties of a memory heap, are:</p>
     VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD = <span class="hex">0x00000040</span>,
   <span class="comment">// Provided by VK_AMD_device_coherent_memory</span>
     VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD = <span class="hex">0x00000080</span>,
+  <span class="comment">// Provided by VK_NV_external_memory_rdma</span>
+    VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV = <span class="hex">0x00000100</span>,
 } VkMemoryPropertyFlagBits;</code></pre>
 </div>
 </div>
@@ -2055,6 +2061,10 @@ made available and visible.</p>
 <p><code>VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD</code> bit specifies that
 memory allocated with this type is not cached on the device.
 Uncached device memory is always device coherent.</p>
+</li>
+<li>
+<p><code>VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV</code> bit specifies that external
+devices can access this memory directly.</p>
 </li>
 </ul>
 </div>
@@ -5883,6 +5893,173 @@ implementations.</p>
 </div>
 </div>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To export an address representing the payload of a Vulkan device memory
+object accessible by remote devices, call:</p>
+</div>
+<div id="vkGetMemoryRemoteAddressNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_external_memory_rdma</span>
+VkResult vkGetMemoryRemoteAddressNV(
+    VkDevice                                    device,
+    <span class="directive">const</span> VkMemoryGetRemoteAddressInfoNV*       getMemoryRemoteAddressInfo,
+    VkRemoteAddressNV*                          pAddress);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that created the device memory being
+exported.</p>
+</li>
+<li>
+<p><code>pMemoryGetRemoteAddressInfo</code> is a pointer to a
+<a href="chap11.html#VkMemoryGetRemoteAddressInfoNV">VkMemoryGetRemoteAddressInfoNV</a> structure containing parameters of
+the export operation.</p>
+</li>
+<li>
+<p><code>pAddress</code> will return the address representing the payload of the
+device memory object.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>More communication may be required between the kernel-mode drivers of the
+devices involved.
+This information is out of scope of this documentation and should be
+requested from the vendors of the devices.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetMemoryRemoteAddressNV-device-parameter" href="chap11.html#VUID-vkGetMemoryRemoteAddressNV-device-parameter"></a> <span class="vuid">VUID-vkGetMemoryRemoteAddressNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetMemoryRemoteAddressNV-getMemoryRemoteAddressInfo-parameter" href="chap11.html#VUID-vkGetMemoryRemoteAddressNV-getMemoryRemoteAddressInfo-parameter"></a> <span class="vuid">VUID-vkGetMemoryRemoteAddressNV-getMemoryRemoteAddressInfo-parameter</span><br>
+ <code>getMemoryRemoteAddressInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap11.html#VkMemoryGetRemoteAddressInfoNV">VkMemoryGetRemoteAddressInfoNV</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetMemoryRemoteAddressNV-pAddress-parameter" href="chap11.html#VUID-vkGetMemoryRemoteAddressNV-pAddress-parameter"></a> <span class="vuid">VUID-vkGetMemoryRemoteAddressNV-pAddress-parameter</span><br>
+ <code>pAddress</code> <strong class="purple">must</strong> be a valid pointer to a <code>VkRemoteAddressNV</code> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INVALID_EXTERNAL_HANDLE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkMemoryGetRemoteAddressInfoNV</code> structure is defined as:</p>
+</div>
+<div id="VkMemoryGetRemoteAddressInfoNV" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_NV_external_memory_rdma</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkMemoryGetRemoteAddressInfoNV {
+    VkStructureType                       sType;
+    <span class="directive">const</span> <span class="directive">void</span>*                           pNext;
+    VkDeviceMemory                        memory;
+    VkExternalMemoryHandleTypeFlagBits    handleType;
+} VkMemoryGetRemoteAddressInfoNV;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>memory</code> is the memory object from which the remote accessible
+address will be exported.</p>
+</li>
+<li>
+<p><code>handleType</code> is the type of handle requested.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkMemoryGetRemoteAddressInfoNV-handleType-04966" href="chap11.html#VUID-VkMemoryGetRemoteAddressInfoNV-handleType-04966"></a> <span class="vuid">VUID-VkMemoryGetRemoteAddressInfoNV-handleType-04966</span><br>
+
+<code>handleType</code> <strong class="purple">must</strong> have been included in
+<a href="chap11.html#VkExportMemoryAllocateInfo">VkExportMemoryAllocateInfo</a>::<code>handleTypes</code> when <code>memory</code>
+was created</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkMemoryGetRemoteAddressInfoNV-sType-sType" href="chap11.html#VUID-VkMemoryGetRemoteAddressInfoNV-sType-sType"></a> <span class="vuid">VUID-VkMemoryGetRemoteAddressInfoNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkMemoryGetRemoteAddressInfoNV-pNext-pNext" href="chap11.html#VUID-VkMemoryGetRemoteAddressInfoNV-pNext-pNext"></a> <span class="vuid">VUID-VkMemoryGetRemoteAddressInfoNV-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkMemoryGetRemoteAddressInfoNV-memory-parameter" href="chap11.html#VUID-VkMemoryGetRemoteAddressInfoNV-memory-parameter"></a> <span class="vuid">VUID-VkMemoryGetRemoteAddressInfoNV-memory-parameter</span><br>
+ <code>memory</code> <strong class="purple">must</strong> be a valid <a href="chap11.html#VkDeviceMemory">VkDeviceMemory</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkMemoryGetRemoteAddressInfoNV-handleType-parameter" href="chap11.html#VUID-VkMemoryGetRemoteAddressInfoNV-handleType-parameter"></a> <span class="vuid">VUID-VkMemoryGetRemoteAddressInfoNV-handleType-parameter</span><br>
+ <code>handleType</code> <strong class="purple">must</strong> be a valid <a href="chap44.html#VkExternalMemoryHandleTypeFlagBits">VkExternalMemoryHandleTypeFlagBits</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="fuchsia-external-memory"><a class="anchor" href="chap11.html#fuchsia-external-memory"></a>11.2.8. Fuchsia External Memory</h4>
@@ -8009,7 +8186,7 @@ also be used to create an image and memory that will be exported to an
 Android hardware buffer.</p>
 </div>
 <table id="memory-external-android-hardware-buffer-formats" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 14. AHardwareBuffer Format Equivalence</caption>
+<caption class="title">Table 13. AHardwareBuffer Format Equivalence</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -8072,7 +8249,7 @@ Android hardware buffer.</p>
 </tbody>
 </table>
 <table id="memory-external-android-hardware-buffer-usage" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 15. AHardwareBuffer Usage Equivalence</caption>
+<caption class="title">Table 14. AHardwareBuffer Usage Equivalence</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -8630,7 +8807,7 @@ structure.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.183<br>
+Version 1.2.184<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

@@ -230,6 +230,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_device_generated_commands.html"> VK_NV_device_generated_commands </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_external_memory.html"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_external_memory_capabilities.html"> VK_NV_external_memory_capabilities </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_external_memory_rdma.html"> VK_NV_external_memory_rdma </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_external_memory_win32.html"> VK_NV_external_memory_win32 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_fill_rectangle.html"> VK_NV_fill_rectangle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_fragment_coverage_to_color.html"> VK_NV_fragment_coverage_to_color </a> </li>
