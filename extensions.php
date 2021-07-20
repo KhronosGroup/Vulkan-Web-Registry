@@ -46,6 +46,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_executable_properties.html"> VK_KHR_pipeline_executable_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_library.html"> VK_KHR_pipeline_library </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_portability_subset.html"> VK_KHR_portability_subset </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_present_id.html"> VK_KHR_present_id </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_present_wait.html"> VK_KHR_present_wait </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_push_descriptor.html"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_query.html"> VK_KHR_ray_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_tracing_pipeline.html"> VK_KHR_ray_tracing_pipeline </a> </li>
@@ -145,6 +147,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_scalar_block_layout.html"> VK_EXT_scalar_block_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_separate_stencil_usage.html"> VK_EXT_separate_stencil_usage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_atomic_float.html"> VK_EXT_shader_atomic_float </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_atomic_float2.html"> VK_EXT_shader_atomic_float2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_demote_to_helper_invocation.html"> VK_EXT_shader_demote_to_helper_invocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_image_atomic_int64.html"> VK_EXT_shader_image_atomic_int64 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_stencil_export.html"> VK_EXT_shader_stencil_export </a> </li>
@@ -204,6 +207,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_hlsl_functionality1.html"> VK_GOOGLE_hlsl_functionality1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_user_type.html"> VK_GOOGLE_user_type </a> </li>
     <li> <b>  HUAWEI Extensions (Huawei Technologies Co. Ltd.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_HUAWEI_invocation_mask.html"> VK_HUAWEI_invocation_mask </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_HUAWEI_subpass_shading.html"> VK_HUAWEI_subpass_shading </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_IMG_filter_cubic.html"> VK_IMG_filter_cubic </a> </li>

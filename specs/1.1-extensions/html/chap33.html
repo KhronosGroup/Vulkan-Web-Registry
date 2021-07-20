@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.184 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.185 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.184 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.185 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.184,</span>
-<span id="revdate">2021-07-05 12:35:58Z</span>
-<br><span id="revremark">from git branch: github-main commit: 02c265fb0af1eb5e82651e6c001d3790101adf96</span>
+<span id="revnumber">version 1.1.185,</span>
+<span id="revdate">2021-07-20 10:01:15Z</span>
+<br><span id="revremark">from git branch: github-main commit: 62e02d5234fbbbd997d7c71099373a273a27dbf8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -411,8 +411,9 @@
 <li class="current"><a href="chap33.html#_full_screen_exclusive_control">33.6. Full Screen Exclusive Control</a></li>
 <li class="current"><a href="chap33.html#_device_group_queries">33.7. Device Group Queries</a></li>
 <li class="current"><a href="chap33.html#_display_timing_queries">33.8. Display Timing Queries</a></li>
-<li class="current"><a href="chap33.html#_wsi_swapchain">33.9. WSI Swapchain</a></li>
-<li class="current"><a href="chap33.html#_hdr_metadata">33.10. Hdr Metadata</a></li>
+<li class="current"><a href="chap33.html#present-wait">33.9. Present Wait</a></li>
+<li class="current"><a href="chap33.html#_wsi_swapchain">33.10. WSI Swapchain</a></li>
+<li class="current"><a href="chap33.html#_hdr_metadata">33.11. Hdr Metadata</a></li>
 </ul>
 </li>
 <li><a href="chap34.html">34. Deferred Host Operations</a>
@@ -11217,7 +11218,36 @@ treated the same as for <code>VK_PRESENT_MODE_IMMEDIATE_KHR</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wsi_swapchain"><a class="anchor" href="chap33.html#_wsi_swapchain"></a>33.9. WSI Swapchain</h3>
+<h3 id="present-wait"><a class="anchor" href="chap33.html#present-wait"></a>33.9. Present Wait</h3>
+<div class="paragraph">
+<p>Applications wanting to control the pacing of the application by monitoring
+when presentation processes have completed to limit the number of
+outstanding images queued for presentation, need to have a method of being
+signaled during the presentation process.</p>
+</div>
+<div class="paragraph">
+<p>Using
+the <code>VK_GOOGLE_display_timing</code> extension
+applications can discover when images were presented, but only
+asynchronously.</p>
+</div>
+<div class="paragraph">
+<p>Providing a mechanism which allows applications to block, waiting for a
+specific step of the presentation process to complete allows them to control
+the amount of outstanding work (and hence the potential lag in responding to
+user input or changes in the rendering environment).</p>
+</div>
+<div class="paragraph">
+<p>The <code><a href="chap50.html#VK_KHR_present_wait">VK_KHR_present_wait</a></code> extension allows applications to tell the
+presentation engine at the <a href="chap33.html#vkQueuePresentKHR">vkQueuePresentKHR</a> call that it plans on
+waiting for presentation by passing a <a href="chap33.html#VkPresentIdKHR">VkPresentIdKHR</a> structure.
+The <code>presentId</code> passed in that structure may then be passed to a future
+<a href="chap33.html#vkWaitForPresentKHR">vkWaitForPresentKHR</a> call to cause the application to block until that
+presentation is finished.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_wsi_swapchain"><a class="anchor" href="chap33.html#_wsi_swapchain"></a>33.10. WSI Swapchain</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -13481,12 +13511,41 @@ acquired or an error occurs.</p>
 <p><code>vkAcquireNextImageKHR</code> <strong class="purple">should</strong> not be called if the number of images
 that the application has currently acquired is greater than the difference
 between the number of images in <code>swapchain</code> and the value of
-<a href="chap33.html#VkSurfaceCapabilitiesKHR">VkSurfaceCapabilitiesKHR</a>::<code>minImageCount</code>.</p>
+<a href="chap33.html#VkSurfaceCapabilitiesKHR">VkSurfaceCapabilitiesKHR</a>::<code>minImageCount</code>.
+If <code>vkAcquireNextImageKHR</code> is called when the number of images that the
+application has currently acquired is less or equal than the difference
+between the number of images in <code>swapchain</code> and the value of
+<a href="chap33.html#VkSurfaceCapabilitiesKHR">VkSurfaceCapabilitiesKHR</a>::<code>minImageCount</code>,
+<code>vkAcquireNextImageKHR</code> <strong class="purple">must</strong> return in finite time with an allowed
+<code>VkResult</code> code.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Returning a result in finite time guarantees that the implementation cannot
+deadlock an application, or suspend its execution indefintely with correct
+API usage.
+Acquiring too many images at once may block indefinitely, which is covered
+by valid usage when attempting to use <code>UINT64_MAX</code>.
+For example, a scenario here is when a compositor holds on to images which
+are currently being presented, and there are not any vacant images left to
+be acquired.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>If an image is acquired successfully, <code>vkAcquireNextImageKHR</code> <strong class="purple">must</strong>
-either return <code>VK_SUCCESS</code>, or <code>VK_SUBOPTIMAL_KHR</code> if the swapchain
-no longer matches the surface properties exactly, but <strong class="purple">can</strong> still be used for
+either return <code>VK_SUCCESS</code> or <code>VK_SUBOPTIMAL_KHR</code>.
+The implementation <strong class="purple">may</strong> return <code>VK_SUBOPTIMAL_KHR</code> if the swapchain no
+longer matches the surface properties exactly, but <strong class="purple">can</strong> still be used for
 presentation.</p>
 </div>
 <div class="admonitionblock note">
@@ -13498,9 +13557,9 @@ presentation.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>This <strong class="purple">may</strong> happen, for example, if the platform surface has been resized but
-the platform is able to scale the presented images to the new size to
-produce valid surface updates.
+<p><code>VK_SUBOPTIMAL_KHR</code> <strong class="purple">may</strong> happen, for example, if the platform surface
+has been resized but the platform is able to scale the presented images to
+the new size to produce valid surface updates.
 It is up to the application to decide whether it prefers to continue using
 the current swapchain in this state, or to re-create the swapchain to better
 match the platform surface properties.</p>
@@ -14191,6 +14250,10 @@ considered to be enqueued and thus any semaphore wait operation specified in
 is complete.</p>
 </div>
 <div class="paragraph">
+<p>Calls to <code>vkQueuePresentKHR</code> <strong class="purple">may</strong> block, but <strong class="purple">must</strong> return in finite
+time.</p>
+</div>
+<div class="paragraph">
 <p>If any <code>swapchain</code> member of <code>pPresentInfo</code> was created with
 <code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code>,
 <code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> will be returned if that
@@ -14432,7 +14495,7 @@ operation is executed on a <code>VkDevice</code></p>
 </li>
 <li>
 <p><a id="VUID-VkPresentInfoKHR-pNext-pNext" href="chap33.html#VUID-VkPresentInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkPresentInfoKHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap33.html#VkDeviceGroupPresentInfoKHR">VkDeviceGroupPresentInfoKHR</a>, <a href="chap33.html#VkDisplayPresentInfoKHR">VkDisplayPresentInfoKHR</a>, <a href="chap33.html#VkPresentFrameTokenGGP">VkPresentFrameTokenGGP</a>, <a href="chap33.html#VkPresentRegionsKHR">VkPresentRegionsKHR</a>, or <a href="chap33.html#VkPresentTimesInfoGOOGLE">VkPresentTimesInfoGOOGLE</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap33.html#VkDeviceGroupPresentInfoKHR">VkDeviceGroupPresentInfoKHR</a>, <a href="chap33.html#VkDisplayPresentInfoKHR">VkDisplayPresentInfoKHR</a>, <a href="chap33.html#VkPresentFrameTokenGGP">VkPresentFrameTokenGGP</a>, <a href="chap33.html#VkPresentIdKHR">VkPresentIdKHR</a>, <a href="chap33.html#VkPresentRegionsKHR">VkPresentRegionsKHR</a>, or <a href="chap33.html#VkPresentTimesInfoGOOGLE">VkPresentTimesInfoGOOGLE</a></p>
 </li>
 <li>
 <p><a id="VUID-VkPresentInfoKHR-sType-unique" href="chap33.html#VUID-VkPresentInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkPresentInfoKHR-sType-unique</span><br>
@@ -15096,6 +15159,290 @@ but does not need a specific <code>desiredPresentTime</code>.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>The <code>VkPresentIdKHR</code> structure is defined as:</p>
+</div>
+<div id="VkPresentIdKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_present_id</span>
+<span class="keyword">typedef</span> <span class="keyword">struct</span> VkPresentIdKHR {
+    VkStructureType    sType;
+    <span class="directive">const</span> <span class="directive">void</span>*        pNext;
+    uint32_t           swapchainCount;
+    <span class="directive">const</span> uint64_t*    pPresentIds;
+} VkPresentIdKHR;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>swapchainCount</code> is the number of swapchains being presented to the
+<code>vkQueuePresentKHR</code> command.</p>
+</li>
+<li>
+<p><code>pPresentIds</code> is <code>NULL</code> or a pointer to an array of uint64_t with
+<code>swapchainCount</code> entries.
+If not <code>NULL</code>, each non-zero value in <code>pPresentIds</code> specifies the
+present id to be associated with the presentation of the swapchain with
+the same index in the <a href="chap33.html#vkQueuePresentKHR">vkQueuePresentKHR</a> call.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For applications to be able to reference specific presentation events queued
+by a call to <code>vkQueuePresentKHR</code>, an identifier needs to be associated
+with them.
+When the <a href="chap41.html#features-presentId"><code>presentId</code></a> feature is enabled,
+applications <strong class="purple">can</strong> include the <code>VkPresentIdKHR</code> structure in the
+<code>pNext</code> chain of the <a href="chap33.html#VkPresentInfoKHR">VkPresentInfoKHR</a> structure to supply
+identifiers.</p>
+</div>
+<div class="paragraph">
+<p>Each <code>VkSwapchainKHR</code> has a presentId associated with it.
+This value is initially set to zero when the <code>VkSwapchainKHR</code> is
+created.</p>
+</div>
+<div class="paragraph">
+<p>When a <code>VkPresentIdKHR</code> structure with a non-NULL <code>pPresentIds</code> is
+included in the <code>pNext</code> chain of a <a href="chap33.html#VkPresentInfoKHR">VkPresentInfoKHR</a> structure,
+each <code>pSwapchains</code> entry has a presentId associated in the
+<code>pPresentIds</code> array at the same index as the swapchain in the
+<code>pSwapchains</code> array.
+If this presentId is non-zero, then the application <strong class="purple">can</strong> later use this
+value to refer to that image presentation.
+A value of zero indicates that this presentation has no associated
+presentId.
+A non-zero presentId <strong class="purple">must</strong> be greater than any non-zero presentId passed
+previously by the application for the same swapchain.</p>
+</div>
+<div class="paragraph">
+<p>There is no requirement for any precise timing relationship between the
+presentation of the image to the user and the update of the presentId value,
+but implementations <strong class="purple">should</strong> make this as close as possible to the
+presentation of the first pixel in the new image to the user.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPresentIdKHR-swapchainCount-04998" href="chap33.html#VUID-VkPresentIdKHR-swapchainCount-04998"></a> <span class="vuid">VUID-VkPresentIdKHR-swapchainCount-04998</span><br>
+
+<code>swapchainCount</code> <strong class="purple">must</strong> be the same value as
+<code>VkPresentInfoKHR</code>::<code>swapchainCount</code>, where this
+<code>VkPresentIdKHR</code> is in the pNext-chain of the <code>VkPresentInfoKHR</code>
+structure</p>
+</li>
+<li>
+<p><a id="VUID-VkPresentIdKHR-presentIds-04999" href="chap33.html#VUID-VkPresentIdKHR-presentIds-04999"></a> <span class="vuid">VUID-VkPresentIdKHR-presentIds-04999</span><br>
+
+Each <code>presentIds</code> entry <strong class="purple">must</strong> be greater than any previous
+<code>presentIds</code> entry passed for the associated <code>pSwapchains</code> entry</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPresentIdKHR-sType-sType" href="chap33.html#VUID-VkPresentIdKHR-sType-sType"></a> <span class="vuid">VUID-VkPresentIdKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PRESENT_ID_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPresentIdKHR-pPresentIds-parameter" href="chap33.html#VUID-VkPresentIdKHR-pPresentIds-parameter"></a> <span class="vuid">VUID-VkPresentIdKHR-pPresentIds-parameter</span><br>
+ If <code>pPresentIds</code> is not <code>NULL</code>, <code>pPresentIds</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>swapchainCount</code> <code>uint64_t</code> values</p>
+</li>
+<li>
+<p><a id="VUID-VkPresentIdKHR-swapchainCount-arraylength" href="chap33.html#VUID-VkPresentIdKHR-swapchainCount-arraylength"></a> <span class="vuid">VUID-VkPresentIdKHR-swapchainCount-arraylength</span><br>
+ <code>swapchainCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>When the <a href="chap41.html#features-presentWait"><code>presentWait</code></a> feature is enabled, an
+application <strong class="purple">can</strong> wait for an image to be presented to the user by first
+specifying a presentId for the target presentation by adding a
+<code>VkPresentIdKHR</code> structure to the <code>pNext</code> chain of the
+<a href="chap33.html#VkPresentInfoKHR">VkPresentInfoKHR</a> structure and then waiting for that presentation to
+complete by calling:</p>
+</div>
+<div id="vkWaitForPresentKHR" class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="c++"><span class="comment">// Provided by VK_KHR_present_wait</span>
+VkResult vkWaitForPresentKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint64_t                                    presentId,
+    uint64_t                                    timeout);</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the device associated with <code>swapchain</code>.</p>
+</li>
+<li>
+<p><code>swapchain</code> is the non-retired swapchain on which an image was
+queued for presentation.</p>
+</li>
+<li>
+<p><code>presentId</code> is the presentation presentId to wait for.</p>
+</li>
+<li>
+<p><code>timeout</code> is the timeout period in units of nanoseconds.
+<code>timeout</code> is adjusted to the closest value allowed by the
+implementation-dependent timeout accuracy, which <strong class="purple">may</strong> be substantially
+longer than one nanosecond, and <strong class="purple">may</strong> be longer than the requested
+period.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkWaitForPresentKHR</code> waits for the presentId associated with
+<code>swapchain</code> to be increased in value so that it is at least equal to
+<code>presentId</code>.</p>
+</div>
+<div class="paragraph">
+<p>For <code>VK_PRESENT_MODE_MAILBOX_KHR</code> (or other present mode where images
+may be replaced in the presentation queue) any wait of this type associated
+with such an image <strong class="purple">must</strong> be signaled no later than a wait associated with
+the replacing image would be signaled.</p>
+</div>
+<div class="paragraph">
+<p>When the presentation has completed, the presentId associated with the
+related <code>pSwapChains</code> entry will be increased in value so that it is at
+least equal to the value provided in the <code>VkPresentIdKHR</code> structure.</p>
+</div>
+<div class="paragraph">
+<p>There is no requirement for any precise timing relationship between the
+presentation of the image to the user and the update of the presentId value,
+but implementations <strong class="purple">should</strong> make this as close as possible to the
+presentation of the first pixel in the new image to the user.</p>
+</div>
+<div class="paragraph">
+<p>The call to <code>vkWaitForPresentKHR</code> will block until either the presentId
+associated with <code>swapchain</code> is greater than or equal to <code>presentId</code>,
+or <code>timeout</code> nanoseconds passes.
+When the swapchain becomes OUT_OF_DATE, the call will either return
+<code>VK_SUCCESS</code> (if the image was delivered to the presentation engine and
+may have been presented to the user) or will return early with status
+<code>VK_ERROR_OUT_OF_DATE_KHR</code> (if the image was not presented to the user).</p>
+</div>
+<div class="paragraph">
+<p>As an exception to the normal rules for objects which are externally
+synchronized, the <code>swapchain</code> passed to <code>vkWaitForPresentKHR</code> <strong class="purple">may</strong>
+be simultaneously used by other threads in calls to functions other than
+<a href="chap33.html#vkDestroySwapchainKHR">vkDestroySwapchainKHR</a>.
+Access to the swapchain data associated with this extension <strong class="purple">must</strong> be atomic
+within the implementation.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkWaitForPresentKHR-swapchain-04997" href="chap33.html#VUID-vkWaitForPresentKHR-swapchain-04997"></a> <span class="vuid">VUID-vkWaitForPresentKHR-swapchain-04997</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> not be in the retired state</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkWaitForPresentKHR-device-parameter" href="chap33.html#VUID-vkWaitForPresentKHR-device-parameter"></a> <span class="vuid">VUID-vkWaitForPresentKHR-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkWaitForPresentKHR-swapchain-parameter" href="chap33.html#VUID-vkWaitForPresentKHR-swapchain-parameter"></a> <span class="vuid">VUID-vkWaitForPresentKHR-swapchain-parameter</span><br>
+ <code>swapchain</code> <strong class="purple">must</strong> be a valid <a href="chap33.html#VkSwapchainKHR">VkSwapchainKHR</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkWaitForPresentKHR-commonparent" href="chap33.html#VUID-vkWaitForPresentKHR-commonparent"></a> <span class="vuid">VUID-vkWaitForPresentKHR-commonparent</span><br>
+ Both of <code>device</code>, and <code>swapchain</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap4.html#VkInstance">VkInstance</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>swapchain</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_TIMEOUT</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_DEVICE_LOST</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>When the <code><a href="chap50.html#VK_GGP_frame_token">VK_GGP_frame_token</a></code> extension is enabled, a Google Games
 Platform frame token <strong class="purple">can</strong> be specified when presenting an image to a
 swapchain by adding a <code>VkPresentFrameTokenGGP</code> structure to the
@@ -15250,7 +15597,7 @@ swapchain as long as the swapchain has not entered a state that causes
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hdr_metadata"><a class="anchor" href="chap33.html#_hdr_metadata"></a>33.10. Hdr Metadata</h3>
+<h3 id="_hdr_metadata"><a class="anchor" href="chap33.html#_hdr_metadata"></a>33.11. Hdr Metadata</h3>
 <div class="paragraph">
 <p>To improve color reproduction of content it is useful to have information
 that can be used to better reproduce the colors as seen on the reference
@@ -15458,7 +15805,7 @@ in nits</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.184<br>
+Version 1.1.185<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>

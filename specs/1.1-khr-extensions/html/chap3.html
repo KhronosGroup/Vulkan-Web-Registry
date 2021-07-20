@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.184 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.185 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.184 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.185 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.184,</span>
-<span id="revdate">2021-07-05 12:32:27Z</span>
-<br><span id="revremark">from git branch: github-main commit: 02c265fb0af1eb5e82651e6c001d3790101adf96</span>
+<span id="revnumber">version 1.1.185,</span>
+<span id="revdate">2021-07-20 09:57:35Z</span>
+<br><span id="revremark">from git branch: github-main commit: 62e02d5234fbbbd997d7c71099373a273a27dbf8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -357,7 +357,8 @@
 <li><a href="chap30.html#_querying_for_wsi_support">30.4. Querying for WSI Support</a></li>
 <li><a href="chap30.html#_surface_queries">30.5. Surface Queries</a></li>
 <li><a href="chap30.html#_device_group_queries">30.6. Device Group Queries</a></li>
-<li><a href="chap30.html#_wsi_swapchain">30.7. WSI Swapchain</a></li>
+<li><a href="chap30.html#present-wait">30.7. Present Wait</a></li>
+<li><a href="chap30.html#_wsi_swapchain">30.8. WSI Swapchain</a></li>
 </ul>
 </li>
 <li><a href="chap31.html">31. Deferred Host Operations</a>
@@ -656,57 +657,34 @@ visible to the device and host.</p>
 <p>On other architectures, there <strong class="purple">may</strong> only be a single heap that <strong class="purple">can</strong> be used
 for any purpose.</p>
 </div>
-<div class="paragraph">
-<p>A Vulkan application controls a set of devices through the submission of
-command buffers which have recorded device commands issued via Vulkan
-library calls.
-The content of command buffers is specific to the underlying implementation
-and is opaque to the application.
-Once constructed, a command buffer <strong class="purple">can</strong> be submitted once or many times to a
-queue for execution.
-Multiple command buffers <strong class="purple">can</strong> be built in parallel by employing multiple
-threads within the application.</p>
-</div>
-<div class="paragraph">
-<p>Command buffers submitted to different queues <strong class="purple">may</strong> execute in parallel or
-even out of order with respect to one another.
-Command buffers submitted to a single queue respect
-<a href="chap7.html#synchronization-submission-order">submission order</a>, as described further
-in <a href="chap7.html">synchronization chapter</a>.
-Command buffer execution by the device is also asynchronous to host
-execution.
-Once a command buffer is submitted to a queue, control <strong class="purple">may</strong> return to the
-application immediately.
-Synchronization between the device and host, and between different queues is
-the responsibility of the application.</p>
-</div>
 <div class="sect3">
 <h4 id="fundamentals-queueoperation"><a class="anchor" href="chap3.html#fundamentals-queueoperation"></a>3.2.1. Queue Operation</h4>
 <div class="paragraph">
 <p>Vulkan queues provide an interface to the execution engines of a device.
 Commands for these execution engines are recorded into command buffers ahead
-of execution time.
-These command buffers are then submitted to queues with a <em>queue submission</em>
-command for execution in a number of <em>batches</em>.
-Once submitted to a queue, these commands will begin and complete execution
+of execution time, and then submitted to a queue for execution.
+Once submitted to a queue, command buffers will begin and complete execution
 without further application intervention, though the order of this execution
 is dependent on a number of <a href="chap7.html">implicit and explicit
 ordering constraints</a>.</p>
 </div>
 <div class="paragraph">
-<p>Work is submitted to queues using queue submission commands that typically
+<p>Work is submitted to queues using <em>queue submission commands</em> that typically
 take the form <code>vkQueue*</code> (e.g. <a href="chap6.html#vkQueueSubmit">vkQueueSubmit</a>,
-<a href="chap29.html#vkQueueBindSparse">vkQueueBindSparse</a>), and optionally take a list of semaphores upon
-which to wait before work begins and a list of semaphores to signal once
-work has completed.
+<a href="chap29.html#vkQueueBindSparse">vkQueueBindSparse</a>), and <strong class="purple">can</strong> take a list of semaphores upon which to
+wait before work begins and a list of semaphores to signal once work has
+completed.
 The work itself, as well as signaling and waiting on the semaphores are all
-<em>queue operations</em>.</p>
+<em>queue operations</em>.
+Queue submission commands return control to the application once queue
+operations have been submitted - they do not wait for completion.</p>
 </div>
 <div class="paragraph">
-<p>Queue operations on different queues have no implicit ordering constraints,
-and <strong class="purple">may</strong> execute in any order.
-Explicit ordering constraints between queues <strong class="purple">can</strong> be expressed with
-<a href="chap7.html#synchronization-semaphores">semaphores</a> and
+<p>There are no implicit ordering constraints between queue operations on
+different queues, or between queues and the host, so these <strong class="purple">may</strong> operate in
+any order with respect to each other.
+Explicit ordering constraints between different queues or with the host <strong class="purple">can</strong>
+be expressed with <a href="chap7.html#synchronization-semaphores">semaphores</a> and
 <a href="chap7.html#synchronization-fences">fences</a>.</p>
 </div>
 <div class="paragraph">
@@ -798,14 +776,6 @@ other.
 When not enforced by an explicit dependency or <a href="chap7.html#synchronization-implicit">implicit ordering guarantees</a>, action commands <strong class="purple">may</strong> overlap execution or
 execute out of order, and <strong class="purple">may</strong> not see the side effects of each other’s
 memory accesses.</p>
-</div>
-<div class="paragraph">
-<p>The device executes queue operations asynchronously with respect to the
-host.
-Control is returned to an application immediately following command buffer
-submission to a queue.
-The application <strong class="purple">must</strong> synchronize work between the host and device as
-needed.</p>
 </div>
 </div>
 </div>
@@ -1823,6 +1793,9 @@ These implicit parameters are documented as described below.</p>
 <p>The <code>commandBuffer</code> parameter in <a href="chap25.html#vkCmdSetFragmentShadingRateKHR">vkCmdSetFragmentShadingRateKHR</a></p>
 </li>
 <li>
+<p>The <code>swapchain</code> parameter in <a href="chap30.html#vkWaitForPresentKHR">vkWaitForPresentKHR</a></p>
+</li>
+<li>
 <p>The <code>operation</code> parameter in <a href="chap31.html#vkDestroyDeferredOperationKHR">vkDestroyDeferredOperationKHR</a></p>
 </li>
 <li>
@@ -2610,7 +2583,7 @@ The set of structures connected by <code>pNext</code> pointers is referred to as
 <em><code>pNext</code> chain</em>.</p>
 </div>
 <div class="paragraph">
-<p>Each structure present in the <code>pNext</code> chain <strong class="purple">must</strong> be defined at runtime
+<p>Each structure included in the <code>pNext</code> chain <strong class="purple">must</strong> be defined at runtime
 by either:</p>
 </div>
 <div class="ulist">
@@ -3977,6 +3950,8 @@ Specification.</p>
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR = <span class="integer">1000226004</span>,
   <span class="comment">// Provided by VK_KHR_surface_protected_capabilities</span>
     VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR = <span class="integer">1000239000</span>,
+  <span class="comment">// Provided by VK_KHR_present_wait</span>
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR = <span class="integer">1000248000</span>,
   <span class="comment">// Provided by VK_KHR_pipeline_executable_properties</span>
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR = <span class="integer">1000269000</span>,
   <span class="comment">// Provided by VK_KHR_pipeline_executable_properties</span>
@@ -3991,6 +3966,10 @@ Specification.</p>
     VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR = <span class="integer">1000269005</span>,
   <span class="comment">// Provided by VK_KHR_pipeline_library</span>
     VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR = <span class="integer">1000290000</span>,
+  <span class="comment">// Provided by VK_KHR_present_id</span>
+    VK_STRUCTURE_TYPE_PRESENT_ID_KHR = <span class="integer">1000294000</span>,
+  <span class="comment">// Provided by VK_KHR_present_id</span>
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR = <span class="integer">1000294001</span>,
 <span class="preprocessor">#ifdef</span> VK_ENABLE_BETA_EXTENSIONS
   <span class="comment">// Provided by VK_KHR_video_encode_queue</span>
     VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR = <span class="integer">1000299000</span>,
@@ -4263,7 +4242,7 @@ Specification.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.184<br>
+Version 1.1.185<br>
 Last updated 2021-04-13 01:33:51 -0700
 </div>
 </div>
