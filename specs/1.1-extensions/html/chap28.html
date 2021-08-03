@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.186 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.187 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.186 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.187 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.186,</span>
-<span id="revdate">2021-07-27 10:03:24Z</span>
-<br><span id="revremark">from git branch: github-main commit: 907c556530050b0f4af073753335f23c885c02bf</span>
+<span id="revnumber">version 1.1.187,</span>
+<span id="revdate">2021-08-03 11:26:52Z</span>
+<br><span id="revremark">from git branch: github-main commit: cd8da6a515811c4ff9e1f10a6d6ce4ab968333fb</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2948,7 +2948,8 @@ an unsigned integer.</p>
 <p>The depth test compares the depth value <span class="eq">z<sub>a</sub></span> in the depth/stencil
 attachment at each sample’s framebuffer coordinates <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and
 <a href="chap27.html#primsrast-multisampling-coverage-mask">sample index</a> <span class="eq">i</span> against the
-sample’s depth value <span class="eq">z<sub>f</sub></span>.</p>
+sample’s depth value <span class="eq">z<sub>f</sub></span>.
+If there is no depth attachment then the depth test is skipped.</p>
 </div>
 <div class="paragraph">
 <p>If the render pass has a fragment density map attachment and the fragment
@@ -2959,11 +2960,33 @@ attachment value is updated as a result of this test, all depth attachment
 samples will be updated.</p>
 </div>
 <div class="paragraph">
+<p>The depth test occurs in three stages, as detailed in the following
+sections.</p>
+</div>
+<div class="sect3">
+<h4 id="_depth_clamping_and_range_adjustment"><a class="anchor" href="chap28.html#_depth_clamping_and_range_adjustment"></a>28.9.1. Depth Clamping and Range Adjustment</h4>
+<div class="paragraph">
+<p>If <a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthClampEnable</code> is
+enabled, before the sample’s <span class="eq">z<sub>f</sub></span> is compared to <span class="eq">z<sub>a</sub></span>,
+<span class="eq">z<sub>f</sub></span> is clamped to <span class="eq">[min(n,f),max(n,f)]</span>, where <span class="eq">n</span> and
+<span class="eq">f</span> are the <code>minDepth</code> and <code>maxDepth</code> depth range values of the
+viewport used by this fragment, respectively.</p>
+</div>
+<div class="paragraph">
+<p>If depth clamping is not enabled and <span class="eq">z<sub>f</sub></span> is not in the range <span class="eq">[0,
+1]</span>
+and either VK_EXT_depth_range_unrestricted is not enabled, or the depth
+attachment has a fixed-point format,
+then <span class="eq">z<sub>f</sub></span> is undefined following this step.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_depth_comparison"><a class="anchor" href="chap28.html#_depth_comparison"></a>28.9.2. Depth Comparison</h4>
+<div class="paragraph">
 <p>If the depth test is not enabled, as specified by
 <a href="chap28.html#vkCmdSetDepthTestEnableEXT">vkCmdSetDepthTestEnableEXT</a> or
-<a href="chap28.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthTestEnable</code>, or if
-there is no depth attachment, the coverage mask is unmodified by this
-operation.</p>
+<a href="chap28.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthTestEnable</code>, then
+this step is skipped.</p>
 </div>
 <div class="paragraph">
 <p>The comparison performed is based on the <a href="chap28.html#VkCompareOp">VkCompareOp</a>, set by
@@ -2974,26 +2997,18 @@ pipeline creation.
 the operation specified by the <a href="chap28.html#VkCompareOp">VkCompareOp</a>.</p>
 </div>
 <div class="paragraph">
-<p>If <a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthClampEnable</code> is
-enabled, before the sample’s <span class="eq"><code>z</code><sub>f</sub></span> is compared to
-<span class="eq"><code>z</code><sub>a</sub></span>, <span class="eq"><code>z</code><sub>f</sub></span> is clamped to <span class="eq">[min(n,f),max(n,f)]</span>,
-where <span class="eq">n</span> and <span class="eq">f</span> are the <code>minDepth</code> and <code>maxDepth</code> depth
-range values of the viewport used by this fragment, respectively.</p>
-</div>
-<div class="paragraph">
 <p>If the comparison evaluates to false, the coverage for the sample is set to
 <code>0</code>.</p>
 </div>
-<div id="fragops-depth-write" class="paragraph">
+</div>
+<div class="sect3">
+<h4 id="fragops-depth-write"><a class="anchor" href="chap28.html#fragops-depth-write"></a>28.9.3. Depth Buffer Writes</h4>
+<div class="paragraph">
 <p>If depth writes are enabled, as specified by
 <a href="chap28.html#vkCmdSetDepthWriteEnableEXT">vkCmdSetDepthWriteEnableEXT</a> or
 <a href="chap28.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthWriteEnable</code>, and the
 comparison evaluated to true, the depth attachment value <span class="eq">z<sub>a</sub></span> is set
 to the sample’s depth value <span class="eq">z<sub>f</sub></span>.</p>
-</div>
-<div class="paragraph">
-<p>If the depth attachment has a fixed-point format and <span class="eq">z<sub>f</sub></span> is outside
-of the range <span class="eq">[0.0,1.0]</span>, it is clamped to that range before writing.</p>
 </div>
 <div class="openblock">
 <div class="content">
@@ -3322,6 +3337,7 @@ Secondary</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 </div>
 </div>
@@ -4141,18 +4157,18 @@ are multiplied by the modulation factor.</p>
 </div></div>
 
 <nav>
-  <a rel="prev" href="chap27.html" class="nav nav-prev" aria-keyshortcuts="Left">
+  <a rel="prev" href="chap27.html" class="nav nav-prev" title="Previous page" aria-label="Previous page" aria-keyshortcuts="Left">
         <i class="fa fa-angle-left"></i>
      </a>
-  <a rel="next" href="chap29.html" class="nav nav-next" aria-keyshortcuts="Right">
+  <a rel="next" href="chap29.html" class="nav nav-next" title="Next page" aria-label="Next page" aria-keyshortcuts="Right">
         <i class="fa fa-angle-right"></i>
      </a>
   <div style="clear: both"></div>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.186<br>
-Last updated 2021-04-13 01:33:51 -0700
+Version 1.1.187<br>
+Last updated 2021-07-27 05:57:55 -0700
 </div>
 </div>
 
@@ -4179,5 +4195,24 @@ Last updated 2021-04-13 01:33:51 -0700
       behavior: 'smooth'
     });
   }
+
+  /* For page navigation */
+  function gotoPage(selector) {
+    const button = document.querySelector(selector);
+    if (button)
+      window.location.href = button.href;
+  }
+  document.addEventListener('keydown', e => {
+    switch (e.key) {
+      case 'ArrowRight':
+        e.preventDefault();
+        gotoPage('.nav-next');
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        gotoPage('.nav-prev');
+        break;
+    }
+  });
   </script>
   </html>
