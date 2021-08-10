@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.187 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.188 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -53,12 +53,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.187 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.188 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.187,</span>
-<span id="revdate">2021-08-03 11:26:52Z</span>
-<br><span id="revremark">from git branch: github-main commit: cd8da6a515811c4ff9e1f10a6d6ce4ab968333fb</span>
+<span id="revnumber">version 1.1.188,</span>
+<span id="revdate">2021-08-10 11:52:03Z</span>
+<br><span id="revremark">from git branch: github-main commit: f1eda2cb1656363ccd67e07f5654a80fc13b47af</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1990,6 +1990,8 @@ treated, are:</p>
     VK_ATTACHMENT_LOAD_OP_LOAD = <span class="integer">0</span>,
     VK_ATTACHMENT_LOAD_OP_CLEAR = <span class="integer">1</span>,
     VK_ATTACHMENT_LOAD_OP_DONT_CARE = <span class="integer">2</span>,
+  <span class="comment">// Provided by VK_EXT_load_store_op_none</span>
+    VK_ATTACHMENT_LOAD_OP_NONE_EXT = <span class="integer">1000400000</span>,
 } VkAttachmentLoadOp;</code></pre>
 </div>
 </div>
@@ -2021,6 +2023,12 @@ For attachments with a depth/stencil format, this uses the access type
 For attachments with a color format, this uses the access type
 <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.</p>
 </li>
+<li>
+<p><code>VK_ATTACHMENT_LOAD_OP_NONE_EXT</code> specifies that the previous
+contents of the image within the render area will be preserved, but the
+contents of the attachment will be undefined inside the render pass.
+No access type is used as the image is not accessed.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -2038,8 +2046,10 @@ treated, are:</p>
 <span class="keyword">typedef</span> <span class="keyword">enum</span> VkAttachmentStoreOp {
     VK_ATTACHMENT_STORE_OP_STORE = <span class="integer">0</span>,
     VK_ATTACHMENT_STORE_OP_DONT_CARE = <span class="integer">1</span>,
+  <span class="comment">// Provided by VK_EXT_load_store_op_none</span>
+    VK_ATTACHMENT_STORE_OP_NONE_EXT = <span class="integer">1000301000</span>,
   <span class="comment">// Provided by VK_QCOM_render_pass_store_ops</span>
-    VK_ATTACHMENT_STORE_OP_NONE_QCOM = <span class="integer">1000301000</span>,
+    VK_ATTACHMENT_STORE_OP_NONE_QCOM = VK_ATTACHMENT_STORE_OP_NONE_EXT,
 } VkAttachmentStoreOp;</code></pre>
 </div>
 </div>
@@ -2063,11 +2073,10 @@ For attachments with a color format, this uses the access type
 <code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code>.</p>
 </li>
 <li>
-<p><code>VK_ATTACHMENT_STORE_OP_NONE_QCOM</code> specifies that the contents
-within the render area were not written during rendering, and <strong class="purple">may</strong> not
-be written to memory.
-If the attachment was written to during the renderpass, the contents of
-the attachment will be undefined inside the render area.</p>
+<p><code>VK_ATTACHMENT_STORE_OP_NONE_EXT</code> specifies the contents within the
+render area are not modified after rendering.
+However, if the attachment was written to during the render pass, the
+contents of the attachment will be undefined inside the render area.</p>
 </li>
 </ul>
 </div>
@@ -4772,8 +4781,9 @@ the value <code>VK_ATTACHMENT_UNUSED</code>,
 <p><a id="VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-02651" href="chap8.html#VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-02651"></a> <span class="vuid">VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-02651</span><br>
 
 If <code>pDepthStencilResolveAttachment</code> is not <code>NULL</code> and does not have
-the value <code>VK_ATTACHMENT_UNUSED</code> then it <strong class="purple">must</strong> have a format whose
-features contain <code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+the value <code>VK_ATTACHMENT_UNUSED</code> then it <strong class="purple">must</strong> have an image format
+whose <a href="chap43.html#potential-format-features">potential format features</a> contain
+<code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-03181" href="chap8.html#VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-03181"></a> <span class="vuid">VUID-VkSubpassDescriptionDepthStencilResolve-pDepthStencilResolveAttachment-03181</span><br>
@@ -9132,8 +9142,8 @@ structure.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.187<br>
-Last updated 2021-07-27 05:57:55 -0700
+Version 1.1.188<br>
+Last updated 2021-08-07 01:15:18 -0700
 </div>
 </div>
 
