@@ -60,6 +60,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_draw_parameters.html"> VK_KHR_shader_draw_parameters </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_float16_int8.html"> VK_KHR_shader_float16_int8 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_float_controls.html"> VK_KHR_shader_float_controls </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_integer_dot_product.html"> VK_KHR_shader_integer_dot_product </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_non_semantic_info.html"> VK_KHR_shader_non_semantic_info </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_subgroup_extended_types.html"> VK_KHR_shader_subgroup_extended_types </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_shader_subgroup_uniform_control_flow.html"> VK_KHR_shader_subgroup_uniform_control_flow </a> </li>
@@ -139,6 +140,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_provoking_vertex.html"> VK_EXT_provoking_vertex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
