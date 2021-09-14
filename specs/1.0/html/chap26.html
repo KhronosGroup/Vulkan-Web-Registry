@@ -2,9 +2,9 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.12">
+<meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.191 - A Specification</title>
+<title>Vulkan® 1.0.192 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.191 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.192 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.191,</span>
-<span id="revdate">2021-09-07 06:55:44Z</span>
-<br><span id="revremark">from git branch: github-main commit: ef0df9ab7cfd5081018b21174d10bc1d47cb734c</span>
+<span id="revnumber">version 1.0.192,</span>
+<span id="revdate">2021-09-14 10:18:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: a09f9efe488cdd97c0362622fc1187f09302689e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -298,13 +298,14 @@
 <ul class="sectlevel2">
 <li class="current"><a href="chap26.html#fragops-scissor">26.1. Scissor Test</a></li>
 <li class="current"><a href="chap26.html#fragops-samplemask">26.2. Sample Mask Test</a></li>
-<li class="current"><a href="chap26.html#fragops-covg">26.3. Multisample Coverage</a></li>
-<li class="current"><a href="chap26.html#fragops-ds-state">26.4. Depth and Stencil Operations</a></li>
-<li class="current"><a href="chap26.html#fragops-dbt">26.5. Depth Bounds Test</a></li>
-<li class="current"><a href="chap26.html#fragops-stencil">26.6. Stencil Test</a></li>
-<li class="current"><a href="chap26.html#fragops-depth">26.7. Depth Test</a></li>
-<li class="current"><a href="chap26.html#fragops-samplecount">26.8. Sample Counting</a></li>
-<li class="current"><a href="chap26.html#fragops-coverage-reduction">26.9. Coverage Reduction</a></li>
+<li class="current"><a href="chap26.html#fragops-shader">26.3. Fragment Shading</a></li>
+<li class="current"><a href="chap26.html#fragops-covg">26.4. Multisample Coverage</a></li>
+<li class="current"><a href="chap26.html#fragops-ds-state">26.5. Depth and Stencil Operations</a></li>
+<li class="current"><a href="chap26.html#fragops-dbt">26.6. Depth Bounds Test</a></li>
+<li class="current"><a href="chap26.html#fragops-stencil">26.7. Stencil Test</a></li>
+<li class="current"><a href="chap26.html#fragops-depth">26.8. Depth Test</a></li>
+<li class="current"><a href="chap26.html#fragops-samplecount">26.9. Sample Counting</a></li>
+<li class="current"><a href="chap26.html#fragops-coverage-reduction">26.10. Coverage Reduction</a></li>
 </ul>
 </li>
 <li><a href="chap27.html">27. The Framebuffer</a>
@@ -377,7 +378,11 @@
 <li><a href="chap37.html#appendix-compressedtex-astc">ASTC Compressed Image Formats</a></li>
 </ul>
 </li>
-<li><a href="chap38.html">Appendix C: Core Revisions (Informative)</a></li>
+<li><a href="chap38.html">Appendix C: Core Revisions (Informative)</a>
+<ul class="sectlevel2">
+<li><a href="chap38.html#versions-1.0">Version 1.0</a></li>
+</ul>
+</li>
 <li><a href="chap39.html">Appendix D: Layers &amp; Extensions (Informative)</a>
 <ul class="sectlevel2">
 <li><a href="chap39.html#extension-appendices-list">List of Extensions</a></li>
@@ -438,7 +443,17 @@ order</a>, and are typically performed in this order:</p>
 <p><a href="chap26.html#fragops-samplemask">Sample mask test</a></p>
 </li>
 <li>
-<p><a href="chap9.html#shaders-fragment">Fragment shading</a></p>
+<p>Certain <a href="chap26.html#fragops-shader">Fragment shading</a> operations:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap26.html#fragops-shader-samplemask">Sample Mask Accesses</a></p>
+</li>
+<li>
+<p><a href="chap26.html#fragops-shader-depthreplacement">Depth Replacement</a></p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><a href="chap26.html#fragops-covg">Multisample coverage</a></p>
@@ -484,9 +499,10 @@ executing one of</p>
 unconditionally, even if no fragment shader previously wrote to that output.</p>
 </div>
 <div class="paragraph">
-<p>If <a href="chap9.html#shaders-fragment-earlytest">early per-fragment operations</a> are enabled,
-<a href="chap9.html#shaders-fragment">fragment shading</a> and <a href="chap26.html#fragops-covg">multisample
-coverage</a> operations are instead performed after <a href="chap26.html#fragops-samplecount">sample counting</a>.</p>
+<p>If the <a href="chap26.html#fragops-shader">fragment shader</a> declares the
+<code>EarlyFragmentTests</code> execution mode, <a href="chap26.html#fragops-shader">fragment shading</a>
+and <a href="chap26.html#fragops-covg">multisample coverage</a> operations are instead performed
+after <a href="chap26.html#fragops-samplecount">sample counting</a>.</p>
 </div>
 <div class="paragraph">
 <p>Once all fragment operations have completed, fragment shader outputs for
@@ -696,7 +712,117 @@ mask bit is set to <code>0</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-covg"><a class="anchor" href="chap26.html#fragops-covg"></a>26.3. Multisample Coverage</h3>
+<h3 id="fragops-shader"><a class="anchor" href="chap26.html#fragops-shader"></a>26.3. Fragment Shading</h3>
+<div class="paragraph">
+<p><a href="chap9.html#shaders-fragment">Fragment shaders</a> are invoked for each fragment, or as
+<a href="chap9.html#shaders-helper-invocations">helper invocations</a>.</p>
+</div>
+<div class="paragraph">
+<p>Most operations in the fragment shader are not performed in
+<a href="undefined">rasterization order</a>, with exceptions called out in the
+following sections.</p>
+</div>
+<div class="paragraph">
+<p>For fragment shaders invoked by fragments, the following rules apply:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A fragment shader <strong class="purple">must</strong> not be executed if a <a href="chap26.html">fragment
+operation</a> that executes before fragment shading discards the fragment.</p>
+</li>
+<li>
+<p>A fragment shader <strong class="purple">may</strong> not be executed if:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>An implementation determines that another fragment shader, invoked by a
+subsequent primitive in <a href="chap20.html#drawing-primitive-order">primitive order</a>,
+overwrites all results computed by the shader (including writes to
+storage resources).</p>
+</li>
+<li>
+<p>Any other <a href="chap26.html">fragment operation</a> discards the fragment, and
+the shader does not write to any storage resources.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Otherwise, at least one fragment shader <strong class="purple">must</strong> be executed.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <a href="chap25.html#primsrast-sampleshading">sample shading</a> is enabled and multiple
+invocations per fragment are <strong class="purple">required</strong>, additional invocations <strong class="purple">must</strong> be
+executed as specified.</p>
+</li>
+<li>
+<p>Each covered sample <strong class="purple">must</strong> be included in at least one fragment shader
+invocation.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Multiple fragment shader invocations may be executed for the same fragment
+for any number of implementation-dependent reasons.
+When there is more than one fragment shader invocation per fragment, the
+association of samples to invocations is implementation-dependent.
+Stores and atomics performed by these additional invocations have the normal
+effect.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sect3">
+<h4 id="fragops-shader-samplemask"><a class="anchor" href="chap26.html#fragops-shader-samplemask"></a>26.3.1. Sample Mask</h4>
+<div class="paragraph">
+<p>Reading from the <a href="chap15.html#interfaces-builtin-variables-samplemask"><code>SampleMask</code></a> built-in in the <code>Input</code> storage class will return the
+coverage mask for the current fragment as calculated by fragment operations
+that executed prior to fragment shading.</p>
+</div>
+<div class="paragraph">
+<p>If <a href="chap25.html#primsrast-sampleshading">sample shading</a> is enabled, fragment shaders
+will only see values of <code>1</code> for samples being shaded - other bits will be
+<code>0</code>.</p>
+</div>
+<div class="paragraph">
+<p>Each bit of the coverage mask is associated with a sample index as described
+in the <a href="chap25.html#primsrast-multisampling-coverage-mask">rasterization chapter</a>.
+If the bit in <code>SampleMask</code> which is associated with that same sample
+index is set to <code>0</code>, that coverage mask bit is set to <code>0</code>.</p>
+</div>
+<div class="paragraph">
+<p>Values written to the <a href="chap15.html#interfaces-builtin-variables-samplemask"><code>SampleMask</code></a> built-in in the <code>Output</code> storage class will be used by
+the <a href="chap26.html#fragops-covg">multisample coverage</a> operation, with the same encoding
+as the input built-in.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="fragops-shader-depthreplacement"><a class="anchor" href="chap26.html#fragops-shader-depthreplacement"></a>26.3.2. Depth Replacement</h4>
+<div class="paragraph">
+<p>Writing to the <a href="chap15.html#interfaces-builtin-variables-fragdepth"><code>FragDepth</code></a>
+built-in will replace the fragment’s calculated depth values for each sample
+in the input <code>SampleMask</code>.
+<a href="chap26.html#fragops-depth">Depth testing</a> performed after the fragment shader for
+this fragment will use this new value as <span class="eq">z<sub>f</sub></span>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="fragops-covg"><a class="anchor" href="chap26.html#fragops-covg"></a>26.4. Multisample Coverage</h3>
 <div class="paragraph">
 <p>If a fragment shader is active and its entry point’s interface includes a
 built-in output variable decorated with <code>SampleMask</code>,
@@ -758,7 +884,7 @@ Otherwise, the alpha values are not changed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-ds-state"><a class="anchor" href="chap26.html#fragops-ds-state"></a>26.4. Depth and Stencil Operations</h3>
+<h3 id="fragops-ds-state"><a class="anchor" href="chap26.html#fragops-ds-state"></a>26.5. Depth and Stencil Operations</h3>
 <div class="paragraph">
 <p>Pipeline state controlling the <a href="chap26.html#fragops-dbt">depth bounds tests</a>,
 <a href="chap26.html#fragops-stencil">stencil test</a>, and <a href="chap26.html#fragops-depth">depth test</a> is
@@ -903,7 +1029,7 @@ mask, but is currently reserved for future use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-dbt"><a class="anchor" href="chap26.html#fragops-dbt"></a>26.5. Depth Bounds Test</h3>
+<h3 id="fragops-dbt"><a class="anchor" href="chap26.html#fragops-dbt"></a>26.6. Depth Bounds Test</h3>
 <div class="paragraph">
 <p>The depth bounds test compares the depth value <span class="eq">z<sub>a</sub></span> in the
 depth/stencil attachment at each sample’s framebuffer coordinates
@@ -1048,7 +1174,7 @@ Secondary</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-stencil"><a class="anchor" href="chap26.html#fragops-stencil"></a>26.6. Stencil Test</h3>
+<h3 id="fragops-stencil"><a class="anchor" href="chap26.html#fragops-stencil"></a>26.7. Stencil Test</h3>
 <div class="paragraph">
 <p>The stencil test compares the stencil attachment value <span class="eq">s<sub>a</sub></span> in the
 depth/stencil attachment at each sample’s framebuffer coordinates
@@ -1683,7 +1809,7 @@ an unsigned integer.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-depth"><a class="anchor" href="chap26.html#fragops-depth"></a>26.7. Depth Test</h3>
+<h3 id="fragops-depth"><a class="anchor" href="chap26.html#fragops-depth"></a>26.8. Depth Test</h3>
 <div class="paragraph">
 <p>The depth test compares the depth value <span class="eq">z<sub>a</sub></span> in the depth/stencil
 attachment at each sample’s framebuffer coordinates <span class="eq">(x<sub>f</sub>,y<sub>f</sub>)</span> and
@@ -1696,7 +1822,7 @@ If there is no depth attachment then the depth test is skipped.</p>
 sections.</p>
 </div>
 <div class="sect3">
-<h4 id="_depth_clamping_and_range_adjustment"><a class="anchor" href="chap26.html#_depth_clamping_and_range_adjustment"></a>26.7.1. Depth Clamping and Range Adjustment</h4>
+<h4 id="_depth_clamping_and_range_adjustment"><a class="anchor" href="chap26.html#_depth_clamping_and_range_adjustment"></a>26.8.1. Depth Clamping and Range Adjustment</h4>
 <div class="paragraph">
 <p>If <a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthClampEnable</code> is
 enabled, before the sample’s <span class="eq">z<sub>f</sub></span> is compared to <span class="eq">z<sub>a</sub></span>,
@@ -1711,7 +1837,7 @@ then <span class="eq">z<sub>f</sub></span> is undefined following this step.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_depth_comparison"><a class="anchor" href="chap26.html#_depth_comparison"></a>26.7.2. Depth Comparison</h4>
+<h4 id="_depth_comparison"><a class="anchor" href="chap26.html#_depth_comparison"></a>26.8.2. Depth Comparison</h4>
 <div class="paragraph">
 <p>If the depth test is not enabled, as specified by
 <a href="chap26.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthTestEnable</code>, then
@@ -1730,7 +1856,7 @@ the operation specified by the <a href="chap26.html#VkCompareOp">VkCompareOp</a>
 </div>
 </div>
 <div class="sect3">
-<h4 id="fragops-depth-write"><a class="anchor" href="chap26.html#fragops-depth-write"></a>26.7.3. Depth Buffer Writes</h4>
+<h4 id="fragops-depth-write"><a class="anchor" href="chap26.html#fragops-depth-write"></a>26.8.3. Depth Buffer Writes</h4>
 <div class="paragraph">
 <p>If depth writes are enabled, as specified by
 <a href="chap26.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>::<code>depthWriteEnable</code>, and the
@@ -1740,7 +1866,7 @@ to the sample’s depth value <span class="eq">z<sub>f</sub></span>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-samplecount"><a class="anchor" href="chap26.html#fragops-samplecount"></a>26.8. Sample Counting</h3>
+<h3 id="fragops-samplecount"><a class="anchor" href="chap26.html#fragops-samplecount"></a>26.9. Sample Counting</h3>
 <div class="paragraph">
 <p>Occlusion queries use query pool entries to track the number of samples that
 pass all the per-fragment tests.
@@ -1755,14 +1881,14 @@ sample mask, alpha to coverage, stencil, and depth tests.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fragops-coverage-reduction"><a class="anchor" href="chap26.html#fragops-coverage-reduction"></a>26.9. Coverage Reduction</h3>
+<h3 id="fragops-coverage-reduction"><a class="anchor" href="chap26.html#fragops-coverage-reduction"></a>26.10. Coverage Reduction</h3>
 <div class="paragraph">
 <p>Coverage reduction takes the coverage information for a fragment and
 converts that to a boolean coverage value for each color sample in each
 pixel covered by the fragment.</p>
 </div>
 <div class="sect3">
-<h4 id="_pixel_coverage"><a class="anchor" href="chap26.html#_pixel_coverage"></a>26.9.1. Pixel Coverage</h4>
+<h4 id="_pixel_coverage"><a class="anchor" href="chap26.html#_pixel_coverage"></a>26.10.1. Pixel Coverage</h4>
 <div class="paragraph">
 <p>Coverage for each pixel is first extracted from the total fragment coverage
 mask.
@@ -1774,7 +1900,7 @@ equivalent to the fragment coverage.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_color_sample_coverage"><a class="anchor" href="chap26.html#_color_sample_coverage"></a>26.9.2. Color Sample Coverage</h4>
+<h4 id="_color_sample_coverage"><a class="anchor" href="chap26.html#_color_sample_coverage"></a>26.10.2. Color Sample Coverage</h4>
 <div class="paragraph">
 <p>Once pixel coverage is determined, coverage for each individual color sample
 corresponding to that pixel is determined.</p>
@@ -1802,7 +1928,7 @@ A color sample is covered if the pixel coverage sample with the same
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.191<br>
+Version 1.0.192<br>
 Last updated 2021-08-20 13:37:33 -0700
 </div>
 </div>
