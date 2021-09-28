@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.193 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.194 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.193 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.194 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.193,</span>
-<span id="revdate">2021-09-21 07:46:40Z</span>
-<br><span id="revremark">from git branch: github-main commit: 129f6f69dcbc00184d771d2da969b4ed394ac80c</span>
+<span id="revnumber">version 1.1.194,</span>
+<span id="revdate">2021-09-28 13:00:54Z</span>
+<br><span id="revremark">from git branch: github-main commit: a0960966d565bdfc6e853a0bc471e58fdbd374ef</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -199,6 +199,7 @@
 <li><a href="chap12.html#resources-association">12.7. Resource Memory Association</a></li>
 <li><a href="chap12.html#resources-sharing">12.8. Resource Sharing Mode</a></li>
 <li><a href="chap12.html#resources-memory-aliasing">12.9. Memory Aliasing</a></li>
+<li><a href="chap12.html#resources-buffer-collection-fuchsia">12.10. Buffer Collections</a></li>
 </ul>
 </li>
 <li><a href="chap13.html">13. Samplers</a>
@@ -800,8 +801,8 @@ a mask, but is currently reserved for future use.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To dynamically control whether a special vertex index value is treated as
-restarting the assembly of primitives:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically control</a> whether a special vertex
+index value is treated as restarting the assembly of primitives, call:</p>
 </div>
 <div id="vkCmdSetPrimitiveRestartEnableEXT" class="listingblock">
 <div class="content">
@@ -826,9 +827,13 @@ It behaves in the same way as
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the state for a given draw when the graphics pipeline is
-created with <code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE_EXT</code> set in
-<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
+<p>This command sets the primitive restart enable for subsequent drawing
+commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a>::<code>primitiveRestartEnable</code>
+value used to create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1185,13 +1190,7 @@ topology.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The primitive topology is specified by the
-<a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a>::<code>topology</code> property of the
-currently active pipeline, if the pipeline was not created with
-<code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT</code> enabled.</p>
-</div>
-<div class="paragraph">
-<p>Otherwise, the primitive topology is set by calling:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> primitive topology, call:</p>
 </div>
 <div id="vkCmdSetPrimitiveTopologyEXT" class="listingblock">
 <div class="content">
@@ -1208,9 +1207,19 @@ currently active pipeline, if the pipeline was not created with
 recorded.</p>
 </li>
 <li>
-<p><code>topology</code> specifies the primitive topology to use for drawing.</p>
+<p><code>primitiveTopology</code> specifies the primitive topology to use for
+drawing.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the primitive topology for subsequent drawing commands
+when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a>::<code>topology</code> value used to
+create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1541,7 +1550,7 @@ The number of primitives generated is equal to <span class="eq"><code>vertexCoun
 <div class="sect3">
 <h4 id="drawing-line-lists"><a class="anchor" href="chap21.html#drawing-line-lists"></a>21.1.3. Line Lists</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST</code>, each
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST</code>, each
 consecutive pair of vertices defines a single line primitive, according to
 the equation:</p>
 </div>
@@ -1675,9 +1684,9 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-line-strips"><a class="anchor" href="chap21.html#drawing-line-strips"></a>21.1.4. Line Strips</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP</code>, one line
-primitive is defined by each vertex and the following vertex, according to
-the equation:</p>
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP</code>, one
+line primitive is defined by each vertex and the following vertex, according
+to the equation:</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1837,8 +1846,8 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-triangle-lists"><a class="anchor" href="chap21.html#drawing-triangle-lists"></a>21.1.5. Triangle Lists</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</code>, each
-consecutive set of three vertices defines a single triangle primitive,
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</code>,
+each consecutive set of three vertices defines a single triangle primitive,
 according to the equation:</p>
 </div>
 <div class="dlist">
@@ -2019,8 +2028,8 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-triangle-strips"><a class="anchor" href="chap21.html#drawing-triangle-strips"></a>21.1.6. Triangle Strips</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code>, one
-triangle primitive is defined by each vertex and the two vertices that
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code>,
+one triangle primitive is defined by each vertex and the two vertices that
 follow it, according to the equation:</p>
 </div>
 <div class="dlist">
@@ -2501,7 +2510,7 @@ that the winding order is consistent throughout the strip.</p>
 <div class="sect3">
 <h4 id="drawing-triangle-fans"><a class="anchor" href="chap21.html#drawing-triangle-fans"></a>21.1.7. Triangle Fans</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code>,
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code>,
 triangle primitives are defined around a shared common vertex, according to
 the equation:</p>
 </div>
@@ -2731,7 +2740,7 @@ and <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code> <strong class="purple">must<
 <div class="sect3">
 <h4 id="drawing-line-lists-with-adjacency"><a class="anchor" href="chap21.html#drawing-line-lists-with-adjacency"></a>21.1.8. Line Lists With Adjacency</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is
+<p>When the primitive topology is
 <code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY</code>, each consecutive set
 of four vertices defines a single line primitive with adjacency, according
 to the equation:</p>
@@ -2891,7 +2900,7 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-line-strips-with-adjacency"><a class="anchor" href="chap21.html#drawing-line-strips-with-adjacency"></a>21.1.9. Line Strips With Adjacency</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is
+<p>When the primitive topology is
 <code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY</code>, one line primitive
 with adjacency is defined by each vertex and the following vertex, according
 to the equation:</p>
@@ -3047,7 +3056,7 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-triangle-lists-with-adjacency"><a class="anchor" href="chap21.html#drawing-triangle-lists-with-adjacency"></a>21.1.10. Triangle Lists With Adjacency</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is
+<p>When the primitive topology is
 <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY</code>, each consecutive
 set of six vertices defines a single triangle primitive with adjacency,
 according to the equations:</p>
@@ -3261,7 +3270,7 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is <span class="eq">v
 <div class="sect3">
 <h4 id="drawing-triangle-strips-with-adjacency"><a class="anchor" href="chap21.html#drawing-triangle-strips-with-adjacency"></a>21.1.11. Triangle Strips With Adjacency</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is
+<p>When the primitive topology is
 <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY</code>, one triangle
 primitive with adjacency is defined by each vertex and the following 5
 vertices.</p>
@@ -3981,7 +3990,7 @@ provoking vertex for <span class="eq">p<sub>i</sub></span> is always <span class
 <div class="sect3">
 <h4 id="drawing-patch-lists"><a class="anchor" href="chap21.html#drawing-patch-lists"></a>21.1.12. Patch Lists</h4>
 <div class="paragraph">
-<p>When the <code>topology</code> is <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>, each
+<p>When the primitive topology is <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>, each
 consecutive set of <span class="eq">m</span> vertices defines a single patch primitive,
 according to the equation:</p>
 </div>
@@ -13784,7 +13793,7 @@ Secondary</p></td>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.193<br>
+Version 1.1.194<br>
 Last updated 2021-08-20 13:37:33 -0700
 </div>
 </div>

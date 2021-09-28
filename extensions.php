@@ -199,6 +199,7 @@
     <li> <b>  ANDROID Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  FUCHSIA Extensions (Google LLC)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_buffer_collection.html"> VK_FUCHSIA_buffer_collection </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_external_memory.html"> VK_FUCHSIA_external_memory </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_external_semaphore.html"> VK_FUCHSIA_external_semaphore </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_imagepipe_surface.html"> VK_FUCHSIA_imagepipe_surface </a> </li>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.193 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.194 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.2.193 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.194 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.193,</span>
-<span id="revdate">2021-09-21 07:35:52Z</span>
-<br><span id="revremark">from git branch: github-main commit: 129f6f69dcbc00184d771d2da969b4ed394ac80c</span>
+<span id="revnumber">version 1.2.194,</span>
+<span id="revdate">2021-09-28 12:49:58Z</span>
+<br><span id="revremark">from git branch: github-main commit: a0960966d565bdfc6e853a0bc471e58fdbd374ef</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -199,6 +199,7 @@
 <li><a href="chap12.html#resources-association">12.7. Resource Memory Association</a></li>
 <li><a href="chap12.html#resources-sharing">12.8. Resource Sharing Mode</a></li>
 <li><a href="chap12.html#resources-memory-aliasing">12.9. Memory Aliasing</a></li>
+<li><a href="chap12.html#resources-buffer-collection-fuchsia">12.10. Buffer Collections</a></li>
 </ul>
 </li>
 <li><a href="chap13.html">13. Samplers</a>
@@ -1106,8 +1107,8 @@ active shader stage in the pipeline before rasterization.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>To dynamically control whether primitives are discarded before the
-rasterization stage:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically enable</a> whether primitives are
+discarded before the rasterization stage, call:</p>
 </div>
 <div id="vkCmdSetRasterizerDiscardEnableEXT" class="listingblock">
 <div class="content">
@@ -1130,9 +1131,13 @@ immediately before the rasterization stage.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the state for a given draw when the graphics pipeline is
-created with <code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE_EXT</code> set in
-<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
+<p>This command sets the discard enable for subsequent drawing commands when
+the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>rasterizerDiscardEnable</code>
+value used to create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2635,16 +2640,8 @@ that <strong class="purple">can</strong> be queried using
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The custom sample locations used for rasterization when
-<code>VkPipelineSampleLocationsStateCreateInfoEXT</code>::<code>sampleLocationsEnable</code>
-is <code>VK_TRUE</code> are specified by the
-<code>VkPipelineSampleLocationsStateCreateInfoEXT</code>::<code>sampleLocationsInfo</code>
-property of the bound graphics pipeline, if the pipeline was not created
-with <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT</code> enabled.</p>
-</div>
-<div class="paragraph">
-<p>Otherwise, the sample locations used for rasterization are set by calling
-<code>vkCmdSetSampleLocationsEXT</code>:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the sample locations used
+for rasterization, call:</p>
 </div>
 <div id="vkCmdSetSampleLocationsEXT" class="listingblock">
 <div class="content">
@@ -2664,6 +2661,17 @@ recorded.</p>
 <p><code>pSampleLocationsInfo</code> is the sample locations state to set.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the custom sample locations for subsequent drawing
+commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>, and when the
+<a href="chap27.html#VkPipelineSampleLocationsStateCreateInfoEXT">VkPipelineSampleLocationsStateCreateInfoEXT</a>::<code>sampleLocationsEnable</code>
+property of the bound graphics pipeline is <code>VK_TRUE</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineSampleLocationsStateCreateInfoEXT">VkPipelineSampleLocationsStateCreateInfoEXT</a>::<code>sampleLocationsInfo</code>
+values used to create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -3140,9 +3148,8 @@ to be equal to <code>VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR</code>.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If a pipeline state object is created with
-<code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> enabled, the pipeline
-fragment shading rate and combiner operation is set by the command:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the pipeline fragment
+shading rate and combiner operation, call:</p>
 </div>
 <div id="vkCmdSetFragmentShadingRateKHR" class="listingblock">
 <div class="content">
@@ -3173,6 +3180,15 @@ are <a href="chap27.html#primsrast-fragment-shading-rate-combining">combined</a>
 generated by subsequent drawing commands.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the pipeline fragment shading rate and combiner operation
+for subsequent drawing commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a> values used to create
+the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -3852,9 +3868,8 @@ be ignored.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If a pipeline state object is created with
-<code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> enabled, the pipeline
-fragment shading rate and combiner operation <strong class="purple">may</strong> be set by the command:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the pipeline fragment
+shading rate and combiner operation, call:</p>
 </div>
 <div id="vkCmdSetFragmentShadingRateEnumNV" class="listingblock">
 <div class="content">
@@ -3886,6 +3901,33 @@ are <a href="chap27.html#primsrast-fragment-shading-rate-combining">combined</a>
 generated by subsequent drawing commands.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the pipeline fragment shading rate and combiner operation
+for subsequent drawing commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineFragmentShadingRateEnumStateCreateInfoNV">VkPipelineFragmentShadingRateEnumStateCreateInfoNV</a> values used to
+create the currently active pipeline.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This command allows specifying additional shading rates beyond those
+supported by <a href="chap27.html#vkCmdSetFragmentShadingRateKHR">vkCmdSetFragmentShadingRateKHR</a>.
+For more information, refer to the <code><a href="chap50.html#VK_NV_fragment_shading_rate_enums">VK_NV_fragment_shading_rate_enums</a></code>
+appendix.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -4398,9 +4440,8 @@ image palette size</a>.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If a pipeline state object is created with
-<code>VK_DYNAMIC_STATE_VIEWPORT_SHADING_RATE_PALETTE_NV</code> enabled, the
-per-viewport shading rate image palettes are set by the command:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the per-viewport shading
+rate image palettes, call:</p>
 </div>
 <div id="vkCmdSetViewportShadingRatePaletteNV" class="listingblock">
 <div class="content">
@@ -4432,6 +4473,15 @@ palettes are updated by the command.</p>
 viewport.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the per-viewport shading rate image palettes for
+subsequent drawing commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_VIEWPORT_SHADING_RATE_PALETTE_NV</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineViewportShadingRateImageStateCreateInfoNV">VkPipelineViewportShadingRateImageStateCreateInfoNV</a>::<code>pShadingRatePalettes</code>
+values used to create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5169,9 +5219,8 @@ pixel belonging to the fragment</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If a pipeline state object is created with
-<code>VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV</code> enabled, the order of
-coverage samples in fragments larger than one pixel is set by the command:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the order of coverage
+samples in fragments larger than one pixel, call:</p>
 </div>
 <div id="vkCmdSetCoarseSampleOrderNV" class="listingblock">
 <div class="content">
@@ -5210,6 +5259,15 @@ coverage sample count.</p>
 coverage sample order used for any combination of fragment area and coverage
 sample count not enumerated in <code>pCustomSampleOrders</code> will be identical
 to that used for <code>VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV</code>.</p>
+</div>
+<div class="paragraph">
+<p>This command sets the order of coverage samples for subsequent drawing
+commands when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineViewportCoarseSampleOrderStateCreateInfoNV">VkPipelineViewportCoarseSampleOrderStateCreateInfoNV</a> values used to
+create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5849,14 +5907,7 @@ falloff, as defined in <a href="chap27.html#primsrast-lines-smooth">Smooth Lines
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>Each line segment has an associated width.
-The line width is specified by the
-<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>lineWidth</code> property of
-the currently active pipeline, if the pipeline was not created with
-<code>VK_DYNAMIC_STATE_LINE_WIDTH</code> enabled.</p>
-</div>
-<div class="paragraph">
-<p>Otherwise, the line width is set by calling <code>vkCmdSetLineWidth</code>:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the line width, call:</p>
 </div>
 <div id="vkCmdSetLineWidth" class="listingblock">
 <div class="content">
@@ -5876,6 +5927,14 @@ recorded.</p>
 <p><code>lineWidth</code> is the width of rasterized line segments.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the line width for subsequent drawing commands when the
+graphics pipeline is created with <code>VK_DYNAMIC_STATE_LINE_WIDTH</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>lineWidth</code> value used to
+create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6427,7 +6486,8 @@ stipple by causing each bit in <code>lineStipplePattern</code> to be used
 <p>Line stippling discards certain fragments that are produced by
 rasterization.
 The masking is achieved using three parameters: the 16-bit line stipple
-pattern p, the line stipple factor r, and an integer stipple counter s.
+pattern <em>p</em>, the line stipple factor <em>r</em>, and an integer stipple counter
+<em>s</em>.
 Let</p>
 </div>
 <div class="stemblock">
@@ -6436,14 +6496,14 @@ Let</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Then a fragment is produced if the b’th bit of p is 1, and discarded
+<p>Then a fragment is produced if the <em>b</em>'th bit of <em>p</em> is 1, and discarded
 otherwise.
-The bits of p are numbered with 0 being the least significant and 15 being
+The bits of <em>p</em> are numbered with 0 being the least significant and 15 being
 the most significant.</p>
 </div>
 <div class="paragraph">
-<p>The initial value of s is zero.
-For <code>VK_LINE_RASTERIZATION_MODE_BRESENHAM_EXT</code> lines, s is incremented
+<p>The initial value of <em>s</em> is zero.
+For <code>VK_LINE_RASTERIZATION_MODE_BRESENHAM_EXT</code> lines, <em>s</em> is incremented
 after production of each fragment of a line segment (fragments are produced
 in order, beginning at the starting point and working towards the ending
 point).
@@ -6451,34 +6511,26 @@ For <code>VK_LINE_RASTERIZATION_MODE_RECTANGULAR_EXT</code> and
 <code>VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH_EXT</code> lines, the
 rectangular region is subdivided into adjacent unit-length rectangles, and s
 is incremented once for each rectangle.
-Rectangles with a value of s such that the b’th bit of p is zero are
+Rectangles with a value of <em>s</em> such that the <em>b</em>'th bit of <em>p</em> is zero are
 discarded.
 If the last rectangle in a line segment is shorter than unit-length, then
 the remainder <strong class="purple">may</strong> carry over to the next line segment in the line strip
-using the same value of s (this is the preferred behavior, for the stipple
+using the same value of <em>s</em> (this is the preferred behavior, for the stipple
 pattern to appear more consistent through the strip).</p>
 </div>
 <div class="paragraph">
-<p>s is reset to 0 at the start of each strip (for line strips), and before
+<p><em>s</em> is reset to 0 at the start of each strip (for line strips), and before
 every line segment in a group of independent segments.</p>
 </div>
 <div class="paragraph">
-<p>If the line segment has been clipped, then the value of s at the beginning
+<p>If the line segment has been clipped, then the value of <em>s</em> at the beginning
 of the line segment is implementation-dependent.</p>
 </div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The line stipple factor and pattern are specified by the
-<a href="chap27.html#VkPipelineRasterizationLineStateCreateInfoEXT">VkPipelineRasterizationLineStateCreateInfoEXT</a>::<code>lineStippleFactor</code>
-and
-<a href="chap27.html#VkPipelineRasterizationLineStateCreateInfoEXT">VkPipelineRasterizationLineStateCreateInfoEXT</a>::<code>lineStipplePattern</code>
-members of the currently active pipeline, if the pipeline was not created
-with <code>VK_DYNAMIC_STATE_LINE_STIPPLE_EXT</code> enabled.</p>
-</div>
-<div class="paragraph">
-<p>Otherwise, the line stipple factor and pattern are set by calling
-<code>vkCmdSetLineStippleEXT</code>:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the line stipple state,
+call:</p>
 </div>
 <div id="vkCmdSetLineStippleEXT" class="listingblock">
 <div class="content">
@@ -6504,6 +6556,17 @@ rasterization.</p>
 rasterization.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the line stipple state for subsequent drawing commands
+when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_LINE_STIPPLE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationLineStateCreateInfoEXT">VkPipelineRasterizationLineStateCreateInfoEXT</a>::<code>lineStippleFactor</code>
+and
+<a href="chap27.html#VkPipelineRasterizationLineStateCreateInfoEXT">VkPipelineRasterizationLineStateCreateInfoEXT</a>::<code>lineStipplePattern</code>
+values used to create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6689,9 +6752,8 @@ triangles.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_FRONT_FACE_EXT</code> dynamic state enabled then the front
-face property is set dynamically by calling:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the front face orientation,
+call:</p>
 </div>
 <div id="vkCmdSetFrontFaceEXT" class="listingblock">
 <div class="content">
@@ -6708,9 +6770,19 @@ face property is set dynamically by calling:</p>
 recorded.</p>
 </li>
 <li>
-<p><code>frontFace</code> specifies the front face property to use for drawing.</p>
+<p><code>frontFace</code> is a <a href="chap27.html#VkFrontFace">VkFrontFace</a> value specifying the front-facing
+triangle orientation to be used for culling.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the front face orientation for subsequent drawing commands
+when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_FRONT_FACE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>frontFace</code> value used to
+create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6857,9 +6929,7 @@ been discarded.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_CULL_MODE_EXT</code> dynamic state enabled then the cull
-mode is set dynamically by calling:</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the cull mode, call:</p>
 </div>
 <div id="vkCmdSetCullModeEXT" class="listingblock">
 <div class="content">
@@ -6879,6 +6949,14 @@ recorded.</p>
 <p><code>cullMode</code> specifies the cull mode property to use for drawing.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>This command sets the cull mode for subsequent drawing commands when the
+graphics pipeline is created with <code>VK_DYNAMIC_STATE_CULL_MODE_EXT</code> set
+in <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>cullMode</code> value used to
+create the currently active pipeline.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -7192,27 +7270,34 @@ culled before these modes are applied.</p>
 </div>
 <div class="sect3">
 <h4 id="primsrast-depthbias"><a class="anchor" href="chap27.html#primsrast-depthbias"></a>27.12.3. Depth Bias</h4>
+<div class="paragraph">
+<p>The depth values of all fragments generated by the rasterization of a
+polygon <strong class="purple">can</strong> be biased (offset) by a single depth bias value <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">o</span></span></span></span>
+that is computed for that polygon.</p>
+</div>
+<div class="sect4">
+<h5 id="primsrast-depthbias-enable"><a class="anchor" href="chap27.html#primsrast-depthbias-enable"></a>Depth Bias Enable</h5>
+<div class="paragraph">
+<p>The depth bias computation is enabled by the
+<code>depthBiasEnable</code> set with <a href="chap27.html#vkCmdSetDepthBiasEnableEXT">vkCmdSetDepthBiasEnableEXT</a>, or the
+corresponding
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthBiasEnable</code> value
+used to create the currently active pipeline.
+If the depth bias enable is <code>VK_FALSE</code>, no bias is applied and the
+fragment’s depth values are unchanged.</p>
+</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The depth values of all fragments generated by the rasterization of a
-polygon <strong class="purple">can</strong> be offset by a single value that is computed for that polygon.
-This behavior is controlled by the <code>depthBiasEnable</code>,
-<code>depthBiasConstantFactor</code>, <code>depthBiasClamp</code>, and
-<code>depthBiasSlopeFactor</code> members of
-<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>, or by the corresponding
-parameters to the <code>vkCmdSetDepthBias</code>
-and <code>vkCmdSetDepthBiasEnableEXT</code>
-command if depth bias state is dynamic.</p>
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically enable</a> whether to bias fragment
+depth values, call:</p>
 </div>
-<div id="vkCmdSetDepthBias" class="listingblock">
+<div id="vkCmdSetDepthBiasEnableEXT" class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_VERSION_1_0</span>
-<span class="kt">void</span> <span class="nf">vkCmdSetDepthBias</span><span class="p">(</span>
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_extended_dynamic_state2</span>
+<span class="kt">void</span> <span class="nf">vkCmdSetDepthBiasEnableEXT</span><span class="p">(</span>
     <span class="n">VkCommandBuffer</span>                             <span class="n">commandBuffer</span><span class="p">,</span>
-    <span class="kt">float</span>                                       <span class="n">depthBiasConstantFactor</span><span class="p">,</span>
-    <span class="kt">float</span>                                       <span class="n">depthBiasClamp</span><span class="p">,</span>
-    <span class="kt">float</span>                                       <span class="n">depthBiasSlopeFactor</span><span class="p">);</span></code></pre>
+    <span class="n">VkBool32</span>                                    <span class="n">depthBiasEnable</span><span class="p">);</span></code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -7222,32 +7307,125 @@ command if depth bias state is dynamic.</p>
 recorded.</p>
 </li>
 <li>
-<p><code>depthBiasConstantFactor</code> is a scalar factor controlling the
-constant depth value added to each fragment.</p>
-</li>
-<li>
-<p><code>depthBiasClamp</code> is the maximum (or minimum) depth bias of a
-fragment.</p>
-</li>
-<li>
-<p><code>depthBiasSlopeFactor</code> is a scalar factor applied to a fragment’s
-slope in depth bias calculations.</p>
+<p><code>depthBiasEnable</code> controls whether to bias fragment depth values.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>If <code>depthBiasEnable</code> is <code>VK_FALSE</code> at draw time, no depth bias is
-applied and the fragment’s depth values are unchanged.</p>
+<p>This command sets the depth bias enable for subsequent drawing commands when
+the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap27.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>depthBiasEnable</code> value
+used to create the currently active pipeline.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-None-04872" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-None-04872"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-None-04872</span><br>
+
+The <a href="chap41.html#features-extendedDynamicState2">extendedDynamicState2</a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="primsrast-depthbias-computation"><a class="anchor" href="chap27.html#primsrast-depthbias-computation"></a>Depth Bias Computation</h5>
+<div class="paragraph">
+<p>The depth bias depends on three parameters:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>depthBiasSlopeFactor</code> scales the maximum depth slope <span class="eq">m</span> of the
+polygon</p>
+</li>
+<li>
+<p><code>depthBiasConstantFactor</code> scales the minimum resolvable difference
+<span class="eq">r</span> of the depth buffer</p>
+</li>
+<li>
+<p>the scaled terms are summed to produce a value which is then clamped to
+a minimum or maximum value specified by <code>depthBiasClamp</code></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p><code>depthBiasSlopeFactor</code> scales the maximum depth slope of the polygon,
-and <code>depthBiasConstantFactor</code> scales the minimum resolvable difference
-of the depth buffer.
-The resulting values are summed to produce the depth bias value which is
-then clamped to a minimum or maximum value specified by
-<code>depthBiasClamp</code>.
-<code>depthBiasSlopeFactor</code>, <code>depthBiasConstantFactor</code>, and
-<code>depthBiasClamp</code> <strong class="purple">can</strong> each be positive, negative, or zero.</p>
+<p><code>depthBiasSlopeFactor</code>, <code>depthBiasConstantFactor</code>, and
+<code>depthBiasClamp</code> <strong class="purple">can</strong> each be positive, negative, or zero.
+These parameters are set as described for <a href="chap27.html#vkCmdSetDepthBias">vkCmdSetDepthBias</a> below.</p>
 </div>
 <div class="paragraph">
 <p>The maximum depth slope <span class="eq">m</span> of a triangle is</p>
@@ -7337,6 +7515,51 @@ If the depth buffer uses a fixed-point representation, <span class="eq">m</span>
 of depth values in the range <span class="eq">[0,1]</span>, and <span class="eq">o</span> is applied to depth
 values in the same range.</p>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the depth bias parameters,
+call:</p>
+</div>
+<div id="vkCmdSetDepthBias" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_VERSION_1_0</span>
+<span class="kt">void</span> <span class="nf">vkCmdSetDepthBias</span><span class="p">(</span>
+    <span class="n">VkCommandBuffer</span>                             <span class="n">commandBuffer</span><span class="p">,</span>
+    <span class="kt">float</span>                                       <span class="n">depthBiasConstantFactor</span><span class="p">,</span>
+    <span class="kt">float</span>                                       <span class="n">depthBiasClamp</span><span class="p">,</span>
+    <span class="kt">float</span>                                       <span class="n">depthBiasSlopeFactor</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>depthBiasConstantFactor</code> is a scalar factor controlling the
+constant depth value added to each fragment.</p>
+</li>
+<li>
+<p><code>depthBiasClamp</code> is the maximum (or minimum) depth bias of a
+fragment.</p>
+</li>
+<li>
+<p><code>depthBiasSlopeFactor</code> is a scalar factor applied to a fragment’s
+slope in depth bias calculations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This command sets the depth bias parameters for subsequent drawing commands
+when the graphics pipeline is created with <code>VK_DYNAMIC_STATE_DEPTH_BIAS</code>
+set in <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the corresponding
+<a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a>::<code>depthBiasConstantFactor</code>,
+<code>depthBiasClamp</code>, and <code>depthBiasSlopeFactor</code> values used to create
+the currently active pipeline.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -7414,114 +7637,6 @@ Secondary</p></td>
 </tbody>
 </table>
 </div>
-</div>
-</div>
-</div>
-<div class="openblock">
-<div class="content">
-<div class="paragraph">
-<p>To dynamically control whether to bias fragment depth values:</p>
-</div>
-<div id="vkCmdSetDepthBiasEnableEXT" class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_extended_dynamic_state2</span>
-<span class="kt">void</span> <span class="nf">vkCmdSetDepthBiasEnableEXT</span><span class="p">(</span>
-    <span class="n">VkCommandBuffer</span>                             <span class="n">commandBuffer</span><span class="p">,</span>
-    <span class="n">VkBool32</span>                                    <span class="n">depthBiasEnable</span><span class="p">);</span></code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>commandBuffer</code> is the command buffer into which the command will be
-recorded.</p>
-</li>
-<li>
-<p><code>depthBiasEnable</code> controls whether to bias fragment depth values.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>This command sets the state for a given draw when the graphics pipeline is
-created with <code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE_EXT</code> set in
-<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.</p>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-None-04872" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-None-04872"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-None-04872</span><br>
-
-The <a href="chap41.html#features-extendedDynamicState2">extendedDynamicState2</a> feature
-<strong class="purple">must</strong> be enabled</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage (Implicit)</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-parameter</span><br>
- <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-recording</span><br>
- <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool" href="chap27.html#VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdSetDepthBiasEnableEXT-commandBuffer-cmdpool</span><br>
- The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Host Synchronization</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
-</li>
-<li>
-<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Command Properties</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
-<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
-Secondary</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 </div>
@@ -7830,7 +7945,7 @@ fully covered by the generating primitive.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.2.193<br>
+Version 1.2.194<br>
 Last updated 2021-08-20 13:37:33 -0700
 </div>
 </div>
