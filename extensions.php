@@ -30,6 +30,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_capabilities.html"> VK_KHR_external_semaphore_capabilities </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_fd.html"> VK_KHR_external_semaphore_fd </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_win32.html"> VK_KHR_external_semaphore_win32 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_format_feature_flags2.html"> VK_KHR_format_feature_flags2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_fragment_shading_rate.html"> VK_KHR_fragment_shading_rate </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_display_properties2.html"> VK_KHR_get_display_properties2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_memory_requirements2.html"> VK_KHR_get_memory_requirements2 </a> </li>
@@ -41,6 +42,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_maintenance1.html"> VK_KHR_maintenance1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_maintenance2.html"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_maintenance3.html"> VK_KHR_maintenance3 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_maintenance4.html"> VK_KHR_maintenance4 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_multiview.html"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_executable_properties.html"> VK_KHR_pipeline_executable_properties </a> </li>
@@ -145,6 +147,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_provoking_vertex.html"> VK_EXT_provoking_vertex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_rgba10x6_formats.html"> VK_EXT_rgba10x6_formats </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_robustness2.html"> VK_EXT_robustness2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sample_locations.html"> VK_EXT_sample_locations </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sampler_filter_minmax.html"> VK_EXT_sampler_filter_minmax </a> </li>
