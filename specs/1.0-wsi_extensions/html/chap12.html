@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.195 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.196 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.195 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.196 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.195,</span>
-<span id="revdate">2021-10-05 10:51:08Z</span>
-<br><span id="revremark">from git branch: github-main commit: 9dc6dfbb7aea0999f4108ad0faeee099d0adb173</span>
+<span id="revnumber">version 1.0.196,</span>
+<span id="revdate">2021-10-13 10:55:20Z</span>
+<br><span id="revremark">from git branch: github-main commit: 0714884a45ffe66c2746b4f53c9035bf72c32dfd</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -271,6 +271,7 @@
 <ul class="sectlevel2">
 <li><a href="chap21.html#fxvertex-attrib">21.1. Vertex Attributes</a></li>
 <li><a href="chap21.html#fxvertex-input">21.2. Vertex Input Description</a></li>
+<li><a href="chap21.html#fxvertex-input-address-calculation">21.3. Vertex Input Address Calculation</a></li>
 </ul>
 </li>
 <li><a href="chap22.html">22. Tessellation</a>
@@ -307,7 +308,7 @@
 <li><a href="chap25.html">25. Rasterization</a>
 <ul class="sectlevel2">
 <li><a href="chap25.html#primsrast-discard">25.1. Discarding Primitives Before Rasterization</a></li>
-<li><a href="chap25.html#primrast-order">25.2. Rasterization Order</a></li>
+<li><a href="chap25.html#primsrast-order">25.2. Rasterization Order</a></li>
 <li><a href="chap25.html#primsrast-multisampling">25.3. Multisampling</a></li>
 <li><a href="chap25.html#primsrast-fragment-shading-rate">25.4. Fragment Shading Rates</a></li>
 <li><a href="chap25.html#primsrast-sampleshading">25.5. Sample Shading</a></li>
@@ -3121,10 +3122,10 @@ or depth/stencil resolve
 attachment in a <code>VkFramebuffer</code>.</p>
 </li>
 <li>
-<p><code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> specifies that the memory
-bound to this image will be allocated with the
-<code>VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT</code> (see <a href="chap11.html">Memory Allocation</a> for more
-detail).
+<p><code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> specifies that
+implementations <strong class="purple">may</strong> support using <a href="chap11.html">memory allocations</a> with
+the <code>VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT</code> to back an image with
+this usage.
 This bit <strong class="purple">can</strong> be set for any image that <strong class="purple">can</strong> be used to create a
 <code>VkImageView</code> suitable for use as a color, resolve, depth/stencil,
 or input attachment.</p>
@@ -3159,11 +3160,12 @@ This flag <strong class="purple">must</strong> be combined with
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code>.
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> is required for DPB image
 resources because these resources will be associated with
-<a href="undefined">reference pictures</a> after acting as targets for
+<a href="chap35.html#reference-picture">reference pictures</a> after acting as targets for
 video decode operations.
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code> is required for DPB image
-resources because the <a href="undefined">reference pictures</a> associated
-with them act as information sources for subsequent decode operations.</p>
+resources because the <a href="chap35.html#reference-picture">reference pictures</a>
+associated with them act as information sources for subsequent decode
+operations.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code> specifies that the image
@@ -4664,9 +4666,9 @@ sampler to be used with the image view <strong class="purple">must</strong> enab
 </div>
 <div class="paragraph">
 <p>If the image has a
-<a href="undefined">multi-planar</a>
-<code>format</code> and the <code>image</code> has been created with a <code>usage</code> value
-containing any of the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
+<a href="chap39.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> <code>format</code> and
+the <code>image</code> has been created with a <code>usage</code> value containing any of
+the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code>, and
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> flags, then all of the
 <a href="chap35.html#video-decode-operations">video decode operations</a> would ignore the
@@ -4674,9 +4676,9 @@ containing any of the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
 <a href="chap13.html#samplers-YCbCr-conversion">sampler Y’C<sub>B</sub>C<sub>R</sub> conversion</a> object,
 associated with the image view.
 If the image has a
-<a href="undefined">multi-planar</a>
-<code>format</code> and the <code>image</code> has been created with a <code>usage</code> value
-containing any of the <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code>,
+<a href="chap39.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> <code>format</code> and
+the <code>image</code> has been created with a <code>usage</code> value containing any of
+the <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>, and
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code> flags, then all of the
 <a href="chap35.html#video-encode-operations">video encode operations</a> would ignore the
@@ -10316,8 +10318,8 @@ to satisfy all the above requirements.</p>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.195<br>
-Last updated 2021-08-20 13:37:33 -0700
+Version 1.0.196<br>
+Last updated 2021-10-13 03:46:28 -0700
 </div>
 </div>
 

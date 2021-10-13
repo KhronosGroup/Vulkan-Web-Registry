@@ -95,6 +95,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_astc_decode_mode.html"> VK_EXT_astc_decode_mode </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_blend_operation_advanced.html"> VK_EXT_blend_operation_advanced </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_border_color_swizzle.html"> VK_EXT_border_color_swizzle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_buffer_device_address.html"> VK_EXT_buffer_device_address </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_calibrated_timestamps.html"> VK_EXT_calibrated_timestamps </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_color_write_enable.html"> VK_EXT_color_write_enable </a> </li>
@@ -175,6 +176,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_video_decode_h264.html"> VK_EXT_video_decode_h264 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_video_decode_h265.html"> VK_EXT_video_decode_h265 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_video_encode_h264.html"> VK_EXT_video_encode_h264 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_video_encode_h265.html"> VK_EXT_video_encode_h265 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_ycbcr_2plane_444_formats.html"> VK_EXT_ycbcr_2plane_444_formats </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_ycbcr_image_arrays.html"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>

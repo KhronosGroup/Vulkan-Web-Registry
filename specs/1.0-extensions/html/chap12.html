@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.195 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.196 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.0.195 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.196 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.195,</span>
-<span id="revdate">2021-10-05 10:54:35Z</span>
-<br><span id="revremark">from git branch: github-main commit: 9dc6dfbb7aea0999f4108ad0faeee099d0adb173</span>
+<span id="revnumber">version 1.0.196,</span>
+<span id="revdate">2021-10-13 10:58:40Z</span>
+<br><span id="revremark">from git branch: github-main commit: 0714884a45ffe66c2746b4f53c9035bf72c32dfd</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -292,7 +292,8 @@
 <ul class="sectlevel2">
 <li><a href="chap22.html#fxvertex-attrib">22.1. Vertex Attributes</a></li>
 <li><a href="chap22.html#fxvertex-input">22.2. Vertex Input Description</a></li>
-<li><a href="chap22.html#_vertex_attribute_divisor_in_instanced_rendering">22.3. Vertex Attribute Divisor in Instanced Rendering</a></li>
+<li><a href="chap22.html#fxvertex-attribute_divisor">22.3. Vertex Attribute Divisor in Instanced Rendering</a></li>
+<li><a href="chap22.html#fxvertex-input-address-calculation">22.4. Vertex Input Address Calculation</a></li>
 </ul>
 </li>
 <li><a href="chap23.html">23. Tessellation</a>
@@ -346,9 +347,9 @@
 <ul class="sectlevel2">
 <li><a href="chap27.html#primsrast-discard">27.1. Discarding Primitives Before Rasterization</a></li>
 <li><a href="chap27.html#primsrast-stream">27.2. Controlling the Vertex Stream Used for Rasterization</a></li>
-<li><a href="chap27.html#primrast-order">27.3. Rasterization Order</a></li>
+<li><a href="chap27.html#primsrast-order">27.3. Rasterization Order</a></li>
 <li><a href="chap27.html#primsrast-multisampling">27.4. Multisampling</a></li>
-<li><a href="chap27.html#primrast-samplelocations">27.5. Custom Sample Locations</a></li>
+<li><a href="chap27.html#primsrast-samplelocations">27.5. Custom Sample Locations</a></li>
 <li><a href="chap27.html#primsrast-fragment-shading-rate">27.6. Fragment Shading Rates</a></li>
 <li><a href="chap27.html#primsrast-shading-rate-image">27.7. Shading Rate Image</a></li>
 <li><a href="chap27.html#primsrast-sampleshading">27.8. Sample Shading</a></li>
@@ -458,6 +459,7 @@
 <li><a href="chap39.html#decode-h265">39.7. Video Decode of HEVC (ITU-T H.265)</a></li>
 <li><a href="chap39.html#video-encode-operations">39.8. Video Encode Operations</a></li>
 <li><a href="chap39.html#encode-h264">39.9. Encode H.264</a></li>
+<li><a href="chap39.html#encode-h265">39.10. Encode H.265</a></li>
 </ul>
 </li>
 <li><a href="chap40.html">40. Extending Vulkan</a>
@@ -4488,10 +4490,10 @@ or depth/stencil resolve
 attachment in a <code>VkFramebuffer</code>.</p>
 </li>
 <li>
-<p><code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> specifies that the memory
-bound to this image will be allocated with the
-<code>VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT</code> (see <a href="chap11.html">Memory Allocation</a> for more
-detail).
+<p><code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> specifies that
+implementations <strong class="purple">may</strong> support using <a href="chap11.html">memory allocations</a> with
+the <code>VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT</code> to back an image with
+this usage.
 This bit <strong class="purple">can</strong> be set for any image that <strong class="purple">can</strong> be used to create a
 <code>VkImageView</code> suitable for use as a color, resolve, depth/stencil,
 or input attachment.</p>
@@ -4533,11 +4535,12 @@ This flag <strong class="purple">must</strong> be combined with
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code>.
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> is required for DPB image
 resources because these resources will be associated with
-<a href="undefined">reference pictures</a> after acting as targets for
+<a href="chap39.html#reference-picture">reference pictures</a> after acting as targets for
 video decode operations.
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code> is required for DPB image
-resources because the <a href="undefined">reference pictures</a> associated
-with them act as information sources for subsequent decode operations.</p>
+resources because the <a href="chap39.html#reference-picture">reference pictures</a>
+associated with them act as information sources for subsequent decode
+operations.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code> specifies that the image
@@ -6539,9 +6542,9 @@ sampler to be used with the image view <strong class="purple">must</strong> enab
 </div>
 <div class="paragraph">
 <p>If the image has a
-<a href="undefined">multi-planar</a>
-<code>format</code> and the <code>image</code> has been created with a <code>usage</code> value
-containing any of the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> <code>format</code> and
+the <code>image</code> has been created with a <code>usage</code> value containing any of
+the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR</code>, and
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> flags, then all of the
 <a href="chap39.html#video-decode-operations">video decode operations</a> would ignore the
@@ -6549,9 +6552,9 @@ containing any of the <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
 <a href="chap13.html#samplers-YCbCr-conversion">sampler Y’C<sub>B</sub>C<sub>R</sub> conversion</a> object,
 associated with the image view.
 If the image has a
-<a href="undefined">multi-planar</a>
-<code>format</code> and the <code>image</code> has been created with a <code>usage</code> value
-containing any of the <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code>,
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> <code>format</code> and
+the <code>image</code> has been created with a <code>usage</code> value containing any of
+the <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>, and
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code> flags, then all of the
 <a href="chap39.html#video-encode-operations">video encode operations</a> would ignore the
@@ -9185,6 +9188,20 @@ in the motion top-level acceleration structure.</p>
 </ul>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkAccelerationStructureMotionInfoFlagsNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_ray_tracing_motion_blur</span>
+<span class="k">typedef</span> <span class="n">VkFlags</span> <span class="n">VkAccelerationStructureMotionInfoFlagsNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkAccelerationStructureMotionInfoFlagsNV</code> is a bitmask type for setting
+a mask, but is currently reserved for future use.</p>
 </div>
 </div>
 </div>
@@ -15029,30 +15046,32 @@ already been called on <code>collection</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure</p>
+<p><code>sType</code> is the type of this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
-structure</p>
+structure.</p>
 </li>
 <li>
 <p><code>formatConstraintsCount</code> is the number of elements in
-<code>pFormatConstraints</code></p>
+<code>pFormatConstraints</code>.</p>
 </li>
 <li>
 <p><code>pFormatConstraints</code> is an array of
 <a href="chap12.html#VkImageFormatConstraintsInfoFUCHSIA">VkImageFormatConstraintsInfoFUCHSIA</a> structures of size
 <code>formatConstraintsCount</code> that is used to further constrain buffer
-collection format selection for image-based buffer collections</p>
+collection format selection for image-based buffer collections.</p>
 </li>
 <li>
 <p><code>bufferCollectionConstraints</code> is a
 <a href="chap12.html#VkBufferCollectionConstraintsInfoFUCHSIA">VkBufferCollectionConstraintsInfoFUCHSIA</a> structure used to supply
 parameters for the negotiation and allocation for buffer-based buffer
-collections</p>
+collections.</p>
 </li>
 <li>
-<p><code>flags</code> is reserved for future use</p>
+<p><code>flags</code> is a <a href="chap12.html#VkImageConstraintsInfoFlagBitsFUCHSIA">VkImageConstraintsInfoFlagBitsFUCHSIA</a> value
+specifying hints about the type of memory Sysmem should allocate for the
+buffer collection.</p>
 </li>
 </ul>
 </div>
@@ -15145,7 +15164,7 @@ If the <a href="chap41.html#features-attachmentFragmentShadingRate"><code>attach
 </li>
 <li>
 <p><a id="VUID-VkImageConstraintsInfoFUCHSIA-flags-parameter" href="chap12.html#VUID-VkImageConstraintsInfoFUCHSIA-flags-parameter"></a> <span class="vuid">VUID-VkImageConstraintsInfoFUCHSIA-flags-parameter</span><br>
- <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="undefined">VkImageConstraintsInfoFlagBitsFUCHSIA</a> values</p>
+ <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="chap12.html#VkImageConstraintsInfoFlagBitsFUCHSIA">VkImageConstraintsInfoFlagBitsFUCHSIA</a> values</p>
 </li>
 <li>
 <p><a id="VUID-VkImageConstraintsInfoFUCHSIA-formatConstraintsCount-arraylength" href="chap12.html#VUID-VkImageConstraintsInfoFUCHSIA-formatConstraintsCount-arraylength"></a> <span class="vuid">VUID-VkImageConstraintsInfoFUCHSIA-formatConstraintsCount-arraylength</span><br>
@@ -15154,6 +15173,76 @@ If the <a href="chap41.html#features-attachmentFragmentShadingRate"><code>attach
 </ul>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkImageConstraintsInfoFlagsFUCHSIA" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_FUCHSIA_buffer_collection</span>
+<span class="k">typedef</span> <span class="n">VkFlags</span> <span class="n">VkImageConstraintsInfoFlagsFUCHSIA</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkImageConstraintsInfoFlagsFUCHSIA</code> is a bitmask type for setting a
+mask of zero or more <a href="chap12.html#VkImageConstraintsInfoFlagBitsFUCHSIA">VkImageConstraintsInfoFlagBitsFUCHSIA</a> bits.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Bits which <strong class="purple">can</strong> be set in
+<a href="chap12.html#VkImageConstraintsInfoFlagBitsFUCHSIA">VkImageConstraintsInfoFlagBitsFUCHSIA</a>::<code>flags</code> include:</p>
+</div>
+<div id="VkImageConstraintsInfoFlagBitsFUCHSIA" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_FUCHSIA_buffer_collection</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkImageConstraintsInfoFlagBitsFUCHSIA</span> <span class="p">{</span>
+    <span class="n">VK_IMAGE_CONSTRAINTS_INFO_CPU_READ_RARELY_FUCHSIA</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_CONSTRAINTS_INFO_CPU_READ_OFTEN_FUCHSIA</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_CONSTRAINTS_INFO_CPU_WRITE_RARELY_FUCHSIA</span> <span class="o">=</span> <span class="mh">0x00000004</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_CONSTRAINTS_INFO_CPU_WRITE_OFTEN_FUCHSIA</span> <span class="o">=</span> <span class="mh">0x00000008</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_CONSTRAINTS_INFO_PROTECTED_OPTIONAL_FUCHSIA</span> <span class="o">=</span> <span class="mh">0x00000010</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkImageConstraintsInfoFlagBitsFUCHSIA</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>General hints about the type of memory that should be allocated by Sysmem
+based on the expected usage of the images in the buffer collection include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_CONSTRAINTS_INFO_CPU_READ_RARELY_FUCHSIA</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_CONSTRAINTS_INFO_CPU_READ_OFTEN_FUCHSIA</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_CONSTRAINTS_INFO_CPU_WRITE_RARELY_FUCHSIA</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_CONSTRAINTS_INFO_CPU_WRITE_OFTEN_FUCHSIA</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For protected memory:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_CONSTRAINTS_INFO_PROTECTED_OPTIONAL_FUCHSIA</code> specifies
+that protected memory is optional for the buffer collection.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note that if all participants in the buffer collection (Vulkan or otherwise)
+specify that protected memory is optional, Sysmem will not allocate
+protected memory.</p>
 </div>
 </div>
 </div>
@@ -15248,6 +15337,20 @@ structs of size <code>colorSpaceCount</code></p>
 </ul>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkImageFormatConstraintsFlagsFUCHSIA" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_FUCHSIA_buffer_collection</span>
+<span class="k">typedef</span> <span class="n">VkFlags</span> <span class="n">VkImageFormatConstraintsFlagsFUCHSIA</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkImageFormatConstraintsFlagsFUCHSIA</code> is a bitmask type for setting a
+mask, but is currently reserved for future use.</p>
 </div>
 </div>
 </div>
@@ -16066,8 +16169,8 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.0.195<br>
-Last updated 2021-08-20 13:37:33 -0700
+Version 1.0.196<br>
+Last updated 2021-10-13 03:46:28 -0700
 </div>
 </div>
 
