@@ -18,6 +18,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_display_swapchain.html"> VK_KHR_display_swapchain </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_draw_indirect_count.html"> VK_KHR_draw_indirect_count </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_driver_properties.html"> VK_KHR_driver_properties </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_dynamic_rendering.html"> VK_KHR_dynamic_rendering </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_fence.html"> VK_KHR_external_fence </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_fence_capabilities.html"> VK_KHR_external_fence_capabilities </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_fence_fd.html"> VK_KHR_external_fence_fd </a> </li>

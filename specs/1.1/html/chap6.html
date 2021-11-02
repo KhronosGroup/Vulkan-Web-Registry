@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.196 - A Specification</title>
+<title>Vulkan® 1.1.197 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>Vulkan<sup>®</sup> 1.1.196 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.197 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.196,</span>
-<span id="revdate">2021-10-13 10:52:29Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0714884a45ffe66c2746b4f53c9035bf72c32dfd</span>
+<span id="revnumber">version 1.1.197,</span>
+<span id="revdate">2021-11-02 08:53:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2a43f68f2841054d7f2fb6a44c637c533a549dbb</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2171,23 +2171,17 @@ structure.</p>
 </li>
 <li>
 <p><code>renderPass</code> is a <a href="chap8.html#VkRenderPass">VkRenderPass</a> object defining which render
-passes the <code>VkCommandBuffer</code> will be <a href="chap8.html#renderpass-compatibility">compatible</a> with and <strong class="purple">can</strong> be executed within.
-If the <code>VkCommandBuffer</code> will not be executed within a render pass
-instance, <code>renderPass</code> is ignored.</p>
+passes the <code>VkCommandBuffer</code> will be <a href="chap8.html#renderpass-compatibility">compatible</a> with and <strong class="purple">can</strong> be executed within.</p>
 </li>
 <li>
 <p><code>subpass</code> is the index of the subpass within the render pass
-instance that the <code>VkCommandBuffer</code> will be executed within.
-If the <code>VkCommandBuffer</code> will not be executed within a render pass
-instance, <code>subpass</code> is ignored.</p>
+instance that the <code>VkCommandBuffer</code> will be executed within.</p>
 </li>
 <li>
 <p><code>framebuffer</code> <strong class="purple">can</strong> refer to the <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> object that the
 <code>VkCommandBuffer</code> will be rendering to if it is executed within a
 render pass instance.
-It <strong class="purple">can</strong> be <a href="chap40.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> if the framebuffer is not known, or if
-the <code>VkCommandBuffer</code> will not be executed within a render pass
-instance.</p>
+It <strong class="purple">can</strong> be <a href="chap40.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> if the framebuffer is not known.</p>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -2236,6 +2230,11 @@ If this value excludes a given bit, then the active pipeline statistics
 query <strong class="purple">must</strong> not be from a query pool that counts that statistic.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>If the <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> will not be executed within a render pass
+instance,
+<code>renderPass</code>, <code>subpass</code>, and <code>framebuffer</code> are ignored.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -3288,19 +3287,55 @@ Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong
 <code>VkCommandPool</code> from which <code>commandBuffer</code> was allocated</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00096" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00096"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00096</span><br>
+
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+instance, each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded
+with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00099" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00099"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00099</span><br>
+
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+instance, and any element of <code>pCommandBuffers</code> was recorded with
+<a href="chap6.html#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a>::<code>framebuffer</code> not equal to
+<a href="chap40.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, that <code>VkFramebuffer</code> <strong class="purple">must</strong> match the
+<code>VkFramebuffer</code> used in the current render pass instance</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteCommands-contents-06018" href="chap6.html#VUID-vkCmdExecuteCommands-contents-06018"></a> <span class="vuid">VUID-vkCmdExecuteCommands-contents-06018</span><br>
+
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+instance begun with <a href="chap8.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a>, its <code>contents</code>
+parameter <strong class="purple">must</strong> have been set to
+<code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-06019" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-06019"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-06019</span><br>
+
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+instance begun with <a href="chap8.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a>, each element of
+<code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded with
+<a href="chap6.html#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a>::<code>subpass</code> set to the index of
+the subpass which the given command buffer will be executed in</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteCommands-pBeginInfo-06020" href="chap6.html#VUID-vkCmdExecuteCommands-pBeginInfo-06020"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pBeginInfo-06020</span><br>
+
+If <code>vkCmdExecuteCommands</code> is being called within a render pass
+instance begun with <a href="chap8.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a>, the render passes
+specified in the <code>pBeginInfo-&gt;pInheritanceInfo-&gt;renderPass</code> members
+of the <a href="chap6.html#vkBeginCommandBuffer">vkBeginCommandBuffer</a> commands used to begin recording each
+element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be
+<a href="chap8.html#renderpass-compatibility">compatible</a> with the current render pass</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdExecuteCommands-contents-00095" href="chap6.html#VUID-vkCmdExecuteCommands-contents-00095"></a> <span class="vuid">VUID-vkCmdExecuteCommands-contents-00095</span><br>
 
 If <code>vkCmdExecuteCommands</code> is being called within a render pass
 instance, that render pass instance <strong class="purple">must</strong> have been begun with the
 <code>contents</code> parameter of <code>vkCmdBeginRenderPass</code> set to
 <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00096" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00096"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00096</span><br>
-
-If <code>vkCmdExecuteCommands</code> is being called within a render pass
-instance, each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded
-with the <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00097" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00097"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00097</span><br>
@@ -3319,15 +3354,6 @@ instance, the render passes specified in the
 <a href="chap6.html#vkBeginCommandBuffer">vkBeginCommandBuffer</a> commands used to begin recording each element
 of <code>pCommandBuffers</code> <strong class="purple">must</strong> be
 <a href="chap8.html#renderpass-compatibility">compatible</a> with the current render pass</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00099" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00099"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00099</span><br>
-
-If <code>vkCmdExecuteCommands</code> is being called within a render pass
-instance, and any element of <code>pCommandBuffers</code> was recorded with
-<a href="chap6.html#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a>::<code>framebuffer</code> not equal to
-<a href="chap40.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, that <code>VkFramebuffer</code> <strong class="purple">must</strong> match the
-<code>VkFramebuffer</code> used in the current render pass instance</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-00100" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-00100"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-00100</span><br>
@@ -3730,7 +3756,7 @@ Transfer</p></td>
 </nav>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Version 1.1.196<br>
+Version 1.1.197<br>
 Last updated 2021-10-13 03:46:28 -0700
 </div>
 </div>
