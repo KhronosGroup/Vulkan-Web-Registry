@@ -178,9 +178,11 @@ include_once("../../assets/static_pages/khr_page_top.php");
      API commands, structures, and enumerants.
      <b>Note:</b> The Quick Reference has not yet been updated for Vulkan
      1.2.</p>
+  <!-- Not updated for 1.1 yet
 <li> The <a href="specs/1.1/refguide/VulkanQuickRef.zip"> InDesign sources
      </a> for the 1.1 reference guide</a> are also available, formatted as a
      <b>.zip</b> file. </li>
+  -->
 </ul>
 
 
