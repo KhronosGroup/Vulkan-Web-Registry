@@ -131,6 +131,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_drm_format_modifier.html"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_robustness.html"> VK_EXT_image_robustness </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_view_min_lod.html"> VK_EXT_image_view_min_lod </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_index_type_uint8.html"> VK_EXT_index_type_uint8 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_inline_uniform_block.html"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
