@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.199 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.200 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.199 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.200 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.199,</span>
-<span id="revdate">2021-11-16 13:40:49Z</span>
-<br><span id="revremark">from git branch: github-main commit: 83c7507600618d8748bb911dfd8c3d9b4fabaca0</span>
+<span id="revnumber">version 1.0.200,</span>
+<span id="revdate">2021-11-23 15:42:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9ed8caef1a0b5abe9778adb39feff435b2328f1b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -83,6 +83,7 @@
 <li><a href="chap3.html#fundamentals-numerics">3.9. Numeric Representation and Computation</a></li>
 <li><a href="chap3.html#fundamentals-fixedconv">3.10. Fixed-Point Data Conversions</a></li>
 <li><a href="chap3.html#fundamentals-common-objects">3.11. Common Object Types</a></li>
+<li><a href="chap3.html#fundamentals-api-name-aliases">3.12. API Name Aliases</a></li>
 </ul>
 </li>
 <li><a href="chap4.html">4. Initialization</a>
@@ -3707,8 +3708,8 @@ can be used to pass extension-specific information.</p>
 <a href="chap19.html#vkCmdBlitImage2KHR">vkCmdBlitImage2KHR</a>, and <a href="chap19.html#vkCmdResolveImage2KHR">vkCmdResolveImage2KHR</a>.
 Each command contains an <code>*Info2KHR</code> structure parameter that includes
 <code>sType</code>/<code>pNext</code> members.
-Lower level structures that describe each region to be copied are also
-extended with <code>sType</code>/<code>pNext</code> members.</p>
+Lower level structures describing each region to be copied are also extended
+with <code>sType</code>/<code>pNext</code> members.</p>
 </div>
 </div>
 <div class="sect3">
@@ -7491,7 +7492,7 @@ Vulkan 1.2</p>
 <p>This extension is based off the <code><code>VK_AMD_draw_indirect_count</code></code>
 extension.
 This extension allows an application to source the number of draws for
-indirect draw calls from a buffer.</p>
+indirect drawing calls from a buffer.</p>
 </div>
 <div class="paragraph">
 <p>Applications might want to do culling on the GPU via a compute shader prior
@@ -8068,6 +8069,9 @@ written during a render pass.</p>
 <p>Extending <a href="chap10.html#VkPipelineCreateFlagBits">VkPipelineCreateFlagBits</a>:</p>
 <div class="ulist">
 <ul>
+<li>
+<p><code>VK_PIPELINE_CREATE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
 <li>
 <p><code>VK_PIPELINE_RASTERIZATION_STATE_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
@@ -14256,7 +14260,7 @@ the core functionality.</p>
 </dd>
 <dt class="hdlist1"><strong>Revision</strong></dt>
 <dd>
-<p>1</p>
+<p>2</p>
 </dd>
 <dt class="hdlist1"><strong>Extension and Version Dependencies</strong></dt>
 <dd>
@@ -14287,7 +14291,7 @@ the core functionality.</p>
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
 <dd>
-<p>2021-08-18</p>
+<p>2021-10-25</p>
 </dd>
 <dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
 <dd>
@@ -14326,6 +14330,9 @@ the core functionality.</p>
 </li>
 <li>
 <p>Stu Smith, AMD</p>
+</li>
+<li>
+<p>Yiwei Zhang, Google</p>
 </li>
 </ul>
 </div>
@@ -14379,6 +14386,11 @@ they are dynamically accessed.</p>
 <p>Relax the interface matching rules to allow a larger output vector to
 match with a smaller input vector, with additional values being
 discarded.</p>
+</li>
+<li>
+<p>Add a guarantee for buffer memory requirement that the size memory
+requirement is never greater than the result of aligning create size
+with the alignment memory requirement.</p>
 </li>
 </ul>
 </div>
@@ -14480,6 +14492,16 @@ discarded.</p>
 <ul>
 <li>
 <p>Internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Revision 2, 2021-10-25 (Yiwei Zhang)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>More guarantees on buffer memory requirements</p>
 </li>
 </ul>
 </div>
@@ -16118,32 +16140,30 @@ structure for presentation identifiers.</p>
 </div>
 <div class="paragraph">
 <p>4) What happens when presentations complete out of order wrt calls to
-   vkQueuePresent? This could happen if the semaphores for the presentations
-   were ready out of order.</p>
+vkQueuePresent? This could happen if the semaphores for the presentations
+were ready out of order.</p>
 </div>
 <div class="paragraph">
 <p><strong>OPTION A</strong>: Require that when a PresentId is set that the driver ensure that
-            images are always presented in the order of calls to
-            vkQueuePresent.</p>
+images are always presented in the order of calls to vkQueuePresent.</p>
 </div>
 <div class="paragraph">
 <p><strong>OPTION B</strong>: Finish both waits when the earliest present completes.
-            This will complete the later present wait earlier than the
-            actual presentation.
-            This should be the easiest to implement as the driver need only
-            track the largest present ID completed.
-            This is also the 'natural' consequence of interpreting the
-            existing vkWaitForPresentKHR specificationn.</p>
+This will complete the later present wait earlier than the actual
+presentation.
+This should be the easiest to implement as the driver need only track the
+largest present ID completed.
+This is also the 'natural' consequence of interpreting the existing
+vkWaitForPresentKHR specificationn.</p>
 </div>
 <div class="paragraph">
 <p><strong>OPTION C</strong>: Finish both waits when both have completed.
-            This will complete the earlier presentation later than the
-            actual presentation time.
-            This is allowed by the current specification as there is no
-            precise timing requirement for when the presentId value is
-            updated.
-            This requires slightly more complexity in the driver as it will
-            need to track all outstanding presentId values.</p>
+This will complete the earlier presentation later than the actual
+presentation time.
+This is allowed by the current specification as there is no precise timing
+requirement for when the presentId value is updated.
+This requires slightly more complexity in the driver as it will need to
+track all outstanding presentId values.</p>
 </div>
 </div>
 <div class="sect3">
@@ -19500,16 +19520,16 @@ in Vulkan:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>BaseInstance</code>, which contains the <code>firstInstance</code> parameter
-passed to drawing commands,</p>
+<p><code>BaseInstance</code>, containing the <code>firstInstance</code> parameter passed
+to drawing commands,</p>
 </li>
 <li>
-<p><code>BaseVertex</code>, which contains the <code>firstVertex</code> or
-<code>vertexOffset</code> parameter passed to drawing commands, and</p>
+<p><code>BaseVertex</code>, containing the <code>firstVertex</code> or <code>vertexOffset</code>
+parameter passed to drawing commands, and</p>
 </li>
 <li>
-<p><code>DrawIndex</code>, which contains the index of the draw call currently
-being processed from an indirect draw call.</p>
+<p><code>DrawIndex</code>, containing the index of the draw call currently being
+processed from an indirect drawing call.</p>
 </li>
 </ul>
 </div>
@@ -29089,7 +29109,7 @@ defines) and <code>VkVideoCapabilitiesFlagsKHR</code> to
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.199<br>
+Version 1.0.200<br>
 Last updated 2021-11-08 21:38:28 -0800
 </div>
 </div>

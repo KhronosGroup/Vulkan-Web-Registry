@@ -106,6 +106,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_marker.html"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_report.html"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_utils.html"> VK_EXT_debug_utils </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_control.html"> VK_EXT_depth_clip_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
@@ -205,6 +206,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_texture_gather_bias_lod.html"> VK_AMD_texture_gather_bias_lod </a> </li>
     <li> <b>  ANDROID Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
+    <li> <b>  ARM Extensions (ARM Limited)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_ARM_rasterization_order_attachment_access.html"> VK_ARM_rasterization_order_attachment_access </a> </li>
     <li> <b>  FUCHSIA Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_buffer_collection.html"> VK_FUCHSIA_buffer_collection </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_FUCHSIA_external_memory.html"> VK_FUCHSIA_external_memory </a> </li>
