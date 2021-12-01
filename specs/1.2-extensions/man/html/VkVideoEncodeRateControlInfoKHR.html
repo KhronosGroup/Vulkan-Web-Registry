@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>VkVideoEncodeRateControlInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkVideoEncodeRateControlInfoKHR - Structure to set encode rate control parameters</p>
+<p>VkVideoEncodeRateControlInfoKHR - Structure to set encode stream rate control parameters</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -810,21 +810,24 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>In order to provide video encode stream rate control settings, add a
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure to the <code>pNext</code> chain of
+the <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> structure passed to the
+<a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> command.</p>
+</div>
+<div class="paragraph">
 <p>The <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeRateControlInfoKHR" class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_video_encode_queue
 typedef struct VkVideoEncodeRateControlInfoKHR {
-    VkStructureType                            sType;
-    const void*                                pNext;
-    VkVideoEncodeRateControlFlagsKHR           flags;
-    VkVideoEncodeRateControlModeFlagBitsKHR    rateControlMode;
-    uint32_t                                   averageBitrate;
-    uint16_t                                   peakToAverageBitrateRatio;
-    uint16_t                                   frameRateNumerator;
-    uint16_t                                   frameRateDenominator;
-    uint32_t                                   virtualBufferSizeInMs;
+    VkStructureType                                sType;
+    const void*                                    pNext;
+    VkVideoEncodeRateControlFlagsKHR               flags;
+    VkVideoEncodeRateControlModeFlagBitsKHR        rateControlMode;
+    uint8_t                                        layerCount;
+    const VkVideoEncodeRateControlLayerInfoKHR*    pLayerConfigs;
 } VkVideoEncodeRateControlInfoKHR;</code></pre>
 </div>
 </div>
@@ -834,14 +837,32 @@ typedef struct VkVideoEncodeRateControlInfoKHR {
 <h2 id="_members"><a class="anchor" href="#_members"></a>Members</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A codec-specific extension structure for further rate control parameter
-settings <strong class="purple">may</strong> be chained to <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>.</p>
+<p>A codec-specific extension structure for further encode stream rate control
+parameter settings <strong class="purple">may</strong> be chained to <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>To ensure that the video session is properly initalized with stream-level
+rate control settings, the application <strong class="purple">must</strong> call
+<a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> with stream-level rate control settings at
+least once in execution order before the first <a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a>
+command that is executed after video session reset.
+If not provided, default implementation-specific stream rate control
+settings will be used.</p>
+</div>
+<div class="paragraph">
+<p>Stream rate control settings <strong class="purple">can</strong> also be re-initialized during an active
+video encoding session.
+The re-initialization takes effect whenever the
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure is included in the
+<code>pNext</code> chain of the <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> structure in the
+call to <a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a>, and only impacts
+<a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a> operations that follow in execution order.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -852,16 +873,16 @@ settings <strong class="purple">may</strong> be chained to <a href="VkVideoEncod
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-flags-parameter"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-flags-parameter</span><br>
- <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="VkVideoEncodeRateControlFlagBitsKHR.html">VkVideoEncodeRateControlFlagBitsKHR</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-flags-requiredbitmask"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-flags-requiredbitmask</span><br>
- <code>flags</code> <strong class="purple">must</strong> not be <code>0</code></p>
-</li>
-<li>
 <p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-parameter"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-parameter</span><br>
  <code>rateControlMode</code> <strong class="purple">must</strong> be a valid <a href="VkVideoEncodeRateControlModeFlagBitsKHR.html">VkVideoEncodeRateControlModeFlagBitsKHR</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-pLayerConfigs-parameter"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-pLayerConfigs-parameter</span><br>
+ <code>pLayerConfigs</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>layerCount</code> valid <a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-layerCount-arraylength"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-layerCount-arraylength</span><br>
+ <code>layerCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -873,7 +894,7 @@ settings <strong class="purple">may</strong> be chained to <a href="VkVideoEncod
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VK_KHR_video_encode_queue.html">VK_KHR_video_encode_queue</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="VkVideoEncodeRateControlFlagsKHR.html">VkVideoEncodeRateControlFlagsKHR</a>, <a href="VkVideoEncodeRateControlModeFlagBitsKHR.html">VkVideoEncodeRateControlModeFlagBitsKHR</a></p>
+<p><a href="VK_KHR_video_encode_queue.html">VK_KHR_video_encode_queue</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="VkVideoEncodeRateControlFlagsKHR.html">VkVideoEncodeRateControlFlagsKHR</a>, <a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a>, <a href="VkVideoEncodeRateControlModeFlagBitsKHR.html">VkVideoEncodeRateControlModeFlagBitsKHR</a></p>
 </div>
 </div>
 </div>
@@ -903,8 +924,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.200<br>
-Last updated 2021-11-23 07:34:18 -0800
+Version 1.2.201<br>
+Last updated 2021-11-30 18:18:40 -0800
 </div>
 </div>
 
