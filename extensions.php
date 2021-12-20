@@ -220,6 +220,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_decorate_string.html"> VK_GOOGLE_decorate_string </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_display_timing.html"> VK_GOOGLE_display_timing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_hlsl_functionality1.html"> VK_GOOGLE_hlsl_functionality1 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_surfaceless_query.html"> VK_GOOGLE_surfaceless_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_GOOGLE_user_type.html"> VK_GOOGLE_user_type </a> </li>
     <li> <b>  HUAWEI Extensions (Huawei Technologies Co. Ltd.)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_HUAWEI_invocation_mask.html"> VK_HUAWEI_invocation_mask </a> </li>
@@ -259,6 +260,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_geometry_shader_passthrough.html"> VK_NV_geometry_shader_passthrough </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_glsl_shader.html"> VK_NV_glsl_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_linear_color_attachment.html"> VK_NV_linear_color_attachment </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
@@ -277,6 +279,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_image_view_handle.html"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_multiview_per_view_attributes.html"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_fragment_density_map_offset.html"> VK_QCOM_fragment_density_map_offset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_shader_resolve.html"> VK_QCOM_render_pass_shader_resolve </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>

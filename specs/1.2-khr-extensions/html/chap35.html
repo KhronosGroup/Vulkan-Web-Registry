@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.202 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.203 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.202 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.203 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.202,</span>
-<span id="revdate">2021-12-07 08:52:43Z</span>
-<br><span id="revremark">from git branch: github-main commit: 48b76697118c275337e49836259f0571b3410d84</span>
+<span id="revnumber">version 1.2.203,</span>
+<span id="revdate">2021-12-20 12:03:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: ac23aa229fd9b8ea06aa99cf07b79cdc15af406f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1179,12 +1179,12 @@ and within the <a href="chap35.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a>
 <a href="chap12.html#resources-image-views">image view</a>, within the
 <a href="chap35.html#VkVideoBeginCodingInfoKHR">VkVideoBeginCodingInfoKHR</a>::<code>pReferenceSlots</code> in the
 <a href="chap35.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command and <a href="chap11.html#VkDeviceMemory">Device Memory</a>
-backing of the the <a href="chap12.html#resources-images">image resources</a> <strong class="purple">must</strong> be resident.</p>
+backing of the <a href="chap12.html#resources-images">image resources</a> <strong class="purple">must</strong> be resident.</p>
 </div>
 <div class="paragraph">
 <p>When a <a href="chap35.html#dpb-slot">DPB Slot</a> were to be activated, the
 <a href="chap35.html#VkVideoDecodeInfoKHR">VkVideoDecodeInfoKHR</a>::<code>slotIndex</code> for decode, or
-<a href="chap35.html#VkVideoDecodeInfoKHR">VkVideoDecodeInfoKHR</a>::<code>slotIndex</code> for encode, <strong class="purple">must</strong> be set to the
+<a href="chap35.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a>::<code>slotIndex</code> for encode, <strong class="purple">must</strong> be set to the
 application’s allocated <a href="chap35.html#dpb-slot">DPB Slot’s index</a>.
 When activating a <a href="chap35.html#dpb-slot">DPB Slot</a>, the application will perform a
 decode or encode operation against its Slot’s index in order to enable its
@@ -4128,8 +4128,7 @@ currently reserved for future use.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>commandBuffer</code> is the command buffer to be filled by this function
-for setting encode rate control parameters.</p>
+<p><code>commandBuffer</code> is the command buffer to be filled by this function.</p>
 </li>
 <li>
 <p><code>pCodingControlInfo</code> is a pointer to a
@@ -4248,6 +4247,24 @@ specifying control flags.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-06518" href="chap35.html#VUID-VkVideoCodingControlInfoKHR-flags-06518"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-06518</span><br>
+
+The first command buffer submitted for a newly created video session
+<strong class="purple">must</strong> set the <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code> bit in
+<a href="chap35.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a>::<code>flags</code> to reset the session
+device context before any video decode or encode operations are
+performed on the session.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -4297,12 +4314,23 @@ bound video session.</p>
 </li>
 <li>
 <p><code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code> indicates a request for the
-bound video session state to be reset before the coding control
-parameters are applied.
-The state after reset is identical to the state immediately after video
-session creation.</p>
+bound video session device context to be reset before the coding control
+parameters are applied.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>A newly created video session <strong class="purple">must</strong> be reset before use for video decode or
+encode operations.
+The reset operation returns all session DPB slots to the unused state (see
+<a href="chap35.html#video-session-dpb-slot-states">DPB Slot States</a>).
+For encode sessions, the reset operation returns rate control configuration
+to implementation default settings.
+After decode or encode operations are performed on a session, the reset
+operation <strong class="purple">may</strong> be used to return the video session device context to the
+same initial state as after the reset of a newly created video session.
+This <strong class="purple">may</strong> be used when different video sequences are processed with the same
+session.</p>
 </div>
 </div>
 </div>
@@ -5282,7 +5310,7 @@ structure.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap35.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeInfoKHR" class="listingblock">
 <div class="content">
@@ -5394,8 +5422,8 @@ Video Encode Context.
 The execution of each <a href="chap35.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> command will result in
 generating codec-specific bitstream units.
 These bitstream units are generated consecutively into the bitstream buffer
-specified in <code>dstBitstreamBuffer</code> of <a href="chap35.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a> within
-the <a href="chap35.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command.
+specified in <code>dstBitstreamBuffer</code> of a <code>VkVideoEncodeInfoKHR</code>
+structure within the <a href="chap35.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command.
 The produced bitstream is the sum of all these bitstream units, including
 any padding between the bitstream units.
 Any bitstream padding <strong class="purple">must</strong> be filled with data compliant to the codec
@@ -5486,13 +5514,7 @@ more <a href="chap35.html#VkVideoEncodeFlagBitsKHR">VkVideoEncodeFlagBitsKHR</a>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>In order to provide video encode stream rate control settings, add a
-<a href="chap35.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure to the <code>pNext</code> chain of
-the <a href="chap35.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
-<a href="chap35.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap35.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeRateControlInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeRateControlInfoKHR" class="listingblock">
 <div class="content">
@@ -5536,6 +5558,12 @@ rate control configurations of <code>layerCount</code> rate control layers.</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>In order to provide video encode stream rate control settings, add a
+<code>VkVideoEncodeRateControlInfoKHR</code> structure to the <code>pNext</code> chain of
+the <a href="chap35.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
+<a href="chap35.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
+</div>
+<div class="paragraph">
 <p>A codec-specific extension structure for further encode stream rate control
 parameter settings <strong class="purple">may</strong> be chained to <a href="chap35.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>.</p>
 </div>
@@ -5552,10 +5580,16 @@ settings will be used.</p>
 <p>Stream rate control settings <strong class="purple">can</strong> also be re-initialized during an active
 video encoding session.
 The re-initialization takes effect whenever the
-<a href="chap35.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure is included in the
+<code>VkVideoEncodeRateControlInfoKHR</code> structure is included in the
 <code>pNext</code> chain of the <a href="chap35.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure in the
 call to <a href="chap35.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a>, and only impacts
 <a href="chap35.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> operations that follow in execution order.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5651,7 +5685,7 @@ rate control mode.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap35.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeRateControlLayerInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeRateControlLayerInfoKHR" class="listingblock">
 <div class="content">
@@ -5734,7 +5768,7 @@ This is done by specifying settings for all enabled rate control layers in
 </div>
 <div class="paragraph">
 <p>To adjust rate control settings for an individual layer at runtime, add a
-<a href="chap35.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a> structure to the <code>pNext</code>
+<code>VkVideoEncodeRateControlLayerInfoKHR</code> structure to the <code>pNext</code>
 chain of the <a href="chap35.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
 <a href="chap35.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.
 This adjustment only impacts the specified layer without impacting the rate
@@ -5750,7 +5784,7 @@ coding layer that follow in execution order.</p>
 (via codec-specific extensions to encoding operations) while only enabling a
 single layer of rate control for the entire video stream.
 To achieve this, <code>layerCount</code> in <a href="chap35.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>
-<strong class="purple">must</strong> be set to 1, and the single <a href="chap35.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
+<strong class="purple">must</strong> be set to 1, and the single <code>VkVideoEncodeRateControlLayerInfoKHR</code>
 provided in <code>pLayerConfigs</code> would apply to all encoded segments of the
 video stream, regardless of which codec-defined video coding layer they
 belong to.
@@ -5788,7 +5822,7 @@ coding layers (if applicable to the specified stream rate control mode).</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.202<br>
+Version 1.2.203<br>
 Last updated 2021-12-07 00:38:52 -0800
 </div>
 </div>

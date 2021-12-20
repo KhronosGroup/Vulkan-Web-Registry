@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.202 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.203 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.202 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.203 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.202,</span>
-<span id="revdate">2021-12-07 08:56:12Z</span>
-<br><span id="revremark">from git branch: github-main commit: 48b76697118c275337e49836259f0571b3410d84</span>
+<span id="revnumber">version 1.0.203,</span>
+<span id="revdate">2021-12-20 12:06:57Z</span>
+<br><span id="revremark">from git branch: github-main commit: ac23aa229fd9b8ea06aa99cf07b79cdc15af406f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1248,12 +1248,12 @@ and within the <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a>
 <a href="chap12.html#resources-image-views">image view</a>, within the
 <a href="chap39.html#VkVideoBeginCodingInfoKHR">VkVideoBeginCodingInfoKHR</a>::<code>pReferenceSlots</code> in the
 <a href="chap39.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command and <a href="chap11.html#VkDeviceMemory">Device Memory</a>
-backing of the the <a href="chap12.html#resources-images">image resources</a> <strong class="purple">must</strong> be resident.</p>
+backing of the <a href="chap12.html#resources-images">image resources</a> <strong class="purple">must</strong> be resident.</p>
 </div>
 <div class="paragraph">
 <p>When a <a href="chap39.html#dpb-slot">DPB Slot</a> were to be activated, the
 <a href="chap39.html#VkVideoDecodeInfoKHR">VkVideoDecodeInfoKHR</a>::<code>slotIndex</code> for decode, or
-<a href="chap39.html#VkVideoDecodeInfoKHR">VkVideoDecodeInfoKHR</a>::<code>slotIndex</code> for encode, <strong class="purple">must</strong> be set to the
+<a href="chap39.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a>::<code>slotIndex</code> for encode, <strong class="purple">must</strong> be set to the
 application’s allocated <a href="chap39.html#dpb-slot">DPB Slot’s index</a>.
 When activating a <a href="chap39.html#dpb-slot">DPB Slot</a>, the application will perform a
 decode or encode operation against its Slot’s index in order to enable its
@@ -4245,8 +4245,7 @@ currently reserved for future use.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>commandBuffer</code> is the command buffer to be filled by this function
-for setting encode rate control parameters.</p>
+<p><code>commandBuffer</code> is the command buffer to be filled by this function.</p>
 </li>
 <li>
 <p><code>pCodingControlInfo</code> is a pointer to a
@@ -4365,6 +4364,24 @@ specifying control flags.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-06518" href="chap39.html#VUID-VkVideoCodingControlInfoKHR-flags-06518"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-06518</span><br>
+
+The first command buffer submitted for a newly created video session
+<strong class="purple">must</strong> set the <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code> bit in
+<a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a>::<code>flags</code> to reset the session
+device context before any video decode or encode operations are
+performed on the session.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -4414,12 +4431,23 @@ bound video session.</p>
 </li>
 <li>
 <p><code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code> indicates a request for the
-bound video session state to be reset before the coding control
-parameters are applied.
-The state after reset is identical to the state immediately after video
-session creation.</p>
+bound video session device context to be reset before the coding control
+parameters are applied.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>A newly created video session <strong class="purple">must</strong> be reset before use for video decode or
+encode operations.
+The reset operation returns all session DPB slots to the unused state (see
+<a href="chap39.html#video-session-dpb-slot-states">DPB Slot States</a>).
+For encode sessions, the reset operation returns rate control configuration
+to implementation default settings.
+After decode or encode operations are performed on a session, the reset
+operation <strong class="purple">may</strong> be used to return the video session device context to the
+same initial state as after the reset of a newly created video session.
+This <strong class="purple">may</strong> be used when different video sequences are processed with the same
+session.</p>
 </div>
 </div>
 </div>
@@ -5347,16 +5375,7 @@ session by chaining <a href="chap39.html#VkVideoDecodeH264ProfileEXT">VkVideoDec
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>When using <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> to query the
-capabilities for the input <code>pVideoProfile</code> with
-<code>videoCodecOperation</code> specified as
-<code>VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_EXT</code>, a
-<a href="chap39.html#VkVideoDecodeH264CapabilitiesEXT">VkVideoDecodeH264CapabilitiesEXT</a> structure <strong class="purple">must</strong> be chained to
-<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to get this H.264 decode profile specific
-capabilities.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH264CapabilitiesEXT">VkVideoDecodeH264CapabilitiesEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH264CapabilitiesEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH264CapabilitiesEXT" class="listingblock">
 <div class="content">
@@ -5369,6 +5388,15 @@ capabilities.</p>
     <span class="n">VkExtensionProperties</span>    <span class="n">stdExtensionVersion</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoDecodeH264CapabilitiesEXT</span><span class="p">;</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>When using <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> to query the
+capabilities for the input <code>pVideoProfile</code> with
+<code>videoCodecOperation</code> specified as
+<code>VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_EXT</code>, a
+<a href="chap39.html#VkVideoDecodeH264CapabilitiesEXT">VkVideoDecodeH264CapabilitiesEXT</a> structure <strong class="purple">must</strong> be chained to
+<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to get this H.264 decode profile specific
+capabilities.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -5414,13 +5442,7 @@ implementation.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <a href="chap39.html#VkVideoDecodeH264SessionCreateInfoEXT">VkVideoDecodeH264SessionCreateInfoEXT</a> structure <strong class="purple">can</strong> be chained to
-<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
-<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called to create a video session for H.264
-decode.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH264SessionCreateInfoEXT">VkVideoDecodeH264SessionCreateInfoEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH264SessionCreateInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH264SessionCreateInfoEXT" class="listingblock">
 <div class="content">
@@ -5432,6 +5454,12 @@ decode.</p>
     <span class="k">const</span> <span class="n">VkExtensionProperties</span><span class="o">*</span>       <span class="n">pStdExtensionVersion</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoDecodeH264SessionCreateInfoEXT</span><span class="p">;</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>A <code>VkVideoDecodeH264SessionCreateInfoEXT</code> structure <strong class="purple">can</strong> be chained to
+<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
+<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called to create a video session for H.264
+decode.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -5500,17 +5528,7 @@ referenced during decoding.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <a href="chap39.html#VkVideoDecodeH264SessionParametersCreateInfoEXT">VkVideoDecodeH264SessionParametersCreateInfoEXT</a> structure holding
-one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
-<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
-<a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
-the decoder parameter set object for later reference.
-The provided H.264 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
-during decoder creation for the decoder specified in
-<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a>.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH264SessionParametersCreateInfoEXT">VkVideoDecodeH264SessionParametersCreateInfoEXT</a> structure is
+<p>The <code>VkVideoDecodeH264SessionParametersCreateInfoEXT</code> structure is
 defined as:</p>
 </div>
 <div id="VkVideoDecodeH264SessionParametersCreateInfoEXT" class="listingblock">
@@ -5524,6 +5542,16 @@ defined as:</p>
     <span class="k">const</span> <span class="n">VkVideoDecodeH264SessionParametersAddInfoEXT</span><span class="o">*</span>    <span class="n">pParametersAddInfo</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoDecodeH264SessionParametersCreateInfoEXT</span><span class="p">;</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>A <a href="chap39.html#VkVideoDecodeH264SessionParametersCreateInfoEXT">VkVideoDecodeH264SessionParametersCreateInfoEXT</a> structure holding
+one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
+<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
+<a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
+the decoder parameter set object for later reference.
+The provided H.264 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
+during decoder creation for the decoder specified in
+<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a>.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -5570,6 +5598,10 @@ H.264 parameters to add upon object creation.</p>
 </div>
 <div class="openblock">
 <div class="content">
+<div class="paragraph">
+<p>The <code>VkVideoDecodeH264SessionParametersAddInfoEXT</code> structure is defined
+as:</p>
+</div>
 <div id="VkVideoDecodeH264SessionParametersAddInfoEXT" class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_video_decode_h264</span>
@@ -5720,8 +5752,8 @@ SPS/PPS parameters <strong class="purple">must</strong> comply with the limits s
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoDecodeH264PictureInfoEXT">VkVideoDecodeH264PictureInfoEXT</a> representing a picture
-decode operation is defined as:</p>
+<p>The <a href="chap39.html#VkVideoDecodeH264PictureInfoEXT">VkVideoDecodeH264PictureInfoEXT</a> structure represents a picture
+decode operation and is defined as:</p>
 </div>
 <div id="VkVideoDecodeH264PictureInfoEXT" class="listingblock">
 <div class="content">
@@ -5837,7 +5869,7 @@ specification.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH264MvcEXT">VkVideoDecodeH264MvcEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH264MvcEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH264MvcEXT" class="listingblock">
 <div class="content">
@@ -5910,7 +5942,7 @@ chained to <a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a> when th
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH265ProfileEXT">VkVideoDecodeH265ProfileEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH265ProfileEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH265ProfileEXT" class="listingblock">
 <div class="content">
@@ -5978,15 +6010,7 @@ session by chaining <a href="chap39.html#VkVideoDecodeH265ProfileEXT">VkVideoDec
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>When uses <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> to query the
-capabilities for the parameter <code>videoCodecOperation</code> specified as
-<code>VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_EXT</code>,
-<a href="chap39.html#VkVideoDecodeH265CapabilitiesEXT">VkVideoDecodeH265CapabilitiesEXT</a> structure <strong class="purple">can</strong> be chained to
-<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to get this H.265 extension specific
-capabilities.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH265CapabilitiesEXT">VkVideoDecodeH265CapabilitiesEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH265CapabilitiesEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH265CapabilitiesEXT" class="listingblock">
 <div class="content">
@@ -5998,6 +6022,14 @@ capabilities.</p>
     <span class="n">VkExtensionProperties</span>    <span class="n">stdExtensionVersion</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoDecodeH265CapabilitiesEXT</span><span class="p">;</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>When using <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> to query the
+capabilities for the parameter <code>videoCodecOperation</code> specified as
+<code>VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_EXT</code>, a
+<a href="chap39.html#VkVideoDecodeH265CapabilitiesEXT">VkVideoDecodeH265CapabilitiesEXT</a> structure <strong class="purple">can</strong> be chained to
+<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to return this H.265 extension specific
+capabilities.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -6039,13 +6071,7 @@ implementation.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <a href="chap39.html#VkVideoDecodeH265SessionCreateInfoEXT">VkVideoDecodeH265SessionCreateInfoEXT</a> structure <strong class="purple">can</strong> be chained to
-<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
-<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called to create a video session for H.265
-decode operations.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH265SessionCreateInfoEXT">VkVideoDecodeH265SessionCreateInfoEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH265SessionCreateInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH265SessionCreateInfoEXT" class="listingblock">
 <div class="content">
@@ -6075,6 +6101,12 @@ structure.</p>
 structure specifying H.265 codec extensions.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>A <a href="chap39.html#VkVideoDecodeH265SessionCreateInfoEXT">VkVideoDecodeH265SessionCreateInfoEXT</a> structure <strong class="purple">can</strong> be chained to
+<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
+<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called to create a video session for H.265
+decode operations.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6124,16 +6156,6 @@ referenced during decoding.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <code>VkVideoDecodeH265SessionParametersCreateInfoEXT</code> structure holding
-one H.265 SPS and at least one H.265 PPS paramater set <strong class="purple">must</strong> be chained to
-<code>VkVideoSessionParametersCreateInfoKHR</code> when calling
-<code>vkCreateVideoSessionParametersKHR</code> to store these parameter set(s) with
-the decoder parameter set object for later reference.
-The provided H.265 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
-during decoder creation for the decoder specified in
-<code>VkVideoSessionParametersCreateInfoKHR</code>.</p>
-</div>
-<div class="paragraph">
 <p>The <code>VkVideoDecodeH265SessionParametersCreateInfoEXT</code> structure is
 defined as:</p>
 </div>
@@ -6173,6 +6195,16 @@ H.265 parameters to add upon object creation.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>A <code>VkVideoDecodeH265SessionParametersCreateInfoEXT</code> structure holding
+one H.265 SPS and at least one H.265 PPS paramater set <strong class="purple">must</strong> be chained to
+<code>VkVideoSessionParametersCreateInfoKHR</code> when calling
+<code>vkCreateVideoSessionParametersKHR</code> to store these parameter set(s) with
+the decoder parameter set object for later reference.
+The provided H.265 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
+during decoder creation for the decoder specified in
+<code>VkVideoSessionParametersCreateInfoKHR</code>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -6194,6 +6226,10 @@ H.265 parameters to add upon object creation.</p>
 </div>
 <div class="openblock">
 <div class="content">
+<div class="paragraph">
+<p>The <code>VkVideoDecodeH265SessionParametersAddInfoEXT</code> structure is defined
+as:</p>
+</div>
 <div id="VkVideoDecodeH265SessionParametersAddInfoEXT" class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_video_decode_h265</span>
@@ -6350,7 +6386,7 @@ VPS/SPS/PPS parameters <strong class="purple">must</strong> comply with the limi
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH265PictureInfoEXT">VkVideoDecodeH265PictureInfoEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH265PictureInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH265PictureInfoEXT" class="listingblock">
 <div class="content">
@@ -6418,7 +6454,7 @@ buffer.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoDecodeH265DpbSlotInfoEXT">VkVideoDecodeH265DpbSlotInfoEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoDecodeH265DpbSlotInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoDecodeH265DpbSlotInfoEXT" class="listingblock">
 <div class="content">
@@ -6737,7 +6773,7 @@ structure.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeInfoKHR" class="listingblock">
 <div class="content">
@@ -6849,8 +6885,8 @@ Video Encode Context.
 The execution of each <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> command will result in
 generating codec-specific bitstream units.
 These bitstream units are generated consecutively into the bitstream buffer
-specified in <code>dstBitstreamBuffer</code> of <a href="chap39.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a> within
-the <a href="chap39.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command.
+specified in <code>dstBitstreamBuffer</code> of a <code>VkVideoEncodeInfoKHR</code>
+structure within the <a href="chap39.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command.
 The produced bitstream is the sum of all these bitstream units, including
 any padding between the bitstream units.
 Any bitstream padding <strong class="purple">must</strong> be filled with data compliant to the codec
@@ -6945,13 +6981,7 @@ more <a href="chap39.html#VkVideoEncodeFlagBitsKHR">VkVideoEncodeFlagBitsKHR</a>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>In order to provide video encode stream rate control settings, add a
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure to the <code>pNext</code> chain of
-the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
-<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeRateControlInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeRateControlInfoKHR" class="listingblock">
 <div class="content">
@@ -6995,6 +7025,12 @@ rate control configurations of <code>layerCount</code> rate control layers.</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>In order to provide video encode stream rate control settings, add a
+<code>VkVideoEncodeRateControlInfoKHR</code> structure to the <code>pNext</code> chain of
+the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
+<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
+</div>
+<div class="paragraph">
 <p>A codec-specific extension structure for further encode stream rate control
 parameter settings <strong class="purple">may</strong> be chained to <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>.</p>
 </div>
@@ -7011,10 +7047,57 @@ settings will be used.</p>
 <p>Stream rate control settings <strong class="purple">can</strong> also be re-initialized during an active
 video encoding session.
 The re-initialization takes effect whenever the
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure is included in the
+<code>VkVideoEncodeRateControlInfoKHR</code> structure is included in the
 <code>pNext</code> chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure in the
 call to <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a>, and only impacts
 <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> operations that follow in execution order.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoEncodeH264RateControlInfoEXT-chainrequirement" href="chap39.html#VUID-VkVideoEncodeH264RateControlInfoEXT-chainrequirement"></a> <span class="vuid">VUID-VkVideoEncodeH264RateControlInfoEXT-chainrequirement</span><br>
+
+<a href="chap39.html#VkVideoEncodeH264RateControlInfoEXT">VkVideoEncodeH264RateControlInfoEXT</a> <strong class="purple">must</strong> be included in the
+<code>pNext</code> chain of <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> if and only
+if <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code> and the bound video
+session was created with
+<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeH264RateControlInfoEXT-temporalLayerCount" href="chap39.html#VUID-VkVideoEncodeH264RateControlInfoEXT-temporalLayerCount"></a> <span class="vuid">VUID-VkVideoEncodeH264RateControlInfoEXT-temporalLayerCount</span><br>
+
+If <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>layerCount</code> is greater
+than <code>1</code>, then
+<a href="chap39.html#VkVideoEncodeH264RateControlInfoEXT">VkVideoEncodeH264RateControlInfoEXT</a>::<code>temporalLayerCount</code>
+<strong class="purple">must</strong> be equal to <code>layerCount</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeH265RateControlInfoEXT-chainrequirement" href="chap39.html#VUID-VkVideoEncodeH265RateControlInfoEXT-chainrequirement"></a> <span class="vuid">VUID-VkVideoEncodeH265RateControlInfoEXT-chainrequirement</span><br>
+
+<a href="chap39.html#VkVideoEncodeH265RateControlInfoEXT">VkVideoEncodeH265RateControlInfoEXT</a> <strong class="purple">must</strong> be included in the
+<code>pNext</code> chain of <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> if and only
+if <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code> and the bound video
+session was created with
+<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeH265RateControlInfoEXT-subLayerCount" href="chap39.html#VUID-VkVideoEncodeH265RateControlInfoEXT-subLayerCount"></a> <span class="vuid">VUID-VkVideoEncodeH265RateControlInfoEXT-subLayerCount</span><br>
+
+If <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>layerCount</code> is greater
+than <code>1</code>, then
+<a href="chap39.html#VkVideoEncodeH265RateControlInfoEXT">VkVideoEncodeH265RateControlInfoEXT</a>::<code>subLayerCount</code> <strong class="purple">must</strong> be
+equal to <code>layerCount</code>.</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -7110,7 +7193,7 @@ rate control mode.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeRateControlLayerInfoKHR</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeRateControlLayerInfoKHR" class="listingblock">
 <div class="content">
@@ -7193,7 +7276,7 @@ This is done by specifying settings for all enabled rate control layers in
 </div>
 <div class="paragraph">
 <p>To adjust rate control settings for an individual layer at runtime, add a
-<a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a> structure to the <code>pNext</code>
+<code>VkVideoEncodeRateControlLayerInfoKHR</code> structure to the <code>pNext</code>
 chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
 <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.
 This adjustment only impacts the specified layer without impacting the rate
@@ -7209,7 +7292,7 @@ coding layer that follow in execution order.</p>
 (via codec-specific extensions to encoding operations) while only enabling a
 single layer of rate control for the entire video stream.
 To achieve this, <code>layerCount</code> in <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>
-<strong class="purple">must</strong> be set to 1, and the single <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
+<strong class="purple">must</strong> be set to 1, and the single <code>VkVideoEncodeRateControlLayerInfoKHR</code>
 provided in <code>pLayerConfigs</code> would apply to all encoded segments of the
 video stream, regardless of which codec-defined video coding layer they
 belong to.
@@ -7244,17 +7327,10 @@ This specification is available at <a href="https://www.itu.int/rec/T-REC-H.264"
 </div>
 <div class="sect3">
 <h4 id="_h_264_encode_profile"><a class="anchor" href="chap39.html#_h_264_encode_profile"></a>39.9.1. H.264 encode profile</h4>
-<div class="paragraph">
-<p>An H.264 encode profile is specified by including the
-<a href="chap39.html#VkVideoEncodeH264ProfileEXT">VkVideoEncodeH264ProfileEXT</a> structure in the <code>pNext</code> chain of the
-<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structure when
-<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> is
-<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <a href="chap39.html#VkVideoEncodeH264ProfileEXT">VkVideoEncodeH264ProfileEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeH264ProfileEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264ProfileEXT" class="listingblock">
 <div class="content">
@@ -7281,6 +7357,13 @@ the H.264 codec profile IDC.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>An H.264 encode profile is specified by including a
+<code>VkVideoEncodeH264ProfileEXT</code> structure in the <code>pNext</code> chain of the
+<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structure when
+<a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> is
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -7302,15 +7385,7 @@ the H.264 codec profile IDC.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>When <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> is called to query the
-capabilities with parameter <code>videoCodecOperation</code> specified as
-<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>, a
-<a href="chap39.html#VkVideoEncodeH264CapabilitiesEXT">VkVideoEncodeH264CapabilitiesEXT</a> structure <strong class="purple">can</strong> be chained to
-<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to retrieve H.264 extension specific
-capabilities.</p>
-</div>
-<div class="paragraph">
-<p>The <a href="chap39.html#VkVideoEncodeH264CapabilitiesEXT">VkVideoEncodeH264CapabilitiesEXT</a> structure is defined as:</p>
+<p>The <code>VkVideoEncodeH264CapabilitiesEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264CapabilitiesEXT" class="listingblock">
 <div class="content">
@@ -7395,6 +7470,14 @@ version supported by this implementation.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>When <a href="chap39.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> is called to query the
+capabilities with parameter <code>videoCodecOperation</code> specified as
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>, a
+<code>VkVideoEncodeH264CapabilitiesEXT</code> structure <strong class="purple">can</strong> be chained to
+<a href="chap39.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a> to retrieve H.264 extension specific
+capabilities.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -7474,7 +7557,6 @@ tools supported, are:</p>
     <span class="n">VK_VIDEO_ENCODE_H264_CAPABILITY_DEBLOCKING_FILTER_PARTIAL_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000100</span><span class="p">,</span>
     <span class="n">VK_VIDEO_ENCODE_H264_CAPABILITY_MULTIPLE_SLICE_PER_FRAME_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000200</span><span class="p">,</span>
     <span class="n">VK_VIDEO_ENCODE_H264_CAPABILITY_EVENLY_DISTRIBUTED_SLICE_SIZE_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000400</span><span class="p">,</span>
-    <span class="n">VK_VIDEO_ENCODE_H264_CAPABILITY_OPTIONAL_RC_EXTENSION_STRUCT_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000800</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkVideoEncodeH264CapabilityFlagBitsEXT</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -7529,16 +7611,6 @@ An implementation <strong class="purple">must</strong> support at least one debl
 </li>
 <li>
 <p><code>VK_VIDEO_ENCODE_H264_CAPABILITY_EVENLY_DISTRIBUTED_SLICE_SIZE_BIT_EXT</code></p>
-</li>
-<li>
-<p><code>VK_VIDEO_ENCODE_H264_CAPABILITY_OPTIONAL_RC_EXTENSION_STRUCT_BIT_EXT</code>
-indicates that the implementation does not require
-<code>VkVideoEncodeH264RateControlInfoEXT</code> to be chained to
-<code>VkVideoEncodeRateControlInfoKHR</code> in the call to
-<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a>.
-When implementations do not report this capability,
-<a href="chap39.html#VkVideoEncodeH264RateControlInfoEXT">VkVideoEncodeH264RateControlInfoEXT</a> <strong class="purple">must</strong> be chained to
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>.</p>
 </li>
 </ul>
 </div>
@@ -7718,13 +7790,6 @@ input/output modes:</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <a href="chap39.html#VkVideoEncodeH264SessionCreateInfoEXT">VkVideoEncodeH264SessionCreateInfoEXT</a> structure <strong class="purple">must</strong> be chained to
-<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
-<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called with <code>videoCodecOperation</code> in
-<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> set to
-<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>.</p>
-</div>
-<div class="paragraph">
 <p>The <code>VkVideoEncodeH264SessionCreateInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264SessionCreateInfoEXT" class="listingblock">
@@ -7762,6 +7827,13 @@ pic_height_in_map_units_minus1 + 1.</p>
 structure specifying H.264 codec extensions.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>A <code>VkVideoEncodeH264SessionCreateInfoEXT</code> structure <strong class="purple">must</strong> be chained to
+<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> when the function
+<a href="chap39.html#vkCreateVideoSessionKHR">vkCreateVideoSessionKHR</a> is called with <code>videoCodecOperation</code> in
+<a href="chap39.html#VkVideoSessionCreateInfoKHR">VkVideoSessionCreateInfoKHR</a> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -7844,16 +7916,6 @@ referenced during encoding.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>A <a href="chap39.html#VkVideoEncodeH264SessionParametersCreateInfoEXT">VkVideoEncodeH264SessionParametersCreateInfoEXT</a> structure holding
-one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
-<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
-<a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
-the encoder parameter set object for later reference.
-The provided H.264 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
-during encoder creation for the encoder specified in
-<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a>.</p>
-</div>
-<div class="paragraph">
 <p>The <a href="chap39.html#VkVideoEncodeH264SessionParametersCreateInfoEXT">VkVideoEncodeH264SessionParametersCreateInfoEXT</a> structure is
 defined as:</p>
 </div>
@@ -7893,6 +7955,16 @@ H.264 parameters to add upon object creation.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>A <code>VkVideoEncodeH264SessionParametersCreateInfoEXT</code> structure holding
+one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
+<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
+<a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
+the encoder parameter set object for later reference.
+The provided H.264 SPS/PPS parameters <strong class="purple">must</strong> be within the limits specified
+during encoder creation for the encoder specified in
+<a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -7914,6 +7986,10 @@ H.264 parameters to add upon object creation.</p>
 </div>
 <div class="openblock">
 <div class="content">
+<div class="paragraph">
+<p>The <code>VkVideoEncodeH264SessionParametersAddInfoEXT</code> structure is defined
+as:</p>
+</div>
 <div id="VkVideoEncodeH264SessionParametersAddInfoEXT" class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_video_encode_h264</span>
@@ -8056,15 +8132,10 @@ SPS/PPS parameters <strong class="purple">must</strong> comply with the limits s
 </div>
 <div class="sect3">
 <h4 id="_frame_encoding"><a class="anchor" href="chap39.html#_frame_encoding"></a>39.9.5. Frame Encoding</h4>
-<div class="paragraph">
-<p>In order to encode a frame, add a <a href="chap39.html#VkVideoEncodeH264VclFrameInfoEXT">VkVideoEncodeH264VclFrameInfoEXT</a>
-structure to the <code>pNext</code> chain of the <a href="chap39.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a>
-structure passed to the <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> command.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH264VclFrameInfoEXT">VkVideoEncodeH264VclFrameInfoEXT</a> representing a frame
+<p>The <a href="chap39.html#VkVideoEncodeH264VclFrameInfoEXT">VkVideoEncodeH264VclFrameInfoEXT</a> structure representing a frame
 encode operation is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264VclFrameInfoEXT" class="listingblock">
@@ -8149,6 +8220,11 @@ provided in <code>pSetupReferenceSlot</code> of <a href="chap39.html#VkVideoEnco
 structure to which this structure is chained to.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>In order to encode a frame, add a <code>VkVideoEncodeH264VclFrameInfoEXT</code>
+structure to the <code>pNext</code> chain of the <a href="chap39.html#VkVideoEncodeInfoKHR">VkVideoEncodeInfoKHR</a>
+structure passed to the <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a> command.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -8259,7 +8335,7 @@ specification.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH264NaluSliceEXT">VkVideoEncodeH264NaluSliceEXT</a> representing a slice is
+<p>The <a href="chap39.html#VkVideoEncodeH264NaluSliceEXT">VkVideoEncodeH264NaluSliceEXT</a> structure representing a slice is
 defined as:</p>
 </div>
 <div id="VkVideoEncodeH264NaluSliceEXT" class="listingblock">
@@ -8368,7 +8444,7 @@ marking operations described for List1 in
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH264EmitPictureParametersEXT">VkVideoEncodeH264EmitPictureParametersEXT</a> is defined as:</p>
+<p>The <code>VkVideoEncodeH264EmitPictureParametersEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264EmitPictureParametersEXT" class="listingblock">
 <div class="content">
@@ -8450,18 +8526,7 @@ provided in <a href="chap39.html#VkVideoBeginCodingInfoKHR">VkVideoBeginCodingIn
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>In order to provide H.264-specific stream rate control parameters, add a
-<a href="chap39.html#VkVideoEncodeH264RateControlInfoEXT">VkVideoEncodeH264RateControlInfoEXT</a> structure to the <code>pNext</code> chain
-of the <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure in the <code>pNext</code>
-chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
-<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
-</div>
-<div class="paragraph">
-<p>The parameters from this structure act as a guidance for implementations to
-apply various rate control heuristics.</p>
-</div>
-<div class="paragraph">
-<p>The structure <code>VkVideoEncodeH264RateControlInfoEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH264RateControlInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264RateControlInfoEXT" class="listingblock">
 <div class="content">
@@ -8473,6 +8538,7 @@ apply various rate control heuristics.</p>
     <span class="kt">uint32_t</span>                                            <span class="n">idrPeriod</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                                            <span class="n">consecutiveBFrameCount</span><span class="p">;</span>
     <span class="n">VkVideoEncodeH264RateControlStructureFlagBitsEXT</span>    <span class="n">rateControlStructure</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>                                             <span class="n">temporalLayerCount</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoEncodeH264RateControlInfoEXT</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -8490,26 +8556,17 @@ structure.</p>
 of pictures (GOP), starting from an intra frame and until the next intra
 frame.
 If it is set to 0, the implementation chooses a suitable value.
-If it is set to <code>UINT32_MAX</code>, the GOP length is treated as infinite.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+If it is set to <code>UINT32_MAX</code>, the GOP length is treated as infinite.</p>
 </li>
 <li>
 <p><code>idrPeriod</code> is the interval, in terms of number of frames, between
 two IDR frames.
 If it is set to 0, the implementation chooses a suitable value.
-If it is set to <code>UINT32_MAX</code>, the IDR period is treated as infinite.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+If it is set to <code>UINT32_MAX</code>, the IDR period is treated as infinite.</p>
 </li>
 <li>
 <p><code>consecutiveBFrameCount</code> is the number of consecutive B-frames
-between I- and/or P-frames within the GOP.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+between I- and/or P-frames within the GOP.</p>
 </li>
 <li>
 <p><code>rateControlStructure</code> is a
@@ -8517,7 +8574,22 @@ This value is ignored when
 the expected encode stream reference structure, to aid in rate control
 calculations.</p>
 </li>
+<li>
+<p><code>temporalLayerCount</code> specifies the number of temporal layers enabled
+in the stream.</p>
+</li>
 </ul>
+</div>
+<div class="paragraph">
+<p>In order to provide H.264-specific stream rate control parameters, add a
+<code>VkVideoEncodeH264RateControlInfoEXT</code> structure to the <code>pNext</code> chain
+of the <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure in the <code>pNext</code>
+chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
+<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
+</div>
+<div class="paragraph">
+<p>The parameters from this structure act as a guidance for implementations to
+apply various rate control heuristics.</p>
 </div>
 <div class="paragraph">
 <p>It is possible to infer the picture type to be used when encoding a frame,
@@ -8586,14 +8658,7 @@ specifies a dyadic reference structure.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>H.264-specific per-layer rate control parameters <strong class="purple">must</strong> be specified by
-adding <a href="chap39.html#VkVideoEncodeH264RateControlLayerInfoEXT">VkVideoEncodeH264RateControlLayerInfoEXT</a> structure to the
-<code>pNext</code> chain of each <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
-structure in a call to <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command, when the
-command buffer context has an active video encode H.264 session.</p>
-</div>
-<div class="paragraph">
-<p>The structure <code>VkVideoEncodeH264RateControlLayerInfoEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH264RateControlLayerInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264RateControlLayerInfoEXT" class="listingblock">
 <div class="content">
@@ -8675,6 +8740,13 @@ implementation from respecting the <code>maxFrameSize</code> limit.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>H.264-specific per-layer rate control parameters <strong class="purple">must</strong> be specified by
+adding a <code>VkVideoEncodeH264RateControlLayerInfoEXT</code> structure to the
+<code>pNext</code> chain of each <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
+structure in a call to <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command, when the
+command buffer context has an active video encode H.264 session.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -8733,7 +8805,7 @@ provided in <code>minQP</code> must be identical to those provided in
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <code>VkVideoEncodeH264QpEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH264QpEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264QpEXT" class="listingblock">
 <div class="content">
@@ -8763,7 +8835,7 @@ provided in <code>minQP</code> must be identical to those provided in
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <code>VkVideoEncodeH264FrameSizeEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH264FrameSizeEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH264FrameSizeEXT" class="listingblock">
 <div class="content">
@@ -9586,7 +9658,7 @@ structure passed to the <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVid
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH265VclFrameInfoEXT">VkVideoEncodeH265VclFrameInfoEXT</a> representing a frame
+<p>The <a href="chap39.html#VkVideoEncodeH265VclFrameInfoEXT">VkVideoEncodeH265VclFrameInfoEXT</a> structure representing a frame
 encode operation is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265VclFrameInfoEXT" class="listingblock">
@@ -9666,7 +9738,7 @@ associated with this picture.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH265NaluSliceEXT">VkVideoEncodeH265NaluSliceEXT</a> representing a slice is
+<p>The <a href="chap39.html#VkVideoEncodeH265NaluSliceEXT">VkVideoEncodeH265NaluSliceEXT</a> structure representing a slice is
 defined as:</p>
 </div>
 <div id="VkVideoEncodeH265NaluSliceEXT" class="listingblock">
@@ -9738,7 +9810,7 @@ for the current slice.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH265DpbSlotInfoEXT">VkVideoEncodeH265DpbSlotInfoEXT</a>, representing a
+<p>The <a href="chap39.html#VkVideoEncodeH265DpbSlotInfoEXT">VkVideoEncodeH265DpbSlotInfoEXT</a> structure, representing a
 reconstructed picture that is being used as a reference picture, is defined
 as:</p>
 </div>
@@ -9799,7 +9871,7 @@ associated with this reference picture.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH265ReferenceListsEXT">VkVideoEncodeH265ReferenceListsEXT</a> representing
+<p>The <a href="chap39.html#VkVideoEncodeH265ReferenceListsEXT">VkVideoEncodeH265ReferenceListsEXT</a> structure representing
 reference lists is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265ReferenceListsEXT" class="listingblock">
@@ -9888,7 +9960,7 @@ reference list modifications.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <a href="chap39.html#VkVideoEncodeH265EmitPictureParametersEXT">VkVideoEncodeH265EmitPictureParametersEXT</a> is defined as:</p>
+<p>The <a href="chap39.html#VkVideoEncodeH265EmitPictureParametersEXT">VkVideoEncodeH265EmitPictureParametersEXT</a> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265EmitPictureParametersEXT" class="listingblock">
 <div class="content">
@@ -9981,18 +10053,7 @@ provided in <a href="chap39.html#VkVideoBeginCodingInfoKHR">VkVideoBeginCodingIn
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>In order to provide H.265-specific stream rate control parameters, add a
-<a href="chap39.html#VkVideoEncodeH265RateControlInfoEXT">VkVideoEncodeH265RateControlInfoEXT</a> structure to the <code>pNext</code> chain
-of the <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure in the <code>pNext</code>
-chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
-<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
-</div>
-<div class="paragraph">
-<p>The parameters from this structure act as a guidance for implementations to
-apply various rate control heuristics.</p>
-</div>
-<div class="paragraph">
-<p>The structure <code>VkVideoEncodeH265RateControlInfoEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH265RateControlInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265RateControlInfoEXT" class="listingblock">
 <div class="content">
@@ -10004,6 +10065,7 @@ apply various rate control heuristics.</p>
     <span class="kt">uint32_t</span>                                            <span class="n">idrPeriod</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                                            <span class="n">consecutiveBFrameCount</span><span class="p">;</span>
     <span class="n">VkVideoEncodeH265RateControlStructureFlagBitsEXT</span>    <span class="n">rateControlStructure</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>                                             <span class="n">subLayerCount</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoEncodeH265RateControlInfoEXT</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -10021,26 +10083,17 @@ structure.</p>
 of pictures (GOP), starting from an intra frame and until the next intra
 frame.
 If it is set to 0, the implementation chooses a suitable value.
-If it is set to <code>UINT32_MAX</code>, the GOP length is treated as infinite.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+If it is set to <code>UINT32_MAX</code>, the GOP length is treated as infinite.</p>
 </li>
 <li>
 <p><code>idrPeriod</code> is the interval, in terms of number of frames, between
 two IDR frames.
 If it is set to 0, the implementation chooses a suitable value.
-If it is set to <code>UINT32_MAX</code>, the IDR period is treated as infinite.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+If it is set to <code>UINT32_MAX</code>, the IDR period is treated as infinite.</p>
 </li>
 <li>
 <p><code>consecutiveBFrameCount</code> is the number of consecutive B-frames
-between I- and/or P-frames within the GOP.
-This value is ignored when
-<a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>::<code>rateControlMode</code> is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>.</p>
+between I- and/or P-frames within the GOP.</p>
 </li>
 <li>
 <p><code>rateControlStructure</code> is a
@@ -10048,7 +10101,22 @@ This value is ignored when
 the expected encode stream reference structure, to aid in rate control
 calculations.</p>
 </li>
+<li>
+<p><code>subLayerCount</code> specifies the number of sub layers enabled in the
+stream.</p>
+</li>
 </ul>
+</div>
+<div class="paragraph">
+<p>In order to provide H.265-specific stream rate control parameters, add a
+<code>VkVideoEncodeH265RateControlInfoEXT</code> structure to the <code>pNext</code> chain
+of the <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a> structure in the <code>pNext</code>
+chain of the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKHR</a> structure passed to the
+<a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command.</p>
+</div>
+<div class="paragraph">
+<p>The parameters from this structure act as a guidance for implementations to
+apply various rate control heuristics.</p>
 </div>
 <div class="paragraph">
 <p>It is possible to infer the picture type to be used when encoding a frame,
@@ -10081,9 +10149,10 @@ inferred picture type does not match the actual picture type.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <code>rateControlStructure</code> in <a href="chap39.html#VkVideoEncodeH265RateControlInfoEXT">VkVideoEncodeH265RateControlInfoEXT</a>
-specifies one of the following video stream reference structures as a hint
-for the rate control implementation:</p>
+<p>Possible values of
+<a href="chap39.html#VkVideoEncodeH265RateControlInfoEXT">VkVideoEncodeH265RateControlInfoEXT</a>::<code>rateControlStructure</code>,
+specifying a video stream reference structure as a hint for the rate control
+implementation, are:</p>
 </div>
 <div id="VkVideoEncodeH265RateControlStructureFlagBitsEXT" class="listingblock">
 <div class="content">
@@ -10117,14 +10186,7 @@ specifies a dyadic reference structure.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>H.265-specific per-layer rate control parameters <strong class="purple">must</strong> be specified by
-adding <a href="chap39.html#VkVideoEncodeH265RateControlLayerInfoEXT">VkVideoEncodeH265RateControlLayerInfoEXT</a> structure to the
-<code>pNext</code> chain of each <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
-structure in a call to <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command, when the
-command buffer context has an active video encode H.265 session.</p>
-</div>
-<div class="paragraph">
-<p>The structure <code>VkVideoEncodeH265RateControlLayerInfoEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH265RateControlLayerInfoEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265RateControlLayerInfoEXT" class="listingblock">
 <div class="content">
@@ -10206,6 +10268,13 @@ implementation from respecting the <code>maxFrameSize</code> limit.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>H.265-specific per-layer rate control parameters <strong class="purple">must</strong> be specified by
+adding a <code>VkVideoEncodeH265RateControlLayerInfoEXT</code> structure to the
+<code>pNext</code> chain of each <a href="chap39.html#VkVideoEncodeRateControlLayerInfoKHR">VkVideoEncodeRateControlLayerInfoKHR</a>
+structure in a call to <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> command, when the
+command buffer context has an active video encode H.265 session.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -10264,7 +10333,7 @@ provided in <code>minQP</code> must be identical to those provided in
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <code>VkVideoEncodeH265QpEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH265QpEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265QpEXT" class="listingblock">
 <div class="content">
@@ -10294,7 +10363,7 @@ provided in <code>minQP</code> must be identical to those provided in
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The structure <code>VkVideoEncodeH265FrameSizeEXT</code> is defined as:</p>
+<p>The <code>VkVideoEncodeH265FrameSizeEXT</code> structure is defined as:</p>
 </div>
 <div id="VkVideoEncodeH265FrameSizeEXT" class="listingblock">
 <div class="content">
@@ -10337,7 +10406,7 @@ provided in <code>minQP</code> must be identical to those provided in
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.202<br>
+Version 1.0.203<br>
 Last updated 2021-12-07 00:38:52 -0800
 </div>
 </div>
