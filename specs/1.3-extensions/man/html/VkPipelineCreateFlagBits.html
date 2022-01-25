@@ -810,12 +810,12 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Possible values of the <code>flags</code> member of
-<a href="VkGraphicsPipelineCreateInfo.html">VkGraphicsPipelineCreateInfo</a>,
-<a href="VkRayTracingPipelineCreateInfoKHR.html">VkRayTracingPipelineCreateInfoKHR</a>,
-<a href="VkRayTracingPipelineCreateInfoNV.html">VkRayTracingPipelineCreateInfoNV</a>,
-and <a href="VkComputePipelineCreateInfo.html">VkComputePipelineCreateInfo</a>, specifying how a pipeline is created,
-are:</p>
+<p>Bits which <strong class="purple">can</strong> be set in
+  * <a href="VkGraphicsPipelineCreateInfo.html">VkGraphicsPipelineCreateInfo</a>::<code>flags</code>
+  * <a href="VkComputePipelineCreateInfo.html">VkComputePipelineCreateInfo</a>::<code>flags</code>
+  * <a href="VkRayTracingPipelineCreateInfoKHR.html">VkRayTracingPipelineCreateInfoKHR</a>::<code>flags</code>
+  * <a href="VkRayTracingPipelineCreateInfoNV.html">VkRayTracingPipelineCreateInfoNV</a>::<code>flags</code>
+specify how a pipeline is created, and are:</p>
 </div>
 <div id="VkPipelineCreateFlagBits" class="listingblock">
 <div class="content">
@@ -828,6 +828,10 @@ typedef enum VkPipelineCreateFlagBits {
     VK_PIPELINE_CREATE_VIEW_INDEX_FROM_DEVICE_INDEX_BIT = 0x00000008,
   // Provided by VK_VERSION_1_1
     VK_PIPELINE_CREATE_DISPATCH_BASE_BIT = 0x00000010,
+  // Provided by VK_VERSION_1_3
+    VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT = 0x00000100,
+  // Provided by VK_VERSION_1_3
+    VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT = 0x00000200,
   // Provided by VK_KHR_dynamic_rendering with VK_KHR_fragment_shading_rate
     VK_PIPELINE_CREATE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR = 0x00200000,
   // Provided by VK_KHR_dynamic_rendering with VK_EXT_fragment_density_map
@@ -856,10 +860,6 @@ typedef enum VkPipelineCreateFlagBits {
     VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV = 0x00040000,
   // Provided by VK_KHR_pipeline_library
     VK_PIPELINE_CREATE_LIBRARY_BIT_KHR = 0x00000800,
-  // Provided by VK_EXT_pipeline_creation_cache_control
-    VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT = 0x00000100,
-  // Provided by VK_EXT_pipeline_creation_cache_control
-    VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT_EXT = 0x00000200,
   // Provided by VK_NV_ray_tracing_motion_blur
     VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV = 0x00100000,
   // Provided by VK_VERSION_1_1
@@ -872,6 +872,10 @@ typedef enum VkPipelineCreateFlagBits {
     VK_PIPELINE_CREATE_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR = VK_PIPELINE_CREATE_VIEW_INDEX_FROM_DEVICE_INDEX_BIT,
   // Provided by VK_KHR_device_group
     VK_PIPELINE_CREATE_DISPATCH_BASE_KHR = VK_PIPELINE_CREATE_DISPATCH_BASE,
+  // Provided by VK_EXT_pipeline_creation_cache_control
+    VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT = VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT,
+  // Provided by VK_EXT_pipeline_creation_cache_control
+    VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT_EXT = VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT,
 } VkPipelineCreateFlagBits;</code></pre>
 </div>
 </div>
@@ -986,18 +990,18 @@ subsequent run (e.g. for trace capture and replay).</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code> specifies that the
-pipeline can be used in combination with <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#device-generated-commands" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#device-generated-commands</a>.</p>
+pipeline can be used in combination with <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#device-generated-commands" class="bare" target="_blank" rel="noopener">https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#device-generated-commands</a>.</p>
 </li>
 <li>
-<p><code>VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT</code>
-specifies that pipeline creation will fail if a compile is required for
-creation of a valid <a href="VkPipeline.html">VkPipeline</a> object;
-<code>VK_PIPELINE_COMPILE_REQUIRED_EXT</code> will be returned by pipeline
-creation, and the <a href="VkPipeline.html">VkPipeline</a> will be set to <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>.</p>
+<p><code>VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT</code> specifies
+that pipeline creation will fail if a compile is required for creation
+of a valid <a href="VkPipeline.html">VkPipeline</a> object; <code>VK_PIPELINE_COMPILE_REQUIRED</code>
+will be returned by pipeline creation, and the <a href="VkPipeline.html">VkPipeline</a> will be
+set to <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>.</p>
 </li>
 <li>
 <p>When creating multiple pipelines,
-<code>VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT_EXT</code> specifies that
+<code>VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT</code> specifies that
 control will be returned to the application on failure of the
 corresponding pipeline rather than continuing to create additional
 pipelines.</p>
@@ -1023,7 +1027,7 @@ attachment.</p>
 <code>VK_PIPELINE_CREATE_DERIVATIVE_BIT</code>.
 This allows a pipeline to be both a parent and possibly a child in a
 pipeline hierarchy.
-See <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#pipelines-pipeline-derivatives" target="_blank" rel="noopener">Pipeline Derivatives</a> for more
+See <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#pipelines-pipeline-derivatives" target="_blank" rel="noopener">Pipeline Derivatives</a> for more
 information.</p>
 </div>
 </div>
@@ -1040,7 +1044,7 @@ information.</p>
 <h2 id="_document_notes"><a class="anchor" href="#_document_notes"></a>Document Notes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#VkPipelineCreateFlagBits" target="_blank" rel="noopener">Vulkan Specification</a></p>
+<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#VkPipelineCreateFlagBits" target="_blank" rel="noopener">Vulkan Specification</a></p>
 </div>
 <div class="paragraph">
 <p>This page is extracted from the Vulkan Specification.
@@ -1052,7 +1056,7 @@ Fixes and changes should be made to the Specification, not directly.</p>
 <h2 id="_copyright"><a class="anchor" href="#_copyright"></a>Copyright</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Copyright 2014-2021 The Khronos Group Inc.</p>
+<p>Copyright 2014-2022 The Khronos Group Inc.</p>
 </div>
 <div class="paragraph">
 <p>SPDX-License-Identifier: CC-BY-4.0</p>
@@ -1062,8 +1066,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.203<br>
-Last updated 2021-12-20 03:55:32 -0800
+Version 1.3.204<br>
+Last updated 2022-01-21 23:55:57 -0800
 </div>
 </div>
 

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.203 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.204 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.203 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.204 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.203,</span>
-<span id="revdate">2021-12-20 12:06:57Z</span>
-<br><span id="revremark">from git branch: github-main commit: ac23aa229fd9b8ea06aa99cf07b79cdc15af406f</span>
+<span id="revnumber">version 1.0.204,</span>
+<span id="revdate">2022-01-22 08:08:59Z</span>
+<br><span id="revremark">from git branch: github-main commit: 15d807ce4839d8feb523ca5c133a42a2aa448ade</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1105,7 +1105,7 @@ considered to have an <code>Index</code> decoration of zero.</p>
 <div class="paragraph">
 <p>A fragment shader output variable identified with a <code>Location</code> decoration
 of <em>i</em> is associated with
-the element of <a href="chap8.html#VkRenderingInfoKHR">VkRenderingInfoKHR</a>::<code>pColorAttachments</code> with a
+the element of <a href="chap8.html#VkRenderingInfo">VkRenderingInfo</a>::<code>pColorAttachments</code> with a
 <code>location</code> equal to <em>i</em>.
 When using render pass objects, it is associated with
 the color attachment indicated by <code>pColorAttachments</code>[<em>i</em>].
@@ -1431,7 +1431,7 @@ capability.</p>
 </li>
 <li>
 <p>For <code>OpImageWrite</code>, if the image format supports
-<code>VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT_KHR</code> and the
+<code>VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT</code> and the
 shader module declares the <code>StorageImageWriteWithoutFormat</code>
 capability.</p>
 </li>
@@ -1444,8 +1444,8 @@ feature is enabled and the shader module declares the
 </li>
 <li>
 <p>For <code>OpImageRead</code> or <code>OpImageSparseRead</code>, if the image format
-supports <code>VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT_KHR</code>
-and the shader module declares the <code>StorageImageReadWithoutFormat</code>
+supports <code>VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT</code> and
+the shader module declares the <code>StorageImageReadWithoutFormat</code>
 capability.</p>
 </li>
 <li>
@@ -1512,7 +1512,7 @@ for that variable to extend outside the range <span class="eq">[0,
 <p>Variables identified with the <code>Uniform</code> storage class <strong class="purple">can</strong> also be used
 to access transparent descriptor set backed resources when the variable is
 assigned to a descriptor set layout binding with a <code>descriptorType</code> of
-<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code>.
+<code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK</code>.
 In this case the variable <strong class="purple">must</strong> be typed as <code>OpTypeStruct</code> and <strong class="purple">cannot</strong> be
 aggregated into arrays of that type.
 Further, the <code>Offset</code> decoration for any member of such a variable <strong class="purple">must</strong>
@@ -1734,7 +1734,7 @@ into arrays in shader code, irrespective of the
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">inline uniform block</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">acceleration structure</p></td>
@@ -6061,6 +6061,15 @@ decoration will make that variable contain the index of the invocation
 within the subgroup.
 This variable is in range [0,<code>SubgroupSize</code>-1].</p>
 </div>
+<div class="paragraph">
+<p>If <code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT</code> is
+specified,
+full subgroups are enabled for that pipeline stage.
+When full subgroups are enabled, subgroups <strong class="purple">must</strong> be launched with all
+invocations active, i.e., there is an active invocation with
+<code>SubgroupLocalInvocationId</code> for each value in range
+[0,<code>SubgroupSize</code>-1].</p>
+</div>
 </dd>
 </dl>
 </div>
@@ -6075,10 +6084,8 @@ This variable is in range [0,<code>SubgroupSize</code>-1].</p>
 <div class="paragraph">
 <p>There is no direct relationship between <code>SubgroupLocalInvocationId</code> and
 <code>LocalInvocationId</code> or <code>LocalInvocationIndex</code>.
-If the pipeline was created with
-<code>VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code>,
-applications can compute their own local invocation index to serve the same
-purpose:</p>
+If the pipeline was created with full subgroups applications can compute
+their own local invocation index to serve the same purpose:</p>
 </div>
 <div class="paragraph">
 <p><span class="eq">index = <code>SubgroupLocalInvocationId</code> + <code>SubgroupId</code> *
@@ -6130,9 +6137,10 @@ This value <strong class="purple">must</strong> be a power-of-two integer.</p>
 </div>
 <div class="paragraph">
 <p>If the pipeline was created with the
-<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>
-flag set, the <code>SubgroupSize</code> decorated variable will contain the subgroup
-size for each subgroup that gets dispatched.
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT</code> flag
+set,
+the <code>SubgroupSize</code> decorated variable will contain the subgroup size for
+each subgroup that gets dispatched.
 This value <strong class="purple">must</strong> be between <a href="undefined">minSubgroupSize</a> and
 <a href="undefined">maxSubgroupSize</a> and <strong class="purple">must</strong> be uniform with
 <a href="undefined">subgroup scope</a>.
@@ -6143,14 +6151,15 @@ In compute dispatches, <code>SubgroupSize</code> <strong class="purple">must</st
 </div>
 <div class="paragraph">
 <p>If the pipeline was created with a chained
-<a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a> structure, the
+<a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a> structure, the
 <code>SubgroupSize</code> decorated variable will match
 <a href="chap10.html#pipelines-required-subgroup-size"><code>requiredSubgroupSize</code></a>.</p>
 </div>
 <div class="paragraph">
-<p>If the pipeline was not created with the
-<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>
-flag set and no <a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT">VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT</a>
+<p>If the pipeline stage
+was not created with the
+<code>VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT</code> flag
+set and no <a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a>
 structure was chained, the
 variable decorated with <code>SubgroupSize</code> will match <a href="undefined"><code>subgroupSize</code></a>.</p>
 </div>
@@ -7050,8 +7059,8 @@ floating-point values</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.203<br>
-Last updated 2021-12-07 00:38:52 -0800
+Version 1.0.204<br>
+Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>
 

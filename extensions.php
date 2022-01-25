@@ -37,6 +37,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_memory_requirements2.html"> VK_KHR_get_memory_requirements2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_physical_device_properties2.html"> VK_KHR_get_physical_device_properties2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_surface_capabilities2.html"> VK_KHR_get_surface_capabilities2 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_global_priority.html"> VK_KHR_global_priority </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_image_format_list.html"> VK_KHR_image_format_list </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_imageless_framebuffer.html"> VK_KHR_imageless_framebuffer </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_incremental_present.html"> VK_KHR_incremental_present </a> </li>
