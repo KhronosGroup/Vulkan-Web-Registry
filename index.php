@@ -29,16 +29,17 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <p> Index to the Vulkan Registry page content: </p>
 
 <ul>
-    <li> <a href="#apispecs"/> <b>Vulkan 1.2 API Specifications</b> </a> </li>
+    <li> <a href="#apispecs"/> <b>Vulkan 1.3 API Specifications</b> </a> </li>
     <li> <a href="#dataformat"/> <b>Khronos Data Format Specification</b> </a> </li>
     <li> <a href="#styleguide"/> <b>Vulkan Documentation and Extensions:
          Procedures and Conventions</b> </a> (the &ldquo;Style Guide&rdquo;)
          </li>
-  <!-- Not updated for 1.2 yet
+  <!-- Not updated for 1.3 yet
     <li> <a href="#refguide"/> <b>Vulkan 1.1 API Quick Reference</b> </a> </li>
   -->
     <li> <a href="#refpages"/> <b>Vulkan API Reference Pages</b> </a> </li>
-    <li> <a href="#vulkan1.1"/> <b>Vulkan 1.1</b> </a> and
+    <li> <a href="#vulkan1.2"/> <b>Vulkan 1.2</b> </a>,
+         <a href="#vulkan1.1"/> <b>Vulkan 1.1</b> </a>, and
          <a href="#vulkan1.0"/> <b>Vulkan 1.0 Material</b> </a> </li>
     <li> <a href="#repos"/> <b>Vulkan GitHub Repositories</b>
         <ul>
@@ -55,9 +56,9 @@ include_once("../../assets/static_pages/khr_page_top.php");
 </ul>
 
 
-<h2> <a name="apispecs"></a> <b>Vulkan 1.2 API Specifications</b> </h2>
+<h2> <a name="apispecs"></a> <b>Vulkan 1.3 API Specifications</b> </h2>
 
-<p> We currently publish the Vulkan API Specification in PDF and HTML forms.
+<p> We publish the Vulkan API Specification in PDF and HTML forms.
     The single-file HTML documents are much slower to load than the
     corresponding chunked HTML documents, while the PDF is quickest to load
     and is suitable for offline use. Links into the specification from other
@@ -65,25 +66,25 @@ include_once("../../assets/static_pages/khr_page_top.php");
     layers, currently target the single-file HTML document although we hope
     to target the chunked document eventually. </p>
 
-<p> There are several versions of the Vulkan 1.2 Specification, as well as
+<p> There are several versions of the Vulkan 1.3 Specification, as well as
     related Specifications and collateral material: </p>
 
 <ul>
-<li> <b>Vulkan 1.2 Core API + all published Extensions</b>
-     <a href="specs/1.2-extensions/html/index.html">(Chunked HTML)</a>
-     <a href="specs/1.2-extensions/pdf/vkspec.pdf">(PDF)</a>.
-     <a href="specs/1.2-extensions/html/vkspec.html">(Single-file HTML)</a>
+<li> <b>Vulkan 1.3 Core API + all published Extensions</b>
+     <a href="specs/1.3-extensions/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.3-extensions/pdf/vkspec.pdf">(PDF)</a>.
+     <a href="specs/1.3-extensions/html/vkspec.html">(Single-file HTML)</a>
      This Specification includes all registered Vulkan extensions which have
      been incorporated into the Specification Repository, including KHR,
      EXT, and vendor extensions. </li>
-<li> <b>Vulkan 1.2 Core API</b>
-     <a href="specs/1.2/html/index.html">(Chunked HTML)</a>
-     <a href="specs/1.2/pdf/vkspec.pdf">(PDF)</a> </li>
-     <a href="specs/1.2/html/vkspec.html">(Single-file HTML)</a>
-<li> <b>Vulkan 1.2 Core API + Khronos-defined Extensions</b>
-     <a href="specs/1.2-khr-extensions/html/index.html">(Chunked HTML)</a>
-     <a href="specs/1.2-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
-     <a href="specs/1.2-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
+<li> <b>Vulkan 1.3 Core API</b>
+     <a href="specs/1.3/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.3/pdf/vkspec.pdf">(PDF)</a> </li>
+     <a href="specs/1.3/html/vkspec.html">(Single-file HTML)</a>
+<li> <b>Vulkan 1.3 Core API + Khronos-defined Extensions</b>
+     <a href="specs/1.3-khr-extensions/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.3-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
+     <a href="specs/1.3-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
      This Specification includes Khronos-defined <tt>KHR</tt> extensions
      such as the Window-System Interface Extensions used to post images to a
      display on different platforms and window systems. </li>
@@ -101,7 +102,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <h2> <a name="styleguide"></a> <b>Vulkan Documentation and Extensions:
      Procedures and Conventions</b> </h2>
 
-<p> The <a href="specs/1.2/styleguide.html">Vulkan Documentation and
+<p> The <a href="specs/1.3/styleguide.html">Vulkan Documentation and
     Extensions: Procedures and Conventions</a> document (colloquially, the
     &ldquo;Style Guide&rdquo;) defines mandatory and recommended conventions
     and best practices used in creating and modifying the API Specification
@@ -110,7 +111,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     familiarize themselves with and adhere to this document. </p>
 
 
-  <!-- Not updated for 1.2 yet
+  <!-- Not updated for 1.3 yet
 <h2> <a name="refguide"></a> <b>Vulkan 1.1 API Quick Reference</b> </h2>
 
 <p> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">Vulkan 1.1 API Quick
@@ -134,24 +135,60 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <ul>
 <li> <b>Vulkan API Reference Pages</b>
-     <a href="specs/1.2-extensions/man/html/">(HTML, one file per reference page)</a>
+     <a href="specs/1.3-extensions/man/html/">(HTML, one file per reference page)</a>
      </li>
 </ul>
 
-<p> <b>Note:</b> As of the 1.2.131 update, we have replaced the 1.1 reference
-    pages with 1.2 reference pages. </p>
+<p> <b>Note:</b> As of the 1.3.204 update, we have replaced the 1.2 reference
+    pages with 1.3 reference pages. </p>
 
 <p> The reference pages are generated by automatic extraction from the
     Specification source, and are not checked into GitHub. The set of pages
-    linked above are generated from the 1.2 API Specification including all
+    linked above are generated from the 1.3 API Specification including all
     extensions, but sets of pages including arbitrary extensions can be
-    generated in the same fashion as generating specifications including
-    arbitrary extensions. </p>
+    generated in the same fashion as specifications including arbitrary
+    extensions. </p>
+
+
+<h2> <a name="vulkan1.2"> </a> <b> Vulkan 1.2 Material </b> </h2>
+
+<p> We also maintain the Vulkan 1.2 Specification and related documents,
+    which include: </p>
+
+<ul>
+<li> <b>Vulkan 1.2 Core API + all published Extensions</b>
+     <a href="specs/1.2-extensions/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.2-extensions/pdf/vkspec.pdf">(PDF)</a>.
+     <a href="specs/1.2-extensions/html/vkspec.html">(Single-file HTML)</a>
+     This Specification includes all registered Vulkan extensions which have
+     been incorporated into the Specification Repository, including KHR,
+     EXT, and vendor extensions. </li>
+<li> <b>Vulkan 1.2 Core API</b>
+     <a href="specs/1.2/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.2/pdf/vkspec.pdf">(PDF)</a> </li>
+     <a href="specs/1.2/html/vkspec.html">(Single-file HTML)</a>
+<li> <b>Vulkan 1.2 Core API + Khronos-defined Extensions</b>
+     <a href="specs/1.2-khr-extensions/html/index.html">(Chunked HTML)</a>
+     <a href="specs/1.2-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
+     <a href="specs/1.2-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
+     This Specification includes Khronos-defined <tt>KHR</tt> extensions
+     such as the Window-System Interface Extensions used to post images to a
+     display on different platforms and window systems. </li>
+  <!-- Not updated for 1.2
+<li> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">Vulkan 1.1 API
+     Quick Reference</a> is a compact document summarizing the Vulkan 1.1
+     API commands, structures, and enumerants.
+<li> The <a href="specs/1.1/refguide/VulkanQuickRef.zip"> InDesign sources
+     </a> for the 1.1 reference guide</a> are also available, formatted as a
+     <b>.zip</b> file. </li>
+  -->
+</ul>
+
 
 
 <h2> <a name="vulkan1.1"> </a> <b> Vulkan 1.1 Material </b> </h2>
 
-<p> We still maintain the Vulkan 1.1 Specification and related documents,
+<p> We also maintain the Vulkan 1.1 Specification and related documents,
     which include: </p>
 
 <ul>
@@ -178,7 +215,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
      API commands, structures, and enumerants.
      <b>Note:</b> The Quick Reference has not yet been updated for Vulkan
      1.2.</p>
-  <!-- Not updated for 1.1 yet
+  <!-- Not updated for 1.1
 <li> The <a href="specs/1.1/refguide/VulkanQuickRef.zip"> InDesign sources
      </a> for the 1.1 reference guide</a> are also available, formatted as a
      <b>.zip</b> file. </li>
@@ -189,7 +226,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h2> <a name="vulkan1.0"> </a> <b> Vulkan 1.0 Material </b> </h2>
 
-<p> We still maintain the Vulkan 1.0 Specification and related documents,
+<p> We also maintain the Vulkan 1.0 Specification and related documents,
     which include: </p>
 
 <ul>
@@ -243,7 +280,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     Author/Vendor ID.
     The links are to extension reference pages; these pages are quick to
     load compared to the full <a
-    href="specs/1.2-extensions/html/vkspec.html"> Vulkan 1.2 Core API + all
+    href="specs/1.3-extensions/html/vkspec.html"> Vulkan 1.3 Core API + all
     published Extensions </a> Specification, and they link back to it if
     more information or context is needed.
     The list of links is generated based on the <tt>supported</tt> tags in
@@ -271,7 +308,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     project. </p>
 
 <p> This repository also includes a
-    <a href="specs/1.2-extensions/validation/validusage.json">JSON file
+    <a href="specs/1.3-extensions/validation/validusage.json">JSON file
     containing Valid Usage ID (VUID) tags</a> (and corresponding valid usage
     statements) extracted from the specification sources. This is used only
     by the validation layer, at present. </p>
@@ -306,7 +343,7 @@ include_once("../../assets/static_pages/khr_page_top.php");
     under <b>xml/</b>. This directory also includes a formal RELAX&nbsp;NG
     XML schema and scripts used to generate the various outputs. </p>
 
-<p> <a href="specs/1.2/registry.html"> Documentation of the XML schema</a>
+<p> <a href="specs/1.3/registry.html"> Documentation of the XML schema</a>
     is available. </p>
 
 <h3> <a name="repo-cts"></a> <b>Conformance Test Suite Repository</b> </h3>
