@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.206 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.207 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.206 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.207 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.206,</span>
-<span id="revdate">2022-02-17 16:10:55Z</span>
-<br><span id="revremark">from git branch: github-main commit: d80b6159f6d69398dbeae52aa1080e47ae96fe47</span>
+<span id="revnumber">version 1.0.207,</span>
+<span id="revdate">2022-03-08 12:59:37Z</span>
+<br><span id="revremark">from git branch: github-main commit: 75c276d6fa83a3f1cbf8b3da50b9278c479be021</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1930,7 +1930,7 @@ encode operation.</p>
 </li>
 <li>
 <p><a id="VUID-VkVideoCapabilitiesKHR-pNext-pNext" href="chap35.html#VUID-VkVideoCapabilitiesKHR-pNext-pNext"></a> <span class="vuid">VUID-VkVideoCapabilitiesKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap35.html#VkVideoEncodeCapabilitiesKHR">VkVideoEncodeCapabilitiesKHR</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap35.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a> or <a href="chap35.html#VkVideoEncodeCapabilitiesKHR">VkVideoEncodeCapabilitiesKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoCapabilitiesKHR-sType-unique" href="chap35.html#VUID-VkVideoCapabilitiesKHR-sType-unique"></a> <span class="vuid">VUID-VkVideoCapabilitiesKHR-sType-unique</span><br>
@@ -2042,6 +2042,32 @@ video format properties supported, at most <code>pVideoFormatPropertyCount</code
 values will be written to <code>pVideoFormatProperties</code>, and
 <code>VK_INCOMPLETE</code> will be returned instead of <code>VK_SUCCESS</code>, to
 indicate that not all the available values were returned.</p>
+</div>
+<div class="paragraph">
+<p>If an implementation reports
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> is
+supported but
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> is not
+supported in <a href="chap35.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
+for video format properties for decode DPB or output, <code>imageUsage</code> <strong class="purple">must</strong>
+have both <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> set.
+Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.</p>
+</div>
+<div class="paragraph">
+<p>If an implementation reports
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> is
+supported but
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> is not
+supported in <a href="chap35.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
+for video format properties for decode DPB, <code>imageUsage</code> <strong class="purple">must</strong> have
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> set and
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> not set.
+Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.
+Similarly, to query for video format properties for decode output,
+<code>imageUsage</code> <strong class="purple">must</strong> have <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>
+set and <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> not set.
+Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2255,7 +2281,11 @@ codec-operation specific extension video profile structure.</p>
 </li>
 <li>
 <p><a id="VUID-VkVideoProfilesKHR-pProfiles-parameter" href="chap35.html#VUID-VkVideoProfilesKHR-pProfiles-parameter"></a> <span class="vuid">VUID-VkVideoProfilesKHR-pProfiles-parameter</span><br>
- <code>pProfiles</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap35.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structure</p>
+ <code>pProfiles</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>profileCount</code> valid <a href="chap35.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoProfilesKHR-profileCount-arraylength" href="chap35.html#VUID-VkVideoProfilesKHR-profileCount-arraylength"></a> <span class="vuid">VUID-VkVideoProfilesKHR-profileCount-arraylength</span><br>
+ <code>profileCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -2295,13 +2325,9 @@ implementation.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If the <code>pVideoProfiles</code> provided in input structure
+<p>If the <code>pVideoProfiles</code> or <code>imageUsage</code> provided in input structure
 <code>pVideoFormatInfo</code> are not supported,
-<code>VK_ERROR_FORMAT_NOT_SUPPORTED</code> is returned.
-If the implementation requires an opaque video decode or encode DPB, then
-when querying with the corresponding video decode or encode DPB image usage
-in <code>imageUsage</code>, only one image format is returned:
-<code>VK_FORMAT_UNDEFINED</code>.</p>
+<code>VK_ERROR_FORMAT_NOT_SUPPORTED</code> is returned.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -4770,7 +4796,137 @@ as well.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_video_decode_command_buffer_commands"><a class="anchor" href="chap35.html#_video_decode_command_buffer_commands"></a>35.5.2. Video Decode Command Buffer Commands</h4>
+<h4 id="_capabilities"><a class="anchor" href="chap35.html#_capabilities"></a>35.5.2. Capabilities</h4>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>When calling <a href="chap35.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> with
+<code>pVideoProfile-&gt;videoCodecOperation</code> specified as one of the decode
+operation bits, the <a href="chap35.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a> structure <strong class="purple">must</strong> be
+included in the <code>pNext</code> chain of the <a href="chap35.html#VkVideoCapabilitiesKHR">VkVideoCapabilitiesKHR</a>
+structure to retrieve capabilities specific to video decoding.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkVideoDecodeCapabilitiesKHR</code> structure is defined as:</p>
+</div>
+<div id="VkVideoDecodeCapabilitiesKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkVideoDecodeCapabilitiesKHR</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>                    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkVideoDecodeCapabilityFlagsKHR</span>    <span class="n">flags</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkVideoDecodeCapabilitiesKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>flags</code> is a bitmask of <a href="chap35.html#VkVideoDecodeCapabilityFlagBitsKHR">VkVideoDecodeCapabilityFlagBitsKHR</a>
+describing supported decoding features.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoDecodeCapabilitiesKHR-sType-sType" href="chap35.html#VUID-VkVideoDecodeCapabilitiesKHR-sType-sType"></a> <span class="vuid">VUID-VkVideoDecodeCapabilitiesKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkVideoDecodeCapabilityFlagsKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+<span class="k">typedef</span> <span class="n">VkFlags</span> <span class="n">VkVideoDecodeCapabilityFlagsKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkVideoDecodeCapabilityFlagsKHR</code> is a bitmask type for setting a mask
+of zero or more <a href="chap35.html#VkVideoDecodeCapabilityFlagBitsKHR">VkVideoDecodeCapabilityFlagBitsKHR</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Bits which <strong class="purple">may</strong> be set in <a href="chap35.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>,
+indicating the decoding features supported, are:</p>
+</div>
+<div id="VkVideoDecodeCapabilityFlagBitsKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkVideoDecodeCapabilityFlagBitsKHR</span> <span class="p">{</span>
+    <span class="n">VK_VIDEO_DECODE_CAPABILITY_DEFAULT_KHR</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
+    <span class="n">VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkVideoDecodeCapabilityFlagBitsKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> -
+reports the implementation supports using the same
+<a href="chap35.html#video-picture-resources">Video Picture Resource</a> for decode DPB and
+decode output.</p>
+</li>
+<li>
+<p><code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> -
+reports the implementation supports using distinct
+<a href="chap35.html#video-picture-resources">Video Picture Resources</a> for decode DPB and
+decode output.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>An implementation <strong class="purple">must</strong> report at least one of
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> or
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> as
+supported.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note:</div>
+<div class="paragraph">
+<p>If both <code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> and
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> are
+supported, an application <strong class="purple">may</strong> choose to create separate images for decode
+DPB and decode output in the case where linear tiling is required for output
+but optimal tiling <strong class="purple">must</strong> still be used for DPB.
+This avoids scheduling layout transitions at the expense of extra overhead
+during decoding to write both images and the additional memory requirements.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_video_decode_command_buffer_commands"><a class="anchor" href="chap35.html#_video_decode_command_buffer_commands"></a>35.5.3. Video Decode Command Buffer Commands</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -5207,7 +5363,7 @@ Vulkan Video Encode Context established with the
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_capabilities"><a class="anchor" href="chap35.html#_capabilities"></a>35.6.1. Capabilities</h4>
+<h4 id="_capabilities_2"><a class="anchor" href="chap35.html#_capabilities_2"></a>35.6.1. Capabilities</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -5986,7 +6142,7 @@ coding layers (if applicable to the specified stream rate control mode).</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.206<br>
+Version 1.0.207<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

@@ -288,5 +288,6 @@
     <li> <b>  QNX Extensions (BlackBerry Limited)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QNX_screen_surface.html"> VK_QNX_screen_surface </a> </li>
     <li> <b>  VALVE Extensions (Valve Corporation)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_VALVE_descriptor_set_host_mapping.html"> VK_VALVE_descriptor_set_host_mapping </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_VALVE_mutable_descriptor_type.html"> VK_VALVE_mutable_descriptor_type </a> </li>
 </ul>
