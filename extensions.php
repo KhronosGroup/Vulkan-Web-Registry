@@ -49,6 +49,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_executable_properties.html"> VK_KHR_pipeline_executable_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_pipeline_library.html"> VK_KHR_pipeline_library </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_portability_enumeration.html"> VK_KHR_portability_enumeration </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_portability_subset.html"> VK_KHR_portability_subset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_present_id.html"> VK_KHR_present_id </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_present_wait.html"> VK_KHR_present_wait </a> </li>
