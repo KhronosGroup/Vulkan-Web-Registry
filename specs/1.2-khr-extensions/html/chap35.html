@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.208 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.209 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.208 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.209 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.208,</span>
-<span id="revdate">2022-03-15 10:34:03Z</span>
-<br><span id="revremark">from git branch: github-main commit: e88e27f2cda370444f87fc724412a384cb958824</span>
+<span id="revnumber">version 1.2.209,</span>
+<span id="revdate">2022-03-23 04:54:17Z</span>
+<br><span id="revremark">from git branch: github-main commit: fff65570f345288361958ff530e284de27b1a657</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -255,12 +255,11 @@
 </li>
 <li><a href="chap19.html">19. Copy Commands</a>
 <ul class="sectlevel2">
-<li><a href="chap19.html#_common_operation">19.1. Common Operation</a></li>
-<li><a href="chap19.html#copies-buffers">19.2. Copying Data Between Buffers</a></li>
-<li><a href="chap19.html#copies-images">19.3. Copying Data Between Images</a></li>
-<li><a href="chap19.html#copies-buffers-images">19.4. Copying Data Between Buffers and Images</a></li>
-<li><a href="chap19.html#copies-imagescaling">19.5. Image Copies with Scaling</a></li>
-<li><a href="chap19.html#copies-resolve">19.6. Resolving Multisample Images</a></li>
+<li><a href="chap19.html#copies-buffers">19.1. Copying Data Between Buffers</a></li>
+<li><a href="chap19.html#copies-images">19.2. Copying Data Between Images</a></li>
+<li><a href="chap19.html#copies-buffers-images">19.3. Copying Data Between Buffers and Images</a></li>
+<li><a href="chap19.html#copies-imagescaling">19.4. Image Copies with Scaling</a></li>
+<li><a href="chap19.html#copies-resolve">19.5. Resolving Multisample Images</a></li>
 </ul>
 </li>
 <li><a href="chap20.html">20. Drawing Commands</a>
@@ -1876,6 +1875,7 @@ capabilities associated with this video profile.</p>
     <span class="n">VkExtent2D</span>                   <span class="n">maxExtent</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                     <span class="n">maxReferencePicturesSlotsCount</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                     <span class="n">maxReferencePicturesActiveCount</span><span class="p">;</span>
+    <span class="n">VkExtensionProperties</span>        <span class="n">stdHeaderVersion</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoCapabilitiesKHR</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -1921,6 +1921,12 @@ supported by the implementation for a single video session instance.</p>
 <p><code>maxReferencePicturesActiveCount</code> is the maximum slots that can be
 used as <a href="chap35.html#reference-picture">Reference Pictures</a> with a single decode or
 encode operation.</p>
+</li>
+<li>
+<p><code>stdHeaderVersion</code> is a <a href="chap36.html#VkExtensionProperties">VkExtensionProperties</a> structure
+reporting the Video Std header version supported for the
+<code>codecOperation</code> requested in
+<code>vkGetPhysicalDeviceVideoCapabilitiesKHR</code>::<code>pVideoProfile</code>.</p>
 </li>
 </ul>
 </div>
@@ -2507,6 +2513,7 @@ created by this function when it returns <code>VK_SUCCESS</code></p>
     <span class="n">VkFormat</span>                        <span class="n">referencePicturesFormat</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                        <span class="n">maxReferencePicturesSlotsCount</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                        <span class="n">maxReferencePicturesActiveCount</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">VkExtensionProperties</span><span class="o">*</span>    <span class="n">pStdHeaderVersion</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoSessionCreateInfoKHR</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -2553,6 +2560,11 @@ video session.</p>
 <a href="chap35.html#dpb-slot">DPB Slots</a> that can be used as Dpb or Reconstructed
 <a href="chap35.html#reference-picture">Reference Pictures</a> within a single decode or
 encode operation for the created video session.</p>
+</li>
+<li>
+<p><code>pStdHeaderVersion</code> is a pointer to a <a href="chap36.html#VkExtensionProperties">VkExtensionProperties</a>
+structure requesting the Video Std header version to use for
+<code>codecOperation</code> in <code>pVideoProfile</code>.</p>
 </li>
 </ul>
 </div>
@@ -2670,6 +2682,10 @@ the <a href="chap35.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVid
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-parameter" href="chap35.html#VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-parameter"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-parameter</span><br>
  <code>referencePicturesFormat</code> <strong class="purple">must</strong> be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-parameter" href="chap35.html#VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-parameter"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-parameter</span><br>
+ <code>pStdHeaderVersion</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap36.html#VkExtensionProperties">VkExtensionProperties</a> structure</p>
 </li>
 </ul>
 </div>
@@ -6147,7 +6163,7 @@ coding layers (if applicable to the specified stream rate control mode).</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.208<br>
+Version 1.2.209<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>
