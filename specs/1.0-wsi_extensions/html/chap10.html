@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.209 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.210 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.209 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.210 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.209,</span>
-<span id="revdate">2022-03-23 04:55:17Z</span>
-<br><span id="revremark">from git branch: github-main commit: fff65570f345288361958ff530e284de27b1a657</span>
+<span id="revnumber">version 1.0.210,</span>
+<span id="revdate">2022-03-29 11:06:05Z</span>
+<br><span id="revremark">from git branch: github-main commit: 45af5eb1f66898c9f382edc5afd691aeb32c10c0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1396,11 +1396,13 @@ entry point <strong class="purple">must</strong> not include any output variable
 decorated with <code>CullDistance</code></p>
 </li>
 <li>
-<p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-00719" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-stage-00719"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-stage-00719</span><br>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-06685" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-stage-06685"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-stage-06685</span><br>
 
 If <code>stage</code> is <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>, and the identified
-entry point writes to <code>FragDepth</code> in any execution path, it <strong class="purple">must</strong>
-write to <code>FragDepth</code> in all execution paths</p>
+entry point writes to <code>FragDepth</code> in any execution path, all
+execution paths that are not exclusive to helper invocations <strong class="purple">must</strong>
+either discard the fragment, or write or initialize the value of
+<code>FragDepth</code></p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-module-04145" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-module-04145"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-module-04145</span><br>
@@ -1426,7 +1428,11 @@ constants</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-pNext" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap9.html#VkShaderModuleCreateInfo">VkShaderModuleCreateInfo</a></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineShaderStageCreateInfo-sType-unique" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-flags-zerobitmask" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-flags-zerobitmask"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-flags-zerobitmask</span><br>
@@ -1438,7 +1444,7 @@ constants</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-module-parameter" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-module-parameter"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-module-parameter</span><br>
- <code>module</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkShaderModule">VkShaderModule</a> handle</p>
+ If <code>module</code> is not <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>module</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkShaderModule">VkShaderModule</a> handle</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-pName-parameter" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-pName-parameter"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-pName-parameter</span><br>
@@ -1938,8 +1944,17 @@ state</a>.</p>
 </div>
 </li>
 <li>
-<p>Within the <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a>, all bindings that affect the
-specified shader stages</p>
+<p>Within the <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a>, all descriptor sets with
+pre-rasterization shader bindings if
+<code>VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT</code> was specified.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT</code> was not
+specified, the full pipeline layout must be specified.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><a href="chap24.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a></p>
@@ -1952,6 +1967,10 @@ specified shader stages</p>
 </li>
 <li>
 <p><a href="chap8.html#VkRenderPass">VkRenderPass</a> and <code>subpass</code> parameter</p>
+</li>
+<li>
+<p>The <code>viewMask</code> parameter of <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>
+(formats are ignored)</p>
 </li>
 <li>
 <p><a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a></p>
@@ -1967,11 +1986,22 @@ specified shader stages</p>
 <p>A <a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> entry for the fragment shader</p>
 </li>
 <li>
-<p>Within the <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a>, all bindings that affect the fragment
-shader</p>
+<p>Within the <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a>, all descriptor sets with fragment
+shader bindings if <code>VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT</code>
+was specified.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT</code> was not
+specified, the full pipeline layout must be specified.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a></p>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>
+if <a href="chap25.html#primsrast-sampleshading">sample shading</a> is enabled or
+<code>renderpass</code> is not <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
 </li>
 <li>
 <p><a href="chap26.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a></p>
@@ -1980,7 +2010,16 @@ shader</p>
 <p><a href="chap8.html#VkRenderPass">VkRenderPass</a> and <code>subpass</code> parameter</p>
 </li>
 <li>
+<p>The <code>viewMask</code> parameter of <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>
+(formats are ignored)</p>
+</li>
+<li>
 <p><a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a></p>
+</li>
+<li>
+<p>Inclusion/omission of the
+<code>VK_PIPELINE_RASTERIZATION_STATE_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code>
+flag</p>
 </li>
 </ul>
 </div>
@@ -1993,11 +2032,13 @@ shader</p>
 <p><a href="chap27.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a></p>
 </li>
 <li>
-<p>The <code>alphaToCoverageEnable</code> and <code>alphaToOneEnable</code> members of
-<a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>.</p>
+<p><a href="chap8.html#VkRenderPass">VkRenderPass</a> and <code>subpass</code> parameter</p>
 </li>
 <li>
-<p><a href="chap8.html#VkRenderPass">VkRenderPass</a> and <code>subpass</code> parameter</p>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a></p>
 </li>
 </ul>
 </div>
@@ -2311,8 +2352,8 @@ structure</p>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751</span><br>
 
 If the pipeline is being created with
-<a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader state</a>,
-<code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
 </li>
 <li>
@@ -2366,10 +2407,10 @@ shaders specified in <code>pStages</code></p>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00757" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-subpass-00757"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-subpass-00757</span><br>
 
 If the pipeline is being created with
-<a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader state</a>,
-and neither the <code><code>VK_AMD_mixed_attachment_samples</code></code> nor the
-<code><code>VK_NV_framebuffer_mixed_samples</code></code> extensions are enabled, and if
-<code>subpass</code> uses color and/or depth/stencil attachments, then the
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and neither the <code><code>VK_AMD_mixed_attachment_samples</code></code> nor
+the <code><code>VK_NV_framebuffer_mixed_samples</code></code> extensions are enabled, and
+if <code>subpass</code> uses color and/or depth/stencil attachments, then the
 <code>rasterizationSamples</code> member of <code>pMultisampleState</code> <strong class="purple">must</strong> be
 the same as the sample count for those subpass attachments</p>
 </li>
@@ -2377,11 +2418,11 @@ the same as the sample count for those subpass attachments</p>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-subpass-00758" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-subpass-00758"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-subpass-00758</span><br>
 
 If the pipeline is being created with
-<a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader state</a> and
-<code>subpass</code> does not use any color and/or depth/stencil attachments,
-then the <code>rasterizationSamples</code> member of <code>pMultisampleState</code>
-<strong class="purple">must</strong> follow the rules for a <a href="chap8.html#renderpass-noattachments">zero-attachment
-subpass</a></p>
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and <code>subpass</code> does not use any color and/or depth/stencil
+attachments, then the <code>rasterizationSamples</code> member of
+<code>pMultisampleState</code> <strong class="purple">must</strong> follow the rules for a
+<a href="chap8.html#renderpass-noattachments">zero-attachment subpass</a></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06046" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06046"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06046</span><br>
@@ -2592,6 +2633,28 @@ and
 <strong class="purple">must</strong> both be equal to <code>1</code></p>
 </li>
 <li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06567" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06567"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06567</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a> or <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a> and <code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> is not
+included in <code>pDynamicState-&gt;pDynamicStates</code>,
+<a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a>::<code>combinerOps</code>[0]
+<strong class="purple">must</strong> be a valid <a href="chap25.html#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06568" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06568"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicState-06568</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a> or <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a> and <code>VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR</code> is not
+included in <code>pDynamicState-&gt;pDynamicStates</code>,
+<a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a>::<code>combinerOps</code>[1]
+<strong class="purple">must</strong> be a valid <a href="chap25.html#VkFragmentShadingRateCombinerOpKHR">VkFragmentShadingRateCombinerOpKHR</a> value</p>
+</li>
+<li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicState-04501" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicState-04501"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicState-04501</span><br>
 
 If the pipeline is being created with
@@ -2646,23 +2709,164 @@ All elements of the <code>pDynamicStates</code> member of <code>pDynamicState</c
 <strong class="purple">must</strong> not be <code>VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-None-04893" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-None-04893"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-None-04893</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-None-06573" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-None-06573"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-None-06573</span><br>
 
 The pipeline <strong class="purple">must</strong> be created with a
 <a href="chap10.html#pipeline-graphics-subsets-complete">complete set of state</a></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06052" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06052"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06052</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06575" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06575"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06575</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a>, <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a>, or <a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output
+interface state</a>, <code>renderPass</code> <strong class="purple">must</strong> be <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> or a
+valid render pass object</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06576" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06576"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-dynamicRendering-06576</span><br>
 
 If the <a href="chap37.html#features-dynamicRendering"><code>dynamicRendering</code></a> feature is
-not enabled, <code>renderPass</code> <strong class="purple">must</strong> not be <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+not enabled and the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a>, <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a>, or <a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output
+interface state</a>, <code>renderPass</code> <strong class="purple">must</strong> not be <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-multiview-06577" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-multiview-06577"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-multiview-06577</span><br>
+
+If the <a href="chap37.html#features-multiview"><code>multiview</code></a> feature is not enabled,
+the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a>, <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a>, or <a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output
+interface state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>,
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>viewMask</code> <strong class="purple">must</strong> be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06578" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06578"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06578</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a>, <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment shader
+state</a>, or <a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output
+interface state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the
+index of the most significant bit in
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>viewMask</code> <strong class="purple">must</strong> be less than
+<a href="chap38.html#limits-maxMultiviewViewCount"><code>maxMultiviewViewCount</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06579" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06579"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06579</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>colorAttachmentCount</code> is not
+0, <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>pColorAttachmentFormats</code>
+<strong class="purple">must</strong> be a valid pointer to an array of <code>colorAttachmentCount</code> valid
+<a href="chap39.html#VkFormat">VkFormat</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06580" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06580"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06580</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, each element of
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>pColorAttachmentFormats</code> <strong class="purple">must</strong>
+be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06581" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06581"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06581</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and any element of
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>pColorAttachmentFormats</code> is
+not <code>VK_FORMAT_UNDEFINED</code>, that format <strong class="purple">must</strong> be a format with
+<a href="chap39.html#potential-format-features">potential format features</a> that include
+<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06583" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06583"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06583</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>,
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>depthAttachmentFormat</code> <strong class="purple">must</strong>
+be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06584" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06584"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06584</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, and <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>,
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>stencilAttachmentFormat</code> <strong class="purple">must</strong>
+be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06585" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06585"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06585</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>depthAttachmentFormat</code> is not
+<code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> be a format with
+<a href="chap39.html#potential-format-features">potential format features</a> that include
+<code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06586" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06586"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06586</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>stencilAttachmentFormat</code> is
+not <code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> be a format with
+<a href="chap39.html#potential-format-features">potential format features</a> that include
+<code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06587" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06587"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06587</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>depthAttachmentFormat</code> is not
+<code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> be a format that includes a depth
+aspect</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06588" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06588"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06588</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>stencilAttachmentFormat</code> is
+not <code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> be a format that includes a
+stencil aspect</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06589" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06589"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06589</span><br>
+
+If the pipeline is being created with
+<a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment output interface
+state</a>, <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>,
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>depthAttachmentFormat</code> is not
+<code>VK_FORMAT_UNDEFINED</code>, and
+<a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>stencilAttachmentFormat</code> is
+not <code>VK_FORMAT_UNDEFINED</code>, <code>depthAttachmentFormat</code> <strong class="purple">must</strong> equal
+<code>stencilAttachmentFormat</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06053" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06053"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06053</span><br>
 
 If <code>renderPass</code> is <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the pipeline is being
 created with <a href="chap10.html#pipeline-graphics-subsets-fragment-shader">fragment
-shader state</a>, and either of
+shader state</a> and <a href="chap10.html#pipeline-graphics-subsets-fragment-output">fragment
+output interface state</a>, and either of
 <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::depthAttachmentFormat or
 <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::stencilAttachmentFormat are not
 <code>VK_FORMAT_UNDEFINED</code>, <code>pDepthStencilState</code> <strong class="purple">must</strong> be a valid
@@ -2757,6 +2961,34 @@ attachment format defined by the <code>pColorAttachmentFormats</code> member of
 <code>pAttachments</code> member of <code>pColorBlendState</code> <strong class="purple">must</strong> be
 <code>VK_FALSE</code></p>
 </li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-06600" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-06600"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-06600</span><br>
+
+<code>pStages</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>stageCount</code>
+valid <a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-06601" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-06601"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-06601</span><br>
+
+<code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-layout-06602" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-layout-06602"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-layout-06602</span><br>
+
+<code>layout</code> <strong class="purple">must</strong> be a valid <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06603" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06603"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06603</span><br>
+
+If <code>renderPass</code> is not <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>renderPass</code> <strong class="purple">must</strong>
+be a valid <a href="chap8.html#VkRenderPass">VkRenderPass</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-stageCount-06604" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-stageCount-06604"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-stageCount-06604</span><br>
+
+<code>stageCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -2772,7 +3004,7 @@ attachment format defined by the <code>pColorAttachmentFormats</code> member of
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pNext-pNext" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="undefined">VkAttachmentSampleCountInfoAMD</a>, <a href="undefined">VkMultiviewPerViewAttributesInfoNVX</a>, <a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a>, or <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="undefined">VkAttachmentSampleCountInfoAMD</a>, <a href="undefined">VkMultiviewPerViewAttributesInfoNVX</a>, <a href="chap25.html#VkPipelineFragmentShadingRateStateCreateInfoKHR">VkPipelineFragmentShadingRateStateCreateInfoKHR</a>, <a href="chap10.html#VkPipelineLibraryCreateInfoKHR">VkPipelineLibraryCreateInfoKHR</a>, or <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-sType-unique" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-sType-unique</span><br>
@@ -2783,28 +3015,8 @@ attachment format defined by the <code>pColorAttachmentFormats</code> member of
  <code>flags</code> <strong class="purple">must</strong> be a valid combination of <a href="chap10.html#VkPipelineCreateFlagBits">VkPipelineCreateFlagBits</a> values</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-parameter" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-parameter"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-parameter</span><br>
- <code>pStages</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>stageCount</code> valid <a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> structures</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-parameter" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-parameter"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-parameter</span><br>
- <code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
-</li>
-<li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicState-parameter" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicState-parameter"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicState-parameter</span><br>
  If <code>pDynamicState</code> is not <code>NULL</code>, <code>pDynamicState</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a> structure</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-layout-parameter" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-layout-parameter"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-layout-parameter</span><br>
- <code>layout</code> <strong class="purple">must</strong> be a valid <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a> handle</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-parameter" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-parameter"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-parameter</span><br>
- If <code>renderPass</code> is not <a href="chap47.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>renderPass</code> <strong class="purple">must</strong> be a valid <a href="chap8.html#VkRenderPass">VkRenderPass</a> handle</p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-stageCount-arraylength" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-stageCount-arraylength"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-stageCount-arraylength</span><br>
- <code>stageCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-commonparent" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-commonparent"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-commonparent</span><br>
@@ -2894,88 +3106,12 @@ valid to set the attachment to <code>NULL</code> when beginning rendering.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-06064" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-06064"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-06064</span><br>
-
-If any element of <code>pColorAttachmentFormats</code> is not
-<code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> be a format with
-<a href="chap39.html#potential-format-features">potential format features</a> that include
-<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06544" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06544"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06544</span><br>
-
-If <code>depthAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>, it
-<strong class="purple">must</strong> be a format that includes a depth aspect</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06545" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06545"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06545</span><br>
-
-If <code>stencilAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>, it
-<strong class="purple">must</strong> be a format that includes a stencil aspect</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06065" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06065"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06065</span><br>
-
-If <code>depthAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>, it
-<strong class="purple">must</strong> be a format with <a href="chap39.html#potential-format-features">potential format
-features</a> that include
-<code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06164" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06164"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-06164</span><br>
-
-If <code>stencilAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>, it
-<strong class="purple">must</strong> be a format with <a href="chap39.html#potential-format-features">potential format
-features</a> that include
-<code>VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06165" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06165"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-06165</span><br>
-
-If <code>depthAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code> and
-<code>stencilAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>,
-<code>depthAttachmentFormat</code> <strong class="purple">must</strong> equal <code>stencilAttachmentFormat</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-multiview-06066" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-multiview-06066"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-multiview-06066</span><br>
-
-If the <a href="chap37.html#features-multiview"><code>multiview</code></a> feature is not enabled,
-<code>viewMask</code> <strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-viewMask-06067" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-viewMask-06067"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-viewMask-06067</span><br>
-
-The index of the most significant bit in <code>viewMask</code> <strong class="purple">must</strong> be less
-than <a href="chap38.html#limits-maxMultiviewViewCount"><code>maxMultiviewViewCount</code></a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sidebarblock">
-<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
 <li>
 <p><a id="VUID-VkPipelineRenderingCreateInfo-sType-sType" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-sType-sType"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-sType-sType</span><br>
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-parameter" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-parameter"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-pColorAttachmentFormats-parameter</span><br>
- If <code>colorAttachmentCount</code> is not <code>0</code>, <code>pColorAttachmentFormats</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>colorAttachmentCount</code> valid <a href="chap39.html#VkFormat">VkFormat</a> values</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-parameter" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-parameter"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-depthAttachmentFormat-parameter</span><br>
- <code>depthAttachmentFormat</code> <strong class="purple">must</strong> be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
-</li>
-<li>
-<p><a id="VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-parameter" href="chap10.html#VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-parameter"></a> <span class="vuid">VUID-VkPipelineRenderingCreateInfo-stencilAttachmentFormat-parameter</span><br>
- <code>stencilAttachmentFormat</code> <strong class="purple">must</strong> be a valid <a href="chap39.html#VkFormat">VkFormat</a> value</p>
 </li>
 </ul>
 </div>
@@ -3077,7 +3213,12 @@ representations of pipeline executables produced by the compile process
 which <strong class="purple">can</strong> later be retrieved by calling
 <a href="chap10.html#vkGetPipelineExecutableInternalRepresentationsKHR">vkGetPipelineExecutableInternalRepresentationsKHR</a>.
 Enabling this flag <strong class="purple">must</strong> not affect the final compiled pipeline but <strong class="purple">may</strong>
-disable pipeline caching or otherwise affect pipeline creation time.</p>
+disable pipeline caching or otherwise affect pipeline creation time.
+When capturing IR from pipelines created with pipeline libraries, there
+is no guarantee that IR from libraries <strong class="purple">can</strong> be retrieved from the linked
+pipeline.
+Applications <strong class="purple">should</strong> retrieve IR from each library, and any linked
+pipelines, separately.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_LIBRARY_BIT_KHR</code> specifies that the pipeline
@@ -6222,10 +6363,6 @@ Each element of <code>pLibraries</code> <strong class="purple">must</strong> hav
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkPipelineLibraryCreateInfoKHR-pNext-pNext" href="chap10.html#VUID-VkPipelineLibraryCreateInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkPipelineLibraryCreateInfoKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
 <p><a id="VUID-VkPipelineLibraryCreateInfoKHR-pLibraries-parameter" href="chap10.html#VUID-VkPipelineLibraryCreateInfoKHR-pLibraries-parameter"></a> <span class="vuid">VUID-VkPipelineLibraryCreateInfoKHR-pLibraries-parameter</span><br>
  If <code>libraryCount</code> is not <code>0</code>, <code>pLibraries</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>libraryCount</code> valid <a href="chap10.html#VkPipeline">VkPipeline</a> handles</p>
 </li>
@@ -7464,7 +7601,7 @@ null character.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.209<br>
+Version 1.0.210<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

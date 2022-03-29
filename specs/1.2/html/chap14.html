@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.209 - A Specification</title>
+<title>Vulkan® 1.2.210 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.209 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.210 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.209,</span>
-<span id="revdate">2022-03-23 04:48:04Z</span>
-<br><span id="revremark">from git branch: github-main commit: fff65570f345288361958ff530e284de27b1a657</span>
+<span id="revnumber">version 1.2.210,</span>
+<span id="revdate">2022-03-29 11:04:11Z</span>
+<br><span id="revremark">from git branch: github-main commit: 45af5eb1f66898c9f382edc5afd691aeb32c10c0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1461,7 +1461,9 @@ with the set being reset or freed.</p>
 descriptors in this binding that are not <em>dynamically used</em> need not
 contain valid descriptors at the time the descriptors are consumed.
 A descriptor is dynamically used if any shader invocation executes an
-instruction that performs any memory access using the descriptor.</p>
+instruction that performs any memory access using the descriptor.
+If a descriptor is not dynamically used, any resource referenced by the
+descriptor is not considered to be referenced during command execution.</p>
 </li>
 <li>
 <p><code>VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT</code> indicates
@@ -2494,6 +2496,12 @@ or equal to
 Any two elements of <code>pPushConstantRanges</code> <strong class="purple">must</strong> not include the same
 stage in <code>stageFlags</code></p>
 </li>
+<li>
+<p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-06561" href="chap14.html#VUID-VkPipelineLayoutCreateInfo-pSetLayouts-06561"></a> <span class="vuid">VUID-VkPipelineLayoutCreateInfo-pSetLayouts-06561</span><br>
+
+Elements of <code>pSetLayouts</code> <strong class="purple">must</strong> be valid <a href="chap14.html#VkDescriptorSetLayout">VkDescriptorSetLayout</a>
+objects</p>
+</li>
 </ul>
 </div>
 </div>
@@ -2517,7 +2525,7 @@ stage in <code>stageFlags</code></p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineLayoutCreateInfo-pSetLayouts-parameter" href="chap14.html#VUID-VkPipelineLayoutCreateInfo-pSetLayouts-parameter"></a> <span class="vuid">VUID-VkPipelineLayoutCreateInfo-pSetLayouts-parameter</span><br>
- If <code>setLayoutCount</code> is not <code>0</code>, <code>pSetLayouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>setLayoutCount</code> valid <a href="chap14.html#VkDescriptorSetLayout">VkDescriptorSetLayout</a> handles</p>
+ If <code>setLayoutCount</code> is not <code>0</code>, <code>pSetLayouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>setLayoutCount</code> valid or <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> <a href="chap14.html#VkDescriptorSetLayout">VkDescriptorSetLayout</a> handles</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineLayoutCreateInfo-pPushConstantRanges-parameter" href="chap14.html#VUID-VkPipelineLayoutCreateInfo-pPushConstantRanges-parameter"></a> <span class="vuid">VUID-VkPipelineLayoutCreateInfo-pPushConstantRanges-parameter</span><br>
@@ -2531,6 +2539,19 @@ stage in <code>stageFlags</code></p>
 </div>
 <div class="openblock">
 <div class="content">
+<div id="VkPipelineLayoutCreateFlagBits" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkPipelineLayoutCreateFlagBits</span> <span class="p">{</span>
+<span class="p">}</span> <span class="n">VkPipelineLayoutCreateFlagBits</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All values for this enum are defined by extensions.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
 <div id="VkPipelineLayoutCreateFlags" class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_VERSION_1_0</span>
@@ -2538,8 +2559,8 @@ stage in <code>stageFlags</code></p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>VkPipelineLayoutCreateFlags</code> is a bitmask type for setting a mask, but
-is currently reserved for future use.</p>
+<p><code>VkPipelineLayoutCreateFlags</code> is a bitmask type for setting a mask of
+<a href="chap14.html#VkPipelineLayoutCreateFlagBits">VkPipelineLayoutCreateFlagBits</a>.</p>
 </div>
 </div>
 </div>
@@ -2857,7 +2878,8 @@ command for any command buffers that are still in the
 with identical push constant ranges.
 Two pipeline layouts are defined to be “compatible for set N” if they were
 created with <em>identically defined</em> descriptor set layouts for sets zero
-through N, and if they were created with identical push constant ranges.</p>
+through N,
+and if they were created with identical push constant ranges.</p>
 </div>
 <div class="paragraph">
 <p>When binding a descriptor set (see <a href="chap14.html#descriptorsets-binding">Descriptor Set
@@ -5993,6 +6015,12 @@ For each dynamic uniform or storage buffer binding in
 above, and the range of the binding <strong class="purple">must</strong> be less than or equal to the
 size of the buffer</p>
 </li>
+<li>
+<p><a id="VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563" href="chap14.html#VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563"></a> <span class="vuid">VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563</span><br>
+
+Each element of <code>pDescriptorSets</code> <strong class="purple">must</strong> be a valid
+<a href="chap14.html#VkDescriptorSet">VkDescriptorSet</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -6016,7 +6044,7 @@ size of the buffer</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorSets-pDescriptorSets-parameter" href="chap14.html#VUID-vkCmdBindDescriptorSets-pDescriptorSets-parameter"></a> <span class="vuid">VUID-vkCmdBindDescriptorSets-pDescriptorSets-parameter</span><br>
- <code>pDescriptorSets</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>descriptorSetCount</code> valid <a href="chap14.html#VkDescriptorSet">VkDescriptorSet</a> handles</p>
+ <code>pDescriptorSets</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>descriptorSetCount</code> valid or <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> <a href="chap14.html#VkDescriptorSet">VkDescriptorSet</a> handles</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter" href="chap14.html#VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter"></a> <span class="vuid">VUID-vkCmdBindDescriptorSets-pDynamicOffsets-parameter</span><br>
@@ -6036,7 +6064,7 @@ size of the buffer</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorSets-commonparent" href="chap14.html#VUID-vkCmdBindDescriptorSets-commonparent"></a> <span class="vuid">VUID-vkCmdBindDescriptorSets-commonparent</span><br>
- Each of <code>commandBuffer</code>, <code>layout</code>, and the elements of <code>pDescriptorSets</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap5.html#VkDevice">VkDevice</a></p>
+ Each of <code>commandBuffer</code>, <code>layout</code>, and the elements of <code>pDescriptorSets</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap5.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -6584,7 +6612,7 @@ feature <strong class="purple">must</strong> be enabled</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.209<br>
+Version 1.2.210<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

@@ -129,6 +129,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_full_screen_exclusive.html"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_global_priority.html"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_global_priority_query.html"> VK_EXT_global_priority_query </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_graphics_pipeline_library.html"> VK_EXT_graphics_pipeline_library </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_hdr_metadata.html"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_headless_surface.html"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
@@ -150,6 +151,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitives_generated_query.html"> VK_EXT_primitives_generated_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_provoking_vertex.html"> VK_EXT_provoking_vertex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
