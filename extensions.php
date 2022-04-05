@@ -133,6 +133,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_hdr_metadata.html"> VK_EXT_hdr_metadata </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_headless_surface.html"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_2d_view_of_3d.html"> VK_EXT_image_2d_view_of_3d </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_drm_format_modifier.html"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_robustness.html"> VK_EXT_image_robustness </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_view_min_lod.html"> VK_EXT_image_view_min_lod </a> </li>
