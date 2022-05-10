@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.212 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.213 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.212 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.213 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.212,</span>
-<span id="revdate">2022-04-21 07:45:01Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0a80073e9078eae4266ca779d91e36e91c49a54c</span>
+<span id="revnumber">version 1.0.213,</span>
+<span id="revdate">2022-05-10 09:17:30Z</span>
+<br><span id="revremark">from git branch: github-main commit: 71decb7f868d3891974eab139f03c7c6c87fea4d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,6 +132,7 @@
 <li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
 <li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
 <li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
+<li><a href="chap8.html#renderpass-creation-feedback">8.5. Render Pass Creation Feedback</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -179,6 +180,7 @@
 <li><a href="chap10.html#pipelines-shader-information">10.12. Pipeline Shader Information</a></li>
 <li><a href="chap10.html#pipelines-compiler-control">10.13. Pipeline Compiler Control</a></li>
 <li><a href="chap10.html#pipelines-creation-feedback">10.14. Pipeline Creation Feedback</a></li>
+<li><a href="chap10.html#pipelines-properties">10.15. Pipeline Properties</a></li>
 </ul>
 </li>
 <li><a href="chap11.html">11. Memory Allocation</a>
@@ -803,7 +805,7 @@ If any other component is NaN, and the first is not, the behavior is
 undefined.</p>
 </div>
 <div class="paragraph">
-<p>In the above definitions, "NaN" refers to any type of NaN.
+<p>In the above definitions, “NaN” refers to any type of NaN.
 Signaling, non-signaling, quiet, loud, or otherwise.</p>
 </div>
 <div class="paragraph">
@@ -4734,9 +4736,11 @@ been built with
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-03432" href="chap36.html#VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-03432"></a> <span class="vuid">VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-03432</span><br>
+<p><a id="VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-06742" href="chap36.html#VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-06742"></a> <span class="vuid">VUID-vkCmdWriteAccelerationStructuresPropertiesKHR-queryType-06742</span><br>
 
 <code>queryType</code> <strong class="purple">must</strong> be
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code>,
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>,
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR</code> or
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR</code></p>
 </li>
@@ -5551,7 +5555,7 @@ The output <strong class="purple">may</strong> not necessarily be bit-for-bit id
 equally used by either <a href="chap36.html#vkCmdCopyMemoryToAccelerationStructureKHR">vkCmdCopyMemoryToAccelerationStructureKHR</a> or
 <a href="chap36.html#vkCopyMemoryToAccelerationStructureKHR">vkCopyMemoryToAccelerationStructureKHR</a>.</p>
 </div>
-<div class="paragraph">
+<div id="serialized-as-header" class="paragraph">
 <p>The defined header structure for the serialized data consists of:</p>
 </div>
 <div class="ulist">
@@ -5575,6 +5579,8 @@ comparison using <a href="chap36.html#vkGetDeviceAccelerationStructureCompatibil
 <li>
 <p>A 64-bit integer of the count of the number of acceleration structure
 handles following.
+This value matches the value queried using
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>.
 This will be zero for a bottom-level acceleration structure.
 For top-level acceleration structures this number is
 implementation-dependent; the number of and ordering of the handles may
@@ -7503,9 +7509,11 @@ been built with
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03432" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03432"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03432</span><br>
+<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06742" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06742"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06742</span><br>
 
 <code>queryType</code> <strong class="purple">must</strong> be
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code>,
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>,
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR</code> or
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR</code></p>
 </li>
@@ -7521,7 +7529,7 @@ If <code>queryType</code> is
 
 If <code>queryType</code> is
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR</code>, then
-<code>data</code> <strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
+<code>pData</code> <strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
 </li>
 <li>
 <p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03450" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03450"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-03450</span><br>
@@ -7535,7 +7543,36 @@ If <code>queryType</code> is
 
 If <code>queryType</code> is
 <code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR</code>, then
-<code>data</code> <strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
+<code>pData</code> <strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
+</li>
+<li>
+<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06731" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06731"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06731</span><br>
+
+If <code>queryType</code> is
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code>, then <code>stride</code>
+<strong class="purple">must</strong> be a multiple of the size of <code>VkDeviceSize</code></p>
+</li>
+<li>
+<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06732" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06732"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06732</span><br>
+
+If <code>queryType</code> is
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code>, then <code>pData</code>
+<strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
+</li>
+<li>
+<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06733" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06733"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06733</span><br>
+
+If <code>queryType</code> is
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>,
+then <code>stride</code> <strong class="purple">must</strong> be a multiple of the size of
+<code>VkDeviceSize</code></p>
+</li>
+<li>
+<p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06734" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06734"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-queryType-06734</span><br>
+
+If <code>queryType</code> is
+<code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>,
+then <code>pData</code> <strong class="purple">must</strong> point to a <code>VkDeviceSize</code></p>
 </li>
 <li>
 <p><a id="VUID-vkWriteAccelerationStructuresPropertiesKHR-dataSize-03452" href="chap36.html#VUID-vkWriteAccelerationStructuresPropertiesKHR-dataSize-03452"></a> <span class="vuid">VUID-vkWriteAccelerationStructuresPropertiesKHR-dataSize-03452</span><br>
@@ -7653,7 +7690,7 @@ allocated with multiple instances</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.212<br>
+Version 1.0.213<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

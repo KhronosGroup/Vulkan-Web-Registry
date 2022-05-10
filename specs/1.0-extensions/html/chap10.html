@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.212 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.213 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.212 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.213 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.212,</span>
-<span id="revdate">2022-04-21 07:45:01Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0a80073e9078eae4266ca779d91e36e91c49a54c</span>
+<span id="revnumber">version 1.0.213,</span>
+<span id="revdate">2022-05-10 09:17:30Z</span>
+<br><span id="revremark">from git branch: github-main commit: 71decb7f868d3891974eab139f03c7c6c87fea4d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,6 +132,7 @@
 <li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
 <li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
 <li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
+<li><a href="chap8.html#renderpass-creation-feedback">8.5. Render Pass Creation Feedback</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -179,6 +180,7 @@
 <li class="current"><a href="chap10.html#pipelines-shader-information">10.12. Pipeline Shader Information</a></li>
 <li class="current"><a href="chap10.html#pipelines-compiler-control">10.13. Pipeline Compiler Control</a></li>
 <li class="current"><a href="chap10.html#pipelines-creation-feedback">10.14. Pipeline Creation Feedback</a></li>
+<li class="current"><a href="chap10.html#pipelines-properties">10.15. Pipeline Properties</a></li>
 </ul>
 </li>
 <li><a href="chap11.html">11. Memory Allocation</a>
@@ -12106,7 +12108,7 @@ it unset for any stage.</p>
 <p>Implementations are encouraged to provide a meaningful signal to
 applications using this bit.
 The intention is to communicate to the application that the pipeline or
-pipeline stage was created "as fast as it gets" using the pipeline cache
+pipeline stage was created “as fast as it gets” using the pipeline cache
 provided by the application.
 If an implementation uses an internal cache, it is discouraged from setting
 this bit as the feedback would be unactionable.</p>
@@ -12136,7 +12138,7 @@ was able to avoid a significant amount of work by using the base pipeline.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>While "significant amount of work" is subjective, implementations are
+<p>While “significant amount of work” is subjective, implementations are
 encouraged to provide a meaningful signal to applications using this bit.
 For example, a 1% reduction in duration may not warrant setting this bit,
 while a 50% reduction would.</p>
@@ -12173,6 +12175,176 @@ or more <a href="chap10.html#VkPipelineCreationFeedbackFlagBits">VkPipelineCreat
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="pipelines-properties"><a class="anchor" href="chap10.html#pipelines-properties"></a>10.15. Pipeline Properties</h3>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the pipeline properties call:</p>
+</div>
+<div id="vkGetPipelinePropertiesEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_pipeline_properties</span>
+<span class="n">VkResult</span> <span class="nf">vkGetPipelinePropertiesEXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkPipelineInfoEXT</span><span class="o">*</span>                    <span class="n">pPipelineInfo</span><span class="p">,</span>
+    <span class="n">VkBaseOutStructure</span><span class="o">*</span>                         <span class="n">pPipelineProperties</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that created the pipeline.</p>
+</li>
+<li>
+<p><code>pPipelineInfo</code> is a pointer to a <a href="chap10.html#VkPipelineInfoEXT">VkPipelineInfoEXT</a> structure
+which describes the pipeline being queried.</p>
+</li>
+<li>
+<p><code>pPipelineProperties</code> is a pointer to a <a href="chap3.html#VkBaseOutStructure">VkBaseOutStructure</a>
+structure in which the pipeline properties will be written.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To query a pipeline’s <code>pipelineIdentifier</code> pass a
+<a href="chap10.html#VkPipelinePropertiesIdentifierEXT">VkPipelinePropertiesIdentifierEXT</a> structure in
+<code>pPipelineProperties</code>.
+Each pipeline is associated with a <code>pipelineIdentifier</code> and the
+identifier is implementation specific.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelinePropertiesEXT-pipeline-06738" href="chap10.html#VUID-vkGetPipelinePropertiesEXT-pipeline-06738"></a> <span class="vuid">VUID-vkGetPipelinePropertiesEXT-pipeline-06738</span><br>
+
+<code>pipeline</code> member of <code>pPipelineInfo</code> must have been created with
+<code>device</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-06739" href="chap10.html#VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-06739"></a> <span class="vuid">VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-06739</span><br>
+
+<code>pPipelineProperties</code> <strong class="purple">must</strong> be a valid pointer to a
+<a href="chap10.html#VkPipelinePropertiesIdentifierEXT">VkPipelinePropertiesIdentifierEXT</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelinePropertiesEXT-device-parameter" href="chap10.html#VUID-vkGetPipelinePropertiesEXT-device-parameter"></a> <span class="vuid">VUID-vkGetPipelinePropertiesEXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelinePropertiesEXT-pPipelineInfo-parameter" href="chap10.html#VUID-vkGetPipelinePropertiesEXT-pPipelineInfo-parameter"></a> <span class="vuid">VUID-vkGetPipelinePropertiesEXT-pPipelineInfo-parameter</span><br>
+ <code>pPipelineInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkPipelineInfoEXT">VkPipelineInfoEXT</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-parameter" href="chap10.html#VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-parameter"></a> <span class="vuid">VUID-vkGetPipelinePropertiesEXT-pPipelineProperties-parameter</span><br>
+ <code>pPipelineProperties</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap3.html#VkBaseOutStructure">VkBaseOutStructure</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPipelineInfoEXT</code> structure is defined as an alias to
+<a href="chap10.html#VkPipelineInfoKHR">VkPipelineInfoKHR</a>.</p>
+</div>
+<div id="VkPipelineInfoEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_pipeline_properties</span>
+<span class="k">typedef</span> <span class="n">VkPipelineInfoKHR</span> <span class="n">VkPipelineInfoEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPipelinePropertiesIdentifierEXT</code> structure is defined as:</p>
+</div>
+<div id="VkPipelinePropertiesIdentifierEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_pipeline_properties</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPipelinePropertiesIdentifierEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>            <span class="n">pipelineIdentifier</span><span class="p">[</span><span class="n">VK_UUID_SIZE</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">VkPipelinePropertiesIdentifierEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to an extension-specific structure.</p>
+</li>
+<li>
+<p><code>pipelineIdentifier</code> is an array of <code>VK_UUID_SIZE</code> <code>uint8_t</code>
+values into which the pipeline identifier will be written.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelinePropertiesIdentifierEXT-sType-sType" href="chap10.html#VUID-VkPipelinePropertiesIdentifierEXT-sType-sType"></a> <span class="vuid">VUID-VkPipelinePropertiesIdentifierEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div></div>
 
@@ -12187,7 +12359,7 @@ or more <a href="chap10.html#VkPipelineCreationFeedbackFlagBits">VkPipelineCreat
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.212<br>
+Version 1.0.213<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

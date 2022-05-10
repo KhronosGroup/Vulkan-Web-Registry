@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.3.212 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.3.213 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.212 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.213 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.3.212,</span>
-<span id="revdate">2022-04-21 07:33:36Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0a80073e9078eae4266ca779d91e36e91c49a54c</span>
+<span id="revnumber">version 1.3.213,</span>
+<span id="revdate">2022-05-10 09:06:33Z</span>
+<br><span id="revremark">from git branch: github-main commit: 71decb7f868d3891974eab139f03c7c6c87fea4d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,6 +132,7 @@
 <li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
 <li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
 <li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
+<li><a href="chap8.html#renderpass-creation-feedback">8.5. Render Pass Creation Feedback</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -181,6 +182,7 @@
 <li><a href="chap10.html#pipelines-shader-information">10.12. Pipeline Shader Information</a></li>
 <li><a href="chap10.html#pipelines-compiler-control">10.13. Pipeline Compiler Control</a></li>
 <li><a href="chap10.html#pipelines-creation-feedback">10.14. Pipeline Creation Feedback</a></li>
+<li><a href="chap10.html#pipelines-properties">10.15. Pipeline Properties</a></li>
 </ul>
 </li>
 <li><a href="chap11.html">11. Memory Allocation</a>
@@ -2328,6 +2330,9 @@ excepting members <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>:
 <li>
 <p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
 </li>
+<li>
+<p><code>VK_ERROR_COMPRESSION_EXHAUSTED_EXT</code></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -2690,24 +2695,43 @@ contain no <a href="chap44.html#VkPhysicalDeviceExternalImageFormatInfo">VkPhysi
 contain a structure whose <code>handleType</code> is <code>0</code>.</p>
 </li>
 <li>
-<p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then
-<a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> contain a
+<p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>,
+then:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> contain a
 <a href="chap44.html#VkPhysicalDeviceImageDrmFormatModifierInfoEXT">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a> structure where
 <code>sharingMode</code> is equal to
-<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>sharingMode</code>; and, if <code>sharingMode</code>
-is <code>VK_SHARING_MODE_CONCURRENT</code>, then <code>queueFamilyIndexCount</code>
-and <code>pQueueFamilyIndices</code> <strong class="purple">must</strong> be equal to those in
-<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>; and, if <code>flags</code> contains
-<code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>, then the
-<a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a> structure included in the
+<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>sharingMode</code>;</p>
+</li>
+<li>
+<p>if <code>sharingMode</code> is <code>VK_SHARING_MODE_CONCURRENT</code>, then
+<code>queueFamilyIndexCount</code> and <code>pQueueFamilyIndices</code> <strong class="purple">must</strong> be
+equal to those in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>;</p>
+</li>
+<li>
+<p>if <code>flags</code> contains <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code>,
+then the <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a> structure included in the
 <code>pNext</code> chain of <a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a> <strong class="purple">must</strong> be
 equivalent to the one included in the <code>pNext</code> chain of
-<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>; and
-<a href="chap44.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> <strong class="purple">must</strong> be called for
+<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>;</p>
+</li>
+<li>
+<p>if <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>pNext</code> contains a
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a> structure, then the
+<a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> chain <strong class="purple">must</strong>
+contain an equivalent structure;</p>
+</li>
+<li>
+<p><a href="chap44.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> <strong class="purple">must</strong> be called for
 each modifier in <code>imageCreateDrmFormatModifiers</code>, successively
 setting
 <a href="chap44.html#VkPhysicalDeviceImageDrmFormatModifierInfoEXT">VkPhysicalDeviceImageDrmFormatModifierInfoEXT</a>::<code>drmFormatModifier</code>
 on each call.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>If <code>tiling</code> is not <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>,
@@ -3565,6 +3589,35 @@ If the <a href="chap12.html#VkImage">VkImage</a> is to be used to import memory 
 <a href="chap12.html#VkBufferCollectionImageCreateInfoFUCHSIA">VkBufferCollectionImageCreateInfoFUCHSIA</a> structure <strong class="purple">must</strong> be
 chained to <code>pNext</code>.</p>
 </li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-06743" href="chap12.html#VUID-VkImageCreateInfo-pNext-06743"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06743</span><br>
+
+If the <code>pNext</code> chain includes a <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>
+structure, <code>format</code> is a
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> format, and
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>flags</code> includes
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>, then
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>compressionControlPlaneCount</code>
+<strong class="purple">must</strong> be equal to the number of planes in <code>format</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-06744" href="chap12.html#VUID-VkImageCreateInfo-pNext-06744"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06744</span><br>
+
+If the <code>pNext</code> chain includes a <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>
+structure, <code>format</code> is a not
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar</a> format, and
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>flags</code> includes
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>, then
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>compressionControlPlaneCount</code>
+<strong class="purple">must</strong> be 1</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-06746" href="chap12.html#VUID-VkImageCreateInfo-pNext-06746"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06746</span><br>
+
+If the <code>pNext</code> chain includes a <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>
+structure, it <strong class="purple">must</strong> not contain a
+<a href="chap12.html#VkImageDrmFormatModifierExplicitCreateInfoEXT">VkImageDrmFormatModifierExplicitCreateInfoEXT</a> structure</p>
+</li>
 </ul>
 </div>
 </div>
@@ -3580,7 +3633,7 @@ chained to <code>pNext</code>.</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-pNext-pNext" href="chap12.html#VUID-VkImageCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap12.html#VkBufferCollectionImageCreateInfoFUCHSIA">VkBufferCollectionImageCreateInfoFUCHSIA</a>, <a href="chap12.html#VkDedicatedAllocationImageCreateInfoNV">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>, <a href="chap12.html#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>, <a href="chap12.html#VkExternalMemoryImageCreateInfoNV">VkExternalMemoryImageCreateInfoNV</a>, <a href="chap12.html#VkImageDrmFormatModifierExplicitCreateInfoEXT">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, <a href="chap12.html#VkImageDrmFormatModifierListCreateInfoEXT">VkImageDrmFormatModifierListCreateInfoEXT</a>, <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a>, <a href="chap12.html#VkImageStencilUsageCreateInfo">VkImageStencilUsageCreateInfo</a>, <a href="chap12.html#VkImageSwapchainCreateInfoKHR">VkImageSwapchainCreateInfoKHR</a>, <a href="chap39.html#VkVideoDecodeH264ProfileEXT">VkVideoDecodeH264ProfileEXT</a>, <a href="chap39.html#VkVideoDecodeH265ProfileEXT">VkVideoDecodeH265ProfileEXT</a>, <a href="chap39.html#VkVideoEncodeH264ProfileEXT">VkVideoEncodeH264ProfileEXT</a>, <a href="chap39.html#VkVideoEncodeH265ProfileEXT">VkVideoEncodeH265ProfileEXT</a>, <a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>, or <a href="chap39.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap12.html#VkBufferCollectionImageCreateInfoFUCHSIA">VkBufferCollectionImageCreateInfoFUCHSIA</a>, <a href="chap12.html#VkDedicatedAllocationImageCreateInfoNV">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>, <a href="chap12.html#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>, <a href="chap12.html#VkExternalMemoryImageCreateInfoNV">VkExternalMemoryImageCreateInfoNV</a>, <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>, <a href="chap12.html#VkImageDrmFormatModifierExplicitCreateInfoEXT">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, <a href="chap12.html#VkImageDrmFormatModifierListCreateInfoEXT">VkImageDrmFormatModifierListCreateInfoEXT</a>, <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a>, <a href="chap12.html#VkImageStencilUsageCreateInfo">VkImageStencilUsageCreateInfo</a>, <a href="chap12.html#VkImageSwapchainCreateInfoKHR">VkImageSwapchainCreateInfoKHR</a>, <a href="chap39.html#VkVideoDecodeH264ProfileEXT">VkVideoDecodeH264ProfileEXT</a>, <a href="chap39.html#VkVideoDecodeH265ProfileEXT">VkVideoDecodeH265ProfileEXT</a>, <a href="chap39.html#VkVideoEncodeH264ProfileEXT">VkVideoEncodeH264ProfileEXT</a>, <a href="chap39.html#VkVideoEncodeH265ProfileEXT">VkVideoEncodeH265ProfileEXT</a>, <a href="chap39.html#VkVideoProfileKHR">VkVideoProfileKHR</a>, or <a href="chap39.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-sType-unique" href="chap12.html#VUID-VkImageCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkImageCreateInfo-sType-unique</span><br>
@@ -4447,6 +4500,436 @@ For each element of <code>pPlaneLayouts</code>, <code>depthPitch</code> <strong 
 <li>
 <p><a id="VUID-VkImageDrmFormatModifierExplicitCreateInfoEXT-pPlaneLayouts-parameter" href="chap12.html#VUID-VkImageDrmFormatModifierExplicitCreateInfoEXT-pPlaneLayouts-parameter"></a> <span class="vuid">VUID-VkImageDrmFormatModifierExplicitCreateInfoEXT-pPlaneLayouts-parameter</span><br>
  If <code>drmFormatModifierPlaneCount</code> is not <code>0</code>, <code>pPlaneLayouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>drmFormatModifierPlaneCount</code> <a href="chap12.html#VkSubresourceLayout">VkSubresourceLayout</a> structures</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>If the <code>pNext</code> list of <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> includes a
+<code>VkImageCompressionControlEXT</code> structure, then that structure describes
+compression controls for this image.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkImageCompressionControlEXT</code> structure is defined as:</p>
+</div>
+<div id="VkImageCompressionControlEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkImageCompressionControlEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>                         <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>                             <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkImageCompressionFlagsEXT</span>              <span class="n">flags</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>                                <span class="n">compressionControlPlaneCount</span><span class="p">;</span>
+    <span class="n">VkImageCompressionFixedRateFlagsEXT</span><span class="o">*</span>    <span class="n">pFixedRateFlags</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkImageCompressionControlEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>flags</code> is a bitmask of <a href="chap12.html#VkImageCompressionFlagBitsEXT">VkImageCompressionFlagBitsEXT</a>
+describing compression controls for the image.</p>
+</li>
+<li>
+<p><code>compressionControlPlaneCount</code> is the number of entries in the
+<code>pFixedRateFlags</code> array.</p>
+</li>
+<li>
+<p><code>pFixedRateFlags</code> is <code>NULL</code> or a pointer to an array of
+<a href="chap12.html#VkImageCompressionFixedRateFlagsEXT">VkImageCompressionFixedRateFlagsEXT</a> bitfields describing allowed
+fixed-rate compression rates of each image plane.
+It is ignored if <code>flags</code> does not include
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If enabled, fixed-rate compression is done in an implementation-defined
+manner and <strong class="purple">may</strong> be applied at block granularity.
+In that case, a write to an individual texel <strong class="purple">may</strong> modify the value of other
+texels in the same block.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageCompressionControlEXT-flags-06747" href="chap12.html#VUID-VkImageCompressionControlEXT-flags-06747"></a> <span class="vuid">VUID-VkImageCompressionControlEXT-flags-06747</span><br>
+
+<code>flags</code> <strong class="purple">must</strong> be one of <code>VK_IMAGE_COMPRESSION_DEFAULT_EXT</code>,
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT</code>,
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>, or
+<code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCompressionControlEXT-flags-06748" href="chap12.html#VUID-VkImageCompressionControlEXT-flags-06748"></a> <span class="vuid">VUID-VkImageCompressionControlEXT-flags-06748</span><br>
+
+If <code>flags</code> includes
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>,
+<code>pFixedRateFlags</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageCompressionControlEXT-sType-sType" href="chap12.html#VUID-VkImageCompressionControlEXT-sType-sType"></a> <span class="vuid">VUID-VkImageCompressionControlEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Some combinations of compression properties may not be supported.
+For example, some implementations may not support different fixed-rate
+compression rates per plane of a multi-planar format and will not be able to
+enable fixed-rate compression for any plane if the requested rates differ.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values of <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>flags</code>,
+specifying compression controls for an image, are:</p>
+</div>
+<div id="VkImageCompressionFlagBitsEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkImageCompressionFlagBitsEXT</span> <span class="p">{</span>
+    <span class="n">VK_IMAGE_COMPRESSION_DEFAULT_EXT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_DISABLED_EXT</span> <span class="o">=</span> <span class="mh">0x00000004</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkImageCompressionFlagBitsEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_DEFAULT_EXT</code> specifies that the default image
+compression setting is used.
+Implementations <strong class="purple">must</strong> not apply fixed-rate compression.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT</code> specifies that the
+implementation <strong class="purple">may</strong> choose any supported fixed-rate compression setting
+in an implementation-defined manner based on the properties of the
+image.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code> specifies that
+fixed-rate compression <strong class="purple">may</strong> be used and that the allowed compression
+rates are specified by
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>pFixedRateFlags</code>.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code> specifies that all lossless and
+fixed-rate compression <strong class="purple">should</strong> be disabled.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>flags</code> is
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>, then the <code>i</code><sup>th</sup>
+member of the <code>pFixedRateFlags</code> array specifies the allowed compression
+rates for the image’s <code>i</code><sup>th</sup> plane.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If <code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code> is included in
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>flags</code>, both lossless and
+fixed-rate compression will be disabled.
+This is likely to have a negative impact on performance and is only intended
+to be used for debugging purposes.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="VkImageCompressionFixedRateFlagsEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="n">VkFlags</span> <span class="n">VkImageCompressionFixedRateFlagsEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>VkImageCompressionFixedRateFlagsEXT</code> is a bitmask type for setting a
+mask of zero or more <a href="chap12.html#VkImageCompressionFixedRateFlagBitsEXT">VkImageCompressionFixedRateFlagBitsEXT</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Bits which <strong class="purple">can</strong> be set in
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>pFixedRateFlags</code>, specifying
+allowed compression rates for an image plane, are:</p>
+</div>
+<div id="VkImageCompressionFixedRateFlagBitsEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkImageCompressionFixedRateFlagBitsEXT</span> <span class="p">{</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000004</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000008</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000010</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000020</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000040</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000080</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000100</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000200</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000400</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000800</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00001000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00002000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00004000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00008000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00010000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00020000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00040000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00080000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00100000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00200000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00400000</span><span class="p">,</span>
+    <span class="n">VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00800000</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkImageCompressionFixedRateFlagBitsEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT</code> specifies that fixed-rate
+compression <strong class="purple">must</strong> not be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[1,2)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[2,3)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[3,4)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[4,5)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[5,6)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[6,7)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[7,8)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[8,9)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[9,10)</span> bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[10,11)</span> bits per
+component <strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of <span class="eq">[11,12)</span> bits per
+component <strong class="purple">may</strong> be used.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT</code> specifies that
+fixed-rate compression with a bitrate of at least 12 bits per component
+<strong class="purple">may</strong> be used.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the format has a different bit rate for different components,
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::<code>pFixedRateFlags</code> describes the rate
+of the component with the largest number of bits assigned to it, scaled pro
+rata.
+For example, to request that a <code>VK_FORMAT_A2R10G10B10_UNORM_PACK32</code>
+format be stored at a rate of 8 bits per pixel, use
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT</code> (10 bits for the largest
+component, stored at quarter the original size, 2.5 bits, rounded down).</p>
+</div>
+<div class="paragraph">
+<p>If <code>flags</code> includes <code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code>,
+and multiple bits are set in
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>::pFixedRateFlags for a plane,
+implementations <strong class="purple">should</strong> apply the lowest allowed bitrate that is supported.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The choice of “bits per component” terminology was chosen so that the same
+compression rate describes the same degree of compression applied to formats
+that differ only in the number of components.
+For example, <code>VK_FORMAT_R8G8_UNORM</code> compressed to half its original size
+is a rate of 4 bits per component, 8 bits per pixel.
+<code>VK_FORMAT_R8G8B8A8_UNORM</code> compressed to half <em>its</em> original size is 4
+bits per component, 16 bits per pixel.
+Both of these cases can be requested with
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT</code>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the compression properties of an image, add a
+<a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a> structure to the <code>pNext</code> chain of
+the <a href="chap12.html#VkSubresourceLayout2EXT">VkSubresourceLayout2EXT</a> structure in a call to
+<a href="chap12.html#vkGetImageSubresourceLayout2EXT">vkGetImageSubresourceLayout2EXT</a>.</p>
+</div>
+<div class="paragraph">
+<p>To determine the compression rates that are supported for a given image
+format, add a <a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a> structure to the
+<code>pNext</code> chain of the <a href="chap44.html#VkImageFormatProperties2">VkImageFormatProperties2</a> structure in a call
+to <a href="chap44.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Since fixed-rate compression is disabled by default, the
+<a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a> structure passed to
+<a href="chap44.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> will not indicate any
+fixed-rate compression support unless a <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>
+structure is also included in the <code>pNext</code> chain of the
+<a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a> structure passed to the same command.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>The <code>VkImageCompressionPropertiesEXT</code> structure is defined as:</p>
+</div>
+<div id="VkImageCompressionPropertiesEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkImageCompressionPropertiesEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>                        <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                                  <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkImageCompressionFlagsEXT</span>             <span class="n">imageCompressionFlags</span><span class="p">;</span>
+    <span class="n">VkImageCompressionFixedRateFlagsEXT</span>    <span class="n">imageCompressionFixedRateFlags</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkImageCompressionPropertiesEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>imageCompressionFlags</code> returns a value describing the compression
+controls that apply to the image.
+The value will be either <code>VK_IMAGE_COMPRESSION_DEFAULT_EXT</code> to
+indicate no fixed-rate compression,
+<code>VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT</code> to indicate
+fixed-rate compression, or <code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code> to
+indicate no compression.</p>
+</li>
+<li>
+<p><code>imageCompressionFixedRateFlags</code> returns a
+<a href="chap12.html#VkImageCompressionFixedRateFlagsEXT">VkImageCompressionFixedRateFlagsEXT</a> value describing the
+compression rates that apply to the specified aspect of the image.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageCompressionPropertiesEXT-sType-sType" href="chap12.html#VUID-VkImageCompressionPropertiesEXT-sType-sType"></a> <span class="vuid">VUID-VkImageCompressionPropertiesEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -5371,6 +5854,280 @@ base address of the image.
 If the image is <a href="chap54.html#glossary-linear-resource">non-linear</a>, then
 <code>rowPitch</code>, <code>arrayPitch</code>, and <code>depthPitch</code> have an
 implementation-dependent meaning.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the memory layout of an image subresource, call:</p>
+</div>
+<div id="vkGetImageSubresourceLayout2EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="kt">void</span> <span class="nf">vkGetImageSubresourceLayout2EXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkImage</span>                                     <span class="n">image</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkImageSubresource2EXT</span><span class="o">*</span>               <span class="n">pSubresource</span><span class="p">,</span>
+    <span class="n">VkSubresourceLayout2EXT</span><span class="o">*</span>                    <span class="n">pLayout</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the image.</p>
+</li>
+<li>
+<p><code>image</code> is the image whose layout is being queried.</p>
+</li>
+<li>
+<p><code>pSubresource</code> is a pointer to a <a href="chap12.html#VkImageSubresource2EXT">VkImageSubresource2EXT</a>
+structure selecting a specific image for the image subresource.</p>
+</li>
+<li>
+<p><code>pLayout</code> is a pointer to a <a href="chap12.html#VkSubresourceLayout2EXT">VkSubresourceLayout2EXT</a> structure
+in which the layout is returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkGetImageSubresourceLayout2EXT</code> behaves similarly to
+<a href="chap12.html#vkGetImageSubresourceLayout">vkGetImageSubresourceLayout</a>, with the ability to specify extended
+inputs via chained input structures, and to return extended information via
+chained output structures.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-image-02270" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-image-02270"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-image-02270</span><br>
+
+<code>image</code> <strong class="purple">must</strong> have been created with <code>tiling</code> equal to
+<code>VK_IMAGE_TILING_LINEAR</code> or
+<code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-aspectMask-00997" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-aspectMask-00997"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-aspectMask-00997</span><br>
+
+The <code>aspectMask</code> member of <code>pSubresource</code> <strong class="purple">must</strong> only have a
+single bit set</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-mipLevel-01716" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-mipLevel-01716"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-mipLevel-01716</span><br>
+
+The <code>mipLevel</code> member of <code>pSubresource</code> <strong class="purple">must</strong> be less than the
+<code>mipLevels</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-arrayLayer-01717" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-arrayLayer-01717"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-arrayLayer-01717</span><br>
+
+The <code>arrayLayer</code> member of <code>pSubresource</code> <strong class="purple">must</strong> be less than the
+<code>arrayLayers</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-04461" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-04461"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-04461</span><br>
+
+If <code>format</code> is a color format, the <code>aspectMask</code> member of
+<code>pSubresource</code> <strong class="purple">must</strong> be <code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-04462" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-04462"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-04462</span><br>
+
+If <code>format</code> has a depth component, the <code>aspectMask</code> member of
+<code>pSubresource</code> <strong class="purple">must</strong> contain <code>VK_IMAGE_ASPECT_DEPTH_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-04463" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-04463"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-04463</span><br>
+
+If <code>format</code> has a stencil component, the <code>aspectMask</code> member of
+<code>pSubresource</code> <strong class="purple">must</strong> contain <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-04464" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-04464"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-04464</span><br>
+
+If <code>format</code> does not contain a stencil or depth component, the
+<code>aspectMask</code> member of <code>pSubresource</code> <strong class="purple">must</strong> not contain
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> or <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-01581" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-01581"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-01581</span><br>
+
+If the <code>tiling</code> of the <code>image</code> is <code>VK_IMAGE_TILING_LINEAR</code>
+and its <code>format</code> is a
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar format</a> with
+two planes, the <code>aspectMask</code> member of <code>pSubresource</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code> or <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-format-01582" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-format-01582"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-format-01582</span><br>
+
+If the <code>tiling</code> of the <code>image</code> is <code>VK_IMAGE_TILING_LINEAR</code>
+and its <code>format</code> is a
+<a href="chap43.html#formats-requiring-sampler-ycbcr-conversion">multi-planar format</a> with
+three planes, the <code>aspectMask</code> member of <code>pSubresource</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>, <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code> or
+<code>VK_IMAGE_ASPECT_PLANE_2_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-image-01895" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-image-01895"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-image-01895</span><br>
+
+If <code>image</code> was created with the
+<code>VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID</code>
+external memory handle type, then <code>image</code> <strong class="purple">must</strong> be bound to memory</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-tiling-02271" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-tiling-02271"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-tiling-02271</span><br>
+
+If the <code>tiling</code> of the <code>image</code> is
+<code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>, then the <code>aspectMask</code>
+member of <code>pSubresource</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_ASPECT_MEMORY_PLANE<em>_i_</em>BIT_EXT</code> and the index <em>i</em> <strong class="purple">must</strong>
+be less than the
+<a href="chap43.html#VkDrmFormatModifierPropertiesEXT">VkDrmFormatModifierPropertiesEXT</a>::<code>drmFormatModifierPlaneCount</code>
+associated with the image’s <code>format</code> and
+<a href="chap12.html#VkImageDrmFormatModifierPropertiesEXT">VkImageDrmFormatModifierPropertiesEXT</a>::<code>drmFormatModifier</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-device-parameter" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-device-parameter"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-image-parameter" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-image-parameter"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-image-parameter</span><br>
+ <code>image</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImage">VkImage</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-pSubresource-parameter" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-pSubresource-parameter"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-pSubresource-parameter</span><br>
+ <code>pSubresource</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap12.html#VkImageSubresource2EXT">VkImageSubresource2EXT</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-pLayout-parameter" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-pLayout-parameter"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-pLayout-parameter</span><br>
+ <code>pLayout</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap12.html#VkSubresourceLayout2EXT">VkSubresourceLayout2EXT</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageSubresourceLayout2EXT-image-parent" href="chap12.html#VUID-vkGetImageSubresourceLayout2EXT-image-parent"></a> <span class="vuid">VUID-vkGetImageSubresourceLayout2EXT-image-parent</span><br>
+ <code>image</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkImageSubresource2EXT</code> structure is defined as:</p>
+</div>
+<div id="VkImageSubresource2EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkImageSubresource2EXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>       <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkImageSubresource</span>    <span class="n">imageSubresource</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkImageSubresource2EXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>imageSubresource</code> is a <a href="chap12.html#VkImageSubresource">VkImageSubresource</a> structure.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageSubresource2EXT-sType-sType" href="chap12.html#VUID-VkImageSubresource2EXT-sType-sType"></a> <span class="vuid">VUID-VkImageSubresource2EXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageSubresource2EXT-pNext-pNext" href="chap12.html#VUID-VkImageSubresource2EXT-pNext-pNext"></a> <span class="vuid">VUID-VkImageSubresource2EXT-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageSubresource2EXT-imageSubresource-parameter" href="chap12.html#VUID-VkImageSubresource2EXT-imageSubresource-parameter"></a> <span class="vuid">VUID-VkImageSubresource2EXT-imageSubresource-parameter</span><br>
+ <code>imageSubresource</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImageSubresource">VkImageSubresource</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Information about the layout of the image subresource is returned in a
+<code>VkSubresourceLayout2EXT</code> structure:</p>
+</div>
+<div id="VkSubresourceLayout2EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSubresourceLayout2EXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>        <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                  <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkSubresourceLayout</span>    <span class="n">subresourceLayout</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkSubresourceLayout2EXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>subresourceLayout</code> is a <a href="chap12.html#VkSubresourceLayout">VkSubresourceLayout</a> structure.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSubresourceLayout2EXT-sType-sType" href="chap12.html#VUID-VkSubresourceLayout2EXT-sType-sType"></a> <span class="vuid">VUID-VkSubresourceLayout2EXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSubresourceLayout2EXT-pNext-pNext" href="chap12.html#VUID-VkSubresourceLayout2EXT-pNext-pNext"></a> <span class="vuid">VUID-VkSubresourceLayout2EXT-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a></p>
+</li>
+<li>
+<p><a id="VUID-VkSubresourceLayout2EXT-sType-unique" href="chap12.html#VUID-VkSubresourceLayout2EXT-sType-unique"></a> <span class="vuid">VUID-VkSubresourceLayout2EXT-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -16568,7 +17325,7 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.212<br>
+Version 1.3.213<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

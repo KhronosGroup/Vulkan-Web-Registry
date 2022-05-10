@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.3.212 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.3.213 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.212 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.213 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.3.212,</span>
-<span id="revdate">2022-04-21 07:41:28Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0a80073e9078eae4266ca779d91e36e91c49a54c</span>
+<span id="revnumber">version 1.3.213,</span>
+<span id="revdate">2022-05-10 09:14:06Z</span>
+<br><span id="revremark">from git branch: github-main commit: 71decb7f868d3891974eab139f03c7c6c87fea4d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -707,6 +707,9 @@ interface stability than a non-<code>X</code> extension from the same vendor.</p
 </li>
 <li>
 <p><code><a href="chap47.html#VK_KHR_ray_query">VK_KHR_ray_query</a></code></p>
+</li>
+<li>
+<p><code><a href="chap47.html#VK_KHR_ray_tracing_maintenance1">VK_KHR_ray_tracing_maintenance1</a></code></p>
 </li>
 <li>
 <p><code><a href="chap47.html#VK_KHR_ray_tracing_pipeline">VK_KHR_ray_tracing_pipeline</a></code></p>
@@ -8689,23 +8692,22 @@ traversal results to the calling shader.</p>
 <div class="sect3">
 <h4 id="_sample_code"><a class="anchor" href="chap47.html#_sample_code"></a>Sample Code</h4>
 <div class="paragraph">
-<p>Example of ray query in a GLSL shader</p>
+<p>Example of ray query in a GLSL shader, illustrating how to use ray queries
+to determine whether a given position (at ray origin) is in shadow or not,
+by tracing a ray towards the light, and checking for any intersections with
+geometry occluding the light.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c"><span class="n">rayQueryEXT</span> <span class="n">rq</span><span class="p">;</span>
 
-<span class="n">rayQueryInitializeEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">accStruct</span><span class="p">,</span> <span class="n">gl_RayFlagsNoneEXT</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">tMin</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">tMax</span><span class="p">);</span>
+<span class="n">rayQueryInitializeEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">accStruct</span><span class="p">,</span> <span class="n">gl_RayFlagsTerminateOnFirstHitEXT</span><span class="p">,</span> <span class="n">cullMask</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">tMin</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">tMax</span><span class="p">);</span>
 
-<span class="k">while</span><span class="p">(</span><span class="n">rayQueryProceedEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">))</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">rayQueryGetIntersectionTypeEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="nb">false</span><span class="p">)</span> <span class="o">==</span> <span class="n">gl_RayQueryCandidateIntersectionTriangleEXT</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">//...</span>
-        <span class="n">rayQueryConfirmIntersectionEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<span class="c1">// Traverse the acceleration structure and store information about the first intersection (if any)</span>
+<span class="n">rayQueryProceedEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">rayQueryGetIntersectionTypeEXT</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="nb">true</span><span class="p">)</span> <span class="o">==</span> <span class="n">gl_RayQueryCommittedIntersectionNoneEXT</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">//...</span>
+    <span class="c1">// Not in shadow</span>
 <span class="p">}</span></code></pre>
 </div>
 </div>
@@ -8790,6 +8792,346 @@ VK_KHR_ray_query (#1918,!3912)</p>
 </div>
 </div>
 <div class="sect3">
+<h4 id="VK_KHR_ray_tracing_maintenance1"><a class="anchor" href="chap47.html#VK_KHR_ray_tracing_maintenance1"></a>VK_KHR_ray_tracing_maintenance1</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Name String</strong></dt>
+<dd>
+<p><code>VK_KHR_ray_tracing_maintenance1</code></p>
+</dd>
+<dt class="hdlist1"><strong>Extension Type</strong></dt>
+<dd>
+<p>Device extension</p>
+</dd>
+<dt class="hdlist1"><strong>Registered Extension Number</strong></dt>
+<dd>
+<p>387</p>
+</dd>
+<dt class="hdlist1"><strong>Revision</strong></dt>
+<dd>
+<p>1</p>
+</dd>
+<dt class="hdlist1"><strong>Extension and Version Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Requires Vulkan 1.1</p>
+</li>
+<li>
+<p>Requires <code><a href="chap47.html#VK_KHR_acceleration_structure">VK_KHR_acceleration_structure</a></code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contact</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Daniel Koch <a href="https://github.com/KhronosGroup/Vulkan-Docs/issues/new?body=[VK_KHR_ray_tracing_maintenance1] @dgkoch%0A<<Here describe the issue or question you have about the VK_KHR_ray_tracing_maintenance1 extension>>" target="_blank" rel="nofollow noopener"><span class="icon black"><i class="fa fa-github"></i></span>dgkoch</a></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_other_extension_metadata_25"><a class="anchor" href="chap47.html#_other_extension_metadata_25"></a>Other Extension Metadata</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Last Modified Date</strong></dt>
+<dd>
+<p>2022-02-21</p>
+</dd>
+<dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>This extension requires
+<a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_ray_cull_mask.html"><code>SPV_KHR_ray_cull_mask</code></a></p>
+</li>
+<li>
+<p>This extension provides API support for
+<a href="https://github.com/KhronosGroup/GLSL/blob/master/extensions/ext/GLSL_EXT_ray_cull_mask.txt"><code>GLSL_EXT_ray_cull_mask</code></a></p>
+</li>
+<li>
+<p>Interacts with <code><a href="chap47.html#VK_KHR_ray_tracing_pipeline">VK_KHR_ray_tracing_pipeline</a></code></p>
+</li>
+<li>
+<p>Interacts with <code><a href="chap47.html#VK_KHR_synchronization2">VK_KHR_synchronization2</a></code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Contributors</strong></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>Stu Smith, AMD</p>
+</li>
+<li>
+<p>Tobias Hector, AMD</p>
+</li>
+<li>
+<p>Marius Bjorge, Arm</p>
+</li>
+<li>
+<p>Tom Olson, Arm</p>
+</li>
+<li>
+<p>Yuriy O’Donnell, Epic Games</p>
+</li>
+<li>
+<p>Yunpeng Zhu, Huawei</p>
+</li>
+<li>
+<p>Andrew Garrard, Imagination</p>
+</li>
+<li>
+<p>Dae Kim, Imagination</p>
+</li>
+<li>
+<p>Joshua Barczak, Intel</p>
+</li>
+<li>
+<p>Lionel Landwerlin, Intel</p>
+</li>
+<li>
+<p>Daniel Koch, NVIDIA</p>
+</li>
+<li>
+<p>Eric Werness, NVIDIA</p>
+</li>
+<li>
+<p>Spencer Fricke, Samsung</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_description_25"><a class="anchor" href="chap47.html#_description_25"></a>Description</h4>
+<div class="paragraph">
+<p><code>VK_KHR_ray_tracing_maintenance1</code> adds a collection of minor ray tracing
+features, none of which would warrant an entire extension of their own.</p>
+</div>
+<div class="paragraph">
+<p>The new features are as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Adds support for the <code>SPV_KHR_ray_cull_mask</code> SPIR-V extension in Vulkan.
+This extension provides access to built-in <code>CullMaskKHR</code> shader
+variable which contains the value of the <code>OpTrace*</code> <code>Cull Mask</code>
+parameter.
+This new shader variable is accessible in the intersection, any-hit,
+closest-hit and miss shader stages.</p>
+</li>
+<li>
+<p>Adds support for a new pipeline stage and access mask built on top of
+<code><a href="chap47.html#VK_KHR_synchronization2">VK_KHR_synchronization2</a></code>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR</code> to
+specify execution of <a href="chap33.html#acceleration-structure-copying">acceleration
+structure copy commands</a></p>
+</li>
+<li>
+<p><code>VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR</code> to specify read
+access to a <a href="chap35.html#shader-binding-table">shader binding table</a> in any
+shader pipeline stage</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Adds two new acceleration structure query parameters:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code> to query the
+acceleration structure size on the device timeline</p>
+</li>
+<li>
+<p><code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code>
+to query the number of bottom level acceleration structure pointers for
+serialization</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Adds an optional new indirect ray tracing dispatch command,
+<a href="chap35.html#vkCmdTraceRaysIndirect2KHR">vkCmdTraceRaysIndirect2KHR</a>, which sources the shader binding table
+parameters as well as the dispatch dimensions from the device.
+The <a href="chap38.html#features-rayTracingPipelineTraceRaysIndirect2"><code>rayTracingPipelineTraceRaysIndirect2</code></a> feature indicates whether
+this functionality is supported.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_commands_23"><a class="anchor" href="chap47.html#_new_commands_23"></a>New Commands</h4>
+<div class="paragraph">
+<p>If <a href="chap47.html#VK_KHR_ray_tracing_pipeline">VK_KHR_ray_tracing_pipeline</a> is supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap35.html#vkCmdTraceRaysIndirect2KHR">vkCmdTraceRaysIndirect2KHR</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_structures_27"><a class="anchor" href="chap47.html#_new_structures_27"></a>New Structures</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="chap38.html#VkPhysicalDeviceFeatures2">VkPhysicalDeviceFeatures2</a>, <a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap38.html#VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR">VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <a href="chap47.html#VK_KHR_ray_tracing_pipeline">VK_KHR_ray_tracing_pipeline</a> is supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap35.html#VkTraceRaysIndirectCommand2KHR">VkTraceRaysIndirectCommand2KHR</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_enum_constants_29"><a class="anchor" href="chap47.html#_new_enum_constants_29"></a>New Enum Constants</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_KHR_RAY_TRACING_MAINTENANCE_1_EXTENSION_NAME</code></p>
+</li>
+<li>
+<p><code>VK_KHR_RAY_TRACING_MAINTENANCE_1_SPEC_VERSION</code></p>
+</li>
+<li>
+<p>Extending <a href="chap17.html#VkQueryType">VkQueryType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR</code></p>
+</li>
+<li>
+<p><code>VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Extending <a href="chap3.html#VkStructureType">VkStructureType</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <a href="chap47.html#VK_KHR_synchronization2">VK_KHR_synchronization2</a> is supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="chap7.html#VkPipelineStageFlagBits2">VkPipelineStageFlagBits2</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <a href="chap47.html#VK_KHR_synchronization2">VK_KHR_synchronization2</a>,VK_KHR_ray_tracing_pipeline is supported:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Extending <a href="chap7.html#VkAccessFlagBits2">VkAccessFlagBits2</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ACCESS_2_SHADER_BINDING_TABLE_READ_BIT_KHR</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_built_in_variables"><a class="anchor" href="chap47.html#_new_built_in_variables"></a>New Built-In Variables</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap15.html#interfaces-builtin-variables-cullmask"><code>CullMaskKHR</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_new_spir_v_capabilities_2"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_2"></a>New SPIR-V Capabilities</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap43.html#spirvenv-capabilities-table-RayCullMaskKHR">RayCullMaskKHR</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_issues_21"><a class="anchor" href="chap47.html#_issues_21"></a>Issues</h4>
+<div class="paragraph">
+<p>None Yet!</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_version_history_25"><a class="anchor" href="chap47.html#_version_history_25"></a>Version History</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Revision 1, 2022-02-21 (Members of the Vulkan Ray Tracing TSG)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>internal revisions</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
 <h4 id="VK_KHR_ray_tracing_pipeline"><a class="anchor" href="chap47.html#VK_KHR_ray_tracing_pipeline"></a>VK_KHR_ray_tracing_pipeline</h4>
 <div class="dlist">
 <dl>
@@ -8839,7 +9181,7 @@ VK_KHR_ray_query (#1918,!3912)</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_25"><a class="anchor" href="chap47.html#_other_extension_metadata_25"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_26"><a class="anchor" href="chap47.html#_other_extension_metadata_26"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -9005,7 +9347,7 @@ usage of <a href="chap10.html#VkRayTracingPipelineInterfaceCreateInfoKHR">VkRayT
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_25"><a class="anchor" href="chap47.html#_description_25"></a>Description</h4>
+<h4 id="_description_26"><a class="anchor" href="chap47.html#_description_26"></a>Description</h4>
 <div class="paragraph">
 <p>Rasterization has been the dominant method to produce interactive graphics,
 but increasing performance of graphics hardware has made ray tracing a
@@ -9048,7 +9390,7 @@ traversal conditions are met</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_23"><a class="anchor" href="chap47.html#_new_commands_23"></a>New Commands</h4>
+<h4 id="_new_commands_24"><a class="anchor" href="chap47.html#_new_commands_24"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9076,7 +9418,7 @@ traversal conditions are met</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_27"><a class="anchor" href="chap47.html#_new_structures_27"></a>New Structures</h4>
+<h4 id="_new_structures_28"><a class="anchor" href="chap47.html#_new_structures_28"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9131,7 +9473,7 @@ traversal conditions are met</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_29"><a class="anchor" href="chap47.html#_new_enum_constants_29"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_30"><a class="anchor" href="chap47.html#_new_enum_constants_30"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9317,7 +9659,7 @@ traversal conditions are met</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_2"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_2"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_3"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_3"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9330,7 +9672,7 @@ traversal conditions are met</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_21"><a class="anchor" href="chap47.html#_issues_21"></a>Issues</h4>
+<h4 id="_issues_22"><a class="anchor" href="chap47.html#_issues_22"></a>Issues</h4>
 <div class="paragraph">
 <p>(1) How does this extension differ from VK_NV_ray_tracing?</p>
 </div>
@@ -9677,7 +10019,7 @@ it more obvious that this is zero-based.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_25"><a class="anchor" href="chap47.html#_version_history_25"></a>Version History</h4>
+<h4 id="_version_history_26"><a class="anchor" href="chap47.html#_version_history_26"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9812,7 +10154,7 @@ VkRayTracingPipelineInterfaceCreateInfoKHR (#2102,!3966)</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_26"><a class="anchor" href="chap47.html#_other_extension_metadata_26"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_27"><a class="anchor" href="chap47.html#_other_extension_metadata_27"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -9856,7 +10198,7 @@ VkRayTracingPipelineInterfaceCreateInfoKHR (#2102,!3966)</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_26"><a class="anchor" href="chap47.html#_description_26"></a>Description</h4>
+<h4 id="_description_27"><a class="anchor" href="chap47.html#_description_27"></a>Description</h4>
 <div class="paragraph">
 <p>This extension advertises the SPIR-V <code>ShaderClockKHR</code> capability for
 Vulkan, which allows a shader to query a real-time or monotonically
@@ -9872,7 +10214,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_28"><a class="anchor" href="chap47.html#_new_structures_28"></a>New Structures</h4>
+<h4 id="_new_structures_29"><a class="anchor" href="chap47.html#_new_structures_29"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9889,7 +10231,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_30"><a class="anchor" href="chap47.html#_new_enum_constants_30"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_31"><a class="anchor" href="chap47.html#_new_enum_constants_31"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9912,7 +10254,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_3"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_3"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_4"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_4"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9922,7 +10264,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_26"><a class="anchor" href="chap47.html#_version_history_26"></a>Version History</h4>
+<h4 id="_version_history_27"><a class="anchor" href="chap47.html#_version_history_27"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -9982,7 +10324,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_27"><a class="anchor" href="chap47.html#_other_extension_metadata_27"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_28"><a class="anchor" href="chap47.html#_other_extension_metadata_28"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -10028,7 +10370,7 @@ timing functions map to the <code>OpReadClockKHR</code> instruction with a scope
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_27"><a class="anchor" href="chap47.html#_description_27"></a>Description</h4>
+<h4 id="_description_28"><a class="anchor" href="chap47.html#_description_28"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows the use of the <code>SPV_KHR_subgroup_uniform_control_flow</code>
 SPIR-V extension in shader modules.
@@ -10044,7 +10386,7 @@ same manner as invocation groups (see “Uniform Control Flow” in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_29"><a class="anchor" href="chap47.html#_new_structures_29"></a>New Structures</h4>
+<h4 id="_new_structures_30"><a class="anchor" href="chap47.html#_new_structures_30"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10061,7 +10403,7 @@ same manner as invocation groups (see “Uniform Control Flow” in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_31"><a class="anchor" href="chap47.html#_new_enum_constants_31"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_32"><a class="anchor" href="chap47.html#_new_enum_constants_32"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10084,7 +10426,7 @@ same manner as invocation groups (see “Uniform Control Flow” in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_27"><a class="anchor" href="chap47.html#_version_history_27"></a>Version History</h4>
+<h4 id="_version_history_28"><a class="anchor" href="chap47.html#_version_history_28"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10153,7 +10495,7 @@ same manner as invocation groups (see “Uniform Control Flow” in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_28"><a class="anchor" href="chap47.html#_other_extension_metadata_28"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_29"><a class="anchor" href="chap47.html#_other_extension_metadata_29"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -10214,7 +10556,7 @@ same manner as invocation groups (see “Uniform Control Flow” in the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_28"><a class="anchor" href="chap47.html#_description_28"></a>Description</h4>
+<h4 id="_description_29"><a class="anchor" href="chap47.html#_description_29"></a>Description</h4>
 <div class="paragraph">
 <p>This extension extends <code><a href="chap47.html#VK_KHR_swapchain">VK_KHR_swapchain</a></code> to enable creation of a
 shared presentable image.
@@ -10224,7 +10566,7 @@ presentation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_24"><a class="anchor" href="chap47.html#_new_commands_24"></a>New Commands</h4>
+<h4 id="_new_commands_25"><a class="anchor" href="chap47.html#_new_commands_25"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10234,7 +10576,7 @@ presentation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_30"><a class="anchor" href="chap47.html#_new_structures_30"></a>New Structures</h4>
+<h4 id="_new_structures_31"><a class="anchor" href="chap47.html#_new_structures_31"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10251,7 +10593,7 @@ presentation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_32"><a class="anchor" href="chap47.html#_new_enum_constants_32"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_33"><a class="anchor" href="chap47.html#_new_enum_constants_33"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10297,7 +10639,7 @@ presentation.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_22"><a class="anchor" href="chap47.html#_issues_22"></a>Issues</h4>
+<h4 id="_issues_23"><a class="anchor" href="chap47.html#_issues_23"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Should we allow a Vulkan WSI swapchain to toggle between normal usage and
 shared presentation usage?</p>
@@ -10408,7 +10750,7 @@ rendering.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_28"><a class="anchor" href="chap47.html#_version_history_28"></a>Version History</h4>
+<h4 id="_version_history_29"><a class="anchor" href="chap47.html#_version_history_29"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10471,7 +10813,7 @@ rendering.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_29"><a class="anchor" href="chap47.html#_other_extension_metadata_29"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_30"><a class="anchor" href="chap47.html#_other_extension_metadata_30"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -10529,7 +10871,7 @@ rendering.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_29"><a class="anchor" href="chap47.html#_description_29"></a>Description</h4>
+<h4 id="_description_30"><a class="anchor" href="chap47.html#_description_30"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_surface</code> extension is an instance extension.
 It introduces <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> objects, which abstract native platform
@@ -10555,7 +10897,7 @@ other platform-independent extensions, in particular the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_25"><a class="anchor" href="chap47.html#_new_commands_25"></a>New Commands</h4>
+<h4 id="_new_commands_26"><a class="anchor" href="chap47.html#_new_commands_26"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10577,7 +10919,7 @@ other platform-independent extensions, in particular the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_31"><a class="anchor" href="chap47.html#_new_structures_31"></a>New Structures</h4>
+<h4 id="_new_structures_32"><a class="anchor" href="chap47.html#_new_structures_32"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10619,7 +10961,7 @@ other platform-independent extensions, in particular the
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_33"><a class="anchor" href="chap47.html#_new_enum_constants_33"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_34"><a class="anchor" href="chap47.html#_new_enum_constants_34"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -10677,7 +11019,7 @@ official Khronos SDK, and is being kept up-to-date in that location (see:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_23"><a class="anchor" href="chap47.html#_issues_23"></a>Issues</h4>
+<h4 id="_issues_24"><a class="anchor" href="chap47.html#_issues_24"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Should this extension include a method to query whether a physical device
 supports presenting to a specific window or native surface on a given
@@ -10738,7 +11080,7 @@ extension to be written in the future.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_29"><a class="anchor" href="chap47.html#_version_history_29"></a>Version History</h4>
+<h4 id="_version_history_30"><a class="anchor" href="chap47.html#_version_history_30"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11125,7 +11467,7 @@ will be removed from future versions of the appendix.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_30"><a class="anchor" href="chap47.html#_other_extension_metadata_30"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_31"><a class="anchor" href="chap47.html#_other_extension_metadata_31"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -11156,7 +11498,7 @@ will be removed from future versions of the appendix.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_30"><a class="anchor" href="chap47.html#_description_30"></a>Description</h4>
+<h4 id="_description_31"><a class="anchor" href="chap47.html#_description_31"></a>Description</h4>
 <div class="paragraph">
 <p>This extension extends <a href="chap30.html#VkSurfaceCapabilities2KHR">VkSurfaceCapabilities2KHR</a>, providing
 applications a way to query whether swapchains <strong class="purple">can</strong> be created with the
@@ -11181,7 +11523,7 @@ through <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_32"><a class="anchor" href="chap47.html#_new_structures_32"></a>New Structures</h4>
+<h4 id="_new_structures_33"><a class="anchor" href="chap47.html#_new_structures_33"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11198,7 +11540,7 @@ through <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_34"><a class="anchor" href="chap47.html#_new_enum_constants_34"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_35"><a class="anchor" href="chap47.html#_new_enum_constants_35"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11221,7 +11563,7 @@ through <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_30"><a class="anchor" href="chap47.html#_version_history_30"></a>Version History</h4>
+<h4 id="_version_history_31"><a class="anchor" href="chap47.html#_version_history_31"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11287,7 +11629,7 @@ through <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_31"><a class="anchor" href="chap47.html#_other_extension_metadata_31"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_32"><a class="anchor" href="chap47.html#_other_extension_metadata_32"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -11364,7 +11706,7 @@ through <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPh
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_31"><a class="anchor" href="chap47.html#_description_31"></a>Description</h4>
+<h4 id="_description_32"><a class="anchor" href="chap47.html#_description_32"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_swapchain</code> extension is the device-level companion to the
 <code><a href="chap47.html#VK_KHR_surface">VK_KHR_surface</a></code> extension.
@@ -11383,7 +11725,7 @@ present rendering results to a surface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_26"><a class="anchor" href="chap47.html#_new_commands_26"></a>New Commands</h4>
+<h4 id="_new_commands_27"><a class="anchor" href="chap47.html#_new_commands_27"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11424,7 +11766,7 @@ present rendering results to a surface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_33"><a class="anchor" href="chap47.html#_new_structures_33"></a>New Structures</h4>
+<h4 id="_new_structures_34"><a class="anchor" href="chap47.html#_new_structures_34"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11530,7 +11872,7 @@ present rendering results to a surface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_35"><a class="anchor" href="chap47.html#_new_enum_constants_35"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_36"><a class="anchor" href="chap47.html#_new_enum_constants_36"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -11634,7 +11976,7 @@ present rendering results to a surface.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_24"><a class="anchor" href="chap47.html#_issues_24"></a>Issues</h4>
+<h4 id="_issues_25"><a class="anchor" href="chap47.html#_issues_25"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Does this extension allow the application to specify the memory backing
 of the presentable images?</p>
@@ -12101,7 +12443,7 @@ official Khronos SDK, and is being kept up-to-date in that location (see:
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_31"><a class="anchor" href="chap47.html#_version_history_31"></a>Version History</h4>
+<h4 id="_version_history_32"><a class="anchor" href="chap47.html#_version_history_32"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -12339,8 +12681,8 @@ vkAcquireNextImageKHR and vkQueuePresentKHR.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Changed special value from "-1" to "0" so that the data types can be
-unsigned.</p>
+<p>Changed special value from “-1” to “0” so that the data types can
+be unsigned.</p>
 </li>
 </ul>
 </div>
@@ -12370,7 +12712,7 @@ Removed resolved inline issues and fixed typos.</p>
 version 18.</p>
 </li>
 <li>
-<p>Added a brief "Image Ownership" definition to the list of terms used
+<p>Added a brief “Image Ownership” definition to the list of terms used
 in the spec.</p>
 </li>
 </ul>
@@ -13108,7 +13450,7 @@ will be removed from future versions of the appendix.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_32"><a class="anchor" href="chap47.html#_other_extension_metadata_32"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_33"><a class="anchor" href="chap47.html#_other_extension_metadata_33"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -13145,7 +13487,7 @@ will be removed from future versions of the appendix.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_32"><a class="anchor" href="chap47.html#_description_32"></a>Description</h4>
+<h4 id="_description_33"><a class="anchor" href="chap47.html#_description_33"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows processing of swapchain images as different formats to
 that used by the window system, which is particularly useful for switching
@@ -13158,7 +13500,7 @@ swapchain.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_36"><a class="anchor" href="chap47.html#_new_enum_constants_36"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_37"><a class="anchor" href="chap47.html#_new_enum_constants_37"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13181,7 +13523,7 @@ swapchain.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_25"><a class="anchor" href="chap47.html#_issues_25"></a>Issues</h4>
+<h4 id="_issues_26"><a class="anchor" href="chap47.html#_issues_26"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Are there any new capabilities needed?</p>
 </div>
@@ -13215,7 +13557,7 @@ The structure is required to be included in the <code>pNext</code> chain of
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_32"><a class="anchor" href="chap47.html#_version_history_32"></a>Version History</h4>
+<h4 id="_version_history_33"><a class="anchor" href="chap47.html#_version_history_33"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13281,7 +13623,7 @@ The structure is required to be included in the <code>pNext</code> chain of
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_33"><a class="anchor" href="chap47.html#_other_extension_metadata_33"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_34"><a class="anchor" href="chap47.html#_other_extension_metadata_34"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -13351,7 +13693,7 @@ The structure is required to be included in the <code>pNext</code> chain of
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_33"><a class="anchor" href="chap47.html#_description_33"></a>Description</h4>
+<h4 id="_description_34"><a class="anchor" href="chap47.html#_description_34"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_wayland_surface</code> extension is an instance extension.
 It provides a mechanism to create a <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> object (defined by
@@ -13361,7 +13703,7 @@ Wayland compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_27"><a class="anchor" href="chap47.html#_new_commands_27"></a>New Commands</h4>
+<h4 id="_new_commands_28"><a class="anchor" href="chap47.html#_new_commands_28"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13374,7 +13716,7 @@ Wayland compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_34"><a class="anchor" href="chap47.html#_new_structures_34"></a>New Structures</h4>
+<h4 id="_new_structures_35"><a class="anchor" href="chap47.html#_new_structures_35"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13394,7 +13736,7 @@ Wayland compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_37"><a class="anchor" href="chap47.html#_new_enum_constants_37"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_38"><a class="anchor" href="chap47.html#_new_enum_constants_38"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13417,7 +13759,7 @@ Wayland compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_26"><a class="anchor" href="chap47.html#_issues_26"></a>Issues</h4>
+<h4 id="_issues_27"><a class="anchor" href="chap47.html#_issues_27"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Does Wayland need a way to query for compatibility between a particular
 physical device and a specific Wayland display? This would be a more general
@@ -13447,7 +13789,7 @@ an onerous restriction on application developers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_33"><a class="anchor" href="chap47.html#_version_history_33"></a>Version History</h4>
+<h4 id="_version_history_34"><a class="anchor" href="chap47.html#_version_history_34"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13574,7 +13916,7 @@ the Wayland requests sent to the compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_34"><a class="anchor" href="chap47.html#_other_extension_metadata_34"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_35"><a class="anchor" href="chap47.html#_other_extension_metadata_35"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -13605,7 +13947,7 @@ the Wayland requests sent to the compositor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_34"><a class="anchor" href="chap47.html#_description_34"></a>Description</h4>
+<h4 id="_description_35"><a class="anchor" href="chap47.html#_description_35"></a>Description</h4>
 <div class="paragraph">
 <p>Applications that wish to import Direct3D 11 memory objects into the Vulkan
 API may wish to use the native keyed mutex mechanism to synchronize access
@@ -13616,7 +13958,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_35"><a class="anchor" href="chap47.html#_new_structures_35"></a>New Structures</h4>
+<h4 id="_new_structures_36"><a class="anchor" href="chap47.html#_new_structures_36"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13633,7 +13975,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_38"><a class="anchor" href="chap47.html#_new_enum_constants_38"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_39"><a class="anchor" href="chap47.html#_new_enum_constants_39"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13656,7 +13998,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_34"><a class="anchor" href="chap47.html#_version_history_34"></a>Version History</h4>
+<h4 id="_version_history_35"><a class="anchor" href="chap47.html#_version_history_35"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13722,7 +14064,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_35"><a class="anchor" href="chap47.html#_other_extension_metadata_35"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_36"><a class="anchor" href="chap47.html#_other_extension_metadata_36"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -13792,7 +14134,7 @@ buffers to a queue.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_35"><a class="anchor" href="chap47.html#_description_35"></a>Description</h4>
+<h4 id="_description_36"><a class="anchor" href="chap47.html#_description_36"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_win32_surface</code> extension is an instance extension.
 It provides a mechanism to create a <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> object (defined by
@@ -13801,7 +14143,7 @@ well as a query to determine support for rendering to the windows desktop.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_28"><a class="anchor" href="chap47.html#_new_commands_28"></a>New Commands</h4>
+<h4 id="_new_commands_29"><a class="anchor" href="chap47.html#_new_commands_29"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13814,7 +14156,7 @@ well as a query to determine support for rendering to the windows desktop.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_36"><a class="anchor" href="chap47.html#_new_structures_36"></a>New Structures</h4>
+<h4 id="_new_structures_37"><a class="anchor" href="chap47.html#_new_structures_37"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13834,7 +14176,7 @@ well as a query to determine support for rendering to the windows desktop.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_39"><a class="anchor" href="chap47.html#_new_enum_constants_39"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_40"><a class="anchor" href="chap47.html#_new_enum_constants_40"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -13857,7 +14199,7 @@ well as a query to determine support for rendering to the windows desktop.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_27"><a class="anchor" href="chap47.html#_issues_27"></a>Issues</h4>
+<h4 id="_issues_28"><a class="anchor" href="chap47.html#_issues_28"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Does Win32 need a way to query for compatibility between a particular
 physical device and a specific screen? Compatibility between a physical
@@ -13947,7 +14289,7 @@ Either of the above alterations may occur as a side effect of
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_35"><a class="anchor" href="chap47.html#_version_history_35"></a>Version History</h4>
+<h4 id="_version_history_36"><a class="anchor" href="chap47.html#_version_history_36"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14062,7 +14404,7 @@ Graphics API, or by a different Vulkan ICD.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_36"><a class="anchor" href="chap47.html#_other_extension_metadata_36"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_37"><a class="anchor" href="chap47.html#_other_extension_metadata_37"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -14114,7 +14456,7 @@ Graphics API, or by a different Vulkan ICD.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_36"><a class="anchor" href="chap47.html#_description_36"></a>Description</h4>
+<h4 id="_description_37"><a class="anchor" href="chap47.html#_description_37"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds Vulkan support for the
 <a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_workgroup_memory_explicit_layout.html"><code>SPV_KHR_workgroup_memory_explicit_layout</code></a>
@@ -14135,7 +14477,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_37"><a class="anchor" href="chap47.html#_new_structures_37"></a>New Structures</h4>
+<h4 id="_new_structures_38"><a class="anchor" href="chap47.html#_new_structures_38"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14152,7 +14494,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_40"><a class="anchor" href="chap47.html#_new_enum_constants_40"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_41"><a class="anchor" href="chap47.html#_new_enum_constants_41"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14175,7 +14517,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_4"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_4"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_5"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_5"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14191,7 +14533,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_36"><a class="anchor" href="chap47.html#_version_history_36"></a>Version History</h4>
+<h4 id="_version_history_37"><a class="anchor" href="chap47.html#_version_history_37"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14257,7 +14599,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_37"><a class="anchor" href="chap47.html#_other_extension_metadata_37"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_38"><a class="anchor" href="chap47.html#_other_extension_metadata_38"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -14327,7 +14669,7 @@ layering OpenCL on top of Vulkan.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_37"><a class="anchor" href="chap47.html#_description_37"></a>Description</h4>
+<h4 id="_description_38"><a class="anchor" href="chap47.html#_description_38"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_xcb_surface</code> extension is an instance extension.
 It provides a mechanism to create a <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> object (defined by
@@ -14337,7 +14679,7 @@ for rendering via XCB.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_29"><a class="anchor" href="chap47.html#_new_commands_29"></a>New Commands</h4>
+<h4 id="_new_commands_30"><a class="anchor" href="chap47.html#_new_commands_30"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14350,7 +14692,7 @@ for rendering via XCB.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_38"><a class="anchor" href="chap47.html#_new_structures_38"></a>New Structures</h4>
+<h4 id="_new_structures_39"><a class="anchor" href="chap47.html#_new_structures_39"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14370,7 +14712,7 @@ for rendering via XCB.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_41"><a class="anchor" href="chap47.html#_new_enum_constants_41"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_42"><a class="anchor" href="chap47.html#_new_enum_constants_42"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14393,7 +14735,7 @@ for rendering via XCB.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_28"><a class="anchor" href="chap47.html#_issues_28"></a>Issues</h4>
+<h4 id="_issues_29"><a class="anchor" href="chap47.html#_issues_29"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Does XCB need a way to query for compatibility between a particular
 physical device and a specific screen? This would be a more general query
@@ -14409,7 +14751,7 @@ visual rather than the screen in general.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_37"><a class="anchor" href="chap47.html#_version_history_37"></a>Version History</h4>
+<h4 id="_version_history_38"><a class="anchor" href="chap47.html#_version_history_38"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14535,7 +14877,7 @@ place.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_38"><a class="anchor" href="chap47.html#_other_extension_metadata_38"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_39"><a class="anchor" href="chap47.html#_other_extension_metadata_39"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -14605,7 +14947,7 @@ place.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_38"><a class="anchor" href="chap47.html#_description_38"></a>Description</h4>
+<h4 id="_description_39"><a class="anchor" href="chap47.html#_description_39"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_xlib_surface</code> extension is an instance extension.
 It provides a mechanism to create a <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> object (defined by
@@ -14615,7 +14957,7 @@ for rendering via Xlib.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_30"><a class="anchor" href="chap47.html#_new_commands_30"></a>New Commands</h4>
+<h4 id="_new_commands_31"><a class="anchor" href="chap47.html#_new_commands_31"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14628,7 +14970,7 @@ for rendering via Xlib.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_39"><a class="anchor" href="chap47.html#_new_structures_39"></a>New Structures</h4>
+<h4 id="_new_structures_40"><a class="anchor" href="chap47.html#_new_structures_40"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14648,7 +14990,7 @@ for rendering via Xlib.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_42"><a class="anchor" href="chap47.html#_new_enum_constants_42"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_43"><a class="anchor" href="chap47.html#_new_enum_constants_43"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14671,7 +15013,7 @@ for rendering via Xlib.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_29"><a class="anchor" href="chap47.html#_issues_29"></a>Issues</h4>
+<h4 id="_issues_30"><a class="anchor" href="chap47.html#_issues_30"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Does X11 need a way to query for compatibility between a particular
 physical device and a specific screen? This would be a more general query
@@ -14687,7 +15029,7 @@ visual rather than the screen in general.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_38"><a class="anchor" href="chap47.html#_version_history_38"></a>Version History</h4>
+<h4 id="_version_history_39"><a class="anchor" href="chap47.html#_version_history_39"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14836,7 +15178,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_39"><a class="anchor" href="chap47.html#_other_extension_metadata_39"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_40"><a class="anchor" href="chap47.html#_other_extension_metadata_40"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -14882,7 +15224,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_39"><a class="anchor" href="chap47.html#_description_39"></a>Description</h4>
+<h4 id="_description_40"><a class="anchor" href="chap47.html#_description_40"></a>Description</h4>
 <div class="paragraph">
 <p>The `VK_KHR_portability_subset extension allows a non-conformant Vulkan
 implementation to be built on top of another non-Vulkan graphics API, and
@@ -14922,7 +15264,7 @@ for non-conformant portable behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_40"><a class="anchor" href="chap47.html#_new_structures_40"></a>New Structures</h4>
+<h4 id="_new_structures_41"><a class="anchor" href="chap47.html#_new_structures_41"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14949,7 +15291,7 @@ for non-conformant portable behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_43"><a class="anchor" href="chap47.html#_new_enum_constants_43"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_44"><a class="anchor" href="chap47.html#_new_enum_constants_44"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -14975,13 +15317,13 @@ for non-conformant portable behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_30"><a class="anchor" href="chap47.html#_issues_30"></a>Issues</h4>
+<h4 id="_issues_31"><a class="anchor" href="chap47.html#_issues_31"></a>Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_39"><a class="anchor" href="chap47.html#_version_history_39"></a>Version History</h4>
+<h4 id="_version_history_40"><a class="anchor" href="chap47.html#_version_history_40"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15051,7 +15393,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_40"><a class="anchor" href="chap47.html#_other_extension_metadata_40"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_41"><a class="anchor" href="chap47.html#_other_extension_metadata_41"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -15094,7 +15436,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_31"><a class="anchor" href="chap47.html#_new_commands_31"></a>New Commands</h4>
+<h4 id="_new_commands_32"><a class="anchor" href="chap47.html#_new_commands_32"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15104,7 +15446,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_41"><a class="anchor" href="chap47.html#_new_structures_41"></a>New Structures</h4>
+<h4 id="_new_structures_42"><a class="anchor" href="chap47.html#_new_structures_42"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15150,7 +15492,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_44"><a class="anchor" href="chap47.html#_new_enum_constants_44"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_45"><a class="anchor" href="chap47.html#_new_enum_constants_45"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15287,7 +15629,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_40"><a class="anchor" href="chap47.html#_version_history_40"></a>Version History</h4>
+<h4 id="_version_history_41"><a class="anchor" href="chap47.html#_version_history_41"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15419,7 +15761,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_41"><a class="anchor" href="chap47.html#_other_extension_metadata_41"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_42"><a class="anchor" href="chap47.html#_other_extension_metadata_42"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -15474,7 +15816,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_32"><a class="anchor" href="chap47.html#_new_commands_32"></a>New Commands</h4>
+<h4 id="_new_commands_33"><a class="anchor" href="chap47.html#_new_commands_33"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15484,7 +15826,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_42"><a class="anchor" href="chap47.html#_new_structures_42"></a>New Structures</h4>
+<h4 id="_new_structures_43"><a class="anchor" href="chap47.html#_new_structures_43"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15555,7 +15897,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_45"><a class="anchor" href="chap47.html#_new_enum_constants_45"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_46"><a class="anchor" href="chap47.html#_new_enum_constants_46"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15708,7 +16050,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_41"><a class="anchor" href="chap47.html#_version_history_41"></a>Version History</h4>
+<h4 id="_version_history_42"><a class="anchor" href="chap47.html#_version_history_42"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15839,7 +16181,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_42"><a class="anchor" href="chap47.html#_other_extension_metadata_42"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_43"><a class="anchor" href="chap47.html#_other_extension_metadata_43"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -15895,7 +16237,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_33"><a class="anchor" href="chap47.html#_new_commands_33"></a>New Commands</h4>
+<h4 id="_new_commands_34"><a class="anchor" href="chap47.html#_new_commands_34"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -15938,7 +16280,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_43"><a class="anchor" href="chap47.html#_new_structures_43"></a>New Structures</h4>
+<h4 id="_new_structures_44"><a class="anchor" href="chap47.html#_new_structures_44"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16082,7 +16424,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_46"><a class="anchor" href="chap47.html#_new_enum_constants_46"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_47"><a class="anchor" href="chap47.html#_new_enum_constants_47"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16186,7 +16528,7 @@ See the <a href="chap49.html#boilerplate-provisional-header">description</a> of 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_42"><a class="anchor" href="chap47.html#_version_history_42"></a>Version History</h4>
+<h4 id="_version_history_43"><a class="anchor" href="chap47.html#_version_history_43"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16469,7 +16811,7 @@ codec-specific.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_43"><a class="anchor" href="chap47.html#_other_extension_metadata_43"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_44"><a class="anchor" href="chap47.html#_other_extension_metadata_44"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -16533,7 +16875,7 @@ codec-specific.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_40"><a class="anchor" href="chap47.html#_description_40"></a>Description</h4>
+<h4 id="_description_41"><a class="anchor" href="chap47.html#_description_41"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_16bit_storage</code> extension allows use of 16-bit types in shader
 input and output interfaces, and push constant blocks.
@@ -16558,7 +16900,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_44"><a class="anchor" href="chap47.html#_new_structures_44"></a>New Structures</h4>
+<h4 id="_new_structures_45"><a class="anchor" href="chap47.html#_new_structures_45"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16575,7 +16917,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_47"><a class="anchor" href="chap47.html#_new_enum_constants_47"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_48"><a class="anchor" href="chap47.html#_new_enum_constants_48"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16598,7 +16940,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_5"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_5"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_6"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_6"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16617,7 +16959,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_43"><a class="anchor" href="chap47.html#_version_history_43"></a>Version History</h4>
+<h4 id="_version_history_44"><a class="anchor" href="chap47.html#_version_history_44"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16694,7 +17036,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_44"><a class="anchor" href="chap47.html#_other_extension_metadata_44"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_45"><a class="anchor" href="chap47.html#_other_extension_metadata_45"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -16737,7 +17079,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_41"><a class="anchor" href="chap47.html#_description_41"></a>Description</h4>
+<h4 id="_description_42"><a class="anchor" href="chap47.html#_description_42"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_8bit_storage</code> extension allows use of 8-bit types in uniform and
 storage buffers, and push constant blocks.
@@ -16764,7 +17106,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_45"><a class="anchor" href="chap47.html#_new_structures_45"></a>New Structures</h4>
+<h4 id="_new_structures_46"><a class="anchor" href="chap47.html#_new_structures_46"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16781,7 +17123,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_48"><a class="anchor" href="chap47.html#_new_enum_constants_48"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_49"><a class="anchor" href="chap47.html#_new_enum_constants_49"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16804,7 +17146,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_6"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_6"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_7"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_7"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16820,7 +17162,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_44"><a class="anchor" href="chap47.html#_version_history_44"></a>Version History</h4>
+<h4 id="_version_history_45"><a class="anchor" href="chap47.html#_version_history_45"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16891,7 +17233,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_45"><a class="anchor" href="chap47.html#_other_extension_metadata_45"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_46"><a class="anchor" href="chap47.html#_other_extension_metadata_46"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -16929,7 +17271,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_42"><a class="anchor" href="chap47.html#_description_42"></a>Description</h4>
+<h4 id="_description_43"><a class="anchor" href="chap47.html#_description_43"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides versions of <a href="chap12.html#vkBindBufferMemory">vkBindBufferMemory</a> and
 <a href="chap12.html#vkBindImageMemory">vkBindImageMemory</a> that allow multiple bindings to be performed at
@@ -16951,7 +17293,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_34"><a class="anchor" href="chap47.html#_new_commands_34"></a>New Commands</h4>
+<h4 id="_new_commands_35"><a class="anchor" href="chap47.html#_new_commands_35"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16964,7 +17306,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_46"><a class="anchor" href="chap47.html#_new_structures_46"></a>New Structures</h4>
+<h4 id="_new_structures_47"><a class="anchor" href="chap47.html#_new_structures_47"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -16977,7 +17319,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_49"><a class="anchor" href="chap47.html#_new_enum_constants_49"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_50"><a class="anchor" href="chap47.html#_new_enum_constants_50"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17013,7 +17355,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_45"><a class="anchor" href="chap47.html#_version_history_45"></a>Version History</h4>
+<h4 id="_version_history_46"><a class="anchor" href="chap47.html#_version_history_46"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17087,7 +17429,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_46"><a class="anchor" href="chap47.html#_other_extension_metadata_46"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_47"><a class="anchor" href="chap47.html#_other_extension_metadata_47"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -17149,7 +17491,7 @@ and
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_43"><a class="anchor" href="chap47.html#_description_43"></a>Description</h4>
+<h4 id="_description_44"><a class="anchor" href="chap47.html#_description_44"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows the application to query a 64-bit buffer device
 address value for a buffer, which can be used to access the buffer memory
@@ -17220,7 +17562,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_35"><a class="anchor" href="chap47.html#_new_commands_35"></a>New Commands</h4>
+<h4 id="_new_commands_36"><a class="anchor" href="chap47.html#_new_commands_36"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17236,7 +17578,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_47"><a class="anchor" href="chap47.html#_new_structures_47"></a>New Structures</h4>
+<h4 id="_new_structures_48"><a class="anchor" href="chap47.html#_new_structures_48"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17279,7 +17621,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_50"><a class="anchor" href="chap47.html#_new_enum_constants_50"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_51"><a class="anchor" href="chap47.html#_new_enum_constants_51"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17357,7 +17699,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_7"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_7"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_8"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_8"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17367,7 +17709,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_46"><a class="anchor" href="chap47.html#_version_history_46"></a>Version History</h4>
+<h4 id="_version_history_47"><a class="anchor" href="chap47.html#_version_history_47"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17438,7 +17780,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_47"><a class="anchor" href="chap47.html#_other_extension_metadata_47"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_48"><a class="anchor" href="chap47.html#_other_extension_metadata_48"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -17488,7 +17830,7 @@ regardless of whether this extension is supported.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_44"><a class="anchor" href="chap47.html#_description_44"></a>Description</h4>
+<h4 id="_description_45"><a class="anchor" href="chap47.html#_description_45"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides extensible versions of the Vulkan buffer and image
 copy commands.
@@ -17508,7 +17850,7 @@ with <code>sType</code>/<code>pNext</code> members.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_36"><a class="anchor" href="chap47.html#_new_commands_36"></a>New Commands</h4>
+<h4 id="_new_commands_37"><a class="anchor" href="chap47.html#_new_commands_37"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17533,7 +17875,7 @@ with <code>sType</code>/<code>pNext</code> members.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_48"><a class="anchor" href="chap47.html#_new_structures_48"></a>New Structures</h4>
+<h4 id="_new_structures_49"><a class="anchor" href="chap47.html#_new_structures_49"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17573,7 +17915,7 @@ with <code>sType</code>/<code>pNext</code> members.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_51"><a class="anchor" href="chap47.html#_new_enum_constants_51"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_52"><a class="anchor" href="chap47.html#_new_enum_constants_52"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17635,7 +17977,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_47"><a class="anchor" href="chap47.html#_version_history_47"></a>Version History</h4>
+<h4 id="_version_history_48"><a class="anchor" href="chap47.html#_version_history_48"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17712,7 +18054,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_48"><a class="anchor" href="chap47.html#_other_extension_metadata_48"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_49"><a class="anchor" href="chap47.html#_other_extension_metadata_49"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -17746,7 +18088,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_45"><a class="anchor" href="chap47.html#_description_45"></a>Description</h4>
+<h4 id="_description_46"><a class="anchor" href="chap47.html#_description_46"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides a new entry point to create render passes in a way
 that can be easily extended by other extensions through the substructures of
@@ -17799,7 +18141,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_37"><a class="anchor" href="chap47.html#_new_commands_37"></a>New Commands</h4>
+<h4 id="_new_commands_38"><a class="anchor" href="chap47.html#_new_commands_38"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17818,7 +18160,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_49"><a class="anchor" href="chap47.html#_new_structures_49"></a>New Structures</h4>
+<h4 id="_new_structures_50"><a class="anchor" href="chap47.html#_new_structures_50"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17846,7 +18188,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_52"><a class="anchor" href="chap47.html#_new_enum_constants_52"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_53"><a class="anchor" href="chap47.html#_new_enum_constants_53"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17887,7 +18229,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_48"><a class="anchor" href="chap47.html#_version_history_48"></a>Version History</h4>
+<h4 id="_version_history_49"><a class="anchor" href="chap47.html#_version_history_49"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -17961,7 +18303,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_49"><a class="anchor" href="chap47.html#_other_extension_metadata_49"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_50"><a class="anchor" href="chap47.html#_other_extension_metadata_50"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -17999,7 +18341,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_46"><a class="anchor" href="chap47.html#_description_46"></a>Description</h4>
+<h4 id="_description_47"><a class="anchor" href="chap47.html#_description_47"></a>Description</h4>
 <div class="paragraph">
 <p>This extension enables resources to be bound to a dedicated allocation,
 rather than suballocated.
@@ -18035,7 +18377,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_50"><a class="anchor" href="chap47.html#_new_structures_50"></a>New Structures</h4>
+<h4 id="_new_structures_51"><a class="anchor" href="chap47.html#_new_structures_51"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18062,7 +18404,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_53"><a class="anchor" href="chap47.html#_new_enum_constants_53"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_54"><a class="anchor" href="chap47.html#_new_enum_constants_54"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18171,7 +18513,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_49"><a class="anchor" href="chap47.html#_version_history_49"></a>Version History</h4>
+<h4 id="_version_history_50"><a class="anchor" href="chap47.html#_version_history_50"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18270,7 +18612,7 @@ bound and no others.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_50"><a class="anchor" href="chap47.html#_other_extension_metadata_50"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_51"><a class="anchor" href="chap47.html#_other_extension_metadata_51"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -18313,7 +18655,7 @@ bound and no others.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_47"><a class="anchor" href="chap47.html#_description_47"></a>Description</h4>
+<h4 id="_description_48"><a class="anchor" href="chap47.html#_description_48"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds support for automatically resolving multisampled
 depth/stencil attachments in a subpass in a similar manner as for color
@@ -18356,7 +18698,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_51"><a class="anchor" href="chap47.html#_new_structures_51"></a>New Structures</h4>
+<h4 id="_new_structures_52"><a class="anchor" href="chap47.html#_new_structures_52"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18403,7 +18745,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_54"><a class="anchor" href="chap47.html#_new_enum_constants_54"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_55"><a class="anchor" href="chap47.html#_new_enum_constants_55"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18451,7 +18793,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_50"><a class="anchor" href="chap47.html#_version_history_50"></a>Version History</h4>
+<h4 id="_version_history_51"><a class="anchor" href="chap47.html#_version_history_51"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18522,7 +18864,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_51"><a class="anchor" href="chap47.html#_other_extension_metadata_51"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_52"><a class="anchor" href="chap47.html#_other_extension_metadata_52"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -18563,7 +18905,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_48"><a class="anchor" href="chap47.html#_description_48"></a>Description</h4>
+<h4 id="_description_49"><a class="anchor" href="chap47.html#_description_49"></a>Description</h4>
 <div class="paragraph">
 <p>Applications may wish to update a fixed set of descriptors in a large number
 of descriptor sets very frequently, i.e. during initializaton phase or if it
@@ -18601,7 +18943,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_38"><a class="anchor" href="chap47.html#_new_commands_38"></a>New Commands</h4>
+<h4 id="_new_commands_39"><a class="anchor" href="chap47.html#_new_commands_39"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18627,7 +18969,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_52"><a class="anchor" href="chap47.html#_new_structures_52"></a>New Structures</h4>
+<h4 id="_new_structures_53"><a class="anchor" href="chap47.html#_new_structures_53"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18660,7 +19002,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_55"><a class="anchor" href="chap47.html#_new_enum_constants_55"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_56"><a class="anchor" href="chap47.html#_new_enum_constants_56"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18720,7 +19062,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_51"><a class="anchor" href="chap47.html#_version_history_51"></a>Version History</h4>
+<h4 id="_version_history_52"><a class="anchor" href="chap47.html#_version_history_52"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18794,7 +19136,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_52"><a class="anchor" href="chap47.html#_other_extension_metadata_52"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_53"><a class="anchor" href="chap47.html#_other_extension_metadata_53"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -18836,7 +19178,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_49"><a class="anchor" href="chap47.html#_description_49"></a>Description</h4>
+<h4 id="_description_50"><a class="anchor" href="chap47.html#_description_50"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides functionality to use a logical device that consists
 of multiple physical devices, as created with the
@@ -18923,7 +19265,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_39"><a class="anchor" href="chap47.html#_new_commands_39"></a>New Commands</h4>
+<h4 id="_new_commands_40"><a class="anchor" href="chap47.html#_new_commands_40"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -18965,7 +19307,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_53"><a class="anchor" href="chap47.html#_new_structures_53"></a>New Structures</h4>
+<h4 id="_new_structures_54"><a class="anchor" href="chap47.html#_new_structures_54"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19155,7 +19497,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_56"><a class="anchor" href="chap47.html#_new_enum_constants_56"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_57"><a class="anchor" href="chap47.html#_new_enum_constants_57"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19328,7 +19670,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_built_in_variables"><a class="anchor" href="chap47.html#_new_built_in_variables"></a>New Built-in Variables</h4>
+<h4 id="_new_built_in_variables_2"><a class="anchor" href="chap47.html#_new_built_in_variables_2"></a>New Built-in Variables</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19338,7 +19680,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_8"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_8"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_9"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_9"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19348,7 +19690,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_52"><a class="anchor" href="chap47.html#_version_history_52"></a>Version History</h4>
+<h4 id="_version_history_53"><a class="anchor" href="chap47.html#_version_history_53"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19454,7 +19796,7 @@ instance bind regions”.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_53"><a class="anchor" href="chap47.html#_other_extension_metadata_53"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_54"><a class="anchor" href="chap47.html#_other_extension_metadata_54"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -19489,7 +19831,7 @@ instance bind regions”.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_50"><a class="anchor" href="chap47.html#_description_50"></a>Description</h4>
+<h4 id="_description_51"><a class="anchor" href="chap47.html#_description_51"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides instance-level commands to enumerate groups of
 physical devices, and to create a logical device from a subset of one of
@@ -19508,7 +19850,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_40"><a class="anchor" href="chap47.html#_new_commands_40"></a>New Commands</h4>
+<h4 id="_new_commands_41"><a class="anchor" href="chap47.html#_new_commands_41"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19518,7 +19860,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_54"><a class="anchor" href="chap47.html#_new_structures_54"></a>New Structures</h4>
+<h4 id="_new_structures_55"><a class="anchor" href="chap47.html#_new_structures_55"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19538,7 +19880,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_57"><a class="anchor" href="chap47.html#_new_enum_constants_57"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_58"><a class="anchor" href="chap47.html#_new_enum_constants_58"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19611,7 +19953,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_53"><a class="anchor" href="chap47.html#_version_history_53"></a>Version History</h4>
+<h4 id="_version_history_54"><a class="anchor" href="chap47.html#_version_history_54"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19682,7 +20024,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_54"><a class="anchor" href="chap47.html#_other_extension_metadata_54"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_55"><a class="anchor" href="chap47.html#_other_extension_metadata_55"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -19732,7 +20074,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_51"><a class="anchor" href="chap47.html#_description_51"></a>Description</h4>
+<h4 id="_description_52"><a class="anchor" href="chap47.html#_description_52"></a>Description</h4>
 <div class="paragraph">
 <p>This extension is based off the <code><code>VK_AMD_draw_indirect_count</code></code>
 extension.
@@ -19759,7 +20101,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_41"><a class="anchor" href="chap47.html#_new_commands_41"></a>New Commands</h4>
+<h4 id="_new_commands_42"><a class="anchor" href="chap47.html#_new_commands_42"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19772,7 +20114,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_58"><a class="anchor" href="chap47.html#_new_enum_constants_58"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_59"><a class="anchor" href="chap47.html#_new_enum_constants_59"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19785,7 +20127,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_54"><a class="anchor" href="chap47.html#_version_history_54"></a>Version History</h4>
+<h4 id="_version_history_55"><a class="anchor" href="chap47.html#_version_history_55"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19859,7 +20201,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_55"><a class="anchor" href="chap47.html#_other_extension_metadata_55"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_56"><a class="anchor" href="chap47.html#_other_extension_metadata_56"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -19909,7 +20251,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_52"><a class="anchor" href="chap47.html#_description_52"></a>Description</h4>
+<h4 id="_description_53"><a class="anchor" href="chap47.html#_description_53"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides a new physical device query which allows retrieving
 information about the driver implementation, allowing applications to
@@ -19928,7 +20270,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_55"><a class="anchor" href="chap47.html#_new_structures_55"></a>New Structures</h4>
+<h4 id="_new_structures_56"><a class="anchor" href="chap47.html#_new_structures_56"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -19958,7 +20300,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_59"><a class="anchor" href="chap47.html#_new_enum_constants_59"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_60"><a class="anchor" href="chap47.html#_new_enum_constants_60"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20030,7 +20372,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_55"><a class="anchor" href="chap47.html#_version_history_55"></a>Version History</h4>
+<h4 id="_version_history_56"><a class="anchor" href="chap47.html#_version_history_56"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20108,7 +20450,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_56"><a class="anchor" href="chap47.html#_other_extension_metadata_56"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_57"><a class="anchor" href="chap47.html#_other_extension_metadata_57"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -20175,7 +20517,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_53"><a class="anchor" href="chap47.html#_description_53"></a>Description</h4>
+<h4 id="_description_54"><a class="anchor" href="chap47.html#_description_54"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows applications to create single-pass render pass
 instances without needing to create render pass objects or framebuffers.
@@ -20190,7 +20532,7 @@ written during a render pass.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_42"><a class="anchor" href="chap47.html#_new_commands_42"></a>New Commands</h4>
+<h4 id="_new_commands_43"><a class="anchor" href="chap47.html#_new_commands_43"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20203,7 +20545,7 @@ written during a render pass.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_56"><a class="anchor" href="chap47.html#_new_structures_56"></a>New Structures</h4>
+<h4 id="_new_structures_57"><a class="anchor" href="chap47.html#_new_structures_57"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20283,7 +20625,7 @@ written during a render pass.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_60"><a class="anchor" href="chap47.html#_new_enum_constants_60"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_61"><a class="anchor" href="chap47.html#_new_enum_constants_61"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20367,7 +20709,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_56"><a class="anchor" href="chap47.html#_version_history_56"></a>Version History</h4>
+<h4 id="_version_history_57"><a class="anchor" href="chap47.html#_version_history_57"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20441,7 +20783,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_57"><a class="anchor" href="chap47.html#_other_extension_metadata_57"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_58"><a class="anchor" href="chap47.html#_other_extension_metadata_58"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -20488,7 +20830,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_54"><a class="anchor" href="chap47.html#_description_54"></a>Description</h4>
+<h4 id="_description_55"><a class="anchor" href="chap47.html#_description_55"></a>Description</h4>
 <div class="paragraph">
 <p>An application using external memory may wish to synchronize access to that
 memory using fences.
@@ -20507,7 +20849,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_57"><a class="anchor" href="chap47.html#_new_structures_57"></a>New Structures</h4>
+<h4 id="_new_structures_58"><a class="anchor" href="chap47.html#_new_structures_58"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20544,7 +20886,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_61"><a class="anchor" href="chap47.html#_new_enum_constants_61"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_62"><a class="anchor" href="chap47.html#_new_enum_constants_62"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20577,7 +20919,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_31"><a class="anchor" href="chap47.html#_issues_31"></a>Issues</h4>
+<h4 id="_issues_32"><a class="anchor" href="chap47.html#_issues_32"></a>Issues</h4>
 <div class="paragraph">
 <p>This extension borrows concepts, semantics, and language from
 <code><a href="chap47.html#VK_KHR_external_semaphore">VK_KHR_external_semaphore</a></code>.
@@ -20585,7 +20927,7 @@ That extension’s issues apply equally to this extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_57"><a class="anchor" href="chap47.html#_version_history_57"></a>Version History</h4>
+<h4 id="_version_history_58"><a class="anchor" href="chap47.html#_version_history_58"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20659,7 +21001,7 @@ That extension’s issues apply equally to this extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_58"><a class="anchor" href="chap47.html#_other_extension_metadata_58"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_59"><a class="anchor" href="chap47.html#_other_extension_metadata_59"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -20706,7 +21048,7 @@ That extension’s issues apply equally to this extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_55"><a class="anchor" href="chap47.html#_description_55"></a>Description</h4>
+<h4 id="_description_56"><a class="anchor" href="chap47.html#_description_56"></a>Description</h4>
 <div class="paragraph">
 <p>An application may wish to reference device fences in multiple Vulkan
 logical devices or instances, in multiple processes, and/or in multiple
@@ -20726,7 +21068,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_43"><a class="anchor" href="chap47.html#_new_commands_43"></a>New Commands</h4>
+<h4 id="_new_commands_44"><a class="anchor" href="chap47.html#_new_commands_44"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20736,7 +21078,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_58"><a class="anchor" href="chap47.html#_new_structures_58"></a>New Structures</h4>
+<h4 id="_new_structures_59"><a class="anchor" href="chap47.html#_new_structures_59"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20785,7 +21127,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_62"><a class="anchor" href="chap47.html#_new_enum_constants_62"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_63"><a class="anchor" href="chap47.html#_new_enum_constants_63"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20849,7 +21191,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_58"><a class="anchor" href="chap47.html#_version_history_58"></a>Version History</h4>
+<h4 id="_version_history_59"><a class="anchor" href="chap47.html#_version_history_59"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -20923,7 +21265,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_59"><a class="anchor" href="chap47.html#_other_extension_metadata_59"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_60"><a class="anchor" href="chap47.html#_other_extension_metadata_60"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -20994,7 +21336,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_56"><a class="anchor" href="chap47.html#_description_56"></a>Description</h4>
+<h4 id="_description_57"><a class="anchor" href="chap47.html#_description_57"></a>Description</h4>
 <div class="paragraph">
 <p>An application may wish to reference device memory in multiple Vulkan
 logical devices or instances, in multiple processes, and/or in multiple
@@ -21014,7 +21356,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_59"><a class="anchor" href="chap47.html#_new_structures_59"></a>New Structures</h4>
+<h4 id="_new_structures_60"><a class="anchor" href="chap47.html#_new_structures_60"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21051,7 +21393,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_63"><a class="anchor" href="chap47.html#_new_enum_constants_63"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_64"><a class="anchor" href="chap47.html#_new_enum_constants_64"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21093,7 +21435,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_32"><a class="anchor" href="chap47.html#_issues_32"></a>Issues</h4>
+<h4 id="_issues_33"><a class="anchor" href="chap47.html#_issues_33"></a>Issues</h4>
 <div class="paragraph">
 <p>1) How do applications correlate two physical devices across process or
 Vulkan instance boundaries?</p>
@@ -21325,7 +21667,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_59"><a class="anchor" href="chap47.html#_version_history_59"></a>Version History</h4>
+<h4 id="_version_history_60"><a class="anchor" href="chap47.html#_version_history_60"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21399,7 +21741,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_60"><a class="anchor" href="chap47.html#_other_extension_metadata_60"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_61"><a class="anchor" href="chap47.html#_other_extension_metadata_61"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -21446,7 +21788,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_57"><a class="anchor" href="chap47.html#_description_57"></a>Description</h4>
+<h4 id="_description_58"><a class="anchor" href="chap47.html#_description_58"></a>Description</h4>
 <div class="paragraph">
 <p>An application may wish to reference device memory in multiple Vulkan
 logical devices or instances, in multiple processes, and/or in multiple
@@ -21466,7 +21808,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_44"><a class="anchor" href="chap47.html#_new_commands_44"></a>New Commands</h4>
+<h4 id="_new_commands_45"><a class="anchor" href="chap47.html#_new_commands_45"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21476,7 +21818,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_60"><a class="anchor" href="chap47.html#_new_structures_60"></a>New Structures</h4>
+<h4 id="_new_structures_61"><a class="anchor" href="chap47.html#_new_structures_61"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21548,7 +21890,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_64"><a class="anchor" href="chap47.html#_new_enum_constants_64"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_65"><a class="anchor" href="chap47.html#_new_enum_constants_65"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21630,7 +21972,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_33"><a class="anchor" href="chap47.html#_issues_33"></a>Issues</h4>
+<h4 id="_issues_34"><a class="anchor" href="chap47.html#_issues_34"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Why do so many external memory capabilities need to be queried on a
 per-memory-handle-type basis?</p>
@@ -21707,7 +22049,7 @@ builds.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_60"><a class="anchor" href="chap47.html#_version_history_60"></a>Version History</h4>
+<h4 id="_version_history_61"><a class="anchor" href="chap47.html#_version_history_61"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21781,7 +22123,7 @@ builds.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_61"><a class="anchor" href="chap47.html#_other_extension_metadata_61"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_62"><a class="anchor" href="chap47.html#_other_extension_metadata_62"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -21837,7 +22179,7 @@ builds.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_58"><a class="anchor" href="chap47.html#_description_58"></a>Description</h4>
+<h4 id="_description_59"><a class="anchor" href="chap47.html#_description_59"></a>Description</h4>
 <div class="paragraph">
 <p>An application using external memory may wish to synchronize access to that
 memory using semaphores.
@@ -21856,7 +22198,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_61"><a class="anchor" href="chap47.html#_new_structures_61"></a>New Structures</h4>
+<h4 id="_new_structures_62"><a class="anchor" href="chap47.html#_new_structures_62"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21893,7 +22235,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_65"><a class="anchor" href="chap47.html#_new_enum_constants_65"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_66"><a class="anchor" href="chap47.html#_new_enum_constants_66"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -21926,7 +22268,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_34"><a class="anchor" href="chap47.html#_issues_34"></a>Issues</h4>
+<h4 id="_issues_35"><a class="anchor" href="chap47.html#_issues_35"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Should there be restrictions on what side effects can occur when waiting
 on imported semaphores that are in an invalid state?</p>
@@ -21954,7 +22296,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_61"><a class="anchor" href="chap47.html#_version_history_61"></a>Version History</h4>
+<h4 id="_version_history_62"><a class="anchor" href="chap47.html#_version_history_62"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22028,7 +22370,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_62"><a class="anchor" href="chap47.html#_other_extension_metadata_62"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_63"><a class="anchor" href="chap47.html#_other_extension_metadata_63"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -22069,7 +22411,7 @@ specified by the application.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_59"><a class="anchor" href="chap47.html#_description_59"></a>Description</h4>
+<h4 id="_description_60"><a class="anchor" href="chap47.html#_description_60"></a>Description</h4>
 <div class="paragraph">
 <p>An application may wish to reference device semaphores in multiple Vulkan
 logical devices or instances, in multiple processes, and/or in multiple
@@ -22089,7 +22431,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_45"><a class="anchor" href="chap47.html#_new_commands_45"></a>New Commands</h4>
+<h4 id="_new_commands_46"><a class="anchor" href="chap47.html#_new_commands_46"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22099,7 +22441,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_62"><a class="anchor" href="chap47.html#_new_structures_62"></a>New Structures</h4>
+<h4 id="_new_structures_63"><a class="anchor" href="chap47.html#_new_structures_63"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22148,7 +22490,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_66"><a class="anchor" href="chap47.html#_new_enum_constants_66"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_67"><a class="anchor" href="chap47.html#_new_enum_constants_67"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22215,7 +22557,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_62"><a class="anchor" href="chap47.html#_version_history_62"></a>Version History</h4>
+<h4 id="_version_history_63"><a class="anchor" href="chap47.html#_version_history_63"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22289,7 +22631,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_63"><a class="anchor" href="chap47.html#_other_extension_metadata_63"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_64"><a class="anchor" href="chap47.html#_other_extension_metadata_64"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -22339,7 +22681,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_60"><a class="anchor" href="chap47.html#_description_60"></a>Description</h4>
+<h4 id="_description_61"><a class="anchor" href="chap47.html#_description_61"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds a new <a href="chap40.html#VkFormatFeatureFlagBits2KHR">VkFormatFeatureFlagBits2KHR</a> 64bits format
 feature flag type to extend the existing <a href="chap40.html#VkFormatFeatureFlagBits">VkFormatFeatureFlagBits</a> which
@@ -22379,7 +22721,7 @@ This bit clarifies on which formats such instructions can be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_63"><a class="anchor" href="chap47.html#_new_structures_63"></a>New Structures</h4>
+<h4 id="_new_structures_64"><a class="anchor" href="chap47.html#_new_structures_64"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22416,7 +22758,7 @@ This bit clarifies on which formats such instructions can be used.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_67"><a class="anchor" href="chap47.html#_new_enum_constants_67"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_68"><a class="anchor" href="chap47.html#_new_enum_constants_68"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22448,7 +22790,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_63"><a class="anchor" href="chap47.html#_version_history_63"></a>Version History</h4>
+<h4 id="_version_history_64"><a class="anchor" href="chap47.html#_version_history_64"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22519,7 +22861,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_64"><a class="anchor" href="chap47.html#_other_extension_metadata_64"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_65"><a class="anchor" href="chap47.html#_other_extension_metadata_65"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -22560,7 +22902,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_61"><a class="anchor" href="chap47.html#_description_61"></a>Description</h4>
+<h4 id="_description_62"><a class="anchor" href="chap47.html#_description_62"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides new entry points to query memory requirements of
 images and buffers in a way that can be easily extended by other extensions,
@@ -22585,7 +22927,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_46"><a class="anchor" href="chap47.html#_new_commands_46"></a>New Commands</h4>
+<h4 id="_new_commands_47"><a class="anchor" href="chap47.html#_new_commands_47"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22601,7 +22943,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_64"><a class="anchor" href="chap47.html#_new_structures_64"></a>New Structures</h4>
+<h4 id="_new_structures_65"><a class="anchor" href="chap47.html#_new_structures_65"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22623,7 +22965,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_68"><a class="anchor" href="chap47.html#_new_enum_constants_68"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_69"><a class="anchor" href="chap47.html#_new_enum_constants_69"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22658,7 +23000,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_64"><a class="anchor" href="chap47.html#_version_history_64"></a>Version History</h4>
+<h4 id="_version_history_65"><a class="anchor" href="chap47.html#_version_history_65"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22729,7 +23071,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_65"><a class="anchor" href="chap47.html#_other_extension_metadata_65"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_66"><a class="anchor" href="chap47.html#_other_extension_metadata_66"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -22767,7 +23109,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_62"><a class="anchor" href="chap47.html#_description_62"></a>Description</h4>
+<h4 id="_description_63"><a class="anchor" href="chap47.html#_description_63"></a>Description</h4>
 <div class="paragraph">
 <p>This extension provides new entry points to query device features, device
 properties, and format properties in a way that can be easily extended by
@@ -22798,7 +23140,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_47"><a class="anchor" href="chap47.html#_new_commands_47"></a>New Commands</h4>
+<h4 id="_new_commands_48"><a class="anchor" href="chap47.html#_new_commands_48"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22826,7 +23168,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_65"><a class="anchor" href="chap47.html#_new_structures_65"></a>New Structures</h4>
+<h4 id="_new_structures_66"><a class="anchor" href="chap47.html#_new_structures_66"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22867,7 +23209,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_69"><a class="anchor" href="chap47.html#_new_enum_constants_69"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_70"><a class="anchor" href="chap47.html#_new_enum_constants_70"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -22965,7 +23307,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_65"><a class="anchor" href="chap47.html#_version_history_65"></a>Version History</h4>
+<h4 id="_version_history_66"><a class="anchor" href="chap47.html#_version_history_66"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23047,7 +23389,7 @@ device extensions before vkCreateDevice is called.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_66"><a class="anchor" href="chap47.html#_other_extension_metadata_66"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_67"><a class="anchor" href="chap47.html#_other_extension_metadata_67"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -23094,7 +23436,7 @@ device extensions before vkCreateDevice is called.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_63"><a class="anchor" href="chap47.html#_description_63"></a>Description</h4>
+<h4 id="_description_64"><a class="anchor" href="chap47.html#_description_64"></a>Description</h4>
 <div class="paragraph">
 <p>On some implementations, setting the
 <code>VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT</code> on image creation can cause access
@@ -23120,7 +23462,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_66"><a class="anchor" href="chap47.html#_new_structures_66"></a>New Structures</h4>
+<h4 id="_new_structures_67"><a class="anchor" href="chap47.html#_new_structures_67"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23137,7 +23479,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_70"><a class="anchor" href="chap47.html#_new_enum_constants_70"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_71"><a class="anchor" href="chap47.html#_new_enum_constants_71"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23160,7 +23502,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_66"><a class="anchor" href="chap47.html#_version_history_66"></a>Version History</h4>
+<h4 id="_version_history_67"><a class="anchor" href="chap47.html#_version_history_67"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23237,7 +23579,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_67"><a class="anchor" href="chap47.html#_other_extension_metadata_67"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_68"><a class="anchor" href="chap47.html#_other_extension_metadata_68"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -23271,7 +23613,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_64"><a class="anchor" href="chap47.html#_description_64"></a>Description</h4>
+<h4 id="_description_65"><a class="anchor" href="chap47.html#_description_65"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows framebuffers to be created without the need for
 creating images first, allowing more flexibility in how they are used, and
@@ -23295,7 +23637,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_67"><a class="anchor" href="chap47.html#_new_structures_67"></a>New Structures</h4>
+<h4 id="_new_structures_68"><a class="anchor" href="chap47.html#_new_structures_68"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23335,7 +23677,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_71"><a class="anchor" href="chap47.html#_new_enum_constants_71"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_72"><a class="anchor" href="chap47.html#_new_enum_constants_72"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23377,7 +23719,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_67"><a class="anchor" href="chap47.html#_version_history_67"></a>Version History</h4>
+<h4 id="_version_history_68"><a class="anchor" href="chap47.html#_version_history_68"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23448,7 +23790,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_68"><a class="anchor" href="chap47.html#_other_extension_metadata_68"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_69"><a class="anchor" href="chap47.html#_other_extension_metadata_69"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -23518,7 +23860,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_65"><a class="anchor" href="chap47.html#_description_65"></a>Description</h4>
+<h4 id="_description_66"><a class="anchor" href="chap47.html#_description_66"></a>Description</h4>
 <div class="paragraph">
 <p><code>VK_KHR_maintenance1</code> adds a collection of minor features that were
 intentionally left out or overlooked from the original Vulkan 1.0 release.</p>
@@ -23589,7 +23931,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_48"><a class="anchor" href="chap47.html#_new_commands_48"></a>New Commands</h4>
+<h4 id="_new_commands_49"><a class="anchor" href="chap47.html#_new_commands_49"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23609,7 +23951,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_72"><a class="anchor" href="chap47.html#_new_enum_constants_72"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_73"><a class="anchor" href="chap47.html#_new_enum_constants_73"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23661,7 +24003,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_35"><a class="anchor" href="chap47.html#_issues_35"></a>Issues</h4>
+<h4 id="_issues_36"><a class="anchor" href="chap47.html#_issues_36"></a>Issues</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -23674,7 +24016,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_68"><a class="anchor" href="chap47.html#_version_history_68"></a>Version History</h4>
+<h4 id="_version_history_69"><a class="anchor" href="chap47.html#_version_history_69"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23755,7 +24097,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_69"><a class="anchor" href="chap47.html#_other_extension_metadata_69"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_70"><a class="anchor" href="chap47.html#_other_extension_metadata_70"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -23807,7 +24149,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_66"><a class="anchor" href="chap47.html#_description_66"></a>Description</h4>
+<h4 id="_description_67"><a class="anchor" href="chap47.html#_description_67"></a>Description</h4>
 <div class="paragraph">
 <p><code>VK_KHR_maintenance2</code> adds a collection of minor features that were
 intentionally left out or overlooked from the original Vulkan 1.0 release.</p>
@@ -23867,7 +24209,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_68"><a class="anchor" href="chap47.html#_new_structures_68"></a>New Structures</h4>
+<h4 id="_new_structures_69"><a class="anchor" href="chap47.html#_new_structures_69"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -23930,7 +24272,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_73"><a class="anchor" href="chap47.html#_new_enum_constants_73"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_74"><a class="anchor" href="chap47.html#_new_enum_constants_74"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24061,7 +24403,7 @@ from attachment 0 (using inputAttachmentRead) and writes to attachment 1.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_36"><a class="anchor" href="chap47.html#_issues_36"></a>Issues</h4>
+<h4 id="_issues_37"><a class="anchor" href="chap47.html#_issues_37"></a>Issues</h4>
 <div class="paragraph">
 <p>1) What is the default tessellation domain origin?</p>
 </div>
@@ -24075,7 +24417,7 @@ unextended Vulkan to have a default of an upper-left origin.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_69"><a class="anchor" href="chap47.html#_version_history_69"></a>Version History</h4>
+<h4 id="_version_history_70"><a class="anchor" href="chap47.html#_version_history_70"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24142,7 +24484,7 @@ unextended Vulkan to have a default of an upper-left origin.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_70"><a class="anchor" href="chap47.html#_other_extension_metadata_70"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_71"><a class="anchor" href="chap47.html#_other_extension_metadata_71"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -24173,7 +24515,7 @@ unextended Vulkan to have a default of an upper-left origin.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_67"><a class="anchor" href="chap47.html#_description_67"></a>Description</h4>
+<h4 id="_description_68"><a class="anchor" href="chap47.html#_description_68"></a>Description</h4>
 <div class="paragraph">
 <p><code>VK_KHR_maintenance3</code> adds a collection of minor features that were
 intentionally left out or overlooked from the original Vulkan 1.0 release.</p>
@@ -24207,7 +24549,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_49"><a class="anchor" href="chap47.html#_new_commands_49"></a>New Commands</h4>
+<h4 id="_new_commands_50"><a class="anchor" href="chap47.html#_new_commands_50"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24217,7 +24559,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_69"><a class="anchor" href="chap47.html#_new_structures_69"></a>New Structures</h4>
+<h4 id="_new_structures_70"><a class="anchor" href="chap47.html#_new_structures_70"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24237,7 +24579,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_74"><a class="anchor" href="chap47.html#_new_enum_constants_74"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_75"><a class="anchor" href="chap47.html#_new_enum_constants_75"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24269,7 +24611,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_70"><a class="anchor" href="chap47.html#_version_history_70"></a>Version History</h4>
+<h4 id="_version_history_71"><a class="anchor" href="chap47.html#_version_history_71"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24333,7 +24675,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_71"><a class="anchor" href="chap47.html#_other_extension_metadata_71"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_72"><a class="anchor" href="chap47.html#_other_extension_metadata_72"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -24391,7 +24733,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_68"><a class="anchor" href="chap47.html#_description_68"></a>Description</h4>
+<h4 id="_description_69"><a class="anchor" href="chap47.html#_description_69"></a>Description</h4>
 <div class="paragraph">
 <p><code>VK_KHR_maintenance4</code> adds a collection of minor features, none of which
 would warrant an entire extension of their own.</p>
@@ -24446,7 +24788,7 @@ with the alignment memory requirement.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_50"><a class="anchor" href="chap47.html#_new_commands_50"></a>New Commands</h4>
+<h4 id="_new_commands_51"><a class="anchor" href="chap47.html#_new_commands_51"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24462,7 +24804,7 @@ with the alignment memory requirement.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_70"><a class="anchor" href="chap47.html#_new_structures_70"></a>New Structures</h4>
+<h4 id="_new_structures_71"><a class="anchor" href="chap47.html#_new_structures_71"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24495,7 +24837,7 @@ with the alignment memory requirement.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_75"><a class="anchor" href="chap47.html#_new_enum_constants_75"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_76"><a class="anchor" href="chap47.html#_new_enum_constants_76"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24546,13 +24888,13 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_37"><a class="anchor" href="chap47.html#_issues_37"></a>Issues</h4>
+<h4 id="_issues_38"><a class="anchor" href="chap47.html#_issues_38"></a>Issues</h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_71"><a class="anchor" href="chap47.html#_version_history_71"></a>Version History</h4>
+<h4 id="_version_history_72"><a class="anchor" href="chap47.html#_version_history_72"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24636,7 +24978,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_72"><a class="anchor" href="chap47.html#_other_extension_metadata_72"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_73"><a class="anchor" href="chap47.html#_other_extension_metadata_73"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -24679,7 +25021,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_69"><a class="anchor" href="chap47.html#_description_69"></a>Description</h4>
+<h4 id="_description_70"><a class="anchor" href="chap47.html#_description_70"></a>Description</h4>
 <div class="paragraph">
 <p>This extension has the same goal as the OpenGL ES <code>GL_OVR_multiview</code>
 extension.
@@ -24715,7 +25057,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_71"><a class="anchor" href="chap47.html#_new_structures_71"></a>New Structures</h4>
+<h4 id="_new_structures_72"><a class="anchor" href="chap47.html#_new_structures_72"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24752,7 +25094,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_76"><a class="anchor" href="chap47.html#_new_enum_constants_76"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_77"><a class="anchor" href="chap47.html#_new_enum_constants_77"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24791,7 +25133,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_built_in_variables_2"><a class="anchor" href="chap47.html#_new_built_in_variables_2"></a>New Built-In Variables</h4>
+<h4 id="_new_built_in_variables_3"><a class="anchor" href="chap47.html#_new_built_in_variables_3"></a>New Built-In Variables</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24801,7 +25143,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_9"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_9"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_10"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_10"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24811,7 +25153,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_72"><a class="anchor" href="chap47.html#_version_history_72"></a>Version History</h4>
+<h4 id="_version_history_73"><a class="anchor" href="chap47.html#_version_history_73"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24882,7 +25224,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_73"><a class="anchor" href="chap47.html#_other_extension_metadata_73"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_74"><a class="anchor" href="chap47.html#_other_extension_metadata_74"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -24917,7 +25259,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_70"><a class="anchor" href="chap47.html#_description_70"></a>Description</h4>
+<h4 id="_description_71"><a class="anchor" href="chap47.html#_description_71"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_relaxed_block_layout</code> extension allows implementations to
 indicate they can support more variation in block <code>Offset</code> decorations.
@@ -24939,7 +25281,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_77"><a class="anchor" href="chap47.html#_new_enum_constants_77"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_78"><a class="anchor" href="chap47.html#_new_enum_constants_78"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -24952,7 +25294,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_73"><a class="anchor" href="chap47.html#_version_history_73"></a>Version History</h4>
+<h4 id="_version_history_74"><a class="anchor" href="chap47.html#_version_history_74"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25016,7 +25358,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_74"><a class="anchor" href="chap47.html#_other_extension_metadata_74"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_75"><a class="anchor" href="chap47.html#_other_extension_metadata_75"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -25050,7 +25392,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_71"><a class="anchor" href="chap47.html#_description_71"></a>Description</h4>
+<h4 id="_description_72"><a class="anchor" href="chap47.html#_description_72"></a>Description</h4>
 <div class="paragraph">
 <p><code>VK_KHR_sampler_mirror_clamp_to_edge</code> extends the set of sampler address
 modes to include an additional mode
@@ -25078,7 +25420,7 @@ and extension implementations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_78"><a class="anchor" href="chap47.html#_new_enum_constants_78"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_79"><a class="anchor" href="chap47.html#_new_enum_constants_79"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25129,7 +25471,7 @@ and extension implementations.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_38"><a class="anchor" href="chap47.html#_issues_38"></a>Issues</h4>
+<h4 id="_issues_39"><a class="anchor" href="chap47.html#_issues_39"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Why are both KHR and core versions of the
 <code>VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE</code> token present?</p>
@@ -25150,7 +25492,7 @@ This has now been reverted, and it is treated as any other extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_74"><a class="anchor" href="chap47.html#_version_history_74"></a>Version History</h4>
+<h4 id="_version_history_75"><a class="anchor" href="chap47.html#_version_history_75"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25254,7 +25596,7 @@ suffixed with KHR.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_75"><a class="anchor" href="chap47.html#_other_extension_metadata_75"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_76"><a class="anchor" href="chap47.html#_other_extension_metadata_76"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -25334,7 +25676,7 @@ suffixed with KHR.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_72"><a class="anchor" href="chap47.html#_description_72"></a>Description</h4>
+<h4 id="_description_73"><a class="anchor" href="chap47.html#_description_73"></a>Description</h4>
 <div class="paragraph">
 <p>The use of Y′C<sub>B</sub>C<sub>R</sub> sampler conversion is an area in 3D graphics not used by
 most Vulkan developers.
@@ -25372,7 +25714,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_51"><a class="anchor" href="chap47.html#_new_commands_51"></a>New Commands</h4>
+<h4 id="_new_commands_52"><a class="anchor" href="chap47.html#_new_commands_52"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25385,7 +25727,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_72"><a class="anchor" href="chap47.html#_new_structures_72"></a>New Structures</h4>
+<h4 id="_new_structures_73"><a class="anchor" href="chap47.html#_new_structures_73"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25461,7 +25803,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_79"><a class="anchor" href="chap47.html#_new_enum_constants_79"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_80"><a class="anchor" href="chap47.html#_new_enum_constants_80"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25730,7 +26072,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_75"><a class="anchor" href="chap47.html#_version_history_75"></a>Version History</h4>
+<h4 id="_version_history_76"><a class="anchor" href="chap47.html#_version_history_76"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -25938,7 +26280,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_76"><a class="anchor" href="chap47.html#_other_extension_metadata_76"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_77"><a class="anchor" href="chap47.html#_other_extension_metadata_77"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -25978,7 +26320,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_73"><a class="anchor" href="chap47.html#_description_73"></a>Description</h4>
+<h4 id="_description_74"><a class="anchor" href="chap47.html#_description_74"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows image memory barriers for depth/stencil images to have
 just one of the <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> or
@@ -25999,7 +26341,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_73"><a class="anchor" href="chap47.html#_new_structures_73"></a>New Structures</h4>
+<h4 id="_new_structures_74"><a class="anchor" href="chap47.html#_new_structures_74"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26036,7 +26378,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_80"><a class="anchor" href="chap47.html#_new_enum_constants_80"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_81"><a class="anchor" href="chap47.html#_new_enum_constants_81"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26084,7 +26426,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_76"><a class="anchor" href="chap47.html#_version_history_76"></a>Version History</h4>
+<h4 id="_version_history_77"><a class="anchor" href="chap47.html#_version_history_77"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26158,7 +26500,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_77"><a class="anchor" href="chap47.html#_other_extension_metadata_77"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_78"><a class="anchor" href="chap47.html#_other_extension_metadata_78"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -26203,7 +26545,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_74"><a class="anchor" href="chap47.html#_description_74"></a>Description</h4>
+<h4 id="_description_75"><a class="anchor" href="chap47.html#_description_75"></a>Description</h4>
 <div class="paragraph">
 <p>This extension advertises the SPIR-V <strong>Int64Atomics</strong> capability for Vulkan,
 which allows a shader to contain 64-bit atomic operations on signed and
@@ -26225,7 +26567,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_74"><a class="anchor" href="chap47.html#_new_structures_74"></a>New Structures</h4>
+<h4 id="_new_structures_75"><a class="anchor" href="chap47.html#_new_structures_75"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26242,7 +26584,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_81"><a class="anchor" href="chap47.html#_new_enum_constants_81"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_82"><a class="anchor" href="chap47.html#_new_enum_constants_82"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26265,7 +26607,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_10"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_10"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_11"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_11"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26275,7 +26617,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_77"><a class="anchor" href="chap47.html#_version_history_77"></a>Version History</h4>
+<h4 id="_version_history_78"><a class="anchor" href="chap47.html#_version_history_78"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26346,7 +26688,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_78"><a class="anchor" href="chap47.html#_other_extension_metadata_78"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_79"><a class="anchor" href="chap47.html#_other_extension_metadata_79"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -26404,7 +26746,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_75"><a class="anchor" href="chap47.html#_description_75"></a>Description</h4>
+<h4 id="_description_76"><a class="anchor" href="chap47.html#_description_76"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds support for the following SPIR-V extension in Vulkan:</p>
 </div>
@@ -26463,7 +26805,7 @@ whether it is actually available or not.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_82"><a class="anchor" href="chap47.html#_new_enum_constants_82"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_83"><a class="anchor" href="chap47.html#_new_enum_constants_83"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26476,7 +26818,7 @@ whether it is actually available or not.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_built_in_variables_3"><a class="anchor" href="chap47.html#_new_built_in_variables_3"></a>New Built-In Variables</h4>
+<h4 id="_new_built_in_variables_4"><a class="anchor" href="chap47.html#_new_built_in_variables_4"></a>New Built-In Variables</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26492,7 +26834,7 @@ whether it is actually available or not.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_11"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_11"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_12"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_12"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26502,7 +26844,7 @@ whether it is actually available or not.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_39"><a class="anchor" href="chap47.html#_issues_39"></a>Issues</h4>
+<h4 id="_issues_40"><a class="anchor" href="chap47.html#_issues_40"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Is this the same functionality as <code>GL_ARB_shader_draw_parameters</code>?</p>
 </div>
@@ -26528,7 +26870,7 @@ so Vulkan’s version is really a superset of GL functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_78"><a class="anchor" href="chap47.html#_version_history_78"></a>Version History</h4>
+<h4 id="_version_history_79"><a class="anchor" href="chap47.html#_version_history_79"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26602,7 +26944,7 @@ so Vulkan’s version is really a superset of GL functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_79"><a class="anchor" href="chap47.html#_other_extension_metadata_79"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_80"><a class="anchor" href="chap47.html#_other_extension_metadata_80"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -26662,7 +27004,7 @@ so Vulkan’s version is really a superset of GL functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_76"><a class="anchor" href="chap47.html#_description_76"></a>Description</h4>
+<h4 id="_description_77"><a class="anchor" href="chap47.html#_description_77"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_shader_float16_int8</code> extension allows use of 16-bit
 floating-point types and 8-bit integer types in shaders for arithmetic
@@ -26692,7 +27034,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_75"><a class="anchor" href="chap47.html#_new_structures_75"></a>New Structures</h4>
+<h4 id="_new_structures_76"><a class="anchor" href="chap47.html#_new_structures_76"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26712,7 +27054,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_83"><a class="anchor" href="chap47.html#_new_enum_constants_83"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_84"><a class="anchor" href="chap47.html#_new_enum_constants_84"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26738,7 +27080,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_79"><a class="anchor" href="chap47.html#_version_history_79"></a>Version History</h4>
+<h4 id="_version_history_80"><a class="anchor" href="chap47.html#_version_history_80"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26812,7 +27154,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_80"><a class="anchor" href="chap47.html#_other_extension_metadata_80"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_81"><a class="anchor" href="chap47.html#_other_extension_metadata_81"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -26863,7 +27205,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_77"><a class="anchor" href="chap47.html#_description_77"></a>Description</h4>
+<h4 id="_description_78"><a class="anchor" href="chap47.html#_description_78"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_shader_float_controls</code> extension enables efficient use of
 floating-point computations through the ability to query and override the
@@ -26881,7 +27223,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_76"><a class="anchor" href="chap47.html#_new_structures_76"></a>New Structures</h4>
+<h4 id="_new_structures_77"><a class="anchor" href="chap47.html#_new_structures_77"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26908,7 +27250,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_84"><a class="anchor" href="chap47.html#_new_enum_constants_84"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_85"><a class="anchor" href="chap47.html#_new_enum_constants_85"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26947,7 +27289,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_12"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_12"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_13"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_13"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -26969,7 +27311,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_40"><a class="anchor" href="chap47.html#_issues_40"></a>Issues</h4>
+<h4 id="_issues_41"><a class="anchor" href="chap47.html#_issues_41"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Which instructions must flush denorms?</p>
 </div>
@@ -27065,7 +27407,7 @@ recompiled.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_80"><a class="anchor" href="chap47.html#_version_history_80"></a>Version History</h4>
+<h4 id="_version_history_81"><a class="anchor" href="chap47.html#_version_history_81"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27175,7 +27517,7 @@ incompatibility</a></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_81"><a class="anchor" href="chap47.html#_other_extension_metadata_81"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_82"><a class="anchor" href="chap47.html#_other_extension_metadata_82"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -27259,7 +27601,7 @@ incompatibility</a></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_78"><a class="anchor" href="chap47.html#_description_78"></a>Description</h4>
+<h4 id="_description_79"><a class="anchor" href="chap47.html#_description_79"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds support for the integer dot product SPIR-V instructions
 defined in SPV_KHR_integer_dot_product.
@@ -27269,7 +27611,7 @@ well.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_77"><a class="anchor" href="chap47.html#_new_structures_77"></a>New Structures</h4>
+<h4 id="_new_structures_78"><a class="anchor" href="chap47.html#_new_structures_78"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27296,7 +27638,7 @@ well.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_85"><a class="anchor" href="chap47.html#_new_enum_constants_85"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_86"><a class="anchor" href="chap47.html#_new_enum_constants_86"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27331,7 +27673,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_13"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_13"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_14"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_14"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27350,7 +27692,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_81"><a class="anchor" href="chap47.html#_version_history_81"></a>Version History</h4>
+<h4 id="_version_history_82"><a class="anchor" href="chap47.html#_version_history_82"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27421,7 +27763,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_82"><a class="anchor" href="chap47.html#_other_extension_metadata_82"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_83"><a class="anchor" href="chap47.html#_other_extension_metadata_83"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -27460,14 +27802,14 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_79"><a class="anchor" href="chap47.html#_description_79"></a>Description</h4>
+<h4 id="_description_80"><a class="anchor" href="chap47.html#_description_80"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows the use of the <code>SPV_KHR_non_semantic_info</code> extension
 in SPIR-V shader modules.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_86"><a class="anchor" href="chap47.html#_new_enum_constants_86"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_87"><a class="anchor" href="chap47.html#_new_enum_constants_87"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27488,7 +27830,7 @@ change to the <a href="chap43.html#spirvenv-extensions-table">SPIR-V Extensions 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_82"><a class="anchor" href="chap47.html#_version_history_82"></a>Version History</h4>
+<h4 id="_version_history_83"><a class="anchor" href="chap47.html#_version_history_83"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27559,7 +27901,7 @@ change to the <a href="chap43.html#spirvenv-extensions-table">SPIR-V Extensions 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_83"><a class="anchor" href="chap47.html#_other_extension_metadata_83"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_84"><a class="anchor" href="chap47.html#_other_extension_metadata_84"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -27619,7 +27961,7 @@ change to the <a href="chap43.html#spirvenv-extensions-table">SPIR-V Extensions 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_80"><a class="anchor" href="chap47.html#_description_80"></a>Description</h4>
+<h4 id="_description_81"><a class="anchor" href="chap47.html#_description_81"></a>Description</h4>
 <div class="paragraph">
 <p>This extension enables the Non Uniform Group Operations in SPIR-V to support
 8-bit integer, 16-bit integer, 64-bit integer, 16-bit floating-point, and
@@ -27636,7 +27978,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_78"><a class="anchor" href="chap47.html#_new_structures_78"></a>New Structures</h4>
+<h4 id="_new_structures_79"><a class="anchor" href="chap47.html#_new_structures_79"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27653,7 +27995,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_87"><a class="anchor" href="chap47.html#_new_enum_constants_87"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_88"><a class="anchor" href="chap47.html#_new_enum_constants_88"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27676,7 +28018,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_83"><a class="anchor" href="chap47.html#_version_history_83"></a>Version History</h4>
+<h4 id="_version_history_84"><a class="anchor" href="chap47.html#_version_history_84"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27750,7 +28092,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_84"><a class="anchor" href="chap47.html#_other_extension_metadata_84"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_85"><a class="anchor" href="chap47.html#_other_extension_metadata_85"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -27802,7 +28144,7 @@ SPIR-V extension.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_81"><a class="anchor" href="chap47.html#_description_81"></a>Description</h4>
+<h4 id="_description_82"><a class="anchor" href="chap47.html#_description_82"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds Vulkan support for the
 <a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/KHR/SPV_KHR_terminate_invocation.html"><code>SPV_KHR_terminate_invocation</code></a>
@@ -27822,7 +28164,7 @@ and applications that need the GLSL <code>discard</code> behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_79"><a class="anchor" href="chap47.html#_new_structures_79"></a>New Structures</h4>
+<h4 id="_new_structures_80"><a class="anchor" href="chap47.html#_new_structures_80"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27839,7 +28181,7 @@ and applications that need the GLSL <code>discard</code> behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_88"><a class="anchor" href="chap47.html#_new_enum_constants_88"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_89"><a class="anchor" href="chap47.html#_new_enum_constants_89"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27871,7 +28213,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_84"><a class="anchor" href="chap47.html#_version_history_84"></a>Version History</h4>
+<h4 id="_version_history_85"><a class="anchor" href="chap47.html#_version_history_85"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -27938,7 +28280,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_85"><a class="anchor" href="chap47.html#_other_extension_metadata_85"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_86"><a class="anchor" href="chap47.html#_other_extension_metadata_86"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -27991,7 +28333,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_82"><a class="anchor" href="chap47.html#_description_82"></a>Description</h4>
+<h4 id="_description_83"><a class="anchor" href="chap47.html#_description_83"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows the use of SPIR-V 1.4 shader modules.
 SPIR-V 1.4’s new features primarily make it an easier target for compilers
@@ -28022,7 +28364,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_89"><a class="anchor" href="chap47.html#_new_enum_constants_89"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_90"><a class="anchor" href="chap47.html#_new_enum_constants_90"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28035,7 +28377,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_41"><a class="anchor" href="chap47.html#_issues_41"></a>Issues</h4>
+<h4 id="_issues_42"><a class="anchor" href="chap47.html#_issues_42"></a>Issues</h4>
 <div class="paragraph">
 <p>1.
 Should we have an extension specific to this SPIR-V version, or add a
@@ -28110,7 +28452,7 @@ use <a href="chap39.html#VkPhysicalDeviceFloatControlsPropertiesKHR">VkPhysicalD
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_85"><a class="anchor" href="chap47.html#_version_history_85"></a>Version History</h4>
+<h4 id="_version_history_86"><a class="anchor" href="chap47.html#_version_history_86"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28181,7 +28523,7 @@ use <a href="chap39.html#VkPhysicalDeviceFloatControlsPropertiesKHR">VkPhysicalD
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_86"><a class="anchor" href="chap47.html#_other_extension_metadata_86"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_87"><a class="anchor" href="chap47.html#_other_extension_metadata_87"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -28223,7 +28565,7 @@ use <a href="chap39.html#VkPhysicalDeviceFloatControlsPropertiesKHR">VkPhysicalD
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_83"><a class="anchor" href="chap47.html#_description_83"></a>Description</h4>
+<h4 id="_description_84"><a class="anchor" href="chap47.html#_description_84"></a>Description</h4>
 <div class="paragraph">
 <p>This extension adds support for the following SPIR-V extension in Vulkan:</p>
 </div>
@@ -28247,7 +28589,7 @@ A <code>Block</code>-decorated object in this class is equivalent to a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_90"><a class="anchor" href="chap47.html#_new_enum_constants_90"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_91"><a class="anchor" href="chap47.html#_new_enum_constants_91"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28260,7 +28602,7 @@ A <code>Block</code>-decorated object in this class is equivalent to a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_86"><a class="anchor" href="chap47.html#_version_history_86"></a>Version History</h4>
+<h4 id="_version_history_87"><a class="anchor" href="chap47.html#_version_history_87"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28334,7 +28676,7 @@ A <code>Block</code>-decorated object in this class is equivalent to a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_87"><a class="anchor" href="chap47.html#_other_extension_metadata_87"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_88"><a class="anchor" href="chap47.html#_other_extension_metadata_88"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -28368,7 +28710,7 @@ A <code>Block</code>-decorated object in this class is equivalent to a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_84"><a class="anchor" href="chap47.html#_description_84"></a>Description</h4>
+<h4 id="_description_85"><a class="anchor" href="chap47.html#_description_85"></a>Description</h4>
 <div class="paragraph">
 <p>This extension modifies the original core synchronization APIs to simplify
 the interface and improve usability of these APIs.
@@ -28476,7 +28818,7 @@ overriding the original 32-bit stage and access masks.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_52"><a class="anchor" href="chap47.html#_new_commands_52"></a>New Commands</h4>
+<h4 id="_new_commands_53"><a class="anchor" href="chap47.html#_new_commands_53"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28501,7 +28843,7 @@ overriding the original 32-bit stage and access masks.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_80"><a class="anchor" href="chap47.html#_new_structures_80"></a>New Structures</h4>
+<h4 id="_new_structures_81"><a class="anchor" href="chap47.html#_new_structures_81"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28578,7 +28920,7 @@ overriding the original 32-bit stage and access masks.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_91"><a class="anchor" href="chap47.html#_new_enum_constants_91"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_92"><a class="anchor" href="chap47.html#_new_enum_constants_92"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28755,7 +29097,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_87"><a class="anchor" href="chap47.html#_version_history_87"></a>Version History</h4>
+<h4 id="_version_history_88"><a class="anchor" href="chap47.html#_version_history_88"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28829,7 +29171,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_88"><a class="anchor" href="chap47.html#_other_extension_metadata_88"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_89"><a class="anchor" href="chap47.html#_other_extension_metadata_89"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -28895,7 +29237,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_85"><a class="anchor" href="chap47.html#_description_85"></a>Description</h4>
+<h4 id="_description_86"><a class="anchor" href="chap47.html#_description_86"></a>Description</h4>
 <div class="paragraph">
 <p>This extension introduces a new type of semaphore that has an integer
 payload identifying a point in a timeline.
@@ -28936,7 +29278,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_commands_53"><a class="anchor" href="chap47.html#_new_commands_53"></a>New Commands</h4>
+<h4 id="_new_commands_54"><a class="anchor" href="chap47.html#_new_commands_54"></a>New Commands</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -28952,7 +29294,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_81"><a class="anchor" href="chap47.html#_new_structures_81"></a>New Structures</h4>
+<h4 id="_new_structures_82"><a class="anchor" href="chap47.html#_new_structures_82"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29028,7 +29370,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_92"><a class="anchor" href="chap47.html#_new_enum_constants_92"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_93"><a class="anchor" href="chap47.html#_new_enum_constants_93"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29089,7 +29431,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_42"><a class="anchor" href="chap47.html#_issues_42"></a>Issues</h4>
+<h4 id="_issues_43"><a class="anchor" href="chap47.html#_issues_43"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Do we need a new object type for this?</p>
 </div>
@@ -29201,7 +29543,7 @@ new feature bit is required.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_88"><a class="anchor" href="chap47.html#_version_history_88"></a>Version History</h4>
+<h4 id="_version_history_89"><a class="anchor" href="chap47.html#_version_history_89"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29285,7 +29627,7 @@ new feature bit is required.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_89"><a class="anchor" href="chap47.html#_other_extension_metadata_89"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_90"><a class="anchor" href="chap47.html#_other_extension_metadata_90"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -29328,7 +29670,7 @@ new feature bit is required.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_86"><a class="anchor" href="chap47.html#_description_86"></a>Description</h4>
+<h4 id="_description_87"><a class="anchor" href="chap47.html#_description_87"></a>Description</h4>
 <div class="paragraph">
 <p>This extension enables tighter array and struct packing to be used with
 uniform buffers.</p>
@@ -29351,7 +29693,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_82"><a class="anchor" href="chap47.html#_new_structures_82"></a>New Structures</h4>
+<h4 id="_new_structures_83"><a class="anchor" href="chap47.html#_new_structures_83"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29368,7 +29710,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_93"><a class="anchor" href="chap47.html#_new_enum_constants_93"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_94"><a class="anchor" href="chap47.html#_new_enum_constants_94"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29391,7 +29733,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_89"><a class="anchor" href="chap47.html#_version_history_89"></a>Version History</h4>
+<h4 id="_version_history_90"><a class="anchor" href="chap47.html#_version_history_90"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29468,7 +29810,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_90"><a class="anchor" href="chap47.html#_other_extension_metadata_90"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_91"><a class="anchor" href="chap47.html#_other_extension_metadata_91"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -29531,7 +29873,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_87"><a class="anchor" href="chap47.html#_description_87"></a>Description</h4>
+<h4 id="_description_88"><a class="anchor" href="chap47.html#_description_88"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_variable_pointers</code> extension allows implementations to indicate
 their level of support for the <code>SPV_KHR_variable_pointers</code> SPIR-V extension.
@@ -29557,7 +29899,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_83"><a class="anchor" href="chap47.html#_new_structures_83"></a>New Structures</h4>
+<h4 id="_new_structures_84"><a class="anchor" href="chap47.html#_new_structures_84"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29577,7 +29919,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_94"><a class="anchor" href="chap47.html#_new_enum_constants_94"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_95"><a class="anchor" href="chap47.html#_new_enum_constants_95"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29603,7 +29945,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_14"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_14"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_15"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_15"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29616,7 +29958,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_issues_43"><a class="anchor" href="chap47.html#_issues_43"></a>Issues</h4>
+<h4 id="_issues_44"><a class="anchor" href="chap47.html#_issues_44"></a>Issues</h4>
 <div class="paragraph">
 <p>1) Do we need an optional property for the SPIR-V
 <code>VariablePointersStorageBuffer</code> capability or should it be mandatory when
@@ -29646,7 +29988,7 @@ extensions.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_90"><a class="anchor" href="chap47.html#_version_history_90"></a>Version History</h4>
+<h4 id="_version_history_91"><a class="anchor" href="chap47.html#_version_history_91"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29717,7 +30059,7 @@ extensions.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_91"><a class="anchor" href="chap47.html#_other_extension_metadata_91"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_92"><a class="anchor" href="chap47.html#_other_extension_metadata_92"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -29771,7 +30113,7 @@ extensions.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_88"><a class="anchor" href="chap47.html#_description_88"></a>Description</h4>
+<h4 id="_description_89"><a class="anchor" href="chap47.html#_description_89"></a>Description</h4>
 <div class="paragraph">
 <p>The <code>VK_KHR_vulkan_memory_model</code> extension allows use of the
 <a href="chap44.html">Vulkan Memory Model</a>, which formally defines how to
@@ -29809,7 +30151,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_84"><a class="anchor" href="chap47.html#_new_structures_84"></a>New Structures</h4>
+<h4 id="_new_structures_85"><a class="anchor" href="chap47.html#_new_structures_85"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29826,7 +30168,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_95"><a class="anchor" href="chap47.html#_new_enum_constants_95"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_96"><a class="anchor" href="chap47.html#_new_enum_constants_96"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29849,7 +30191,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_spir_v_capabilities_15"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_15"></a>New SPIR-V Capabilities</h4>
+<h4 id="_new_spir_v_capabilities_16"><a class="anchor" href="chap47.html#_new_spir_v_capabilities_16"></a>New SPIR-V Capabilities</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29859,7 +30201,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_91"><a class="anchor" href="chap47.html#_version_history_91"></a>Version History</h4>
+<h4 id="_version_history_92"><a class="anchor" href="chap47.html#_version_history_92"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -29944,7 +30286,7 @@ VkPhysicalDeviceVulkanMemoryModelFeaturesKHR structure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_other_extension_metadata_92"><a class="anchor" href="chap47.html#_other_extension_metadata_92"></a>Other Extension Metadata</h4>
+<h4 id="_other_extension_metadata_93"><a class="anchor" href="chap47.html#_other_extension_metadata_93"></a>Other Extension Metadata</h4>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
@@ -29985,7 +30327,7 @@ VkPhysicalDeviceVulkanMemoryModelFeaturesKHR structure.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_description_89"><a class="anchor" href="chap47.html#_description_89"></a>Description</h4>
+<h4 id="_description_90"><a class="anchor" href="chap47.html#_description_90"></a>Description</h4>
 <div class="paragraph">
 <p>This extension allows the use of a null constant initializer on shader
 Workgroup memory variables, allowing implementations to expose any special
@@ -29995,7 +30337,7 @@ content (e.g. web browsers) as way of defeating memory-scraping attacks.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_structures_85"><a class="anchor" href="chap47.html#_new_structures_85"></a>New Structures</h4>
+<h4 id="_new_structures_86"><a class="anchor" href="chap47.html#_new_structures_86"></a>New Structures</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30012,7 +30354,7 @@ content (e.g. web browsers) as way of defeating memory-scraping attacks.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_new_enum_constants_96"><a class="anchor" href="chap47.html#_new_enum_constants_96"></a>New Enum Constants</h4>
+<h4 id="_new_enum_constants_97"><a class="anchor" href="chap47.html#_new_enum_constants_97"></a>New Enum Constants</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30044,7 +30386,7 @@ the core functionality.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_version_history_92"><a class="anchor" href="chap47.html#_version_history_92"></a>Version History</h4>
+<h4 id="_version_history_93"><a class="anchor" href="chap47.html#_version_history_93"></a>Version History</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -30075,7 +30417,7 @@ the core functionality.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.212<br>
+Version 1.3.213<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

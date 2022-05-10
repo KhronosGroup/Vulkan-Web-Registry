@@ -55,6 +55,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_present_wait.html"> VK_KHR_present_wait </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_push_descriptor.html"> VK_KHR_push_descriptor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_query.html"> VK_KHR_ray_query </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_tracing_maintenance1.html"> VK_KHR_ray_tracing_maintenance1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_ray_tracing_pipeline.html"> VK_KHR_ray_tracing_pipeline </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_relaxed_block_layout.html"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_sampler_mirror_clamp_to_edge.html"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
@@ -134,6 +135,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_headless_surface.html"> VK_EXT_headless_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_host_query_reset.html"> VK_EXT_host_query_reset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_2d_view_of_3d.html"> VK_EXT_image_2d_view_of_3d </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_compression_control.html"> VK_EXT_image_compression_control </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_compression_control_swapchain.html"> VK_EXT_image_compression_control_swapchain </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_drm_format_modifier.html"> VK_EXT_image_drm_format_modifier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_robustness.html"> VK_EXT_image_robustness </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_view_min_lod.html"> VK_EXT_image_view_min_lod </a> </li>
@@ -150,6 +153,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_physical_device_drm.html"> VK_EXT_physical_device_drm </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_properties.html"> VK_EXT_pipeline_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitives_generated_query.html"> VK_EXT_primitives_generated_query </a> </li>
@@ -171,6 +175,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_vote.html"> VK_EXT_shader_subgroup_vote </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_viewport_index_layer.html"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_subgroup_size_control.html"> VK_EXT_subgroup_size_control </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_subpass_merge_feedback.html"> VK_EXT_subpass_merge_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_swapchain_colorspace.html"> VK_EXT_swapchain_colorspace </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_texel_buffer_alignment.html"> VK_EXT_texel_buffer_alignment </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_texture_compression_astc_hdr.html"> VK_EXT_texture_compression_astc_hdr </a> </li>
