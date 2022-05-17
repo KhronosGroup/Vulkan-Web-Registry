@@ -208,6 +208,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_ballot.html"> VK_AMD_shader_ballot </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_core_properties.html"> VK_AMD_shader_core_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_core_properties2.html"> VK_AMD_shader_core_properties2 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_early_and_late_fragment_tests.html"> VK_AMD_shader_early_and_late_fragment_tests </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_explicit_vertex_parameter.html"> VK_AMD_shader_explicit_vertex_parameter </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_fragment_mask.html"> VK_AMD_shader_fragment_mask </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_AMD_shader_image_load_store_lod.html"> VK_AMD_shader_image_load_store_lod </a> </li>
