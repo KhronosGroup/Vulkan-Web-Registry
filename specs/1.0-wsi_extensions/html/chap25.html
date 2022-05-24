@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.214 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.215 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.214 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.215 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.214,</span>
-<span id="revdate">2022-05-17 14:10:51Z</span>
-<br><span id="revremark">from git branch: github-main commit: 028789841d7ba54cabc678a128e7b98d30c0b4cd</span>
+<span id="revnumber">version 1.0.215,</span>
+<span id="revdate">2022-05-24 09:21:51Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9b5562187a8ad72c171410b036ceedbc450153ba</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -312,9 +312,10 @@
 <li class="current"><a href="chap25.html#primsrast-multisampling">25.3. Multisampling</a></li>
 <li class="current"><a href="chap25.html#primsrast-fragment-shading-rate">25.4. Fragment Shading Rates</a></li>
 <li class="current"><a href="chap25.html#primsrast-sampleshading">25.5. Sample Shading</a></li>
-<li class="current"><a href="chap25.html#primsrast-points">25.6. Points</a></li>
-<li class="current"><a href="chap25.html#primsrast-lines">25.7. Line Segments</a></li>
-<li class="current"><a href="chap25.html#primsrast-polygons">25.8. Polygons</a></li>
+<li class="current"><a href="chap25.html#primsrast-barycentric">25.6. Barycentric Interpolation</a></li>
+<li class="current"><a href="chap25.html#primsrast-points">25.7. Points</a></li>
+<li class="current"><a href="chap25.html#primsrast-lines">25.8. Line Segments</a></li>
+<li class="current"><a href="chap25.html#primsrast-polygons">25.9. Polygons</a></li>
 </ul>
 </li>
 <li><a href="chap26.html">26. Fragment Operations</a>
@@ -2608,7 +2609,171 @@ In this case <code>minSampleShadingFactor</code> takes the value of
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-points"><a class="anchor" href="chap25.html#primsrast-points"></a>25.6. Points</h3>
+<h3 id="primsrast-barycentric"><a class="anchor" href="chap25.html#primsrast-barycentric"></a>25.6. Barycentric Interpolation</h3>
+<div class="paragraph">
+<p>When the <code>fragmentShaderBarycentric</code> feature is enabled, the
+<code>PerVertexKHR</code> <a href="chap9.html#shaders-interpolation-decorations">interpolation
+decoration</a> <strong class="purple">can</strong> be used with fragment shader inputs to indicate that the
+decorated inputs do not have associated data in the fragment.
+Such inputs <strong class="purple">can</strong> only be accessed in a fragment shader using an array index
+whose value (0, 1, or 2) identifies one of the vertices of the primitive
+that produced the fragment.
+Reads of per-vertex values for missing vertices, such as the third vertex of
+a line primitive, will return values from the valid vertex with the highest
+index.
+This means that the per-vertex values of indices 1 and 2 for point
+primitives will be equal to those of index 0, and the per-vertex values of
+index 2 for line primitives will be equal to those of index 1.</p>
+</div>
+<div class="paragraph">
+<p>When <a href="chap22.html">tessellation</a> and <a href="chap23.html">geometry shading</a>
+are not active, fragment shader inputs decorated with <code>PerVertexKHR</code> will
+take values from one of the vertices of the primitive that produced the
+fragment, identified by the extra index provided in SPIR-V code accessing
+the input.
+If the <em>n</em> vertices passed to a draw call are numbered 0 through <em>n</em>-1, and
+the point, line, and triangle primitives produced by the draw call are
+numbered with consecutive integers beginning with zero, the following table
+indicates the original vertex numbers used
+for index values of 0, 1, and 2.
+If an input decorated with <code>PerVertexKHR</code> is accessed with any other
+vertex index value, or is accessed while rasterizing a polygon when the
+<a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>polygonMode</code> property of
+the currently active pipeline is not <code>VK_POLYGON_MODE_FILL</code>, an
+undefined value is returned.</p>
+</div>
+<table id="primsrast-barycentric-order-table" class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Primitive Topology</th>
+<th class="tableblock halign-left valign-top">Vertex 0</th>
+<th class="tableblock halign-left valign-top">Vertex 1</th>
+<th class="tableblock halign-left valign-top">Vertex 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_POINT_LIST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3i+2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code> (even)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP</code> (odd)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4i+2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i+2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6i+4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY</code> (even)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY</code> (odd)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2i+2</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>When geometry
+shading is active, primitives processed by fragment shaders are assembled
+from the vertices emitted by the geometry
+shader.
+In this case, the vertices used for fragment shader inputs decorated with
+<code>PerVertexKHR</code> are derived by treating the primitives produced by the
+shader as though they were specified by a draw call and consulting
+<a href="chap25.html#primsrast-barycentric-order-table">the table above</a>.</p>
+</div>
+<div class="paragraph">
+<p>When using tessellation without geometry shading, the tessellator produces
+primitives in an implementation-dependent manner.
+While there is no defined vertex ordering for inputs decorated with
+<code>PerVertexKHR</code>, the vertex ordering used in this case will be consistent
+with the ordering used to derive the values of inputs decorated with
+<code>BaryCoordKHR</code> or <code>BaryCoordNoPerspKHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>Fragment shader inputs decorated with <code>BaryCoordKHR</code> or
+<code>BaryCoordNoPerspKHR</code> hold three-component vectors with barycentric
+weights that indicate the location of the fragment relative to the
+screen-space locations of vertices of its primitive.
+For point primitives, such variables are always assigned the value (1,0,0).
+For <a href="chap25.html#primsrast-lines-basic">line</a> primitives, the built-ins are obtained
+by interpolating an attribute whose values for the vertices numbered 0 and 1
+are (1,0,0) and (0,1,0), respectively.
+For <a href="chap25.html#primsrast-polygons-basic">polygon</a> primitives, the built-ins are
+obtained by interpolating an attribute whose values for the vertices
+numbered 0, 1, and 2 are (1,0,0), (0,1,0), and (0,0,1), respectively.
+For <code>BaryCoordKHR</code>, the values are obtained using perspective
+interpolation.
+For <code>BaryCoordNoPerspKHR</code>, the values are obtained using linear
+interpolation.
+The values of <code>BaryCoordKHR</code> and <code>BaryCoordNoPerspKHR</code> are undefined
+while rasterizing a polygon when the
+<a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>polygonMode</code> property of
+the currently active pipeline is not <code>VK_POLYGON_MODE_FILL</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="primsrast-points"><a class="anchor" href="chap25.html#primsrast-points"></a>25.7. Points</h3>
 <div class="paragraph">
 <p>A point is drawn by generating a set of fragments in the shape of a square
 centered around the vertex of the point.
@@ -2650,7 +2815,7 @@ If an unsupported size is requested, the nearest supported size is used
 instead.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-points-basic"><a class="anchor" href="chap25.html#primsrast-points-basic"></a>25.6.1. Basic Point Rasterization</h4>
+<h4 id="primsrast-points-basic"><a class="anchor" href="chap25.html#primsrast-points-basic"></a>25.7.1. Basic Point Rasterization</h4>
 <div class="paragraph">
 <p>Point rasterization produces a fragment for each fragment area group of
 framebuffer pixels with one or more sample points that intersect a region
@@ -2687,7 +2852,7 @@ vertex for the point.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-lines"><a class="anchor" href="chap25.html#primsrast-lines"></a>25.7. Line Segments</h3>
+<h3 id="primsrast-lines"><a class="anchor" href="chap25.html#primsrast-lines"></a>25.8. Line Segments</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -2813,7 +2978,7 @@ If an unsupported width is requested, the nearest supported width is used
 instead.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-lines-basic"><a class="anchor" href="chap25.html#primsrast-lines-basic"></a>25.7.1. Basic Line Segment Rasterization</h4>
+<h4 id="primsrast-lines-basic"><a class="anchor" href="chap25.html#primsrast-lines-basic"></a>25.8.1. Basic Line Segment Rasterization</h4>
 <div class="paragraph">
 <p>Rasterized
 line segments produce fragments which intersect a rectangle centered on the
@@ -2892,6 +3057,14 @@ When the <code>Flat</code> decoration is used, no interpolation is performed, an
 outputs are taken from the corresponding input value of the
 <a href="chap24.html#vertexpostproc-flatshading">provoking vertex</a> corresponding to that
 primitive.</p>
+</div>
+<div class="paragraph">
+<p>When the <code>fragmentShaderBarycentric</code> feature is enabled, the
+<code>PerVertexKHR</code> <a href="chap9.html#shaders-interpolation-decorations">interpolation
+decoration</a> <strong class="purple">can</strong> also be used with fragment shader inputs which indicate
+that the decorated inputs are not interpolated and <strong class="purple">can</strong> only be accessed
+using an extra array dimension, where the extra index identifies one of the
+vertices of the primitive that produced the fragment.</p>
 </div>
 <div class="paragraph">
 <p>The above description documents the preferred method of line rasterization,
@@ -2987,7 +3160,7 @@ performed using the rules defined in
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-lines-bresenham"><a class="anchor" href="chap25.html#primsrast-lines-bresenham"></a>25.7.2. Bresenham Line Segment Rasterization</h4>
+<h4 id="primsrast-lines-bresenham"><a class="anchor" href="chap25.html#primsrast-lines-bresenham"></a>25.8.2. Bresenham Line Segment Rasterization</h4>
 <div class="paragraph">
 <p>Non-strict lines <strong class="purple">may</strong> also follow these rasterization rules for
 non-antialiased lines.</p>
@@ -3235,7 +3408,7 @@ those pixels (unless masked out or killed).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="primsrast-polygons"><a class="anchor" href="chap25.html#primsrast-polygons"></a>25.8. Polygons</h3>
+<h3 id="primsrast-polygons"><a class="anchor" href="chap25.html#primsrast-polygons"></a>25.9. Polygons</h3>
 <div class="paragraph">
 <p>A polygon results from the decomposition of a triangle strip, triangle fan
 or a series of independent triangles.
@@ -3244,7 +3417,7 @@ several variables in the <a href="chap25.html#VkPipelineRasterizationStateCreate
 structure.</p>
 </div>
 <div class="sect3">
-<h4 id="primsrast-polygons-basic"><a class="anchor" href="chap25.html#primsrast-polygons-basic"></a>25.8.1. Basic Polygon Rasterization</h4>
+<h4 id="primsrast-polygons-basic"><a class="anchor" href="chap25.html#primsrast-polygons-basic"></a>25.9.1. Basic Polygon Rasterization</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3455,6 +3628,14 @@ outputs are taken from the corresponding input value of the
 primitive.</p>
 </div>
 <div class="paragraph">
+<p>When the <code>fragmentShaderBarycentric</code> feature is enabled, the
+<code>PerVertexKHR</code> <a href="chap9.html#shaders-interpolation-decorations">interpolation
+decoration</a> <strong class="purple">can</strong> also be used with fragment shader inputs which indicate
+that the decorated inputs are not interpolated and <strong class="purple">can</strong> only be accessed
+using an extra array dimension, where the extra index identifies one of the
+vertices of the primitive that produced the fragment.</p>
+</div>
+<div class="paragraph">
 <p>For a polygon with more than three edges, such as are produced by clipping a
 triangle, a convex combination of the values of the datum at the polygon’s
 vertices <strong class="purple">must</strong> be used to obtain the value assigned to each fragment
@@ -3499,7 +3680,7 @@ each fragment).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-polygonmode"><a class="anchor" href="chap25.html#primsrast-polygonmode"></a>25.8.2. Polygon Mode</h4>
+<h4 id="primsrast-polygonmode"><a class="anchor" href="chap25.html#primsrast-polygonmode"></a>25.9.2. Polygon Mode</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3543,7 +3724,7 @@ culled before these modes are applied.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="primsrast-depthbias"><a class="anchor" href="chap25.html#primsrast-depthbias"></a>25.8.3. Depth Bias</h4>
+<h4 id="primsrast-depthbias"><a class="anchor" href="chap25.html#primsrast-depthbias"></a>25.9.3. Depth Bias</h4>
 <div class="paragraph">
 <p>The depth values of all fragments generated by the rasterization of a
 polygon <strong class="purple">can</strong> be biased (offset) by a single depth bias value <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">o</span></span></span></span>
@@ -3815,7 +3996,7 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.214<br>
+Version 1.0.215<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>

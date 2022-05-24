@@ -32,6 +32,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_fd.html"> VK_KHR_external_semaphore_fd </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_external_semaphore_win32.html"> VK_KHR_external_semaphore_win32 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_format_feature_flags2.html"> VK_KHR_format_feature_flags2 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_KHR_fragment_shader_barycentric.html"> VK_KHR_fragment_shader_barycentric </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_fragment_shading_rate.html"> VK_KHR_fragment_shading_rate </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_display_properties2.html"> VK_KHR_get_display_properties2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_KHR_get_memory_requirements2.html"> VK_KHR_get_memory_requirements2 </a> </li>
