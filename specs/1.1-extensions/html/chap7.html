@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.215 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.216 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.215 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.216 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.215,</span>
-<span id="revdate">2022-05-24 09:16:04Z</span>
-<br><span id="revremark">from git branch: github-main commit: 9b5562187a8ad72c171410b036ceedbc450153ba</span>
+<span id="revnumber">version 1.1.216,</span>
+<span id="revdate">2022-06-02 12:11:38Z</span>
+<br><span id="revremark">from git branch: github-main commit: 899dd1c16d5de69bd24e108f393d134fa2989512</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -179,10 +179,9 @@
 <li><a href="chap10.html#pipeline-library">10.9. Pipeline Libraries</a></li>
 <li><a href="chap10.html#pipelines-binding">10.10. Pipeline Binding</a></li>
 <li><a href="chap10.html#pipelines-dynamic-state">10.11. Dynamic State</a></li>
-<li><a href="chap10.html#pipelines-shader-information">10.12. Pipeline Shader Information</a></li>
+<li><a href="chap10.html#pipelines-shader-information">10.12. Pipeline Properties and Shader Information</a></li>
 <li><a href="chap10.html#pipelines-compiler-control">10.13. Pipeline Compiler Control</a></li>
 <li><a href="chap10.html#pipelines-creation-feedback">10.14. Pipeline Creation Feedback</a></li>
-<li><a href="chap10.html#pipelines-properties">10.15. Pipeline Properties</a></li>
 </ul>
 </li>
 <li><a href="chap11.html">11. Memory Allocation</a>
@@ -695,36 +694,41 @@ More precisely:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Let <strong>A</strong> and <strong>B</strong> be separate sets of operations.</p>
+<p>Let <strong>Ops<sub>1</sub></strong> and <strong>Ops<sub>2</sub></strong> be separate sets of operations.</p>
 </li>
 <li>
-<p>Let <strong>S</strong> be a synchronization command.</p>
+<p>Let <strong>Sync</strong> be a synchronization command.</p>
 </li>
 <li>
-<p>Let <strong>A<sub>S</sub></strong> and <strong>B<sub>S</sub></strong> be the synchronization scopes of <strong>S</strong>.</p>
+<p>Let <strong>Scope<sub>1st</sub></strong> and <strong>Scope<sub>2nd</sub></strong> be the synchronization scopes of
+<strong>Sync</strong>.</p>
 </li>
 <li>
-<p>Let <strong>A'</strong> be the intersection of sets <strong>A</strong> and <strong>A<sub>S</sub></strong>.</p>
+<p>Let <strong>ScopedOps<sub>1</sub></strong> be the intersection of sets <strong>Ops<sub>1</sub></strong> and
+<strong>Scope<sub>1st</sub></strong>.</p>
 </li>
 <li>
-<p>Let <strong>B'</strong> be the intersection of sets <strong>B</strong> and <strong>B<sub>S</sub></strong>.</p>
+<p>Let <strong>ScopedOps<sub>2</sub></strong> be the intersection of sets <strong>Ops<sub>2</sub></strong> and
+<strong>Scope<sub>2nd</sub></strong>.</p>
 </li>
 <li>
-<p>Submitting <strong>A</strong>, <strong>S</strong> and <strong>B</strong> for execution, in that order, will result in
-execution dependency <strong>E</strong> between <strong>A'</strong> and <strong>B'</strong>.</p>
+<p>Submitting <strong>Ops<sub>1</sub></strong>, <strong>Sync</strong> and <strong>Ops<sub>2</sub></strong> for execution, in that order,
+will result in execution dependency <strong>ExeDep</strong> between <strong>ScopedOps<sub>1</sub></strong> and
+<strong>ScopedOps<sub>2</sub></strong>.</p>
 </li>
 <li>
-<p>Execution dependency <strong>E</strong> guarantees that <strong>A'</strong> happens-before <strong>B'</strong>.</p>
+<p>Execution dependency <strong>ExeDep</strong> guarantees that <strong>ScopedOps<sub>1</sub></strong>
+happen-before <strong>ScopedOps<sub>2</sub></strong>.</p>
 </li>
 </ul>
 </div>
 <div id="synchronization-dependencies-chains" class="paragraph">
 <p>An <em>execution dependency chain</em> is a sequence of execution dependencies that
-form a happens-before relation between the first dependency’s <strong>A'</strong> and the
-final dependency’s <strong>B'</strong>.
+form a happens-before relation between the first dependency’s <strong>ScopedOps<sub>1</sub></strong>
+and the final dependency’s <strong>ScopedOps<sub>2</sub></strong>.
 For each consecutive pair of execution dependencies, a chain exists if the
-intersection of <strong>B<sub>S</sub></strong> in the first dependency and <strong>A<sub>S</sub></strong> in the second
-dependency is not an empty set.
+intersection of <strong>Scope<sub>2nd</sub></strong> in the first dependency and <strong>Scope<sub>1st</sub></strong> in the
+second dependency is not an empty set.
 The formation of a single execution dependency from an execution dependency
 chain can be described by substituting the following in the description of
 execution dependencies:</p>
@@ -732,16 +736,16 @@ execution dependencies:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Let <strong>S</strong> be a set of synchronization commands that generate an execution
-dependency chain.</p>
+<p>Let <strong>Sync</strong> be a set of synchronization commands that generate an
+execution dependency chain.</p>
 </li>
 <li>
-<p>Let <strong>A<sub>S</sub></strong> be the first synchronization scope of the first command in
-<strong>S</strong>.</p>
+<p>Let <strong>Scope<sub>1st</sub></strong> be the first synchronization scope of the first command
+in <strong>Sync</strong>.</p>
 </li>
 <li>
-<p>Let <strong>B<sub>S</sub></strong> be the second synchronization scope of the last command in
-<strong>S</strong>.</p>
+<p>Let <strong>Scope<sub>2nd</sub></strong> be the second synchronization scope of the last command
+in <strong>Sync</strong>.</p>
 </li>
 </ul>
 </div>
@@ -798,9 +802,9 @@ Most synchronization commands in Vulkan define a memory dependency.</p>
 <p>The specific memory accesses that are made available and visible are defined
 by the <em>access scopes</em> of a memory dependency.
 Any type of access that is in a memory dependency’s first access scope and
-occurs in <strong>A'</strong> is made available.
+occurs in <strong>ScopedOps<sub>1</sub></strong> is made available.
 Any type of access that is in a memory dependency’s second access scope and
-occurs in <strong>B'</strong> has any available writes made visible to it.
+occurs in <strong>ScopedOps<sub>2</sub></strong> has any available writes made visible to it.
 Any type of operation that is not in a synchronization command’s access
 scopes will not be included in the resulting dependency.</p>
 </div>
@@ -812,37 +816,44 @@ Adding to the description of <a href="chap7.html#synchronization-dependencies-ch
 <div class="ulist">
 <ul>
 <li>
-<p>Let <strong>a</strong> be the set of memory accesses performed by <strong>A'</strong>.</p>
+<p>Let <strong>MemOps<sub>1</sub></strong> be the set of memory accesses performed by
+<strong>ScopedOps<sub>1</sub></strong>.</p>
 </li>
 <li>
-<p>Let <strong>b</strong> be the set of memory accesses performed by <strong>B'</strong>.</p>
+<p>Let <strong>MemOps<sub>2</sub></strong> be the set of memory accesses performed by
+<strong>ScopedOps<sub>2</sub></strong>.</p>
 </li>
 <li>
-<p>Let <strong>a<sub>S</sub></strong> be the first access scope of the first command in <strong>S</strong>.</p>
+<p>Let <strong>AccessScope<sub>1st</sub></strong> be the first access scope of the first command in
+the <strong>Sync</strong> chain.</p>
 </li>
 <li>
-<p>Let <strong>b<sub>S</sub></strong> be the second access scope of the last command in <strong>S</strong>.</p>
+<p>Let <strong>AccessScope<sub>2nd</sub></strong> be the second access scope of the last command in
+the <strong>Sync</strong> chain.</p>
 </li>
 <li>
-<p>Let <strong>a'</strong> be the intersection of sets <strong>a</strong> and <strong>a<sub>S</sub></strong>.</p>
+<p>Let <strong>ScopedMemOps<sub>1</sub></strong> be the intersection of sets <strong>MemOps<sub>1</sub></strong> and
+<strong>AccessScope<sub>1st</sub></strong>.</p>
 </li>
 <li>
-<p>Let <strong>b'</strong> be the intersection of sets <strong>b</strong> and <strong>b<sub>S</sub></strong>.</p>
+<p>Let <strong>ScopedMemOps<sub>2</sub></strong> be the intersection of sets <strong>MemOps<sub>2</sub></strong> and
+<strong>AccessScope<sub>2nd</sub></strong>.</p>
 </li>
 <li>
-<p>Submitting <strong>A</strong>, <strong>S</strong> and <strong>B</strong> for execution, in that order, will result in
-a memory dependency <strong>m</strong> between <strong>A'</strong> and <strong>B'</strong>.</p>
+<p>Submitting <strong>Ops<sub>1</sub></strong>, <strong>Sync</strong>, and <strong>Ops<sub>2</sub></strong> for execution, in that order,
+will result in a memory dependency <strong>MemDep</strong> between <strong>ScopedOps<sub>1</sub></strong> and
+<strong>ScopedOps<sub>2</sub></strong>.</p>
 </li>
 <li>
-<p>Memory dependency <strong>m</strong> guarantees that:</p>
+<p>Memory dependency <strong>MemDep</strong> guarantees that:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Memory writes in <strong>a'</strong> are made available.</p>
+<p>Memory writes in <strong>ScopedMemOps<sub>1</sub></strong> are made available.</p>
 </li>
 <li>
-<p>Available memory writes, including those from <strong>a'</strong>, are made visible to
-<strong>b'</strong>.</p>
+<p>Available memory writes, including those from <strong>ScopedMemOps<sub>1</sub></strong>, are
+made visible to <strong>ScopedMemOps<sub>2</sub></strong>.</p>
 </li>
 </ul>
 </div>
@@ -1229,10 +1240,10 @@ operations</a> for framebuffer attachments with a depth/stencil format.</p>
 stage of the pipeline after blending where the final color values are
 output from the pipeline.
 This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass load and
-store operations</a> and multisample resolve operations for framebuffer
+store operations</a>, multisample resolve operations for framebuffer
 attachments with a color
 or depth/stencil
-format.</p>
+format, and <a href="chap19.html#vkCmdClearAttachments">vkCmdClearAttachments</a>.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT</code> specifies the compute
@@ -1606,10 +1617,10 @@ operations</a> for framebuffer attachments with a depth/stencil format.</p>
 of the pipeline after blending where the final color values are output
 from the pipeline.
 This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass load and
-store operations</a> and multisample resolve operations for framebuffer
+store operations</a>, multisample resolve operations for framebuffer
 attachments with a color
 or depth/stencil
-format.</p>
+format, and <a href="chap19.html#vkCmdClearAttachments">vkCmdClearAttachments</a>.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code> specifies the execution of a
@@ -1968,14 +1979,14 @@ pipeline stage <strong class="purple">must</strong> not happen-before completion
 stage.
 This means that including any stage in the source stage mask for a
 particular synchronization command also implies that any logically earlier
-stages are included in <strong>A<sub>S</sub></strong> for that command.</p>
+stages are included in <strong>Scope<sub>1st</sub></strong> for that command.</p>
 </div>
 <div class="paragraph">
 <p>Similarly, initiation of a logically earlier pipeline stage <strong class="purple">must</strong> not
 happen-after initiation of a logically later pipeline stage.
 Including any given stage in the destination stage mask for a particular
 synchronization command also implies that any logically later stages are
-included in <strong>B<sub>S</sub></strong> for that command.</p>
+included in <strong>Scope<sub>2nd</sub></strong> for that command.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -17721,7 +17732,7 @@ this example:</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.215<br>
+Version 1.1.216<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>
