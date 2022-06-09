@@ -147,8 +147,10 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_budget.html"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_priority.html"> VK_EXT_memory_priority </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_objects.html"> VK_EXT_metal_objects </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_surface.html"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multi_draw.html"> VK_EXT_multi_draw </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_non_seamless_cube_map.html"> VK_EXT_non_seamless_cube_map </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pageable_device_local_memory.html"> VK_EXT_pageable_device_local_memory </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pci_bus_info.html"> VK_EXT_pci_bus_info </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_physical_device_drm.html"> VK_EXT_physical_device_drm </a> </li>

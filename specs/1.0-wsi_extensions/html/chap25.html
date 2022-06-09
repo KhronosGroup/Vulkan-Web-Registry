@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.216 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.217 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.216 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.217 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.216,</span>
-<span id="revdate">2022-06-02 12:18:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: 899dd1c16d5de69bd24e108f393d134fa2989512</span>
+<span id="revnumber">version 1.0.217,</span>
+<span id="revdate">2022-06-09 11:02:44Z</span>
+<br><span id="revremark">from git branch: github-main commit: 307906bddb5fab543dcf6d7fff737abeb15f8b10</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2572,40 +2572,36 @@ and combiner operations for the lifetime of the <a href="chap5.html#VkDevice">Vk
 <div class="paragraph">
 <p>Sample shading <strong class="purple">can</strong> be used to specify a minimum number of unique samples to
 process for each fragment.
-If sample shading is enabled, an implementation <strong class="purple">must</strong> provide a minimum of
-<span class="eq">max(⌈ <code>minSampleShadingFactor</code> × <code>totalSamples</code>
-⌉, 1)</span> unique associated data for each fragment, where
-<code>minSampleShadingFactor</code> is the minimum fraction of sample shading.
-<code>totalSamples</code> is the value of
+If sample shading is enabled, an implementation <strong class="purple">must</strong> invoke the fragment
+shader at least <span class="eq">max(⌈
+<a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>minSampleShading</code> ×
 <a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>rasterizationSamples</code>
-specified at pipeline creation time.
-These are associated with the samples in an implementation-dependent manner.
-When <code>minSampleShadingFactor</code> is <code>1.0</code>, a separate set of associated
-data are evaluated for each sample, and each set of values is evaluated at
-the sample location.</p>
+⌉, 1)</span> times per fragment.
+If a fragment shader entry point’s interface includes an input variable
+decorated with a <code>BuiltIn</code> of <code>SampleId</code> or <code>SamplePosition</code>, a
+value of <code>1.0</code> is used instead of <code>minSampleShading</code>.</p>
 </div>
 <div class="paragraph">
-<p>Sample shading is enabled for a graphics pipeline:</p>
+<p>Sample shading is enabled if at least one of the following conditions is
+true:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If the interface of the fragment shader entry point of the graphics
-pipeline includes an input variable decorated with <code>SampleId</code> or
-<code>SamplePosition</code>.
-In this case <code>minSampleShadingFactor</code> takes the value <code>1.0</code>.</p>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>sampleShadingEnable</code> is
+set to <code>VK_TRUE</code>, or</p>
 </li>
 <li>
-<p>Else if the <code>sampleShadingEnable</code> member of the
-<a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure specified when
-creating the graphics pipeline is set to <code>VK_TRUE</code>.
-In this case <code>minSampleShadingFactor</code> takes the value of
-<a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>minSampleShading</code>.</p>
+<p>the fragment shader’s entry point interface includes input variables
+decorated with a <code>BuiltIn</code> of <code>SampleId</code> or <code>SamplePosition</code>
+built-ins.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Otherwise, sample shading is considered disabled.</p>
+<p>If there are fewer invocations than <a href="chap26.html">covered samples</a>,
+implementations <strong class="purple">may</strong> include those samples in fragment shader invocations in
+any manner as long as covered samples are all shaded at least once.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3068,12 +3064,14 @@ vertices of the primitive that produced the fragment.</p>
 </div>
 <div class="paragraph">
 <p>The above description documents the preferred method of line rasterization,
-and <strong class="purple">must</strong> be used when the implementation advertises the <code>strictLines</code>
-limit in <a href="chap38.html#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a> as <code>VK_TRUE</code>.</p>
+and <strong class="purple">must</strong> be used when
+the implementation advertises the <code>strictLines</code> limit in
+<a href="chap38.html#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a> as <code>VK_TRUE</code>.</p>
 </div>
 <div class="paragraph">
-<p>When <code>strictLines</code> is <code>VK_FALSE</code>, the edges of the lines are
-generated as a parallelogram surrounding the original line.
+<p>When <code>strictLines</code> is <code>VK_FALSE</code>,
+the edges of the lines are generated as a parallelogram surrounding the
+original line.
 The major axis is chosen by noting the axis in which there is the greatest
 distance between the line start and end points.
 If the difference is equal in both directions then the X axis is chosen as
@@ -3996,7 +3994,7 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.216<br>
+Version 1.0.217<br>
 Last updated 2022-01-21 21:58:54 -0800
 </div>
 </div>
