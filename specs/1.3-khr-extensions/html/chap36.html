@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.3.217 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.3.218 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.217 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.218 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.3.217,</span>
-<span id="revdate">2022-06-09 10:52:52Z</span>
-<br><span id="revremark">from git branch: github-main commit: 307906bddb5fab543dcf6d7fff737abeb15f8b10</span>
+<span id="revnumber">version 1.3.218,</span>
+<span id="revdate">2022-06-16 09:26:47Z</span>
+<br><span id="revremark">from git branch: github-main commit: 067a92d083e6a7ec97ef3bcc34e5b75fa71eec79</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1614,7 +1614,7 @@ zero or more <a href="chap36.html#VkVideoCodecOperationFlagBitsKHR">VkVideoCodec
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_queue</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkVideoProfileKHR</span> <span class="p">{</span>
     <span class="n">VkStructureType</span>                     <span class="n">sType</span><span class="p">;</span>
-    <span class="kt">void</span><span class="o">*</span>                               <span class="n">pNext</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>                         <span class="n">pNext</span><span class="p">;</span>
     <span class="n">VkVideoCodecOperationFlagBitsKHR</span>    <span class="n">videoCodecOperation</span><span class="p">;</span>
     <span class="n">VkVideoChromaSubsamplingFlagsKHR</span>    <span class="n">chromaSubsampling</span><span class="p">;</span>
     <span class="n">VkVideoComponentBitDepthFlagsKHR</span>    <span class="n">lumaBitDepth</span><span class="p">;</span>
@@ -1649,6 +1649,39 @@ depth information.</p>
 <p><code>chromaBitDepth</code> is a bitmask of
 <a href="chap36.html#VkVideoComponentBitDepthFlagBitsKHR">VkVideoComponentBitDepthFlagBitsKHR</a> specifying video chroma bit
 depth information.</p>
+</li>
+</ul>
+</div>
+<div id="video-profile-error-codes" class="paragraph">
+<p>When a <code>VkVideoProfileKHR</code> structure is specified through the
+<code>pProfiles</code> member of an <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure in the
+<code>pNext</code> chain of the input parameter of a query command such as
+<a href="chap36.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a>,
+<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a>, or
+<a href="chap41.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a>, the following error codes
+indicate specific causes of the failure of the query operation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR</code> The requested
+video picture layout
+is not supported.</p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR</code> A video profile
+operation specified by <code>videoCodecOperation</code> is not supported.</p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR</code> Format parameters
+specified by <code>chromaSubsampling</code>, <code>lumaBitDepth</code>, or
+<code>chromaBitDepth</code> are not supported.</p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR</code> Codec-specific
+parameters corresponding to the <code>videoCodecOperation</code> are not
+provided through the <code>pNext</code> chain of <code>VkVideoProfileKHR</code>, or
+the specified parameters are not supported.</p>
 </li>
 </ul>
 </div>
@@ -1889,16 +1922,22 @@ structure in which the capabilities are returned.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_ERROR_EXTENSION_NOT_PRESENT</code></p>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_FEATURE_NOT_PRESENT</code></p>
+<p><code>VK_ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_FORMAT_NOT_SUPPORTED</code></p>
+<p><code>VK_ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -1910,8 +1949,8 @@ structure in which the capabilities are returned.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>If <code>pVideoProfile</code> and chained codec-operation specific profile is not
-supported, <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code> is returned.</p>
+<p>If <code>pVideoProfile</code> and the chained codec-specific parameters are not
+supported, then one of the <a href="chap36.html#video-profile-error-codes">video-profile-specific error codes</a> are returned.</p>
 </div>
 <div class="paragraph">
 <p>Otherwise, the implementation will fill <code>pCapabilities</code> with
@@ -2097,7 +2136,7 @@ below.</p>
 <li>
 <p><code>pVideoFormatProperties</code> is a pointer to an array of
 <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> structures in which supported formats
-are returned.</p>
+and image parameters are returned.</p>
 </li>
 </ul>
 </div>
@@ -2121,10 +2160,12 @@ indicate that not all the available values were returned.</p>
 supported but
 <code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> is not
 supported in <a href="chap36.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
-for video format properties for decode DPB or output, <code>imageUsage</code> <strong class="purple">must</strong>
-have both <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
+for video format properties for decode DPB or output,
+<a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have both
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> set.
-Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.</p>
+Otherwise, the call will fail with
+<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
 </div>
 <div class="paragraph">
 <p>If an implementation reports
@@ -2132,33 +2173,33 @@ Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.</
 supported but
 <code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> is not
 supported in <a href="chap36.html#VkVideoDecodeCapabilitiesKHR">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
-for video format properties for decode DPB, <code>imageUsage</code> <strong class="purple">must</strong> have
+for video format properties for decode DPB,
+<a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> set and
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> not set.
-Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.
+Otherwise, the call will fail with
+<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.
 Similarly, to query for video format properties for decode output,
-<code>imageUsage</code> <strong class="purple">must</strong> have <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>
-set and <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> not set.
-Otherwise, the call will fail with <code>VK_ERROR_FORMAT_NOT_SUPPORTED</code>.</p>
+<a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> set and
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> not set.
+Otherwise, the call will fail with
+<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
 </div>
-<div class="sidebarblock">
-<div class="content">
-<div class="title">Valid Usage</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a id="VUID-vkGetPhysicalDeviceVideoFormatPropertiesKHR-imageUsage-04844" href="chap36.html#VUID-vkGetPhysicalDeviceVideoFormatPropertiesKHR-imageUsage-04844"></a> <span class="vuid">VUID-vkGetPhysicalDeviceVideoFormatPropertiesKHR-imageUsage-04844</span><br>
-
-The <code>imageUsage</code> enum of <a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>
-<strong class="purple">must</strong> contain at least one of the following video image usage bit(s):
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>,
-<code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>, or
-<code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>The <code>imageUsage</code> member of the <a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>
+structure specifies the expected video usage flags that the returned video
+formats <strong class="purple">must</strong> support.
+Correspondingly, the <code>imageUsageFlags</code> member of each
+<a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> structure returned will contain at least
+the same set of image usage flags.</p>
 </div>
-</div>
+<div class="paragraph">
+<p>If the implementation supports using video input, output, or DPB images of a
+particular format in operations other than video decode/encode then the
+<code>imageUsageFlags</code> member of the corresponding
+<a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> structure returned will include additional
+image usage flags indicating that.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2178,6 +2219,93 @@ flags <strong class="purple">can</strong> be set.</p>
 </td>
 </tr>
 </tbody></table>
+</div>
+<div class="paragraph">
+<p>Video format properties are always queried with respect to a specific set of
+video profiles, as defined by the <a href="chap36.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structure.
+These are specified by chaining the <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure to
+<code>pVideoFormatInfo</code>.</p>
+</div>
+<div class="paragraph">
+<p>For most use cases, the images are used by a single video session and a
+single video profile is provided.
+For a use case such as transcode, where a decode session output image <strong class="purple">can</strong>
+be used as encode input in one or more encode sessions, multiple video
+profiles corresponding to the video sessions that will share the image <strong class="purple">must</strong>
+be provided.</p>
+</div>
+<div class="paragraph">
+<p>If any of the profiles specified via
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a>::<code>pProfiles</code> are not supported, then
+<code>vkGetPhysicalDeviceVideoFormatPropertiesKHR</code> returns one of the
+<a href="chap36.html#video-profile-error-codes">video-profile-specific error codes</a>.
+Furthermore, if <a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code>
+includes any image usage flags not supported by the specified video profiles
+then <code>vkGetPhysicalDeviceVideoFormatPropertiesKHR</code> returns
+<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>Multiple <code>VkVideoFormatPropertiesKHR</code> entries <strong class="purple">may</strong> be returned with the
+same <code>format</code> member with different <code>componentMapping</code>,
+<code>imageType</code>, or <code>imageTiling</code> values, as described later.</p>
+</div>
+<div class="paragraph">
+<p>In addition, a different set of <code>VkVideoFormatPropertiesKHR</code> entries
+<strong class="purple">may</strong> be returned depending on the <code>imageUsage</code> member of the
+<code>VkPhysicalDeviceVideoFormatInfoKHR</code> structure, even for the same set of
+video profiles, for example, based on whether encode input, encode DPB,
+decode output, and/or decode DPB usage is requested.</p>
+</div>
+<div class="paragraph">
+<p>The application <strong class="purple">can</strong> select the parameters returned in the
+<code>VkVideoFormatPropertiesKHR</code> entries and use compatible parameters when
+creating the input, output, and DPB images.
+The implementation will report all image creation and usage flags that are
+valid for images used with the requested video profiles but applications
+<strong class="purple">should</strong> create images only with those that are necessary for the particular
+use case.</p>
+</div>
+<div class="paragraph">
+<p>Before creating an image, the application <strong class="purple">can</strong> obtain the complete set of
+supported image format features by calling
+<a href="chap41.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> using parameters derived
+from the members of one of the reported <code>VkVideoFormatPropertiesKHR</code>
+entries and adding the same <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure to the
+<code>pNext</code> chain of <a href="chap41.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>componentMapping</code> member of <code>VkVideoFormatPropertiesKHR</code>
+defines the ordering of the Y′C<sub>B</sub>C<sub>R</sub> color channels from the perspective of
+the video codec operations specified in <code>VkVideoProfilesKHR</code>.
+For example, if the implementation produces video decode output with the
+format <code>VK_FORMAT_G8_B8R8_2PLANE_420_UNORM</code> where the blue and red
+chrominance channels are swapped then the <code>componentMapping</code> member of
+the corresponding <code>VkVideoFormatPropertiesKHR</code> structure will have the
+following member values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="n">components</span><span class="p">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">VK_COMPONENT_SWIZZLE_B</span><span class="p">;</span>        <span class="c1">// Cb component</span>
+<span class="n">components</span><span class="p">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">VK_COMPONENT_SWIZZLE_IDENTITY</span><span class="p">;</span> <span class="c1">// Y component</span>
+<span class="n">components</span><span class="p">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">VK_COMPONENT_SWIZZLE_R</span><span class="p">;</span>        <span class="c1">// Cr component</span>
+<span class="n">components</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">VK_COMPONENT_SWIZZLE_IDENTITY</span><span class="p">;</span> <span class="c1">// unused, defaults to 1.0</span></code></pre>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkTraceRaysIndirectCommand2KHR-pNext-06812" href="chap36.html#VUID-VkTraceRaysIndirectCommand2KHR-pNext-06812"></a> <span class="vuid">VUID-VkTraceRaysIndirectCommand2KHR-pNext-06812</span><br>
+
+The <code>pNext</code> chain of <code>pVideoFormatInfo</code> <strong class="purple">must</strong> include a valid
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure with <code>profileCount</code> greater than
+<code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2227,13 +2355,25 @@ flags <strong class="purple">can</strong> be set.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_ERROR_EXTENSION_NOT_PRESENT</code></p>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_FORMAT_NOT_SUPPORTED</code></p>
+<p><code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -2253,10 +2393,9 @@ flags <strong class="purple">can</strong> be set.</p>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_queue</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceVideoFormatInfoKHR</span> <span class="p">{</span>
-    <span class="n">VkStructureType</span>              <span class="n">sType</span><span class="p">;</span>
-    <span class="kt">void</span><span class="o">*</span>                        <span class="n">pNext</span><span class="p">;</span>
-    <span class="n">VkImageUsageFlags</span>            <span class="n">imageUsage</span><span class="p">;</span>
-    <span class="k">const</span> <span class="n">VkVideoProfilesKHR</span><span class="o">*</span>    <span class="n">pVideoProfiles</span><span class="p">;</span>
+     <span class="n">VkStructureType</span>     <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkImageUsageFlags</span>    <span class="n">imageUsage</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkPhysicalDeviceVideoFormatInfoKHR</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -2271,18 +2410,7 @@ structure.</p>
 </li>
 <li>
 <p><code>imageUsage</code> is a bitmask of <a href="chap12.html#VkImageUsageFlagBits">VkImageUsageFlagBits</a> specifying
-intended video image usages.</p>
-</li>
-<li>
-<p><code>pVideoProfiles</code> is a pointer to a <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a>
-structure providing the video profile(s) of video session(s) that will
-use the image.
-For most use cases, the image is used by a single video session and a
-single video profile is provided.
-For a use case such as transcode, where a decode session output image
-<strong class="purple">may</strong> be used as encode input for one or more encode sessions, multiple
-video profiles representing the video sessions that will share the image
-<strong class="purple">may</strong> be provided.</p>
+the intended usage of the video images.</p>
 </li>
 </ul>
 </div>
@@ -2297,7 +2425,19 @@ video profiles representing the video sessions that will share the image
 </li>
 <li>
 <p><a id="VUID-VkPhysicalDeviceVideoFormatInfoKHR-pNext-pNext" href="chap36.html#VUID-VkPhysicalDeviceVideoFormatInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoFormatInfoKHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a></p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVideoFormatInfoKHR-sType-unique" href="chap36.html#VUID-VkPhysicalDeviceVideoFormatInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoFormatInfoKHR-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-parameter" href="chap36.html#VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-parameter"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-parameter</span><br>
+ <code>imageUsage</code> <strong class="purple">must</strong> be a valid combination of <a href="chap12.html#VkImageUsageFlagBits">VkImageUsageFlagBits</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-requiredbitmask" href="chap36.html#VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-requiredbitmask"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoFormatInfoKHR-imageUsage-requiredbitmask</span><br>
+ <code>imageUsage</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -2315,7 +2455,7 @@ video profiles representing the video sessions that will share the image
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_queue</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkVideoProfilesKHR</span> <span class="p">{</span>
     <span class="n">VkStructureType</span>             <span class="n">sType</span><span class="p">;</span>
-    <span class="kt">void</span><span class="o">*</span>                       <span class="n">pNext</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
     <span class="kt">uint32_t</span>                    <span class="n">profileCount</span><span class="p">;</span>
     <span class="k">const</span> <span class="n">VkVideoProfileKHR</span><span class="o">*</span>    <span class="n">pProfiles</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoProfilesKHR</span><span class="p">;</span></code></pre>
@@ -2342,6 +2482,31 @@ codec-operation specific extension video profile structure.</p>
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p>Video transcoding is an example of a use case that necessitates numerous
+profiles.
+When the application provides one or more video decode and encode profiles
+in the list of profiles, the implementation ensures that the video formats
+and parameters reported produce video resources suitable for the transcoding
+use cases without the need for manual transformation.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoProfilesKHR-pProfiles-06813" href="chap36.html#VUID-VkVideoProfilesKHR-pProfiles-06813"></a> <span class="vuid">VUID-VkVideoProfilesKHR-pProfiles-06813</span><br>
+
+If the <code>pProfiles</code> list contains more than one
+<a href="chap36.html#VkVideoProfileKHR">VkVideoProfileKHR</a> entry, then it <strong class="purple">must</strong> not contain more than one
+entry whose <code>videoCodecOperation</code> member specifies a decode
+operation</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -2353,11 +2518,7 @@ codec-operation specific extension video profile structure.</p>
 </li>
 <li>
 <p><a id="VUID-VkVideoProfilesKHR-pProfiles-parameter" href="chap36.html#VUID-VkVideoProfilesKHR-pProfiles-parameter"></a> <span class="vuid">VUID-VkVideoProfilesKHR-pProfiles-parameter</span><br>
- <code>pProfiles</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>profileCount</code> valid <a href="chap36.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structures</p>
-</li>
-<li>
-<p><a id="VUID-VkVideoProfilesKHR-profileCount-arraylength" href="chap36.html#VUID-VkVideoProfilesKHR-profileCount-arraylength"></a> <span class="vuid">VUID-VkVideoProfilesKHR-profileCount-arraylength</span><br>
- <code>profileCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+ If <code>profileCount</code> is not <code>0</code>, <code>pProfiles</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>profileCount</code> valid <a href="chap36.html#VkVideoProfileKHR">VkVideoProfileKHR</a> structures</p>
 </li>
 </ul>
 </div>
@@ -2375,9 +2536,14 @@ codec-operation specific extension video profile structure.</p>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_queue</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkVideoFormatPropertiesKHR</span> <span class="p">{</span>
-    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
-    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
-    <span class="n">VkFormat</span>           <span class="n">format</span><span class="p">;</span>
+    <span class="n">VkStructureType</span>       <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkFormat</span>              <span class="n">format</span><span class="p">;</span>
+    <span class="n">VkComponentMapping</span>    <span class="n">componentMapping</span><span class="p">;</span>
+    <span class="n">VkImageCreateFlags</span>    <span class="n">imageCreateFlags</span><span class="p">;</span>
+    <span class="n">VkImageType</span>           <span class="n">imageType</span><span class="p">;</span>
+    <span class="n">VkImageTiling</span>         <span class="n">imageTiling</span><span class="p">;</span>
+    <span class="n">VkImageUsageFlags</span>     <span class="n">imageUsageFlags</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">VkVideoFormatPropertiesKHR</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -2391,15 +2557,36 @@ codec-operation specific extension video profile structure.</p>
 structure.</p>
 </li>
 <li>
-<p><code>format</code> is one of the supported formats reported by the
-implementation.</p>
+<p><code>format</code> is a <a href="chap40.html#VkFormat">VkFormat</a> that specifies the format that <strong class="purple">can</strong> be
+used with the specified video profiles and image usages.</p>
+</li>
+<li>
+<p><code>componentMapping</code> defines the color channel order used for the
+format.
+<code>format</code> along with <code>componentMapping</code> describe how the color
+channels are ordered when producing video decoder output or are expected
+to be ordered in video encoder input, when applicable.
+If the <code>format</code> reported does not require component swizzling then
+all members of <code>componentMapping</code> will be set to
+<code>VK_COMPONENT_SWIZZLE_IDENTITY</code>.</p>
+</li>
+<li>
+<p><code>imageCreateFlags</code> is a bitmask of <a href="chap12.html#VkImageCreateFlagBits">VkImageCreateFlagBits</a>
+specifying the supported image creation flags for the format.</p>
+</li>
+<li>
+<p><code>imageType</code> is a <a href="chap12.html#VkImageType">VkImageType</a> that specifies the image type the
+format <strong class="purple">can</strong> be used with.</p>
+</li>
+<li>
+<p><code>imageTiling</code> is a <a href="chap12.html#VkImageTiling">VkImageTiling</a> that specifies the image
+tiling the format <strong class="purple">can</strong> be used with.</p>
+</li>
+<li>
+<p><code>imageUsageFlags</code> is a bitmask of <a href="chap12.html#VkImageUsageFlagBits">VkImageUsageFlagBits</a>
+specifying the supported image usage flags for the format.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>If the <code>pVideoProfiles</code> or <code>imageUsage</code> provided in input structure
-<code>pVideoFormatInfo</code> are not supported,
-<code>VK_ERROR_FORMAT_NOT_SUPPORTED</code> is returned.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2419,14 +2606,6 @@ implementation.</p>
 </div>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p>Before creating an image, the application should obtain the supported image
-creation parameters by querying with
-<a href="chap40.html#vkGetPhysicalDeviceFormatProperties2">vkGetPhysicalDeviceFormatProperties2</a> or
-<a href="chap41.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> using one of the reported
-<code>pImageFormats</code> and adding <a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> to the <code>pNext</code>
-chain of <a href="chap40.html#VkFormatProperties2">VkFormatProperties2</a>.</p>
 </div>
 </div>
 </div>
@@ -2541,10 +2720,7 @@ created by this function when it returns <code>VK_SUCCESS</code></p>
 <p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_INCOMPATIBLE_DRIVER</code></p>
-</li>
-<li>
-<p><code>VK_ERROR_FEATURE_NOT_PRESENT</code></p>
+<p><code>VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -2685,31 +2861,58 @@ reported
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-04852" href="chap36.html#VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-04852"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-04852</span><br>
 
-<code>referencePicturesFormat</code> <strong class="purple">must</strong> be one of the supported formats in
-<a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> <code>format</code> returned by the
-<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> when the
-<a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a> <code>imageUsage</code> contains
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> or
-<code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code> depending on the session
-codec operation</p>
+If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
+a decode operation then <code>referencePicturesFormat</code> <strong class="purple">must</strong> be one of
+the supported decode DPB formats as reported by
+<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
+member of <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> when called with the
+<code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
+containing <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>, and with a
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure chained to its <code>pVideoFormatInfo</code>
+parameter whose <code>pProfiles</code> member contains an entry matching
+<code>pVideoProfile</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-videoCodecOperation-06814" href="chap36.html#VUID-VkVideoSessionCreateInfoKHR-videoCodecOperation-06814"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-videoCodecOperation-06814</span><br>
+
+If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
+an encode operation then <code>referencePicturesFormat</code> <strong class="purple">must</strong> be one of
+the supported encode DPB formats as reported by
+<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
+member of <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> when called with the
+<code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
+containing <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code>, and with a
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure chained to its <code>pVideoFormatInfo</code>
+parameter whose <code>pProfiles</code> member contains an entry matching
+<code>pVideoProfile</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04853" href="chap36.html#VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04853"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04853</span><br>
 
-<code>pictureFormat</code> for decode output <strong class="purple">must</strong> be one of the supported
-formats in <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> <code>format</code> returned by the
-<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> when the
-<a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a> <code>imageUsage</code> contains
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code></p>
+If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
+a decode operation then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the
+supported decode output formats as reported by
+<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
+member of <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> when called with the
+<code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
+containing <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>, and with a
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure chained to its <code>pVideoFormatInfo</code>
+parameter whose <code>pProfiles</code> member contains an entry matching
+<code>pVideoProfile</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04854" href="chap36.html#VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04854"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04854</span><br>
 
-<code>pictureFormat</code> targeting encode operations <strong class="purple">must</strong> be one of the
-supported formats in <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> <code>format</code>
-returned by the <a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> when
-the <a href="chap36.html#VkPhysicalDeviceVideoFormatInfoKHR">VkPhysicalDeviceVideoFormatInfoKHR</a> <code>imageUsage</code> contains
-<code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code></p>
+If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
+an encode operation then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the
+supported encode input formats as reported by
+<a href="chap36.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
+member of <a href="chap36.html#VkVideoFormatPropertiesKHR">VkVideoFormatPropertiesKHR</a> when called with the
+<code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
+containing <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>, and with a
+<a href="chap36.html#VkVideoProfilesKHR">VkVideoProfilesKHR</a> structure chained to its <code>pVideoFormatInfo</code>
+parameter whose <code>pProfiles</code> member contains an entry matching
+<code>pVideoProfile</code></p>
 </li>
 </ul>
 </div>
@@ -6217,8 +6420,8 @@ coding layers (if applicable to the specified stream rate control mode).</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.217<br>
-Last updated 2022-01-21 21:58:54 -0800
+Version 1.3.218<br>
+Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>
 

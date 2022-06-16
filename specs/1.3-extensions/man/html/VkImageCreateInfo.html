@@ -1170,6 +1170,12 @@ contain no <a href="VkPhysicalDeviceExternalImageFormatInfo.html">VkPhysicalDevi
 contain a structure whose <code>handleType</code> is <code>0</code>.</p>
 </li>
 <li>
+<p>If <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>pNext</code> contains a
+<a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure then
+<a href="VkPhysicalDeviceImageFormatInfo2.html">VkPhysicalDeviceImageFormatInfo2</a>::<code>pNext</code> <strong class="purple">must</strong> also contain
+the same <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure on each call.</p>
+</li>
+<li>
 <p>If <code>tiling</code> is <code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code>,
 then:</p>
 <div class="ulist">
@@ -1280,6 +1286,70 @@ the intersection of each
 <code>imageCreateImageFormatPropertiesList</code>.
 The value is undefined if <code>imageCreateImageFormatPropertiesList</code> is
 empty.</p>
+</li>
+<li>
+<p>Let <code>VkVideoFormatPropertiesKHR videoFormatProperties[]</code> be defined as
+follows.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>pNext</code> contains a
+<a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure, then <code>videoFormatProperties</code> is the
+list of structures obtained by calling
+<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> with
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> equal to the
+<code>usage</code> member of <a href="VkImageCreateInfo.html">VkImageCreateInfo</a> and
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>pNext</code> containing the
+same <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure chained to
+<a href="VkImageCreateInfo.html">VkImageCreateInfo</a>.</p>
+</li>
+<li>
+<p>If <a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>pNext</code> contains no
+<a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure, then <code>videoFormatProperties</code> is an
+empty list.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Let <code>VkBool32 supportedVideoFormat</code> indicate if the image parameters are
+supported by the specified video profiles.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>supportedVideoFormat</code> is <code>VK_TRUE</code> if there exists an element in
+the <code>videoFormatProperties</code> list for which all of the following
+conditions are true:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>format</code> equals
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>format</code>.</p>
+</li>
+<li>
+<p><a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>flags</code> only contains bits also set in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>imageCreateFlags</code>.</p>
+</li>
+<li>
+<p><a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>imageType</code> equals
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>imageType</code>.</p>
+</li>
+<li>
+<p><a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>tiling</code> equals
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>imageTiling</code>.</p>
+</li>
+<li>
+<p><a href="VkImageCreateInfo.html">VkImageCreateInfo</a>::<code>usage</code> only contains bits also set in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>imageUsageFlags</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Otherwise <code>supportedVideoFormat</code> is <code>VK_FALSE</code>.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -2042,9 +2112,10 @@ structure, then <a href="VkImageFormatListCreateInfo.html">VkImageFormatListCrea
 
 If <code>usage</code> includes <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>, then the <code>pNext</code>
-chain <strong class="purple">must</strong> include a valid <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure which
-includes at least one <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a> with a decode
-codec-operation</p>
+chain <strong class="purple">must</strong> include a valid <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure with
+<code>profileCount</code> greater than <code>0</code> and <code>pProfiles</code> including at
+least one <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> specifying
+a decode operation</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-usage-04816"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-04816</span><br>
@@ -2052,9 +2123,16 @@ codec-operation</p>
 If <code>usage</code> includes <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>,
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code>, then the <code>pNext</code>
-chain <strong class="purple">must</strong> include a valid <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure which
-includes at least one <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a> with a encode
-codec-operation</p>
+chain <strong class="purple">must</strong> include a valid <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure with
+<code>profileCount</code> greater than <code>0</code> and <code>pProfiles</code> including at
+least one <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a>::<code>videoCodecOperation</code> specifying
+an encode operation</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-06811"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06811</span><br>
+
+If the <code>pNext</code> chain includes a <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure
+then <code>supportedVideoFormat</code> <strong class="purple">must</strong> be <code>VK_TRUE</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-pNext-06390"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06390</span><br>
@@ -2141,7 +2219,7 @@ then <a href="VkImportMetalTextureInfoEXT.html">VkImportMetalTextureInfoEXT</a>:
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkBufferCollectionImageCreateInfoFUCHSIA.html">VkBufferCollectionImageCreateInfoFUCHSIA</a>, <a href="VkDedicatedAllocationImageCreateInfoNV.html">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="VkExportMetalObjectCreateInfoEXT.html">VkExportMetalObjectCreateInfoEXT</a>, <a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a>, <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>, <a href="VkExternalMemoryImageCreateInfoNV.html">VkExternalMemoryImageCreateInfoNV</a>, <a href="VkImageCompressionControlEXT.html">VkImageCompressionControlEXT</a>, <a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, <a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>, <a href="VkImageFormatListCreateInfo.html">VkImageFormatListCreateInfo</a>, <a href="VkImageStencilUsageCreateInfo.html">VkImageStencilUsageCreateInfo</a>, <a href="VkImageSwapchainCreateInfoKHR.html">VkImageSwapchainCreateInfoKHR</a>, <a href="VkImportMetalIOSurfaceInfoEXT.html">VkImportMetalIOSurfaceInfoEXT</a>, <a href="VkImportMetalTextureInfoEXT.html">VkImportMetalTextureInfoEXT</a>, <a href="VkVideoDecodeH264ProfileEXT.html">VkVideoDecodeH264ProfileEXT</a>, <a href="VkVideoDecodeH265ProfileEXT.html">VkVideoDecodeH265ProfileEXT</a>, <a href="VkVideoEncodeH264ProfileEXT.html">VkVideoEncodeH264ProfileEXT</a>, <a href="VkVideoEncodeH265ProfileEXT.html">VkVideoEncodeH265ProfileEXT</a>, <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a>, or <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkBufferCollectionImageCreateInfoFUCHSIA.html">VkBufferCollectionImageCreateInfoFUCHSIA</a>, <a href="VkDedicatedAllocationImageCreateInfoNV.html">VkDedicatedAllocationImageCreateInfoNV</a>, <a href="VkExportMetalObjectCreateInfoEXT.html">VkExportMetalObjectCreateInfoEXT</a>, <a href="VkExternalFormatANDROID.html">VkExternalFormatANDROID</a>, <a href="VkExternalMemoryImageCreateInfo.html">VkExternalMemoryImageCreateInfo</a>, <a href="VkExternalMemoryImageCreateInfoNV.html">VkExternalMemoryImageCreateInfoNV</a>, <a href="VkImageCompressionControlEXT.html">VkImageCompressionControlEXT</a>, <a href="VkImageDrmFormatModifierExplicitCreateInfoEXT.html">VkImageDrmFormatModifierExplicitCreateInfoEXT</a>, <a href="VkImageDrmFormatModifierListCreateInfoEXT.html">VkImageDrmFormatModifierListCreateInfoEXT</a>, <a href="VkImageFormatListCreateInfo.html">VkImageFormatListCreateInfo</a>, <a href="VkImageStencilUsageCreateInfo.html">VkImageStencilUsageCreateInfo</a>, <a href="VkImageSwapchainCreateInfoKHR.html">VkImageSwapchainCreateInfoKHR</a>, <a href="VkImportMetalIOSurfaceInfoEXT.html">VkImportMetalIOSurfaceInfoEXT</a>, <a href="VkImportMetalTextureInfoEXT.html">VkImportMetalTextureInfoEXT</a>, or <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkImageCreateInfo-sType-unique</span><br>
@@ -2223,8 +2301,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.217<br>
-Last updated 2022-06-09 03:45:42 -0700
+Version 1.3.218<br>
+Last updated 2022-06-16 02:19:13 -0700
 </div>
 </div>
 
