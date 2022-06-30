@@ -150,6 +150,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_objects.html"> VK_EXT_metal_objects </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_surface.html"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multi_draw.html"> VK_EXT_multi_draw </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multisampled_render_to_single_sampled.html"> VK_EXT_multisampled_render_to_single_sampled </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_non_seamless_cube_map.html"> VK_EXT_non_seamless_cube_map </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pageable_device_local_memory.html"> VK_EXT_pageable_device_local_memory </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pci_bus_info.html"> VK_EXT_pci_bus_info </a> </li>
@@ -173,6 +174,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_atomic_float2.html"> VK_EXT_shader_atomic_float2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_demote_to_helper_invocation.html"> VK_EXT_shader_demote_to_helper_invocation </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_image_atomic_int64.html"> VK_EXT_shader_image_atomic_int64 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_module_identifier.html"> VK_EXT_shader_module_identifier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_stencil_export.html"> VK_EXT_shader_stencil_export </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_ballot.html"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_subgroup_vote.html"> VK_EXT_shader_subgroup_vote </a> </li>
