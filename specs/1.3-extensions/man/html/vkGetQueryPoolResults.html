@@ -870,50 +870,75 @@ and when results are returned.</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The range of queries read is defined by <span class="eq">[<code>firstQuery</code>,
-<code>firstQuery</code> +  <code>queryCount</code> - 1]</span>.
-For pipeline statistics queries, each query index in the pool contains one
-integer value for each bit that is enabled in
-<a href="VkQueryPoolCreateInfo.html">VkQueryPoolCreateInfo</a>::<code>pipelineStatistics</code> when the pool is
-created.</p>
+<p>Any results written for a query are written according to
+<a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#queries-operation-memorylayout" target="_blank" rel="noopener">a layout dependent on the query type</a>.</p>
 </div>
 <div class="paragraph">
-<p>If no bits are set in <code>flags</code>, and all requested queries are in the
-available state, results are written as an array of 32-bit unsigned integer
-values.
-The behavior when not all queries are available, is described
-<a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#queries-wait-bit-not-set" target="_blank" rel="noopener">below</a>.</p>
+<p>Results for any query in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> that is available are copied to <code>pData</code>.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_64_BIT</code> is not set and the result overflows a 32-bit
-value, the value <strong class="purple">may</strong> either wrap or saturate.
-Similarly, if <code>VK_QUERY_RESULT_64_BIT</code> is set and the result overflows a
-64-bit value, the value <strong class="purple">may</strong> either wrap or saturate.</p>
+<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, results for all
+queries in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> are copied to <code>pData</code>, along with an extra availability
+value written directly after the results of each query and interpreted as an
+unsigned integer.
+A value of zero indicates that the results are not yet available, otherwise
+the query is complete and results are available.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is set, Vulkan will wait for each query to
-be in the available state before retrieving the numerical results for that
-query.
-In this case, <code>vkGetQueryPoolResults</code> is guaranteed to succeed and
-return <code>VK_SUCCESS</code> if the queries become available in a finite time
-(i.e. if they have been issued and not reset).
-If queries will never finish (e.g. due to being reset but not issued), then
-<code>vkGetQueryPoolResults</code> <strong class="purple">may</strong> not return in finite time.</p>
-</div>
-<div id="queries-wait-bit-not-set" class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> and <code>VK_QUERY_RESULT_PARTIAL_BIT</code> are
-both not set then no result values are written to <code>pData</code> for queries
-that are in the unavailable state at the time of the call, and
-<code>vkGetQueryPoolResults</code> returns <code>VK_NOT_READY</code>.
-However, availability state is still written to <code>pData</code> for those
-queries if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set.
-Similarly, the status is still written to <code>pData</code> for those queries if
-<code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code> is set.</p>
+<p>If <code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code> is set, results for all queries
+in <code>queryPool</code> identified by <code>firstQuery</code> and <code>queryCount</code> are
+copied to <code>pData</code>, along with an extra status value written directly
+after the results of each query and interpreted as a signed integer.
+A value of zero indicates that the results are not yet available.
+Positive values indicate that the operations within the query completed
+successfully, and the query results are valid.
+Negative values indicate that the operations within the query completed
+unsuccessfully.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is not set, <code>vkGetQueryPoolResults</code>
-<strong class="purple">may</strong> return <code>VK_NOT_READY</code> if there are queries in the unavailable
-state.</p>
+<p><a href="VkQueryResultStatusKHR.html">VkQueryResultStatusKHR</a> defines specific meaning for values returned
+here, though implementations are free to return other values.</p>
+</div>
+<div class="paragraph">
+<p>Results for any available query written by this command are final and
+represent the final result of the query.
+If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, then for any query that is
+unavailable, an intermediate result between zero and the final result value
+is written for that query.
+Otherwise, any result written by this command is undefined.</p>
+</div>
+<div class="paragraph">
+<p>If <code>VK_QUERY_RESULT_64_BIT</code> is set, results and availability
+or status
+values for all queries are written as an array of 64-bit values.
+If the <code>queryPool</code> was created with
+<code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, results for each query are
+written as an array of the type indicated by
+<a href="VkPerformanceCounterKHR.html">VkPerformanceCounterKHR</a>::<code>storage</code> for the counter being queried.
+Otherwise, results and availability
+or status
+values are written as an array of 32-bit values.
+If an unsigned integer query&#8217;s value overflows the result type, the value
+<strong class="purple">may</strong> either wrap or saturate.
+If a signed integer query&#8217;s value overflows the result type, the value is
+undefined.
+If a floating point query&#8217;s value is not representable as the result type,
+the value is undefined.</p>
+</div>
+<div class="paragraph">
+<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is set, this command defines an execution
+dependency with any earlier commands that writes one of the identified
+queries.
+The first <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a>
+includes all instances of <a href="vkCmdEndQuery.html">vkCmdEndQuery</a>,
+<a href="vkCmdEndQueryIndexedEXT.html">vkCmdEndQueryIndexedEXT</a>,
+<a href="vkCmdWriteTimestamp2.html">vkCmdWriteTimestamp2</a>,
+and <a href="vkCmdWriteTimestamp.html">vkCmdWriteTimestamp</a> that reference any query in <code>queryPool</code>
+indicated by <code>firstQuery</code> and <code>queryCount</code>.
+The second <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a>
+includes the host operations of this command.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -970,51 +995,6 @@ reset queries at the end of the frame in which they are read.</p>
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, <code>VK_QUERY_RESULT_WAIT_BIT</code>
-is not set, and the query&#8217;s status is unavailable, an intermediate result
-value between zero and the final result value is written to <code>pData</code> for
-that query.</p>
-</div>
-<div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, the final integer
-value written for each query is non-zero if the query&#8217;s status was available
-or zero if the status was unavailable.
-When <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is used, implementations
-<strong class="purple">must</strong> guarantee that if they return a non-zero availability value then the
-numerical results <strong class="purple">must</strong> be valid, assuming the results are not reset by a
-subsequent command.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Satisfying this guarantee <strong class="purple">may</strong> require careful ordering by the application,
-e.g. to read the availability status before reading the results.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code> is set, the final integer value
-written for each query indicates whether the result is available or not, and
-whether an error occurred.
-A value of zero indicates that the results are not yet available.
-Positive values indicate that the operations within the query completed
-successfully, and the query results are valid.
-Negative values indicate that the operations within the query completed
-unsuccessfully.</p>
-</div>
-<div class="paragraph">
-<p>Specific result codes are defined by the <a href="VkQueryResultStatusKHR.html">VkQueryResultStatusKHR</a>
-enumeration.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1106,6 +1086,13 @@ If the <code>queryType</code> used to create <code>queryPool</code> was
 
 If <code>flags</code> includes <code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code>, it
 <strong class="purple">must</strong> not include <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkGetQueryPoolResults-queryType-06900"></a> <span class="vuid">VUID-vkGetQueryPoolResults-queryType-06900</span><br>
+
+If the <code>queryType</code> used to create <code>queryPool</code> was
+<code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, <code>flags</code> <strong class="purple">must</strong> not contain
+<code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -1218,8 +1205,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.219<br>
-Last updated 2022-06-30 03:14:20 -0700
+Version 1.3.220<br>
+Last updated 2022-07-07 05:03:17 -0700
 </div>
 </div>
 

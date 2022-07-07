@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.219 - A Specification</title>
+<title>Vulkan® 1.0.220 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.219 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.220 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.219,</span>
-<span id="revdate">2022-06-30 10:32:16Z</span>
-<br><span id="revremark">from git branch: github-main commit: 080f66a96b61419b8663872d6cab6ce68a3123e8</span>
+<span id="revnumber">version 1.0.220,</span>
+<span id="revdate">2022-07-07 12:21:37Z</span>
+<br><span id="revremark">from git branch: github-main commit: 29f44f378cdeb1b96b47ce00fb32f49954f2d29d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -837,22 +837,11 @@ query type of a given query pool.</p>
 operation of the type requested when the query pool was created.
 Resetting a query via <a href="chap17.html#vkCmdResetQueryPool">vkCmdResetQueryPool</a>
 sets the status to unavailable and makes the numerical results undefined.
-Performing a query operation with <a href="chap17.html#vkCmdBeginQuery">vkCmdBeginQuery</a> and
-<a href="chap17.html#vkCmdEndQuery">vkCmdEndQuery</a> changes the status to available when the query
-<a href="chap17.html#queries-operation-finished">finishes</a>, and updates the numerical results.
-Both the availability status and numerical results are retrieved by calling
-either <a href="chap17.html#vkGetQueryPoolResults">vkGetQueryPoolResults</a> or <a href="chap17.html#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a>.</p>
-</div>
-<div id="queries-order" class="paragraph">
-<p>Query commands, for the same query and submitted to the same queue, execute
-in their entirety in <a href="chap7.html#synchronization-submission-order">submission order</a>,
-relative to each other.
-In effect there is an implicit execution dependency from each such query
-command to all query commands previously submitted to the same queue.
-There is one significant exception to this; if the <code>flags</code> parameter of
-<a href="chap17.html#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a> does not include
-<code>VK_QUERY_RESULT_WAIT_BIT</code>, execution of <a href="chap17.html#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a>
-<strong class="purple">may</strong> happen-before the results of <a href="chap17.html#vkCmdEndQuery">vkCmdEndQuery</a> are available.</p>
+A query is made available by the operation of <a href="chap17.html#vkCmdEndQuery">vkCmdEndQuery</a>,
+or <a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a>.
+Both the availability status and numerical results <strong class="purple">can</strong> be retrieved by
+calling either <a href="chap17.html#vkGetQueryPoolResults">vkGetQueryPoolResults</a> or
+<a href="chap17.html#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a>.</p>
 </div>
 <div class="paragraph">
 <p>After query pool creation, each query <strong class="purple">must</strong> be reset before it is used.
@@ -895,6 +884,26 @@ being reset.</p>
 <p>When executed on a queue, this command sets the status of query indices
 <span class="eq">[<code>firstQuery</code>, <code>firstQuery</code> +  <code>queryCount</code> - 1]</span> to
 unavailable.</p>
+</div>
+<div class="paragraph">
+<p>This command defines an execution dependency between other query commands
+that reference the same query.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>firstQuery</code> and <code>queryCount</code> that occur earlier in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>firstQuery</code> and <code>queryCount</code> that occur later in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The operation of this command happens after the first scope and happens
+before the second scope.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1072,6 +1081,26 @@ This is described in more detail in <a href="chap17.html#queries-occlusion">Occl
 command buffer it was called in until that same query is ended.
 Queries active in a primary command buffer when secondary command buffers
 are executed are considered active for those secondary command buffers.</p>
+</div>
+<div class="paragraph">
+<p>This command defines an execution dependency between other query commands
+that reference the same query.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>query</code> that occur earlier in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>query</code> that occur later in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The operation of this command happens after the first scope and happens
+before the second scope.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1287,18 +1316,23 @@ stored.</p>
 </li>
 </ul>
 </div>
-<div id="queries-operation-finished" class="paragraph">
-<p>As queries operate asynchronously, ending a query does not immediately set
-the query’s status to available.
-A query is considered <em>finished</em> when the final results of the query are
-ready to be retrieved by <a href="chap17.html#vkGetQueryPoolResults">vkGetQueryPoolResults</a> and
-<a href="chap17.html#vkCmdCopyQueryPoolResults">vkCmdCopyQueryPoolResults</a>, and this is when the query’s status is set
-to available.</p>
+<div class="paragraph">
+<p>The command completes the query in <code>queryPool</code> identified by
+<code>query</code>, and marks it as available.</p>
 </div>
 <div class="paragraph">
-<p>Once a query is ended the query <strong class="purple">must</strong> finish in finite time, unless the
-state of the query is changed using other commands, e.g. by issuing a reset
-of the query.</p>
+<p>This command defines an execution dependency between other query commands
+that reference the same query.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>query</code> that occur earlier in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes only the operation of this command.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1491,48 +1525,48 @@ and when results are returned.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The range of queries read is defined by <span class="eq">[<code>firstQuery</code>,
-<code>firstQuery</code> +  <code>queryCount</code> - 1]</span>.
-For pipeline statistics queries, each query index in the pool contains one
-integer value for each bit that is enabled in
-<a href="chap17.html#VkQueryPoolCreateInfo">VkQueryPoolCreateInfo</a>::<code>pipelineStatistics</code> when the pool is
-created.</p>
+<p>Any results written for a query are written according to
+<a href="chap17.html#queries-operation-memorylayout">a layout dependent on the query type</a>.</p>
 </div>
 <div class="paragraph">
-<p>If no bits are set in <code>flags</code>, and all requested queries are in the
-available state, results are written as an array of 32-bit unsigned integer
-values.
-The behavior when not all queries are available, is described
-<a href="chap17.html#queries-wait-bit-not-set">below</a>.</p>
+<p>Results for any query in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> that is available are copied to <code>pData</code>.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_64_BIT</code> is not set and the result overflows a 32-bit
-value, the value <strong class="purple">may</strong> either wrap or saturate.
-Similarly, if <code>VK_QUERY_RESULT_64_BIT</code> is set and the result overflows a
-64-bit value, the value <strong class="purple">may</strong> either wrap or saturate.</p>
+<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, results for all
+queries in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> are copied to <code>pData</code>, along with an extra availability
+value written directly after the results of each query and interpreted as an
+unsigned integer.
+A value of zero indicates that the results are not yet available, otherwise
+the query is complete and results are available.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is set, Vulkan will wait for each query to
-be in the available state before retrieving the numerical results for that
-query.
-In this case, <code>vkGetQueryPoolResults</code> is guaranteed to succeed and
-return <code>VK_SUCCESS</code> if the queries become available in a finite time
-(i.e. if they have been issued and not reset).
-If queries will never finish (e.g. due to being reset but not issued), then
-<code>vkGetQueryPoolResults</code> <strong class="purple">may</strong> not return in finite time.</p>
-</div>
-<div id="queries-wait-bit-not-set" class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> and <code>VK_QUERY_RESULT_PARTIAL_BIT</code> are
-both not set then no result values are written to <code>pData</code> for queries
-that are in the unavailable state at the time of the call, and
-<code>vkGetQueryPoolResults</code> returns <code>VK_NOT_READY</code>.
-However, availability state is still written to <code>pData</code> for those
-queries if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set.</p>
+<p>Results for any available query written by this command are final and
+represent the final result of the query.
+If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, then for any query that is
+unavailable, an intermediate result between zero and the final result value
+is written for that query.
+Otherwise, any result written by this command is undefined.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is not set, <code>vkGetQueryPoolResults</code>
-<strong class="purple">may</strong> return <code>VK_NOT_READY</code> if there are queries in the unavailable
-state.</p>
+<p>If <code>VK_QUERY_RESULT_64_BIT</code> is set, results and availability
+values for all queries are written as an array of 64-bit values.
+Otherwise, results and availability
+values are written as an array of 32-bit values.
+If an unsigned integer query’s value overflows the result type, the value
+<strong class="purple">may</strong> either wrap or saturate.</p>
+</div>
+<div class="paragraph">
+<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is set, this command defines an execution
+dependency with any earlier commands that writes one of the identified
+queries.
+The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all instances of <a href="chap17.html#vkCmdEndQuery">vkCmdEndQuery</a>,
+and <a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a> that reference any query in <code>queryPool</code>
+indicated by <code>firstQuery</code> and <code>queryCount</code>.
+The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes the host operations of this command.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1579,37 +1613,6 @@ of the query.</p>
 <div class="paragraph">
 <p>Applications <strong class="purple">can</strong> double-buffer query pool usage, with a pool per frame, and
 reset queries at the end of the frame in which they are read.</p>
-</div>
-</td>
-</tr>
-</tbody></table>
-</div>
-<div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, <code>VK_QUERY_RESULT_WAIT_BIT</code>
-is not set, and the query’s status is unavailable, an intermediate result
-value between zero and the final result value is written to <code>pData</code> for
-that query.</p>
-</div>
-<div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, the final integer
-value written for each query is non-zero if the query’s status was available
-or zero if the status was unavailable.
-When <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is used, implementations
-<strong class="purple">must</strong> guarantee that if they return a non-zero availability value then the
-numerical results <strong class="purple">must</strong> be valid, assuming the results are not reset by a
-subsequent command.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tbody><tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>Satisfying this guarantee <strong class="purple">may</strong> require careful ordering by the application,
-e.g. to read the availability status before reading the results.</p>
 </div>
 </td>
 </tr>
@@ -1848,58 +1851,60 @@ and when results are returned.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p><code>vkCmdCopyQueryPoolResults</code> is guaranteed to see the effect of previous
-uses of <code>vkCmdResetQueryPool</code> in the same queue, without any additional
-synchronization.
-Thus, the results will always reflect the most recent use of the query.</p>
+<p>Any results written for a query are written according to
+<a href="chap17.html#queries-operation-memorylayout">a layout dependent on the query type</a>.</p>
 </div>
 <div class="paragraph">
-<p><code>flags</code> has the same possible values described above for the <code>flags</code>
-parameter of <a href="chap17.html#vkGetQueryPoolResults">vkGetQueryPoolResults</a>, but the different style of
-execution causes some subtle behavioral differences.
-Because <code>vkCmdCopyQueryPoolResults</code> executes in order with respect to
-other query commands, there is less ambiguity about which use of a query is
-being requested.</p>
+<p>Results for any query in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> that is available are copied to <code>dstBuffer</code>.</p>
 </div>
 <div class="paragraph">
-<p>Results for all requested occlusion queries, pipeline statistics queries,
-and timestamp queries are written as 64-bit unsigned integer values if
-<code>VK_QUERY_RESULT_64_BIT</code> is set or 32-bit unsigned integer values
-otherwise.</p>
+<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, results for all
+queries in <code>queryPool</code> identified by <code>firstQuery</code> and
+<code>queryCount</code> are copied to <code>dstBuffer</code>, along with an extra
+availability value written directly after the results of each query and
+interpreted as an unsigned integer.
+A value of zero indicates that the results are not yet available, otherwise
+the query is complete and results are available.</p>
 </div>
 <div class="paragraph">
-<p>If neither of <code>VK_QUERY_RESULT_WAIT_BIT</code> and
-<code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> are set, results are only
-written out for queries in the available state.</p>
+<p>Results for any available query written by this command are final and
+represent the final result of the query.
+If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, then for any query that is
+unavailable, an intermediate result between zero and the final result value
+is written for that query.
+Otherwise, any result written by this command is undefined.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_WAIT_BIT</code> is set, the implementation will wait for
-each query’s status to be in the available state before retrieving the
-numerical results for that query.
-This is guaranteed to reflect the most recent use of the query on the same
-queue, assuming that the query is not being simultaneously used by other
-queues.
-If the query does not become available in a finite amount of time (e.g. due
-to not issuing a query since the last reset), a <code>VK_ERROR_DEVICE_LOST</code>
-error <strong class="purple">may</strong> occur.</p>
+<p>If <code>VK_QUERY_RESULT_64_BIT</code> is set, results and availability
+values for all queries are written as an array of 64-bit values.
+Otherwise, results and availability
+values are written as an array of 32-bit values.
+If an unsigned integer query’s value overflows the result type, the value
+<strong class="purple">may</strong> either wrap or saturate.</p>
 </div>
 <div class="paragraph">
-<p>Similarly, if <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set and
-<code>VK_QUERY_RESULT_WAIT_BIT</code> is not set, the availability is guaranteed to
-reflect the most recent use of the query on the same queue, assuming that
-the query is not being simultaneously used by other queues.
-As with <code>vkGetQueryPoolResults</code>, implementations <strong class="purple">must</strong> guarantee that if
-they return a non-zero availability value, then the numerical results are
-valid.</p>
+<p>This command defines an execution dependency between other query commands
+that reference the same query.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_PARTIAL_BIT</code> is set, <code>VK_QUERY_RESULT_WAIT_BIT</code>
-is not set, and the query’s status is unavailable, an intermediate result
-value between zero and the final result value is written for that query.</p>
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>query</code> that occur earlier in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.
+If <code>flags</code> does not include <code>VK_QUERY_RESULT_WAIT_BIT</code>,
+<a href="chap17.html#vkCmdEndQuery">vkCmdEndQuery</a>, and <a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a> are excluded from this
+scope.</p>
 </div>
 <div class="paragraph">
-<p><code>VK_QUERY_RESULT_PARTIAL_BIT</code> <strong class="purple">must</strong> not be used if the pool’s
-<code>queryType</code> is <code>VK_QUERY_TYPE_TIMESTAMP</code>.</p>
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all commands which reference the queries in <code>queryPool</code>
+indicated by <code>query</code> that occur later in
+<a href="chap7.html#synchronization-submission-order">submission order</a>.</p>
+</div>
+<div class="paragraph">
+<p>The operation of this command happens after the first scope and happens
+before the second scope.</p>
 </div>
 <div class="paragraph">
 <p><code>vkCmdCopyQueryPoolResults</code> is considered to be a transfer operation,
@@ -2152,7 +2157,7 @@ statistics are available, but these <strong class="purple">must</strong> be conf
 when it is created.
 If a statistic counter is issued on a command buffer that does not support
 the corresponding operation, the value of that counter is undefined after
-the query has finished.
+the query has been made available.
 At least one statistic counter relevant to the operations supported on the
 recording command buffer <strong class="purple">must</strong> be enabled.</p>
 </div>
@@ -2625,7 +2630,7 @@ Encode</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.219<br>
+Version 1.0.220<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>
