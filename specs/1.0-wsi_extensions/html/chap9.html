@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.220 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.221 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.220 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.221 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.220,</span>
-<span id="revdate">2022-07-07 12:21:11Z</span>
-<br><span id="revremark">from git branch: github-main commit: 29f44f378cdeb1b96b47ce00fb32f49954f2d29d</span>
+<span id="revnumber">version 1.0.221,</span>
+<span id="revdate">2022-07-14 12:41:56Z</span>
+<br><span id="revremark">from git branch: github-main commit: 0eafcaf0146f39a41fa0ed00366d26d826aa787c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -151,7 +151,7 @@
 <li class="current"><a href="chap9.html#shaders-closest-hit">9.14. Closest Hit Shaders</a></li>
 <li class="current"><a href="chap9.html#shaders-miss">9.15. Miss Shaders</a></li>
 <li class="current"><a href="chap9.html#shaders-callable">9.16. Callable Shaders</a></li>
-<li class="current"><a href="chap9.html#shaders-interpolation-decorations">9.17. Interpolation Decorations</a></li>
+<li class="current"><a href="chap9.html#shaders-interpolation-decorations">9.17. Interpolation decorations</a></li>
 <li class="current"><a href="chap9.html#shaders-staticuse">9.18. Static Use</a></li>
 <li class="current"><a href="chap9.html#shaders-scope">9.19. Scope</a></li>
 <li class="current"><a href="chap9.html#shaders-derivative-operations">9.20. Derivative Operations</a></li>
@@ -1357,90 +1357,82 @@ allowed shader stage.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="shaders-interpolation-decorations"><a class="anchor" href="chap9.html#shaders-interpolation-decorations"></a>9.17. Interpolation Decorations</h3>
+<h3 id="shaders-interpolation-decorations"><a class="anchor" href="chap9.html#shaders-interpolation-decorations"></a>9.17. Interpolation decorations</h3>
 <div class="paragraph">
-<p>Interpolation decorations control the behavior of attribute interpolation in
-the fragment shader stage.
-Interpolation decorations <strong class="purple">can</strong> be applied to <code>Input</code> storage class
-variables in the fragment shader stage’s interface, and control the
-interpolation behavior of those variables.</p>
+<p>Variables in the <code>Input</code> storage class in a fragment shader’s interface
+are interpolated from the values specified by the primitive being
+rasterized.</p>
 </div>
 <div class="paragraph">
-<p>Inputs that could be interpolated <strong class="purple">can</strong> be decorated by at most one of the
-following decorations:</p>
+<p>An undecorated input variable will be interpolated with perspective-correct
+interpolation according to the primitive type being rasterized.
+<a href="chap25.html#line_perspective_interpolation">Lines</a> and
+<a href="chap25.html#triangle_perspective_interpolation">polygons</a> are interpolated in the same
+way as the primitive’s clip coordinates.
+If the <code>NoPerspective</code> decoration is present, linear interpolation is
+instead used for <a href="chap25.html#line_linear_interpolation">lines</a> and
+<a href="chap25.html#triangle_linear_interpolation">polygons</a>.
+For points, as there is only a single vertex, input values are never
+interpolated and instead take the value written for the single vertex.</p>
+</div>
+<div class="paragraph">
+<p>If the <code>Flat</code> decoration is present on an input variable, the value is
+not interpolated, and instead takes its value directly from the
+<a href="chap24.html#vertexpostproc-flatshading">provoking vertex</a>.
+Fragment shader inputs that are signed or unsigned integers, integer
+vectors, or any double-precision floating-point type <strong class="purple">must</strong> be decorated with
+<code>Flat</code>.</p>
+</div>
+<div class="paragraph">
+<p>Interpolation of input variables is performed at an implementation-defined
+position within the fragment area being shaded.
+The position is further constrained as follows:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>Flat</code>: no interpolation</p>
+<p>If the <code>Centroid</code> decoration is used, the interpolation position used
+for the variable <strong class="purple">must</strong> also fall within the bounds of the primitive
+being rasterized.</p>
 </li>
 <li>
-<p><code>NoPerspective</code>: linear interpolation (for
-<a href="chap25.html#line_linear_interpolation">lines</a> and
-<a href="chap25.html#triangle_linear_interpolation">polygons</a>)</p>
+<p>If the <code>Sample</code> decoration is used, the interpolation position used
+for the variable <strong class="purple">must</strong> be at the position of the sample being shaded by
+the current fragment shader invocation.</p>
 </li>
 <li>
-<p><code>PerVertexKHR</code>: values fetched from shader-specified primitive vertex</p>
+<p>If a sample count of 1 is used, the interpolation position <strong class="purple">must</strong> be at
+the center of the fragment area.</p>
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
 <div class="paragraph">
-<p>Fragment input variables decorated with neither <code>Flat</code> nor
-<code>NoPerspective</code> use perspective-correct interpolation (for
-<a href="chap25.html#line_perspective_interpolation">lines</a> and
-<a href="chap25.html#triangle_perspective_interpolation">polygons</a>).</p>
+<p>As <code>Centroid</code> restricts the possible interpolation position to the
+covered area of the primitive, the position can be forced to vary between
+neighboring fragments when it otherwise would not.
+Derivatives calculated based on these differing locations can produce
+inconsistent results compared to undecorated inputs.
+It is recommended that input variables used in derivative calculations are
+not decorated with <code>Centroid</code>.</p>
 </div>
-<div class="paragraph">
-<p>The presence of and type of interpolation is controlled by the above
-interpolation decorations as well as the auxiliary decorations <code>Centroid</code>
-and <code>Sample</code>.</p>
-</div>
-<div class="paragraph">
-<p>A variable decorated with <code>Flat</code> will not be interpolated.
-Instead, it will have the same value for every fragment within a triangle.
-This value will come from a single <a href="chap24.html#vertexpostproc-flatshading">provoking
-vertex</a>.
-A variable decorated with <code>Flat</code> <strong class="purple">can</strong> also be decorated with
-<code>Centroid</code> or <code>Sample</code>, which will mean the same thing as decorating
-it only as <code>Flat</code>.</p>
-</div>
-<div class="paragraph">
-<p>For fragment shader input variables decorated with neither <code>Centroid</code> nor
-<code>Sample</code>, the assigned variable <strong class="purple">may</strong> be interpolated anywhere within the
-fragment and a single value <strong class="purple">may</strong> be assigned to each sample within the
-fragment.</p>
-</div>
-<div class="paragraph">
-<p>If a fragment shader input is decorated with <code>Centroid</code>, a single value
-<strong class="purple">may</strong> be assigned to that variable for all samples in the fragment, but that
-value <strong class="purple">must</strong> be interpolated to a location that lies in both the fragment and
-in the primitive being rendered, including any of the fragment’s samples
-covered by the primitive.
-Because the location at which the variable is interpolated <strong class="purple">may</strong> be different
-in neighboring fragments, and derivatives <strong class="purple">may</strong> be computed by computing
-differences between neighboring fragments, derivatives of centroid-sampled
-inputs <strong class="purple">may</strong> be less accurate than those for non-centroid interpolated
-variables.</p>
-</div>
-<div class="paragraph">
-<p>If a fragment shader input is decorated with <code>Sample</code>, a separate value
-<strong class="purple">must</strong> be assigned to that variable for each covered sample in the fragment,
-and that value <strong class="purple">must</strong> be sampled at the location of the individual sample.
-When <code>rasterizationSamples</code> is <code>VK_SAMPLE_COUNT_1_BIT</code>, the fragment
-center <strong class="purple">must</strong> be used for <code>Centroid</code>, <code>Sample</code>, and undecorated
-attribute interpolation.</p>
-</div>
-<div class="paragraph">
-<p>Fragment shader inputs that are signed or unsigned integers, integer
-vectors, or any double-precision floating-point type <strong class="purple">must</strong> be decorated with
-<code>Flat</code>.</p>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div id="shaders-interpolation-decorations-pervertexkhr" class="paragraph">
-<p>When the <code>fragmentShaderBarycentric</code> feature is enabled, inputs <strong class="purple">can</strong> be
-also decorated with the <code>PerVertexKHR</code> interpolation decoration.
-Inputs decorated with <code>PerVertexKHR</code> <strong class="purple">can</strong> only be accessed using an extra
-array dimension, where the extra index identifies one of the vertices of the
-primitive that produced the fragment.</p>
+<p>If the <code>PerVertexKHR</code> decoration is present on an input variable, the
+value is not interpolated, and instead values from all input vertices are
+available in an array.
+Each index of the array corresponds to one of the vertices of the primitive
+that produced the fragment.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1520,9 +1512,7 @@ scope instance</em>.</p>
 </div>
 <div class="paragraph">
 <p>This scope is identified in SPIR-V as the
-<code>QueueFamily</code> <code>Scope</code> if the
-<a href="chap37.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> feature is enabled,
-or if not, the
+<code>QueueFamily</code> <code>Scope</code> if the <a href="chap37.html#features-vulkanMemoryModel"><code>vulkanMemoryModel</code></a> feature is enabled, or if not, the
 <code>Device</code> <code>Scope</code>, which <strong class="purple">can</strong> be used as a <code>Memory</code> <code>Scope</code> for
 barrier and atomic operations.</p>
 </div>
@@ -1891,7 +1881,7 @@ would be considered otherwise active.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.220<br>
+Version 1.0.221<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>

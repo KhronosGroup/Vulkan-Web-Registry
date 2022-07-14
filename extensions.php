@@ -158,6 +158,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_properties.html"> VK_EXT_pipeline_properties </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_robustness.html"> VK_EXT_pipeline_robustness </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitives_generated_query.html"> VK_EXT_primitives_generated_query </a> </li>
