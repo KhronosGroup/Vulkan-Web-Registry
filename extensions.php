@@ -297,10 +297,12 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NVX_multiview_per_view_attributes.html"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_fragment_density_map_offset.html"> VK_QCOM_fragment_density_map_offset </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_image_processing.html"> VK_QCOM_image_processing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_shader_resolve.html"> VK_QCOM_render_pass_shader_resolve </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_rotated_copy_commands.html"> VK_QCOM_rotated_copy_commands </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_tile_properties.html"> VK_QCOM_tile_properties </a> </li>
     <li> <b>  QNX Extensions (BlackBerry Limited)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QNX_screen_surface.html"> VK_QNX_screen_surface </a> </li>
     <li> <b>  VALVE Extensions (Valve Corporation)  </b> </li>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.221 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.222 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.221 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.222 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.221,</span>
-<span id="revdate">2022-07-14 12:35:31Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0eafcaf0146f39a41fa0ed00366d26d826aa787c</span>
+<span id="revnumber">version 1.1.222,</span>
+<span id="revdate">2022-07-21 09:30:07Z</span>
+<br><span id="revremark">from git branch: github-main commit: 8dcc7469b01529600b712596a5a48ec8c710e228</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -239,8 +239,11 @@
 <li><a href="chap16.html#textures-integer-coordinate-operations">16.7. Integer Texel Coordinate Operations</a></li>
 <li><a href="chap16.html#textures-sample-operations">16.8. Image Sample Operations</a></li>
 <li><a href="chap16.html#textures-footprint">16.9. Texel Footprint Evaluation</a></li>
-<li><a href="chap16.html#textures-instructions">16.10. Image Operation Steps</a></li>
-<li><a href="chap16.html#textures-queries">16.11. Image Query Instructions</a></li>
+<li><a href="chap16.html#textures-weightimage">16.10. Weight Image Sampling</a></li>
+<li><a href="chap16.html#textures-blockmatch">16.11. Block Matching</a></li>
+<li><a href="chap16.html#textures-boxfilter">16.12. Box Filter Sampling</a></li>
+<li><a href="chap16.html#textures-instructions">16.13. Image Operation Steps</a></li>
+<li><a href="chap16.html#textures-queries">16.14. Image Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap17.html">17. Fragment Density Map Operations</a>
@@ -388,6 +391,7 @@
 <li class="current"><a href="chap29.html#framebuffer-logicop">29.2. Logical Operations</a></li>
 <li class="current"><a href="chap29.html#framebuffer-color-write-mask">29.3. Color Write Mask</a></li>
 <li class="current"><a href="chap29.html#framebuffer-color-write-enable">29.4. Color Write Enable</a></li>
+<li class="current"><a href="chap29.html#framebuffer-queries">29.5. Framebuffer Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap30.html">30. Dispatching Commands</a></li>
@@ -3031,6 +3035,117 @@ Secondary</p></td>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="framebuffer-queries"><a class="anchor" href="chap29.html#framebuffer-queries"></a>29.5. Framebuffer Query Instructions</h3>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the tile properties from the attachments in framebuffer, call:</p>
+</div>
+<div id="vkGetFramebufferTilePropertiesQCOM" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_QCOM_tile_properties</span>
+<span class="n">VkResult</span> <span class="nf">vkGetFramebufferTilePropertiesQCOM</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkFramebuffer</span>                               <span class="n">framebuffer</span><span class="p">,</span>
+    <span class="kt">uint32_t</span><span class="o">*</span>                                   <span class="n">pPropertiesCount</span><span class="p">,</span>
+    <span class="n">VkTilePropertiesQCOM</span><span class="o">*</span>                       <span class="n">pProperties</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is a logical device associated with the framebuffer.</p>
+</li>
+<li>
+<p><code>framebuffer</code> is a handle of the framebuffer to query.</p>
+</li>
+<li>
+<p><code>pPropertiesCount</code> is a pointer to an integer related to the number
+of tile properties available or queried, as described below.</p>
+</li>
+<li>
+<p><code>pProperties</code> is either <code>NULL</code> or a pointer to an array of
+<a href="chap8.html#VkTilePropertiesQCOM">VkTilePropertiesQCOM</a> structures.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pProperties</code> is <code>NULL</code>, then the number of tile properties available
+is returned in <code>pPropertiesCount</code>.
+Otherwise, <code>pPropertiesCount</code> <strong class="purple">must</strong> point to a variable set by the user
+to the number of elements in the <code>pProperties</code> array, and on return the
+variable is overwritten with the number of properties actually written to
+<code>pProperties</code>.
+If <code>pPropertiesCount</code> is less than the number of tile properties
+available, at most <code>pPropertiesCount</code> structures will be written, and
+<code>VK_INCOMPLETE</code> will be returned instead of <code>VK_SUCCESS</code>, to
+indicate that not all the available properties were returned.</p>
+</div>
+<div class="paragraph">
+<p>The number of tile properties available is determined by the number of
+merged subpasses, and each tile property is associated with a merged
+subpass.
+There will be at most as many properties as there are subpasses within the
+render pass.
+To obtain the tile properties for a given merged subpass, the <code>pProperties</code>
+array can be indexed using the <code>postMergeIndex</code> value provided in
+<a href="chap8.html#VkRenderPassSubpassFeedbackInfoEXT">VkRenderPassSubpassFeedbackInfoEXT</a>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetFramebufferTilePropertiesQCOM-device-parameter" href="chap29.html#VUID-vkGetFramebufferTilePropertiesQCOM-device-parameter"></a> <span class="vuid">VUID-vkGetFramebufferTilePropertiesQCOM-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parameter" href="chap29.html#VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parameter"></a> <span class="vuid">VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parameter</span><br>
+ <code>framebuffer</code> <strong class="purple">must</strong> be a valid <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetFramebufferTilePropertiesQCOM-pPropertiesCount-parameter" href="chap29.html#VUID-vkGetFramebufferTilePropertiesQCOM-pPropertiesCount-parameter"></a> <span class="vuid">VUID-vkGetFramebufferTilePropertiesQCOM-pPropertiesCount-parameter</span><br>
+ <code>pPropertiesCount</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint32_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetFramebufferTilePropertiesQCOM-pProperties-parameter" href="chap29.html#VUID-vkGetFramebufferTilePropertiesQCOM-pProperties-parameter"></a> <span class="vuid">VUID-vkGetFramebufferTilePropertiesQCOM-pProperties-parameter</span><br>
+ If the value referenced by <code>pPropertiesCount</code> is not <code>0</code>, and <code>pProperties</code> is not <code>NULL</code>, <code>pProperties</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pPropertiesCount</code> <a href="chap8.html#VkTilePropertiesQCOM">VkTilePropertiesQCOM</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parent" href="chap29.html#VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parent"></a> <span class="vuid">VUID-vkGetFramebufferTilePropertiesQCOM-framebuffer-parent</span><br>
+ <code>framebuffer</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div></div>
 
@@ -3045,7 +3160,7 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.221<br>
+Version 1.1.222<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>

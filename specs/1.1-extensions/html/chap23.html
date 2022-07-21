@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.221 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.222 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.221 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.222 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.221,</span>
-<span id="revdate">2022-07-14 12:35:31Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0eafcaf0146f39a41fa0ed00366d26d826aa787c</span>
+<span id="revnumber">version 1.1.222,</span>
+<span id="revdate">2022-07-21 09:30:07Z</span>
+<br><span id="revremark">from git branch: github-main commit: 8dcc7469b01529600b712596a5a48ec8c710e228</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -239,8 +239,11 @@
 <li><a href="chap16.html#textures-integer-coordinate-operations">16.7. Integer Texel Coordinate Operations</a></li>
 <li><a href="chap16.html#textures-sample-operations">16.8. Image Sample Operations</a></li>
 <li><a href="chap16.html#textures-footprint">16.9. Texel Footprint Evaluation</a></li>
-<li><a href="chap16.html#textures-instructions">16.10. Image Operation Steps</a></li>
-<li><a href="chap16.html#textures-queries">16.11. Image Query Instructions</a></li>
+<li><a href="chap16.html#textures-weightimage">16.10. Weight Image Sampling</a></li>
+<li><a href="chap16.html#textures-blockmatch">16.11. Block Matching</a></li>
+<li><a href="chap16.html#textures-boxfilter">16.12. Box Filter Sampling</a></li>
+<li><a href="chap16.html#textures-instructions">16.13. Image Operation Steps</a></li>
+<li><a href="chap16.html#textures-queries">16.14. Image Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap17.html">17. Fragment Density Map Operations</a>
@@ -388,6 +391,7 @@
 <li><a href="chap29.html#framebuffer-logicop">29.2. Logical Operations</a></li>
 <li><a href="chap29.html#framebuffer-color-write-mask">29.3. Color Write Mask</a></li>
 <li><a href="chap29.html#framebuffer-color-write-enable">29.4. Color Write Enable</a></li>
+<li><a href="chap29.html#framebuffer-queries">29.5. Framebuffer Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap30.html">30. Dispatching Commands</a></li>
@@ -709,8 +713,8 @@ triangles.
 For isolines, the tessellator subdivides a rectangle primitive into a
 collection of line segments arranged in strips stretching across the
 rectangle in the <span class="eq">u</span> dimension (i.e. the coordinates in <code>TessCoord</code>
-are of the form (0,x) through (1,x) for all tessellation evaluation shader
-invocations that share a line).</p>
+are of the form <span class="eq">(0,x)</span> through <span class="eq">(1,x)</span> for all tessellation
+evaluation shader invocations that share a line).</p>
 </div>
 <div class="paragraph">
 <p>Each vertex produced by the tessellator has an associated (u,v,w) or (u,v)
@@ -788,7 +792,7 @@ selected by the <code>domainOrigin</code> member of
   </g>
 </svg>
 </div>
-<div class="title">Figure 12. Domain parameterization for tessellation primitive modes (upper-left origin)</div>
+<div class="title">Figure 15. Domain parameterization for tessellation primitive modes (upper-left origin)</div>
 </div>
 <div id="img-tessellation-topology-ll" class="imageblock text-center">
 <div class="content">
@@ -856,7 +860,7 @@ selected by the <code>domainOrigin</code> member of
   </g>
 </svg>
 </div>
-<div class="title">Figure 13. Domain parameterization for tessellation primitive modes (lower-left origin)</div>
+<div class="title">Figure 16. Domain parameterization for tessellation primitive modes (lower-left origin)</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1184,7 +1188,7 @@ Tessellation</a>.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 14. Inner Triangle Tessellation</div>
+<div class="title">Figure 17. Inner Triangle Tessellation</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1424,7 +1428,7 @@ Tessellation</a>.</p>
   </g>
 </svg>
 </div>
-<div class="title">Figure 15. Inner Quad Tessellation</div>
+<div class="title">Figure 18. Inner Quad Tessellation</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1498,7 +1502,7 @@ For the purposes of this subdivision, the tessellation spacing mode is
 ignored and treated as equal_spacing.
 An isoline is drawn connecting each vertex on the <span class="eq">u = 0</span> rectangle edge
 to the corresponding vertex on the <span class="eq">u = 1</span> rectangle edge, except that
-no line is drawn between (0,1) and (1,1).
+no line is drawn between <span class="eq">(0,1)</span> and <span class="eq">(1,1)</span>.
 If the number of isolines on the subdivided <span class="eq">u = 0</span> and <span class="eq">u = 1</span>
 edges is <span class="eq">n</span>, this process will result in <span class="eq">n</span> equally spaced lines
 with constant v coordinates of 0, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>.</p>
@@ -1791,7 +1795,7 @@ relative to the orientation of the domain.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.221<br>
+Version 1.1.222<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>

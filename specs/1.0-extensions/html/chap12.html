@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.221 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.222 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.221 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.222 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.221,</span>
-<span id="revdate">2022-07-14 12:35:15Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0eafcaf0146f39a41fa0ed00366d26d826aa787c</span>
+<span id="revnumber">version 1.0.222,</span>
+<span id="revdate">2022-07-21 09:29:45Z</span>
+<br><span id="revremark">from git branch: github-main commit: 8dcc7469b01529600b712596a5a48ec8c710e228</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -237,8 +237,11 @@
 <li><a href="chap16.html#textures-integer-coordinate-operations">16.7. Integer Texel Coordinate Operations</a></li>
 <li><a href="chap16.html#textures-sample-operations">16.8. Image Sample Operations</a></li>
 <li><a href="chap16.html#textures-footprint">16.9. Texel Footprint Evaluation</a></li>
-<li><a href="chap16.html#textures-instructions">16.10. Image Operation Steps</a></li>
-<li><a href="chap16.html#textures-queries">16.11. Image Query Instructions</a></li>
+<li><a href="chap16.html#textures-weightimage">16.10. Weight Image Sampling</a></li>
+<li><a href="chap16.html#textures-blockmatch">16.11. Block Matching</a></li>
+<li><a href="chap16.html#textures-boxfilter">16.12. Box Filter Sampling</a></li>
+<li><a href="chap16.html#textures-instructions">16.13. Image Operation Steps</a></li>
+<li><a href="chap16.html#textures-queries">16.14. Image Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap17.html">17. Fragment Density Map Operations</a>
@@ -386,6 +389,7 @@
 <li><a href="chap29.html#framebuffer-logicop">29.2. Logical Operations</a></li>
 <li><a href="chap29.html#framebuffer-color-write-mask">29.3. Color Write Mask</a></li>
 <li><a href="chap29.html#framebuffer-color-write-enable">29.4. Color Write Enable</a></li>
+<li><a href="chap29.html#framebuffer-queries">29.5. Framebuffer Query Instructions</a></li>
 </ul>
 </li>
 <li><a href="chap30.html">30. Dispatching Commands</a></li>
@@ -5073,6 +5077,10 @@ compression rates that apply to the specified aspect of the image.</p>
 <span class="cp">#endif
 </span>  <span class="c1">// Provided by VK_HUAWEI_invocation_mask</span>
     <span class="n">VK_IMAGE_USAGE_INVOCATION_MASK_BIT_HUAWEI</span> <span class="o">=</span> <span class="mh">0x00040000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_QCOM_image_processing</span>
+    <span class="n">VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM</span> <span class="o">=</span> <span class="mh">0x00100000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_QCOM_image_processing</span>
+    <span class="n">VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM</span> <span class="o">=</span> <span class="mh">0x00200000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_NV_shading_rate_image</span>
     <span class="n">VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</span> <span class="o">=</span> <span class="n">VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkImageUsageFlagBits</span><span class="p">;</span></code></pre>
@@ -5164,7 +5172,7 @@ to any <a href="chap39.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPh
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> usage bits, then
 <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> <strong class="purple">must</strong> not be combined with
-any other VK_IMAGE_USAGE_* flags.
+any other <code>VK_IMAGE_USAGE_*</code> flags.
 Otherwise, <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> <strong class="purple">must</strong> be
 combined with <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>, if the DPB
 image is required to coincide with the decoded output picture.
@@ -5249,6 +5257,12 @@ picture</a>.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM</code></p>
 </li>
 </ul>
 </div>
@@ -5444,7 +5458,7 @@ that an image <strong class="purple">can</strong> be used in a render pass with 
 In a renderpass with non-zero offsets, fragment density map attachments,
 input attachments, color attachments, depth/stencil attachment, resolve
 attachments, and preserve attachments <strong class="purple">must</strong> be created with
-VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM.</p>
+<code>VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM</code>.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT</code>
@@ -8127,6 +8141,119 @@ If the <code>pNext</code> chain includes a
 <code>exportObjectType</code> member <strong class="purple">must</strong> be
 <code>VK_EXPORT_METAL_OBJECT_TYPE_METAL_TEXTURE_BIT_EXT</code>.</p>
 </li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06944" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06944"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06944</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then
+<a href="chap41.html#features-textureSampleWeighted"><code>textureSampleWeighted</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06945" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06945"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06945</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then <code>image</code>
+<strong class="purple">must</strong> have been created with <code>usage</code> containing
+<code>VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06946" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06946"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06946</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then
+<code>components</code> <strong class="purple">must</strong> be <code>VK_COMPONENT_SWIZZLE_IDENTITY</code> for all
+components</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06947" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06947"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06947</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then
+<code>subresourceRange.aspectMask</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06948" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06948"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06948</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then
+<code>subresourceRange.levelCount</code> <strong class="purple">must</strong> be <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06949" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06949"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06949</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure, then
+<code>viewType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code> or
+<code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06950" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06950"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06950</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and if
+<code>viewType</code> is <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code>, then <code>image</code>
+<strong class="purple">must</strong> have been created with <code>imageType</code> <code>VK_IMAGE_TYPE_1D</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06951" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06951"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06951</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and <code>viewType</code>
+is <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code>, then
+<code>subresourceRange.layerCount</code> <strong class="purple">must</strong> be equal to <code>2</code>.</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06952" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06952"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06952</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and <code>viewType</code>
+is <code>VK_IMAGE_VIEW_TYPE_1D_ARRAY</code>, then <code>image</code> <strong class="purple">must</strong> have been
+created with <code>width</code> equal to or greater than <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">n</span><span class="mord mathdefault">u</span><span class="mord mathdefault">m</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault">h</span><span class="mord mathdefault">a</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault">x</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord"><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault">n</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="mord mathdefault">e</span><span class="mord">.</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord mathdefault">t</span><span class="mord mathdefault">h</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">4</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="mord mathdefault">e</span><span class="mord">.</span><span class="mord mathdefault">h</span><span class="mord mathdefault">e</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault">h</span><span class="mord mathdefault">t</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mclose">)</span></span></span></span></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06953" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06953"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06953</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and if
+<code>viewType</code> is <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>, then <code>image</code>
+<strong class="purple">must</strong> have been created with <code>imageType</code> <code>VK_IMAGE_TYPE_2D</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06954" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06954"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06954</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and <code>viewType</code>
+is <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>, then
+<code>subresourceRange.layerCount</code> <strong class="purple">must</strong> be equal or greater than
+<span class="eq">numPhases</span></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06955" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06955"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06955</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and <code>viewType</code>
+is <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>, then <code>image</code> <strong class="purple">must</strong> have been
+created with <code>width</code> equal to or greater than <code>filterSize.width</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06956" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06956"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06956</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure and <code>viewType</code>
+is <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>, then <code>image</code> <strong class="purple">must</strong> have been
+created with <code>height</code> equal to or greater than
+<code>filterSize.height</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-pNext-06957" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-06957"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-06957</span><br>
+
+If the <code>pNext</code> chain includes
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a> structure then
+<a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a>::<code>filterSize.height</code>
+<strong class="purple">must</strong> be less than or equal to <a href="chap5.html#limits-weightfilter-maxdimension"><code>VkPhysicalDeviceImageProcessingPropertiesQCOM</code>::<code>maxWeightFilterDimension.height</code></a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -8142,7 +8269,7 @@ If the <code>pNext</code> chain includes a
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-pNext" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-pNext"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap11.html#VkExportMetalObjectCreateInfoEXT">VkExportMetalObjectCreateInfoEXT</a>, <a href="chap12.html#VkImageViewASTCDecodeModeEXT">VkImageViewASTCDecodeModeEXT</a>, <a href="chap12.html#VkImageViewMinLodCreateInfoEXT">VkImageViewMinLodCreateInfoEXT</a>, <a href="chap12.html#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a>, or <a href="chap13.html#VkSamplerYcbcrConversionInfo">VkSamplerYcbcrConversionInfo</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap11.html#VkExportMetalObjectCreateInfoEXT">VkExportMetalObjectCreateInfoEXT</a>, <a href="chap12.html#VkImageViewASTCDecodeModeEXT">VkImageViewASTCDecodeModeEXT</a>, <a href="chap12.html#VkImageViewMinLodCreateInfoEXT">VkImageViewMinLodCreateInfoEXT</a>, <a href="chap12.html#VkImageViewSampleWeightCreateInfoQCOM">VkImageViewSampleWeightCreateInfoQCOM</a>, <a href="chap12.html#VkImageViewUsageCreateInfo">VkImageViewUsageCreateInfo</a>, or <a href="chap13.html#VkSamplerYcbcrConversionInfo">VkSamplerYcbcrConversionInfo</a></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-sType-unique" href="chap12.html#VUID-VkImageViewCreateInfo-sType-unique"></a> <span class="vuid">VUID-VkImageViewCreateInfo-sType-unique</span><br>
@@ -8810,6 +8937,118 @@ If <code>decodeMode</code> is <code>VK_FORMAT_R8G8B8A8_UNORM</code> the image vi
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>If the <code>pNext</code> chain includes a
+<code>VkImageViewSampleWeightCreateInfoQCOM</code> structure, then that structure
+includes a parameter specifying the parameters for weight image views used
+in <a href="chap16.html#textures-weightimage">weight image sampling</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkImageViewSampleWeightCreateInfoQCOM</code> structure is defined as:</p>
+</div>
+<div id="VkImageViewSampleWeightCreateInfoQCOM" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_QCOM_image_processing</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkImageViewSampleWeightCreateInfoQCOM</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkOffset2D</span>         <span class="n">filterCenter</span><span class="p">;</span>
+    <span class="n">VkExtent2D</span>         <span class="n">filterSize</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>           <span class="n">numPhases</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkImageViewSampleWeightCreateInfoQCOM</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is the type of this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>filterCenter</code> is a <a href="chap3.html#VkOffset2D">VkOffset2D</a> describing the location of the
+weight filter origin.</p>
+</li>
+<li>
+<p><code>filterSize</code> is a <a href="chap3.html#VkExtent2D">VkExtent2D</a> specifying weight filter
+dimensions.</p>
+</li>
+<li>
+<p><code>numPhases</code> is number of sub-pixel filter phases.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>filterCenter</code> specifies the origin or center of the filter kernel,
+as described in <a href="chap16.html#textures-weightimage-filteroperation">Weight Sampling
+Operation</a>.
+The <code>numPhases</code> describes the number of sub-pixel filter phases as
+described in <a href="chap16.html#textures-weightimage-filterphases">Weight Sampling Phases</a>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06958" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06958"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06958</span><br>
+
+<code>filterSize.width</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap5.html#limits-weightfilter-maxdimension"><code>VkPhysicalDeviceImageProcessingPropertiesQCOM</code>::<code>maxWeightFilterDimension.width</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06959" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06959"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-filterSize-06959</span><br>
+
+<code>filterSize.height</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap5.html#limits-weightfilter-maxdimension"><code>VkPhysicalDeviceImageProcessingPropertiesQCOM</code>::<code>maxWeightFilterDimension.height</code></a></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06960" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06960"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06960</span><br>
+
+<code>filterCenter.x</code> <strong class="purple">must</strong> be less than or equal to
+<span class="eq">(filterSize.width - 1)</span></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06961" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06961"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-filterCenter-06961</span><br>
+
+<code>filterCenter.y</code> <strong class="purple">must</strong> be less than or equal to
+<span class="eq">(filterSize.height - 1)</span></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06962" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06962"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06962</span><br>
+
+<code>numPhases</code> <strong class="purple">must</strong> be a power of two squared value (i.e., 1, 4, 16,
+64, 256, etc.)</p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06963" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06963"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-numPhases-06963</span><br>
+
+<code>numPhases</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap5.html#limits-weightfilter-phases"><code>VkPhysicalDeviceImageProcessingPropertiesQCOM</code>::<code>maxWeightFilterPhases</code></a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkImageViewSampleWeightCreateInfoQCOM-sType-sType" href="chap12.html#VUID-VkImageViewSampleWeightCreateInfoQCOM-sType-sType"></a> <span class="vuid">VUID-VkImageViewSampleWeightCreateInfoQCOM-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>To destroy an image view, call:</p>
 </div>
 <div id="vkDestroyImageView" class="listingblock">
@@ -9453,7 +9692,7 @@ handles:</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>Acceleration structures for the <a href="chap50.html#VK_NV_ray_tracing">VK_NV_ray_tracing</a> extension are
+<p>Acceleration structures for the <code><a href="chap50.html#VK_NV_ray_tracing">VK_NV_ray_tracing</a> extension</code> are
 represented by the similar <code>VkAccelerationStructureNV</code> handles:</p>
 </div>
 <div id="VkAccelerationStructureNV" class="listingblock">
@@ -16006,7 +16245,7 @@ To set the constraints on a <a href="chap12.html#VkImage">VkImage</a> buffer col
 <code>pImageConstraintsInfo</code>::<code>formatConstraintsCount</code> is larger than the
 implementation-defined limit.
 If that occurs, <a href="chap12.html#vkSetBufferCollectionImageConstraintsFUCHSIA">vkSetBufferCollectionImageConstraintsFUCHSIA</a> will
-return VK_ERROR_INITIALIZATION_FAILED.</p>
+return <code>VK_ERROR_INITIALIZATION_FAILED</code>.</p>
 </div>
 <div class="paragraph">
 <p><code>vkSetBufferCollectionImageConstraintsFUCHSIA</code> <strong class="purple">may</strong> fail if the
@@ -17241,7 +17480,7 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.221<br>
+Version 1.0.222<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>
