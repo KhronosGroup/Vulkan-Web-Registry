@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.222 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.223 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.222 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.223 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.222,</span>
-<span id="revdate">2022-07-21 09:30:04Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8dcc7469b01529600b712596a5a48ec8c710e228</span>
+<span id="revnumber">version 1.2.223,</span>
+<span id="revdate">2022-07-28 11:20:53Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9ecfc67442754c9e4c4fecf5e61c48483608a074</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -623,122 +623,131 @@
 <h2 id="video-decode-and-encode-operations"><a class="anchor" href="chap39.html"></a>39. Video Decode and Encode Operations</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Vulkan implementations <strong class="purple">can</strong> expose video decode and encode engines, which
-are independent from the graphics and compute engines.
-Video decode and encode is performed by recording video operations and
-submitting them to video decode and encode queues.
-Vulkan provides core support for video decode and encode and <strong class="purple">can</strong> support a
-variety of video codecs through individual extensions built on the core
-video support.</p>
+<p>Vulkan implementations <strong class="purple">may</strong> expose one or more queue families supporting
+video decode and/or encode operations.
+These operations are performed by recording them into a command buffer
+within a <em>Video Coding Scope</em>, and submitting them to queues with video
+decode or encode capabilities, respectively.</p>
 </div>
 <div class="paragraph">
-<p>The subsections below detail the fundamental components and operation of
-Vulkan video.</p>
+<p>The Vulkan video functionalities are designed to be made available through a
+set of APIs built on top of each other, consisting of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A core API providing common video coding functionalities,</p>
+</li>
+<li>
+<p>APIs providing codec-independent video decode and video encode related
+functionalities, respectively,</p>
+</li>
+<li>
+<p>Additional codec-specific APIs built on top of those.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This chapter details the fundamental components and operations of these.</p>
 </div>
 <div class="sect2">
 <h3 id="_technical_terminology_and_semantics"><a class="anchor" href="chap39.html#_technical_terminology_and_semantics"></a>39.1. Technical Terminology and Semantics</h3>
 <div class="sect3">
 <h4 id="video-picture-resources"><a class="anchor" href="chap39.html#video-picture-resources"></a>39.1.1. Video Picture Resources</h4>
 <div class="paragraph">
-<p><strong>Video Picture Resources</strong> contain format information, <strong class="purple">can</strong> be
-multidimensional and <strong class="purple">may</strong> have associated metadata.
-The metadata <strong class="purple">can</strong> include implementation-private details required for the
-decode or encode operations and application managed color-space related
-information.</p>
+<p><em>Video Picture Resources</em> represent multidimensional arrays of image data
+which <strong class="purple">can</strong> be used as the source or target of video coding operations.
+They <strong class="purple">may</strong> have associated metadata that <strong class="purple">can</strong> include implementation-private
+details required for the decode or encode operations and application managed
+color-space related information.</p>
 </div>
 <div class="paragraph">
-<p>In Vulkan, a <a href="chap39.html#video-picture-resources">Video Picture Resource</a> is
-represented by a <a href="chap12.html#VkImage">VkImage</a>.
-The <a href="chap12.html#VkImageView">VkImageView</a>, representing the <a href="chap12.html#VkImage">VkImage</a>, is used with the
-decode operations as <a href="chap39.html#decoded-output-picture">Output</a> and <a href="chap39.html#dpb">Decoded
-Picture Buffer (DPB)</a>, and with the encode operation as
-<a href="chap39.html#input-encode-picture">Input</a> and <a href="chap39.html#reconstructed-pictures">Reconstructed</a>
-<a href="chap39.html#video-picture-resources">Video Picture Resource</a>.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="reference-picture"><a class="anchor" href="chap39.html#reference-picture"></a>39.1.2. Reference Picture</h4>
-<div class="paragraph">
-<p>Video <strong>Reference Picture</strong> is a <a href="chap39.html#video-picture-resources">Video Picture
-Resource</a> that <strong class="purple">can</strong> be used in the video decode or encode process to
-provide predictions of the values of samples in the subsequently decoded or
-encoded pictures.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="decoded-output-picture"><a class="anchor" href="chap39.html#decoded-output-picture"></a>39.1.3. Decoded Output Picture</h4>
-<div class="paragraph">
-<p>The pixels resulting from the video decoding process are stored in a
-<strong>Decoded Output Picture</strong>, represented by a <a href="chap12.html#VkImageView">VkImageView</a>.
-This <strong class="purple">can</strong> be shared with the <a href="chap39.html#dpb">Encoder Reconstructed or Decoder DPB</a>
-<a href="chap39.html#video-picture-resources">Video Picture Resources</a>.
-It <strong class="purple">can</strong> also be used as an input for Video Encode, Graphics, Compute
-processing, or WSI presentation.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="input-encode-picture"><a class="anchor" href="chap39.html#input-encode-picture"></a>39.1.4. Input Picture to Encode</h4>
-<div class="paragraph">
-<p>The primary source of input pixels for the video encoding process is the
-<strong>Input Picture to Encode</strong>, represented by a <a href="chap12.html#VkImageView">VkImageView</a>.
-This <strong class="purple">can</strong> be shared with the <a href="chap39.html#dpb">Encoder Reconstructed or Decoder DPB</a>
-<a href="chap39.html#video-picture-resources">Video Picture Resources</a>.
-It <strong class="purple">can</strong> be a direct target of Video Decode, Graphics, Compute processing, or
-WSI presentation.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="dpb"><a class="anchor" href="chap39.html#dpb"></a>39.1.5. Decoded Picture Buffer (DPB)</h4>
-<div class="paragraph">
-<p>Previously decoded pictures are used by video codecs to provide predictions
-of the values of samples in the subsequently decoded pictures.
-At the decoder, such <a href="chap39.html#video-picture-resources">Video Picture Resources</a> are
-stored in a <strong>Decoded Picture Buffer (DPB)</strong> as an indexed set of
+<p>In Vulkan, a video picture resource is represented by a <a href="chap12.html#VkImage">VkImage</a>.
+Individual <a href="chap12.html#VkImageView">VkImageView</a> objects created from such resources <strong class="purple">can</strong> be
+used as <a href="chap39.html#decoded-output-picture">Decode Output Pictures</a>,
+<a href="chap39.html#encode-input-picture">Encode Input Pictures</a>,
+<a href="chap39.html#reconstructed-picture">Reconstructed Pictures</a>, and/or
 <a href="chap39.html#reference-picture">Reference Pictures</a>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="reconstructed-pictures"><a class="anchor" href="chap39.html#reconstructed-pictures"></a>39.1.6. Reconstructed Pictures</h4>
+<h4 id="decoded-output-picture"><a class="anchor" href="chap39.html#decoded-output-picture"></a>39.1.2. Decoded Output Picture</h4>
+<div class="paragraph">
+<p>The pixels resulting from the video decoding process are stored in a
+<em>Decoded Output Picture</em>, represented by a <a href="chap12.html#VkImageView">VkImageView</a>.
+This <strong class="purple">may</strong> be shared with the <a href="chap39.html#dpb">Decoded Picture Buffer</a>.
+It <strong class="purple">may</strong> also be used as an input for video encode, graphics, or compute
+operations
+, or with <a href="chap33.html">Window System Integration</a> APIs
+.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="encode-input-picture"><a class="anchor" href="chap39.html#encode-input-picture"></a>39.1.3. Encode Input Picture</h4>
+<div class="paragraph">
+<p>The primary source of input pixels for the video encoding process is the
+<em>Encode Input Picture</em>, represented by a <a href="chap12.html#VkImageView">VkImageView</a>.
+It <strong class="purple">may</strong> also be a direct target of video decode, graphics, or compute
+operations
+, or with <a href="chap33.html">Window System Integration</a> APIs
+.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="reconstructed-picture"><a class="anchor" href="chap39.html#reconstructed-picture"></a>39.1.4. Reconstructed Picture</h4>
 <div class="paragraph">
 <p>An integral part of the video decoding pipeline is the reconstruction of
 pictures from the compressed stream.
 A similar stage exists in the video encoding pipeline as well.
-Such reconstructed pictures <strong class="purple">may</strong> be used as <a href="chap39.html#reference-picture">Reference
+A <em>Reconstructed Picture</em> is a <a href="chap39.html#video-picture-resources">Video Picture
+Resource</a> resulting from this process.</p>
+</div>
+<div class="paragraph">
+<p>Such reconstructed pictures <strong class="purple">can</strong> be used as <a href="chap39.html#reference-picture">Reference
 Pictures</a> for subsequently decoded or encoded pictures.
-The correct use of such <a href="chap39.html#reference-picture">Reference Pictures</a> is driven
-by the video compression standard, the implementation, and the
-application-specific use cases.</p>
-</div>
-<div class="paragraph">
-<p>This specification refers to the collection of the <strong>Decoded Picture Buffer</strong>
-and <strong>Reconstructed Pictures</strong> as <a href="chap39.html#dpb">Decoded Picture Buffer (DPB) Set</a>,
-or only, <strong>DPB</strong>.</p>
+The correct use of decoded pictures and/or reconstructed pictures as
+reference pictures is driven by the video compression standard, the
+implementation, and the application-specific use cases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="dpb-slot"><a class="anchor" href="chap39.html#dpb-slot"></a>39.1.7. Decoded Picture Buffer (DPB) Slot</h4>
+<h4 id="dpb"><a class="anchor" href="chap39.html#dpb"></a>39.1.5. Decoded Picture Buffer (DPB)</h4>
+<div id="reference-picture" class="paragraph">
+<p>Previously reconstructed pictures <strong class="purple">can</strong> be used by video codecs to provide
+predictions of the values of samples in the subsequently decoded or encoded
+pictures in which case they are referred to as <em>Reference Pictures</em>.</p>
+</div>
 <div class="paragraph">
-<p><strong>Decoded Picture Buffer (DPB) Slot</strong> represents a single or multi-layer
-indexed <a href="chap39.html#reference-picture">Reference Picture’s</a> entry within the
-<a href="chap39.html#video-session">Video Session’s</a> <a href="chap39.html#dpb">DPB Set</a>.
-A valid <a href="chap39.html#dpb-slot">DPB Slot</a> index starts from zero and goes up to the
-maximum of <strong>N</strong> - 1, where <strong>N</strong> is the number of <a href="chap39.html#reference-picture">Reference
-Picture</a> entries requested for a <a href="chap39.html#video-session">Video Session</a>.</p>
+<p>The <em>Decoded Picture Buffer (DPB)</em> is an indexed set of such reference
+pictures corresponding to a particular <a href="chap39.html#video-session">Video Session</a>.</p>
+</div>
+<div id="dpb-slot" class="paragraph">
+<p>Individual indexed entries of the <a href="chap39.html#dpb">DPB</a> are referred to as the
+<em>Decoded Picture Buffer (DPB) Slots</em>.
+A valid DPB slot index starts from zero and goes up to the maximum of <code>N</code> -
+1, where <code>N</code> is the number of <a href="chap39.html#reference-picture">Reference Picture</a>
+entries requested for a video session.
+Each DPB slot <strong class="purple">can</strong> hold a <a href="chap39.html#reference-picture">Reference Picture</a>.</p>
+</div>
+<div class="paragraph">
+<p>The DPB <strong class="purple">may</strong> be represented by a single multi-layer image where subsequent
+layers correspond to subsequent DPB slots, or by individual layers of
+multiple images each separately associated with a particular DPB slot.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="reference-metadata"><a class="anchor" href="chap39.html#reference-metadata"></a>39.1.8. Reference Picture Metadata</h4>
+<h4 id="reference-metadata"><a class="anchor" href="chap39.html#reference-metadata"></a>39.1.6. Reference Picture Metadata</h4>
 <div class="paragraph">
 <p>The opaque <a href="chap39.html#dpb-slot">DPB Slot</a> state managed by the implementation <strong class="purple">may</strong>
-contain <strong>Reference Picture Metadata</strong>, present when the
-<a href="chap39.html#video-picture-resources">picture resource</a> associated with the
-<a href="chap39.html#dpb-slot">DPB Slot</a> is used as a <a href="chap39.html#reference-picture">reference picture</a>
-in one or more video decode or encode operations.</p>
+contain <em>Reference Picture Metadata</em>, present when the video picture
+resource associated with the DPB slot is used as a
+<a href="chap39.html#reference-picture">Reference Picture</a> in one or more video decode or
+encode operations.</p>
 </div>
 <div class="paragraph">
-<p>An implementation or application <strong class="purple">may</strong> have other Picture Metadata related to
-the Video Picture Resource or the DPB Slot, but such data is outside the
-scope of this specification.</p>
+<p>An implementation or application <strong class="purple">may</strong> maintain other metadata related to the
+video picture resource or the DPB slot, but such data is outside the scope
+of this specification.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -750,10 +759,9 @@ scope of this specification.</p>
 <div class="title">Note:</div>
 <div class="paragraph">
 <p>The video decode or encode implementation does not maintain internal
-references to the <a href="chap39.html#reference-picture">Reference Pictures</a>, beyond the
-<a href="chap39.html#reference-metadata">Reference Picture Metadata</a>.
+references to the reference pictures, beyond the reference picture metadata.
 It is the responsibility of the Vulkan Application to create, manage, and
-destroy, as well as to provide those Video Picture Resources, when required,
+destroy, as well as to provide those video picture resources, when required,
 during the decoding or encoding process.</p>
 </div>
 </td>
@@ -762,14 +770,14 @@ during the decoding or encoding process.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="color-space-metadata"><a class="anchor" href="chap39.html#color-space-metadata"></a>39.1.9. Color Space Metadata</h4>
+<h4 id="color-space-metadata"><a class="anchor" href="chap39.html#color-space-metadata"></a>39.1.7. Color Space Metadata</h4>
 <div class="paragraph">
-<p><strong>Color Space Metadata</strong> is the additional static or dynamic state associated
+<p><em>Color Space Metadata</em> is the additional static or dynamic state associated
 with a <a href="chap39.html#video-picture-resources">Video Picture Resource</a> specifying the
 color volume (the color primaries, white point, and luminance range) of the
 display that was used in mastering the video content.
-The use of <strong>Color Space Metadata</strong> is outside the scope of the current
-version of the video core specification.</p>
+The use of color space metadata is outside the scope of the current version
+of the video core specification.</p>
 </div>
 </div>
 </div>
@@ -842,7 +850,7 @@ A <a href="chap39.html#video-session">Video Session</a> instance is created spec
 </li>
 <li>
 <p>With the maximum number of supported <a href="chap39.html#dpb">DPB</a> or
-<a href="chap39.html#reconstructed-pictures">Reconstructed Pictures</a> slots that can be
+<a href="chap39.html#reconstructed-picture">Reconstructed Picture</a> slots that can be
 allocated;</p>
 </li>
 <li>
@@ -867,7 +875,7 @@ reuse the <a href="chap39.html#video-session">Video Session</a> instance for ano
 that the configuration parameters between the two usages are compatible (as
 determined by the video compression standard in use).
 Once the <a href="chap39.html#VkVideoSessionKHR">VkVideoSessionKHR</a> instance has been created, the video
-compression standard and profiles, <a href="chap39.html#input-encode-picture">Input</a> /
+compression standard and profiles, <a href="chap39.html#encode-input-picture">Input</a> /
 <a href="chap39.html#decoded-output-picture">Output</a> / <a href="chap39.html#dpb">DPB</a> formats, and the settings
 like the maximum extent <strong class="purple">cannot</strong> be changed.</p>
 </div>
@@ -882,7 +890,7 @@ by the video compression standard in use:</p>
 <p>decoded or encoded picture size</p>
 </li>
 <li>
-<p>number of active <a href="chap39.html#dpb">DPB</a> or <a href="chap39.html#reconstructed-pictures">Reconstructed
+<p>number of active <a href="chap39.html#dpb">DPB</a> or <a href="chap39.html#reconstructed-picture">Reconstructed
 Picture</a> slots</p>
 </li>
 <li>
@@ -969,7 +977,7 @@ time.</p>
 </div>
 <div class="paragraph">
 <p>The <a href="chap12.html#resources-image-views">Image views</a> representing the
-<a href="chap39.html#input-encode-picture">Input</a> / <a href="chap39.html#decoded-output-picture">Output</a> /
+<a href="chap39.html#encode-input-picture">Input</a> / <a href="chap39.html#decoded-output-picture">Output</a> /
 <a href="chap39.html#dpb">DPB</a> <a href="chap39.html#video-picture-resources">Video Picture Resources</a> could have
 been created with sizes bigger than the coded size that is used with Video
 Decode and Encode operations.
@@ -1140,7 +1148,7 @@ the coded extent <strong class="purple">can</strong> be recorded by the implemen
 <a href="chap39.html#dpb-slot">DPB Slot’s</a> metadata state.
 Subsequently, when the <a href="chap39.html#reference-picture">Reference Pictures</a> are used
 with the decoded <a href="chap39.html#decoded-output-picture">Output</a> or encoded
-<a href="chap39.html#input-encode-picture">Input Picture</a>, their coded extent can differ.
+<a href="chap39.html#encode-input-picture">Input Picture</a>, their coded extent can differ.
 Decoding or encoding pictures, using picture sizes, different from the
 previously produced <a href="chap39.html#reference-picture">Reference Pictures</a> <strong class="purple">should</strong> be used
 with care, not to conflict with the codec standard and the implementation’s
@@ -1186,14 +1194,14 @@ device and host memory resources are used in an optimal way:</p>
 <ul>
 <li>
 <p>The video application <strong class="purple">can</strong> allocate or destroy the number of allocated
-<a href="chap39.html#decoded-output-picture">Output</a> or <a href="chap39.html#input-encode-picture">Input</a>
+<a href="chap39.html#decoded-output-picture">Output</a> or <a href="chap39.html#encode-input-picture">Input</a>
 Pictures, and <strong class="purple">can</strong> grow, or shrink the DPB set of
 <a href="chap39.html#reference-picture">Reference Pictures</a>, dynamically, based on the
 changing video content requirement.</p>
 </li>
 <li>
 <p><a href="chap39.html#reference-picture">Reference Pictures</a> <strong class="purple">can</strong> be shared with the decoded
-<a href="chap39.html#decoded-output-picture">Output</a> or encoded <a href="chap39.html#input-encode-picture">Input</a> pictures.</p>
+<a href="chap39.html#decoded-output-picture">Output</a> or encoded <a href="chap39.html#encode-input-picture">Input</a> pictures.</p>
 </li>
 <li>
 <p>The application <strong class="purple">can</strong> use <a href="chap32.html">sparse memory</a> for the
@@ -1365,8 +1373,8 @@ Slot is any of the DPB Slot states, provided the command buffers, in a
 <p>Accessing <a href="chap32.html#sparsememory-accessing-unbound">unbound regions</a> of the
 <a href="chap32.html">sparse memory resources</a> by the decoder or encoder,
 regardless if those are used as <a href="chap39.html#decoded-output-picture">Output</a>,
-<a href="chap39.html#input-encode-picture">Input</a>, <a href="chap39.html#dpb">DPB</a> or
-<a href="chap39.html#reconstructed-pictures">Reconstructed</a> <a href="chap39.html#video-picture-resources">Video
+<a href="chap39.html#encode-input-picture">Input</a>, <a href="chap39.html#dpb">DPB</a> or
+<a href="chap39.html#reconstructed-picture">Reconstructed</a> <a href="chap39.html#video-picture-resources">Video
 Picture Resources</a>, would render undefined results.
 The <a href="chap32.html#VkPhysicalDeviceSparseProperties">VkPhysicalDeviceSparseProperties</a>::<code>residencyNonResidentStrict</code>
 property reported by the implementation does not offer guarantees on the
@@ -2872,7 +2880,7 @@ specifying creation flags.</p>
 <li>
 <p><code>pictureFormat</code> is the format of the <a href="chap12.html#resources-image-views">image
 views</a> representing decoded <a href="chap39.html#decoded-output-picture">Output</a> or
-encoded <a href="chap39.html#input-encode-picture">Input</a> pictures.</p>
+encoded <a href="chap39.html#encode-input-picture">Input</a> pictures.</p>
 </li>
 <li>
 <p><code>maxCodedExtent</code> is the maximum width and height of the coded
@@ -3983,6 +3991,10 @@ structure.</p>
  This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdBeginVideoCodingKHR-videocoding" href="chap39.html#VUID-vkCmdBeginVideoCodingKHR-videocoding"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdBeginVideoCodingKHR-bufferlevel" href="chap39.html#VUID-vkCmdBeginVideoCodingKHR-bufferlevel"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
@@ -4007,20 +4019,23 @@ structure.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap39.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decode<br>
 Encode</p></td>
@@ -4088,7 +4103,7 @@ provided in <code>pReferenceSlots</code>.</p>
 <a href="chap39.html#VkVideoReferenceSlotKHR">VkVideoReferenceSlotKHR</a> structures specifying reference slots,
 used within the video command context between this
 <a href="chap39.html#vkCmdBeginVideoCodingKHR">vkCmdBeginVideoCodingKHR</a> command and the
-<a href="chap39.html#vkCmdEndVideoCodingKHR">vkCmdEndVideoCodingKHR</a> commmand that follows.
+<a href="chap39.html#vkCmdEndVideoCodingKHR">vkCmdEndVideoCodingKHR</a> command that follows.
 Each reference slot provides a slot index and the
 <a href="chap39.html#VkVideoPictureResourceKHR">VkVideoPictureResourceKHR</a> specifying the reference picture
 resource bound to this slot index.
@@ -4414,6 +4429,10 @@ structure.</p>
  This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdEndVideoCodingKHR-videocoding" href="chap39.html#VUID-vkCmdEndVideoCodingKHR-videocoding"></a> <span class="vuid">VUID-vkCmdEndVideoCodingKHR-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called inside of a video coding scope</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdEndVideoCodingKHR-bufferlevel" href="chap39.html#VUID-vkCmdEndVideoCodingKHR-bufferlevel"></a> <span class="vuid">VUID-vkCmdEndVideoCodingKHR-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
@@ -4438,14 +4457,16 @@ structure.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap39.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
 </tr>
 </thead>
@@ -4453,6 +4474,7 @@ structure.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decode<br>
 Encode</p></td>
 </tr>
@@ -4581,6 +4603,10 @@ currently reserved for future use.</p>
  This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdControlVideoCodingKHR-videocoding" href="chap39.html#VUID-vkCmdControlVideoCodingKHR-videocoding"></a> <span class="vuid">VUID-vkCmdControlVideoCodingKHR-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called inside of a video coding scope</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdControlVideoCodingKHR-bufferlevel" href="chap39.html#VUID-vkCmdControlVideoCodingKHR-bufferlevel"></a> <span class="vuid">VUID-vkCmdControlVideoCodingKHR-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
@@ -4605,14 +4631,16 @@ currently reserved for future use.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap39.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
 </tr>
 </thead>
@@ -4620,6 +4648,7 @@ currently reserved for future use.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decode<br>
 Encode</p></td>
 </tr>
@@ -4728,7 +4757,7 @@ enumeration:</p>
 <ul>
 <li>
 <p><code>VK_VIDEO_CODING_CONTROL_DEFAULT_KHR</code> indicates a request for the
-coding control paramaters to be applied to the current state of the
+coding control parameters to be applied to the current state of the
 bound video session.</p>
 </li>
 <li>
@@ -5371,6 +5400,10 @@ function for decode frame command.</p>
  This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDecodeVideoKHR-videocoding" href="chap39.html#VUID-vkCmdDecodeVideoKHR-videocoding"></a> <span class="vuid">VUID-vkCmdDecodeVideoKHR-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called inside of a video coding scope</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDecodeVideoKHR-bufferlevel" href="chap39.html#VUID-vkCmdDecodeVideoKHR-bufferlevel"></a> <span class="vuid">VUID-vkCmdDecodeVideoKHR-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
@@ -5395,14 +5428,16 @@ function for decode frame command.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap39.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
 </tr>
 </thead>
@@ -5410,6 +5445,7 @@ function for decode frame command.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Decode</p></td>
 </tr>
 </tbody>
@@ -5834,7 +5870,7 @@ structure.</p>
 <p><code>maxLevel</code> is the maximum H.264 level supported by the device.</p>
 </li>
 <li>
-<p><code>fieldOffsetGranularity</code> - if Interlaced Video Content is suported,
+<p><code>fieldOffsetGranularity</code> - if Interlaced Video Content is supported,
 the maximum field offset granularity supported for the picture resource.</p>
 </li>
 </ul>
@@ -5882,7 +5918,7 @@ defined as:</p>
 </div>
 <div class="paragraph">
 <p>A <a href="chap39.html#VkVideoDecodeH264SessionParametersCreateInfoEXT">VkVideoDecodeH264SessionParametersCreateInfoEXT</a> structure holding
-one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
+one H.264 SPS and at least one H.264 PPS parameter set <strong class="purple">must</strong> be chained to
 <a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
 <a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
 the decoder parameter set object for later reference.
@@ -6808,7 +6844,7 @@ the supported codec operations and profiles using
 <p>By using <a href="chap39.html#vkGetPhysicalDeviceVideoFormatPropertiesKHR">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> and providing
 one or more video profiles, choose the Vulkan formats supported by the
 implementation.
-The formats for <a href="chap39.html#input-encode-picture">input</a> and
+The formats for <a href="chap39.html#encode-input-picture">input</a> and
 <a href="chap39.html#reference-picture">reference</a> pictures <strong class="purple">must</strong> be queried and chosen
 separately.
 Refer to the section on
@@ -6824,14 +6860,14 @@ reported formats and adding <a href="chap39.html#VkVideoProfilesKHR">VkVideoProf
 chain of <a href="chap43.html#VkFormatProperties2">VkFormatProperties2</a>.
 When querying the parameters with
 <a href="chap44.html#vkGetPhysicalDeviceImageFormatProperties2">vkGetPhysicalDeviceImageFormatProperties2</a> for images targeting
-<a href="chap39.html#input-encode-picture">input</a> and <a href="chap39.html#reference-picture">reference (DPB)</a>
+<a href="chap39.html#encode-input-picture">input</a> and <a href="chap39.html#reference-picture">reference (DPB)</a>
 pictures, the <a href="chap44.html#VkPhysicalDeviceImageFormatInfo2">VkPhysicalDeviceImageFormatInfo2</a>::<code>usage</code> field
 should contain <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code> and
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code>, respectively.</p>
 </li>
 <li>
 <p>Create none, some, or all of the required <a href="chap12.html#VkImage">images</a> for the
-<a href="chap39.html#input-encode-picture">input</a> and <a href="chap39.html#reference-picture">reference</a>
+<a href="chap39.html#encode-input-picture">input</a> and <a href="chap39.html#reference-picture">reference</a>
 pictures.
 More Video Picture Resources <strong class="purple">can</strong> be created at some later point if
 needed while processing the content to be encoded.
@@ -7167,6 +7203,10 @@ structure.</p>
  This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-videocoding" href="chap39.html#VUID-vkCmdEncodeVideoKHR-videocoding"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called inside of a video coding scope</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdEncodeVideoKHR-bufferlevel" href="chap39.html#VUID-vkCmdEncodeVideoKHR-bufferlevel"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
@@ -7191,14 +7231,16 @@ structure.</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap39.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
 </tr>
 </thead>
@@ -7206,6 +7248,7 @@ structure.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Encode</p></td>
 </tr>
 </tbody>
@@ -7277,7 +7320,7 @@ reported by the implementation.</p>
 </li>
 <li>
 <p><code>srcPictureResource</code> is the Picture Resource of the
-<a href="chap39.html#input-encode-picture">Input Picture</a> to be encoded by the operation.</p>
+<a href="chap39.html#encode-input-picture">Input Picture</a> to be encoded by the operation.</p>
 </li>
 <li>
 <p><code>pSetupReferenceSlot</code> is a pointer to a
@@ -7479,7 +7522,7 @@ the <a href="chap39.html#VkVideoCodingControlInfoKHR">VkVideoCodingControlInfoKH
 parameter settings <strong class="purple">may</strong> be chained to <a href="chap39.html#VkVideoEncodeRateControlInfoKHR">VkVideoEncodeRateControlInfoKHR</a>.</p>
 </div>
 <div class="paragraph">
-<p>To ensure that the video session is properly initalized with stream-level
+<p>To ensure that the video session is properly initialized with stream-level
 rate control settings, the application <strong class="purple">must</strong> call
 <a href="chap39.html#vkCmdControlVideoCodingKHR">vkCmdControlVideoCodingKHR</a> with stream-level rate control settings at
 least once in execution order before the first <a href="chap39.html#vkCmdEncodeVideoKHR">vkCmdEncodeVideoKHR</a>
@@ -8166,7 +8209,7 @@ mask of zero or more <a href="chap39.html#VkVideoEncodeH264InputModeFlagBitsEXT"
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <code>inputModeFlags</code> field reports the various commmand buffer input
+<p>The <code>inputModeFlags</code> field reports the various command buffer input
 granularities supported by the implementation as follows:</p>
 </div>
 <div id="VkVideoEncodeH264InputModeFlagBitsEXT" class="listingblock">
@@ -8379,7 +8422,7 @@ H.264 parameters to add upon object creation.</p>
 </div>
 <div class="paragraph">
 <p>A <code>VkVideoEncodeH264SessionParametersCreateInfoEXT</code> structure holding
-one H.264 SPS and at least one H.264 PPS paramater set <strong class="purple">must</strong> be chained to
+one H.264 SPS and at least one H.264 PPS parameter set <strong class="purple">must</strong> be chained to
 <a href="chap39.html#VkVideoSessionParametersCreateInfoKHR">VkVideoSessionParametersCreateInfoKHR</a> when calling
 <a href="chap39.html#vkCreateVideoSessionParametersKHR">vkCreateVideoSessionParametersKHR</a> to store these parameter set(s) with
 the encoder parameter set object for later reference.
@@ -9605,7 +9648,7 @@ is supported.</p>
 enabling scaling_list_enabled_flag and
 sps_scaling_list_data_present_flag in StdVideoH265SpsFlags, or enabling
 pps_scaling_list_data_present_flag in StdVideoH265PpsFlags are
-supproted.</p>
+supported.</p>
 </li>
 <li>
 <p><code>VK_VIDEO_ENCODE_H265_CAPABILITY_SAMPLE_ADAPTIVE_OFFSET_ENABLED_BIT_EXT</code>
@@ -9778,7 +9821,7 @@ mask of zero or more <a href="chap39.html#VkVideoEncodeH265InputModeFlagBitsEXT"
 <div class="paragraph">
 <p>Bits which <strong class="purple">may</strong> be set in
 <a href="chap39.html#VkVideoEncodeH265CapabilitiesEXT">VkVideoEncodeH265CapabilitiesEXT</a>::<code>inputModeFlags</code>, indicating the
-commmand buffer input granularities supported by the implementation, are:</p>
+command buffer input granularities supported by the implementation, are:</p>
 </div>
 <div id="VkVideoEncodeH265InputModeFlagBitsEXT" class="listingblock">
 <div class="content">
@@ -11061,7 +11104,7 @@ provided in <code>minQP</code> must be identical to those provided in
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.222<br>
+Version 1.2.223<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>
