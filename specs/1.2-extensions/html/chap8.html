@@ -2,9 +2,9 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.16">
+<meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.223 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.224 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.223 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.224 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.223,</span>
-<span id="revdate">2022-07-28 11:20:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: 9ecfc67442754c9e4c4fecf5e61c48483608a074</span>
+<span id="revnumber">version 1.2.224,</span>
+<span id="revdate">2022-08-04 08:37:22Z</span>
+<br><span id="revremark">from git branch: github-main commit: 5ca346bf39db36ff06e24686f0a815754c5f7c16</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2112,6 +2112,13 @@ The current render pass instance <strong class="purple">must</strong> have been 
 <p><a id="VUID-vkCmdEndRendering-None-06781" href="chap8.html#VUID-vkCmdEndRendering-None-06781"></a> <span class="vuid">VUID-vkCmdEndRendering-None-06781</span><br>
 
 This command <strong class="purple">must</strong> not be recorded when transform feedback is active</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEndRendering-None-06999" href="chap8.html#VUID-vkCmdEndRendering-None-06999"></a> <span class="vuid">VUID-vkCmdEndRendering-None-06999</span><br>
+
+If <code>vkCmdBeginQuery</code>* was called within the render pass, the
+corresponding <code>vkCmdEndQuery</code>* <strong class="purple">must</strong> have been called subsequently
+within the same subpass.</p>
 </li>
 </ul>
 </div>
@@ -5506,18 +5513,36 @@ The subpass dependency operates as if defined with the following parameters:</p>
 </div>
 </div>
 <div id="renderpass-feedbackloop" class="paragraph">
-<p>If a subpass uses the same attachment as both an input attachment and either
-a color attachment or a depth/stencil attachment, writes via the color or
-depth/stencil attachment are not automatically made visible to reads via the
-input attachment, causing a <em>feedback loop</em>, except in any of the following
-conditions:</p>
+<p>A subpass may access the same subresource for both a color or depth/stencil
+attachment and as an input resource in one of the following ways:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>If the color components or depth/stencil components read by the input
-attachment are mutually exclusive with the components written by the
-color or depth/stencil attachments, then there is no feedback loop.
+<p>As an input attachment</p>
+</li>
+<li>
+<p>As a sampled image or image resource in
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> layout in a
+pipeline with either the
+<code>VK_PIPELINE_CREATE_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT</code> or
+<code>VK_PIPELINE_CREATE_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT</code>
+bits set in a render pass that contains dependencies with the
+<code>VK_DEPENDENCY_FEEDBACK_LOOP_BIT_EXT</code> bit set</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In these situations, writes via the color or depth/stencil attachment are
+not automatically made visible to reads via the input resource, causing a
+<em>feedback loop</em>, except in any of the following conditions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the color components or depth/stencil components read are mutually
+exclusive with the components written by the color or depth/stencil
+attachments, then there is no feedback loop.
 This requires the graphics pipelines used by the subpass to disable
 writes to color components that are read as inputs via the
 <code>colorWriteEnable</code> or
@@ -5662,6 +5687,38 @@ includes all reads from the stencil aspect of input attachments.</p>
 <div class="paragraph">
 <p>An attachment <strong class="purple">must</strong> not be used as both a depth/stencil attachment and a
 color attachment.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Writes inside of a feedback loop for images in the
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> image layout only
+avoid a <a href="chap47.html#memory-model-access-data-race">data race</a> in the following
+conditions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The fragment (p,q) is sampling the texel at (p,q), with a
+<a href="chap7.html#synchronization-pipeline-barriers-subpass-self-dependencies">subpass
+self-dependency</a>.</p>
+</li>
+<li>
+<p>Reading/sampling from a region not currently being written to the image
+as a color or depth/stencil attachment in the current subpass (disjoint
+read/write regions).</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>A more extensible version of render pass creation is also defined below.</p>
@@ -8705,8 +8762,11 @@ used.</p>
 </div>
 <div id="renderpass-attachment-nonattachment" class="paragraph">
 <p>Applications <strong class="purple">must</strong> ensure that all non-attachment writes to memory backing
-image subresources that are used as attachments in a render pass instance
-happen-before or happen-after the render pass instance.
+image subresources that are used as attachments
+that are not in <code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code>
+layout
+in a render pass instance happen-before or happen-after the render pass
+instance.
 If an image subresource is written during a render pass instance by anything
 other than load operations, store operations, and layout transitions,
 applications <strong class="purple">must</strong> ensure that all non-attachment reads from memory backing
@@ -9808,6 +9868,37 @@ attachment used by <code>renderPass</code>, and if at least one of those uses
 causes either attachment to be written to, both attachments <strong class="purple">must</strong> have
 had the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> set</p>
 </li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass-initialLayout-07000" href="chap8.html#VUID-vkCmdBeginRenderPass-initialLayout-07000"></a> <span class="vuid">VUID-vkCmdBeginRenderPass-initialLayout-07000</span><br>
+
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> then the
+corresponding attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including either the
+<code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> or
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> and either the
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> or
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code> usage bits.</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass-initialLayout-07001" href="chap8.html#VUID-vkCmdBeginRenderPass-initialLayout-07001"></a> <span class="vuid">VUID-vkCmdBeginRenderPass-initialLayout-07001</span><br>
+
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> then the
+corresponding attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value the
+<code>VK_IMAGE_USAGE_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT</code> usage bit.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -10101,6 +10192,37 @@ and is bound to memory locations that are also bound to another
 attachment used by <code>renderPass</code>, and if at least one of those uses
 causes either attachment to be written to, both attachments <strong class="purple">must</strong> have
 had the <code>VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass2-initialLayout-07002" href="chap8.html#VUID-vkCmdBeginRenderPass2-initialLayout-07002"></a> <span class="vuid">VUID-vkCmdBeginRenderPass2-initialLayout-07002</span><br>
+
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> then the
+corresponding attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value including either the
+<code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> or
+<code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code> and either the
+<code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code> or
+<code>VK_IMAGE_USAGE_SAMPLED_BIT</code> usage bits.</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginRenderPass2-initialLayout-07003" href="chap8.html#VUID-vkCmdBeginRenderPass2-initialLayout-07003"></a> <span class="vuid">VUID-vkCmdBeginRenderPass2-initialLayout-07003</span><br>
+
+If any of the <code>initialLayout</code> or <code>finalLayout</code> member of the
+<code>VkAttachmentDescription</code> structures or the <code>layout</code> member of
+the <code>VkAttachmentReference</code> structures specified when creating the
+render pass specified in the <code>renderPass</code> member of
+<code>pRenderPassBegin</code> is
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> then the
+corresponding attachment image view of the framebuffer specified in the
+<code>framebuffer</code> member of <code>pRenderPassBegin</code> <strong class="purple">must</strong> have been
+created with a <code>usage</code> value the
+<code>VK_IMAGE_USAGE_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT</code> usage bit.</p>
 </li>
 </ul>
 </div>
@@ -11685,6 +11807,13 @@ This command <strong class="purple">must</strong> not be recorded when transform
 The current render pass instance <strong class="purple">must</strong> not have been begun with
 <a href="chap8.html#vkCmdBeginRenderingKHR">vkCmdBeginRenderingKHR</a></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdEndRenderPass-None-07004" href="chap8.html#VUID-vkCmdEndRenderPass-None-07004"></a> <span class="vuid">VUID-vkCmdEndRenderPass-None-07004</span><br>
+
+If <code>vkCmdBeginQuery</code>* was called within a subpass of the render
+pass, the corresponding <code>vkCmdEndQuery</code>* <strong class="purple">must</strong> have been called
+subsequently within the same subpass.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -11830,6 +11959,13 @@ This command <strong class="purple">must</strong> not be recorded when transform
 
 The current render pass instance <strong class="purple">must</strong> not have been begun with
 <a href="chap8.html#vkCmdBeginRenderingKHR">vkCmdBeginRenderingKHR</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEndRenderPass2-None-07005" href="chap8.html#VUID-vkCmdEndRenderPass2-None-07005"></a> <span class="vuid">VUID-vkCmdEndRenderPass2-None-07005</span><br>
+
+If <code>vkCmdBeginQuery</code>* was called within a subpass of the render
+pass, the corresponding <code>vkCmdEndQuery</code>* <strong class="purple">must</strong> have been called
+subsequently within the same subpass.</p>
 </li>
 </ul>
 </div>
@@ -12481,7 +12617,7 @@ subpass is not merged and when no other value is appropriate.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.223<br>
+Version 1.2.224<br>
 Last updated 2022-06-15 23:17:00 -0700
 </div>
 </div>

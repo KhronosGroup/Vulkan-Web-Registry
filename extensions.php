@@ -99,6 +99,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_drm_display.html"> VK_EXT_acquire_drm_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_astc_decode_mode.html"> VK_EXT_astc_decode_mode </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_attachment_feedback_loop_layout.html"> VK_EXT_attachment_feedback_loop_layout </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_blend_operation_advanced.html"> VK_EXT_blend_operation_advanced </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_border_color_swizzle.html"> VK_EXT_border_color_swizzle </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_buffer_device_address.html"> VK_EXT_buffer_device_address </a> </li>
@@ -305,6 +306,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_tile_properties.html"> VK_QCOM_tile_properties </a> </li>
     <li> <b>  QNX Extensions (BlackBerry Limited)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QNX_screen_surface.html"> VK_QNX_screen_surface </a> </li>
+    <li> <b>  SEC Extensions (Samsung Electronics Co., Ltd.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_SEC_amigo_profiling.html"> VK_SEC_amigo_profiling </a> </li>
     <li> <b>  VALVE Extensions (Valve Corporation)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_VALVE_descriptor_set_host_mapping.html"> VK_VALVE_descriptor_set_host_mapping </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_VALVE_mutable_descriptor_type.html"> VK_VALVE_mutable_descriptor_type </a> </li>
