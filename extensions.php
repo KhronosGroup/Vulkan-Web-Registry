@@ -166,6 +166,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_provoking_vertex.html"> VK_EXT_provoking_vertex </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_queue_family_foreign.html"> VK_EXT_queue_family_foreign </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_rasterization_order_attachment_access.html"> VK_EXT_rasterization_order_attachment_access </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_rgba10x6_formats.html"> VK_EXT_rgba10x6_formats </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_robustness2.html"> VK_EXT_robustness2 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_sample_locations.html"> VK_EXT_sample_locations </a> </li>

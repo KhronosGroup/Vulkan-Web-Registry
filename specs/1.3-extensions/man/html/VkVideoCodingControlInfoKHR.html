@@ -847,19 +847,132 @@ specifying control flags.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>A newly created video session <strong class="purple">must</strong> be reset before use for video decode or
+encode operations by including <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code>
+in <code>flags</code>.
+The reset operation returns all session DPB slots to the unused state (see
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-session-dpb-slot-states" target="_blank" rel="noopener">DPB Slot States</a>).</p>
+</div>
+<div class="paragraph">
+<p>For encode sessions, the reset operation returns rate control configuration
+to implementation default settings.</p>
+</div>
+<div class="paragraph">
+<p>After decode or encode operations are performed on a session, the reset
+operation <strong class="purple">may</strong> be used to return the video session object to the same
+<em>initial</em> state as after the reset of a newly created video session.
+This <strong class="purple">may</strong> be used when different video sequences are processed with the same
+video session object.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-06518"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-06518</span><br>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07016"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07016</span><br>
 
-The first command buffer submitted for a newly created video session
-<strong class="purple">must</strong> set the <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code> bit in
-<a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a>::<code>flags</code> to reset the session
-device context before any video decode or encode operations are
-performed on the session.</p>
+<code>flags</code> <strong class="purple">must</strong> include at least one bit</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07017"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07017</span><br>
+
+If the bound video session object is in <em>uninitialized</em> state, then
+<code>flags</code> <strong class="purple">must</strong> include <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07018"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07018</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR</code>, then the
+<code>pNext</code> chain <strong class="purple">must</strong> include a valid
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07019"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07019</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_LAYER_BIT_KHR</code>, then
+the <code>pNext</code> chain <strong class="purple">must</strong> include a valid
+<a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07020"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07020</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR</code>, then it <strong class="purple">must</strong>
+not also include
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_LAYER_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07021"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07021</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR</code>, the
+<code>rateControlMode</code> member of <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>
+included in the <code>pNext</code> chain is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>, and the bound
+video session was created with
+<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>, then the <code>pNext</code>
+chain <strong class="purple">must</strong> include a <a href="VkVideoEncodeH264RateControlInfoEXT.html">VkVideoEncodeH264RateControlInfoEXT</a>
+structure</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-pNext-07022"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-pNext-07022</span><br>
+
+If the <code>pNext</code> chain includes a
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>, and
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>::<code>layerCount</code> is greater than
+<code>1</code>, then
+<a href="VkVideoEncodeH264RateControlInfoEXT.html">VkVideoEncodeH264RateControlInfoEXT</a>::<code>temporalLayerCount</code>
+<strong class="purple">must</strong> be equal to <code>layerCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07023"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07023</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_LAYER_BIT_KHR</code> and the
+bound video session was created with
+<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>, then the <code>pNext</code>
+chain <strong class="purple">must</strong> include a <a href="VkVideoEncodeH264RateControlLayerInfoEXT.html">VkVideoEncodeH264RateControlLayerInfoEXT</a>
+structure</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07024"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07024</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR</code>, the
+<code>rateControlMode</code> member of <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>
+included in the <code>pNext</code> chain is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_NONE_BIT_KHR</code>, and the bound
+video session was created with
+<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT</code>, then the <code>pNext</code>
+chain <strong class="purple">must</strong> include a <a href="VkVideoEncodeH265RateControlInfoEXT.html">VkVideoEncodeH265RateControlInfoEXT</a>
+structure</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-pNext-07025"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-pNext-07025</span><br>
+
+If the <code>pNext</code> chain includes a
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>, and
+<a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>::<code>layerCount</code> is greater than
+<code>1</code>, then <a href="VkVideoEncodeH265RateControlInfoEXT.html">VkVideoEncodeH265RateControlInfoEXT</a>::<code>subLayerCount</code>
+<strong class="purple">must</strong> be equal to <code>layerCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoCodingControlInfoKHR-flags-07026"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-flags-07026</span><br>
+
+If <code>flags</code> includes
+<code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_LAYER_BIT_KHR</code> and the
+bound video session was created with
+<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>::<code>videoCodecOperation</code> set to
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT</code>, then the <code>pNext</code>
+chain <strong class="purple">must</strong> include a <a href="VkVideoEncodeH265RateControlLayerInfoEXT.html">VkVideoEncodeH265RateControlLayerInfoEXT</a>
+structure</p>
 </li>
 </ul>
 </div>
@@ -876,7 +989,7 @@ performed on the session.</p>
 </li>
 <li>
 <p><a id="VUID-VkVideoCodingControlInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> or <a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkVideoEncodeH264RateControlInfoEXT.html">VkVideoEncodeH264RateControlInfoEXT</a>, <a href="VkVideoEncodeH264RateControlLayerInfoEXT.html">VkVideoEncodeH264RateControlLayerInfoEXT</a>, <a href="VkVideoEncodeH265RateControlInfoEXT.html">VkVideoEncodeH265RateControlInfoEXT</a>, <a href="VkVideoEncodeH265RateControlLayerInfoEXT.html">VkVideoEncodeH265RateControlLayerInfoEXT</a>, <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a>, or <a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoCodingControlInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkVideoCodingControlInfoKHR-sType-unique</span><br>
@@ -904,7 +1017,7 @@ performed on the session.</p>
 <h2 id="_document_notes"><a class="anchor" href="#_document_notes"></a>Document Notes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#VkVideoCodingControlInfoKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
+<p>For more information, see the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#VkVideoCodingControlInfoKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
 </div>
 <div class="paragraph">
 <p>This page is extracted from the Vulkan Specification.
@@ -926,8 +1039,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.224<br>
-Last updated 2022-08-04 01:27:10 -0700
+Version 1.3.225<br>
+Last updated 2022-08-18 03:32:05 -0700
 </div>
 </div>
 
