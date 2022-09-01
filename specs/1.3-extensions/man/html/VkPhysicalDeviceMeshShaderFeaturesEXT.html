@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
-<title>VkVideoProfilesKHR(3)</title>
+<title>VkPhysicalDeviceMeshShaderFeaturesEXT(3)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -797,10 +797,10 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 </head>
 <body class="manpage">
 <div id="header">
-<h1>VkVideoProfilesKHR(3) Manual Page</h1>
+<h1>VkPhysicalDeviceMeshShaderFeaturesEXT(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkVideoProfilesKHR - Structure enumerating the video profiles</p>
+<p>VkPhysicalDeviceMeshShaderFeaturesEXT - Structure describing mesh shading features that can be supported by an implementation</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -810,17 +810,20 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The <a href="VkVideoProfilesKHR.html">VkVideoProfilesKHR</a> structure is defined as:</p>
+<p>The <code>VkPhysicalDeviceMeshShaderFeaturesEXT</code> structure is defined as:</p>
 </div>
-<div id="VkVideoProfilesKHR" class="listingblock">
+<div id="VkPhysicalDeviceMeshShaderFeaturesEXT" class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_KHR_video_queue
-typedef struct VkVideoProfilesKHR {
-    VkStructureType             sType;
-    const void*                 pNext;
-    uint32_t                    profileCount;
-    const VkVideoProfileKHR*    pProfiles;
-} VkVideoProfilesKHR;</code></pre>
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_EXT_mesh_shader
+typedef struct VkPhysicalDeviceMeshShaderFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           taskShader;
+    VkBool32           meshShader;
+    VkBool32           multiviewMeshShader;
+    VkBool32           primitiveFragmentShadingRateMeshShader;
+    VkBool32           meshShaderQueries;
+} VkPhysicalDeviceMeshShaderFeaturesEXT;</code></pre>
 </div>
 </div>
 </div>
@@ -838,14 +841,38 @@ typedef struct VkVideoProfilesKHR {
 structure.</p>
 </li>
 <li>
-<p><code>profileCount</code> is an integer which holds the number of video
-profiles included in <code>pProfiles</code>.</p>
+<p><a id="features-taskShader"></a> <code>taskShader</code> specifies whether task shaders
+are supported.
+If this feature is not enabled, the <code>VK_SHADER_STAGE_TASK_BIT_EXT</code>
+and <code>VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT</code> enum values <strong class="purple">must</strong> not be
+used.</p>
 </li>
 <li>
-<p><code>pProfiles</code> is a pointer to an array of <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a>
-structures.
-Each <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a> structure <strong class="purple">must</strong> chain the corresponding
-codec-operation specific extension video profile structure.</p>
+<p><a id="features-meshShader"></a> <code>meshShader</code> specifies whether mesh shaders
+are supported.
+If this feature is not enabled, the <code>VK_SHADER_STAGE_MESH_BIT_EXT</code>
+and <code>VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT</code> enum values <strong class="purple">must</strong> not be
+used.</p>
+</li>
+<li>
+<p><a id="features-multiview-mesh"></a> <code>multiviewMeshShader</code> specifies whether
+the implementation supports <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-multiview" target="_blank" rel="noopener">multiview</a> rendering
+within a render pass, with mesh shaders.
+If this feature is not enabled, then a pipeline compiled against a
+subpass with a non-zero view mask <strong class="purple">must</strong> not include a mesh shader.</p>
+</li>
+<li>
+<p><a id="features-primitiveFragmentShadingRate-mesh"></a>
+<code>primitiveFragmentShadingRateMeshShader</code> indicates that the
+implementation supports the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#primsrast-fragment-shading-rate-primitive" target="_blank" rel="noopener">primitive fragment shading rate</a> in mesh shaders.</p>
+</li>
+<li>
+<p><a id="features-meshShaderQueries"></a> <code>meshShaderQueries</code> indicates that
+the implementation supports creating query pools using the
+<code>VK_QUERY_TYPE_MESH_PRIMITIVES_GENERATED_EXT</code> query type and
+statistic queries containing the
+<code>VK_QUERY_PIPELINE_STATISTIC_TASK_SHADER_INVOCATIONS_BIT_EXT</code> and
+<code>VK_QUERY_PIPELINE_STATISTIC_MESH_SHADER_INVOCATIONS_BIT_EXT</code> flags</p>
 </li>
 </ul>
 </div>
@@ -855,12 +882,16 @@ codec-operation specific extension video profile structure.</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Video transcoding is an example of a use case that necessitates numerous
-profiles.
-When the application provides one or more video decode and encode profiles
-in the list of profiles, the implementation ensures that the video formats
-and parameters reported produce video resources suitable for the transcoding
-use cases without the need for manual transformation.</p>
+<p>If the <code>VkPhysicalDeviceMeshShaderFeaturesEXT</code> structure is included in the <code>pNext</code> chain of the
+<a href="VkPhysicalDeviceFeatures2.html">VkPhysicalDeviceFeatures2</a> structure passed to
+<a href="vkGetPhysicalDeviceFeatures2.html">vkGetPhysicalDeviceFeatures2</a>, it is filled in to indicate whether each
+corresponding feature is supported.
+<code>VkPhysicalDeviceMeshShaderFeaturesEXT</code> <strong class="purple">can</strong> also be used in the <code>pNext</code> chain of
+<a href="VkDeviceCreateInfo.html">VkDeviceCreateInfo</a> to selectively enable these features.</p>
+</div>
+<div class="paragraph">
+<p>The corresponding features of the <code>VkPhysicalDeviceMeshShaderFeaturesNV</code>
+structure <strong class="purple">must</strong> match those in <code>VkPhysicalDeviceMeshShaderFeaturesEXT</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -868,12 +899,18 @@ use cases without the need for manual transformation.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoProfilesKHR-pProfiles-06813"></a> <span class="vuid">VUID-VkVideoProfilesKHR-pProfiles-06813</span><br>
+<p><a id="VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-multiviewMeshShader-07032"></a> <span class="vuid">VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-multiviewMeshShader-07032</span><br>
 
-If the <code>pProfiles</code> list contains more than one
-<a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a> entry, then it <strong class="purple">must</strong> not contain more than one
-entry whose <code>videoCodecOperation</code> member specifies a decode
-operation</p>
+If <code>multiviewMeshShader</code> is enabled then
+<code>VkPhysicalDeviceMultiviewFeaturesKHR</code>::<code>multiview</code> <strong class="purple">must</strong> also
+be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-primitiveFragmentShadingRateMeshShader-07033"></a> <span class="vuid">VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-primitiveFragmentShadingRateMeshShader-07033</span><br>
+
+If <code>primitiveFragmentShadingRateMeshShader</code> is enabled then
+<code>VkPhysicalDeviceFragmentShadingRateFeaturesKHR</code>::<code>primitiveFragmentShadingRate</code>
+<strong class="purple">must</strong> also be enabled</p>
 </li>
 </ul>
 </div>
@@ -885,12 +922,8 @@ operation</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoProfilesKHR-sType-sType"></a> <span class="vuid">VUID-VkVideoProfilesKHR-sType-sType</span><br>
- <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_VIDEO_PROFILES_KHR</code></p>
-</li>
-<li>
-<p><a id="VUID-VkVideoProfilesKHR-pProfiles-parameter"></a> <span class="vuid">VUID-VkVideoProfilesKHR-pProfiles-parameter</span><br>
- If <code>profileCount</code> is not <code>0</code>, <code>pProfiles</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>profileCount</code> valid <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a> structures</p>
+<p><a id="VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceMeshShaderFeaturesEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -902,7 +935,7 @@ operation</p>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VK_KHR_video_queue.html">VK_KHR_video_queue</a>, <a href="VkStructureType.html">VkStructureType</a>, <a href="VkVideoProfileKHR.html">VkVideoProfileKHR</a></p>
+<p><a href="VK_EXT_mesh_shader.html">VK_EXT_mesh_shader</a>, <code>VkBool32</code>, <a href="VkStructureType.html">VkStructureType</a></p>
 </div>
 </div>
 </div>
@@ -910,7 +943,7 @@ operation</p>
 <h2 id="_document_notes"><a class="anchor" href="#_document_notes"></a>Document Notes</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For more information, see the <a href="https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#VkVideoProfilesKHR" target="_blank" rel="noopener">Vulkan Specification</a></p>
+<p>For more information, see the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#VkPhysicalDeviceMeshShaderFeaturesEXT" target="_blank" rel="noopener">Vulkan Specification</a></p>
 </div>
 <div class="paragraph">
 <p>This page is extracted from the Vulkan Specification.
@@ -932,8 +965,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.224<br>
-Last updated 2022-08-04 01:27:10 -0700
+Version 1.3.226<br>
+Last updated 2022-09-01 02:03:54 -0700
 </div>
 </div>
 

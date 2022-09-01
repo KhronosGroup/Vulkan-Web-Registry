@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.225 - A Specification</title>
+<title>Vulkan® 1.1.226 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.225 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.226 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.225,</span>
-<span id="revdate">2022-08-18 10:49:40Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1f6a09901674b320bff7cf36c364a461cf1069a6</span>
+<span id="revnumber">version 1.1.226,</span>
+<span id="revdate">2022-09-01 09:21:22Z</span>
+<br><span id="revremark">from git branch: github-main commit: 135da3a538263ef0d194cab25e2bb091119bdc42</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1228,20 +1228,22 @@ invocation count that is greater than <code>0</code> and less than or equal to
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-02596" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-stage-02596"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-stage-02596</span><br>
 
-If <code>stage</code> is a
-<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
-stage</a>, and the identified entry point writes to <code>Layer</code> for any
-primitive, it <strong class="purple">must</strong> write the same value to <code>Layer</code> for all vertices
-of a given primitive</p>
+If <code>stage</code> is either <code>VK_SHADER_STAGE_VERTEX_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code>, or
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code>, and the identified entry point
+writes to <code>Layer</code> for any primitive, it <strong class="purple">must</strong> write the same value to
+<code>Layer</code> for all vertices of a given primitive</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-02597" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-stage-02597"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-stage-02597</span><br>
 
-If <code>stage</code> is a
-<a href="chap10.html#pipeline-graphics-subsets-pre-rasterization">pre-rasterization shader
-stage</a>, and the identified entry point writes to <code>ViewportIndex</code> for
-any primitive, it <strong class="purple">must</strong> write the same value to <code>ViewportIndex</code> for
-all vertices of a given primitive</p>
+If <code>stage</code> is either <code>VK_SHADER_STAGE_VERTEX_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT</code>,
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code>, or
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code>, and the identified entry point
+writes to <code>ViewportIndex</code> for any primitive, it <strong class="purple">must</strong> write the same
+value to <code>ViewportIndex</code> for all vertices of a given primitive</p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-stage-00718" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-stage-00718"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-stage-00718</span><br>
@@ -1647,8 +1649,12 @@ the shader stages to be included in the graphics pipeline.</p>
 </li>
 <li>
 <p><code>pVertexInputState</code> is a pointer to a
-<a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure defining vertex
-input state for use with vertex shading.</p>
+<a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure.</p>
+</li>
+<li>
+<p><code>pInputAssemblyState</code> is a pointer to a
+<a href="chap20.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a> structure which determines
+input assembly behavior, as described in <a href="chap20.html">Drawing Commands</a>.</p>
 </li>
 <li>
 <p><code>pInputAssemblyState</code> is a pointer to a
@@ -2678,6 +2684,186 @@ performed with a pipeline state with
 </li>
 </ul>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_valid_combinations_of_stages_for_graphics_pipelines"><a class="anchor" href="chap10.html#_valid_combinations_of_stages_for_graphics_pipelines"></a>10.2.1. Valid Combinations of Stages for Graphics Pipelines</h4>
+<div class="paragraph">
+<p>If tessellation shader stages are omitted, the tessellation shading and
+fixed-function stages of the pipeline are skipped.</p>
+</div>
+<div class="paragraph">
+<p>If a geometry shader is omitted, the geometry shading stage is skipped.</p>
+</div>
+<div class="paragraph">
+<p>If a fragment shader is omitted, fragment color outputs have undefined
+values, and the fragment depth value is determined by
+<a href="#fragment-operations" class="target-missing">Fragment Operations</a> state.
+This <strong class="purple">can</strong> be useful for depth-only rendering.</p>
+</div>
+<div class="paragraph">
+<p>Presence of a shader stage in a pipeline is indicated by including a valid
+<a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> with <code>module</code> and <code>pName</code>
+selecting an entry point from a shader module, where that entry point is
+valid for the stage specified by <code>stage</code>.</p>
+</div>
+<div class="paragraph">
+<p>Presence of some of the fixed-function stages in the pipeline is implicitly
+derived from enabled shaders and provided state.
+For example, the fixed-function tessellator is always present when the
+pipeline has valid Tessellation Control and Tessellation Evaluation shaders.</p>
+</div>
+<div class="ulist">
+<div class="title">For example:</div>
+<ul>
+<li>
+<p>Depth/stencil-only rendering in a subpass with no color attachments</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Active Pipeline Shader Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Vertex Shader</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Required: Fixed-Function Pipeline Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap20.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap24.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap26.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Color-only rendering in a subpass with no depth/stencil attachment</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Active Pipeline Shader Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Vertex Shader</p>
+</li>
+<li>
+<p>Fragment Shader</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Required: Fixed-Function Pipeline Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap20.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap24.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap27.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Rendering pipeline with tessellation and geometry shaders</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Active Pipeline Shader Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Vertex Shader</p>
+</li>
+<li>
+<p>Tessellation Control Shader</p>
+</li>
+<li>
+<p>Tessellation Evaluation Shader</p>
+</li>
+<li>
+<p>Geometry Shader</p>
+</li>
+<li>
+<p>Fragment Shader</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Required: Fixed-Function Pipeline Stages</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap21.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap20.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap22.html#VkPipelineTessellationStateCreateInfo">VkPipelineTessellationStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap24.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap26.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a></p>
+</li>
+<li>
+<p><a href="chap27.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -4147,6 +4333,11 @@ The state-setting commands <strong class="purple">must</strong> be recorded afte
 recording was begun, or after the last command binding a pipeline object
 with that state specified as static, whichever was the latter.</p>
 </li>
+<li>
+<p>If the state is not included (corresponding pointer in
+<a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a> was <code>NULL</code> or was ignored) in the new
+pipeline object, then that command buffer state is not disturbed.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -4185,8 +4376,8 @@ buffer, even if this state is specified as dynamic in the pipeline object.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.225<br>
-Last updated 2022-06-15 23:17:00 -0700
+Version 1.1.226<br>
+Last updated 2022-09-01 02:00:31 -0700
 </div>
 </div>
 

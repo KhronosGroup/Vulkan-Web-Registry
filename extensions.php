@@ -111,6 +111,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_marker.html"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_report.html"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_debug_utils.html"> VK_EXT_debug_utils </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clamp_zero_one.html"> VK_EXT_depth_clamp_zero_one </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_control.html"> VK_EXT_depth_clip_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
@@ -148,6 +149,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_budget.html"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_priority.html"> VK_EXT_memory_priority </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_mesh_shader.html"> VK_EXT_mesh_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_objects.html"> VK_EXT_metal_objects </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_metal_surface.html"> VK_EXT_metal_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multi_draw.html"> VK_EXT_multi_draw </a> </li>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.225 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.226 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.225 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.226 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.225,</span>
-<span id="revdate">2022-08-18 10:44:20Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1f6a09901674b320bff7cf36c364a461cf1069a6</span>
+<span id="revnumber">version 1.2.226,</span>
+<span id="revdate">2022-09-01 09:16:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: 135da3a538263ef0d194cab25e2bb091119bdc42</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -263,9 +263,10 @@
 <li><a href="chap18.html#queries-performance">18.6. Performance Queries</a></li>
 <li><a href="chap18.html#queries-transform-feedback">18.7. Transform Feedback Queries</a></li>
 <li><a href="chap18.html#queries-primitives-generated">18.8. Primitives Generated Queries</a></li>
-<li><a href="chap18.html#queries-performance-intel">18.9. Intel performance queries</a></li>
-<li><a href="chap18.html#queries-result-status-only">18.10. Result Status Queries</a></li>
-<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.11. Video Encode Bitstream Buffer Range</a></li>
+<li><a href="chap18.html#queries-mesh-shader">18.9. Mesh Shader Queries</a></li>
+<li><a href="chap18.html#queries-performance-intel">18.10. Intel performance queries</a></li>
+<li><a href="chap18.html#queries-result-status-only">18.11. Result Status Queries</a></li>
+<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.12. Video Encode Bitstream Buffer Range</a></li>
 </ul>
 </li>
 <li><a href="chap19.html">19. Clear Commands</a>
@@ -333,7 +334,7 @@
 <li><a href="chap25.html#mesh-task-output">25.2. Task Shader Output</a></li>
 <li><a href="chap25.html#mesh-generation">25.3. Mesh Generation</a></li>
 <li><a href="chap25.html#mesh-input">25.4. Mesh Shader Input</a></li>
-<li><a href="chap25.html#mesh-output">25.5. Mesh Shader Output Primitives</a></li>
+<li><a href="chap25.html#mesh-output">25.5. Mesh Shader Output</a></li>
 <li><a href="chap25.html#mesh-output-perview">25.6. Mesh Shader Per-View Outputs</a></li>
 <li><a href="chap25.html#mesh-ordering">25.7. Mesh Shader Primitive Ordering</a></li>
 </ul>
@@ -1478,9 +1479,13 @@ invocations.</p>
 <div class="paragraph">
 <p>The task shader has no fixed-function inputs other than variables
 identifying the specific workgroup and invocation.
-The only fixed output of the task shader is a task count, identifying the
-number of mesh shader workgroups to create.
-The task shader can write additional outputs to task memory, which can be
+In the <code>TaskNV</code> <code>Execution</code> <code>Model</code> the number of mesh shader workgroups to
+create is specified via a <code>TaskCountNV</code> decorated output variable.
+In the <code>TaskEXT</code> <code>Execution</code> <code>Model</code> the number of mesh shader workgroups to
+create is specified via the <code>OpEmitMeshTasksEXT</code> instruction.</p>
+</div>
+<div class="paragraph">
+<p>The task shader can write additional outputs to task memory, which can be
 read by all of the mesh shader workgroups it created.</p>
 </div>
 <div class="sect3">
@@ -1498,7 +1503,9 @@ execution mode or via an object decorated by the <code>WorkgroupSize</code>
 decoration.
 An invocation within a local workgroup <strong class="purple">can</strong> share data with other members of
 the local workgroup through shared variables and issue memory and control
-flow barriers to synchronize with other members of the local workgroup.</p>
+flow barriers to synchronize with other members of the local workgroup.
+If the subpass includes multiple views in its view mask, a Task shader using
+<code>TaskEXT</code> <code>Execution</code> <code>Model</code> <strong class="purple">may</strong> be invoked separately for each view.</p>
 </div>
 </div>
 </div>
@@ -1547,8 +1554,10 @@ the local workgroup through shared variables and issue memory and control
 flow barriers to synchronize with other members of the local workgroup.</p>
 </div>
 <div class="paragraph">
-<p>The <em>global workgroups</em> may be generated explcitly via the API, or
-implicitly through the task shader’s work creation mechanism.</p>
+<p>The <em>global workgroups</em> may be generated explicitly via the API, or
+implicitly through the task shader’s work creation mechanism.
+If the subpass includes multiple views in its view mask, a Mesh shader using
+<code>MeshEXT</code> <code>Execution</code> <code>Model</code> <strong class="purple">may</strong> be invoked separately for each view.</p>
 </div>
 </div>
 </div>
@@ -1985,6 +1994,22 @@ allowed shader stage.</p>
 <p>Variables in the <code>Input</code> storage class in a fragment shader’s interface
 are interpolated from the values specified by the primitive being
 rasterized.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Interpolation decorations can be present on input and output variables in
+pre-rasterization shaders but have no effect on the interpolation performed.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>An undecorated input variable will be interpolated with perspective-correct
@@ -3916,8 +3941,8 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.225<br>
-Last updated 2022-06-15 23:17:00 -0700
+Version 1.2.226<br>
+Last updated 2022-09-01 02:00:31 -0700
 </div>
 </div>
 

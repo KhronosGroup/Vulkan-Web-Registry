@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.225 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.226 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -54,12 +54,12 @@
 <link rel="stylesheet" href="asciidoctor-chunker.css" type="text/css"></head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.225 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.226 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.225,</span>
-<span id="revdate">2022-08-18 10:43:59Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1f6a09901674b320bff7cf36c364a461cf1069a6</span>
+<span id="revnumber">version 1.0.226,</span>
+<span id="revdate">2022-09-01 09:15:53Z</span>
+<br><span id="revremark">from git branch: github-main commit: 135da3a538263ef0d194cab25e2bb091119bdc42</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -261,9 +261,10 @@
 <li><a href="chap18.html#queries-performance">18.6. Performance Queries</a></li>
 <li><a href="chap18.html#queries-transform-feedback">18.7. Transform Feedback Queries</a></li>
 <li><a href="chap18.html#queries-primitives-generated">18.8. Primitives Generated Queries</a></li>
-<li><a href="chap18.html#queries-performance-intel">18.9. Intel performance queries</a></li>
-<li><a href="chap18.html#queries-result-status-only">18.10. Result Status Queries</a></li>
-<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.11. Video Encode Bitstream Buffer Range</a></li>
+<li><a href="chap18.html#queries-mesh-shader">18.9. Mesh Shader Queries</a></li>
+<li><a href="chap18.html#queries-performance-intel">18.10. Intel performance queries</a></li>
+<li><a href="chap18.html#queries-result-status-only">18.11. Result Status Queries</a></li>
+<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.12. Video Encode Bitstream Buffer Range</a></li>
 </ul>
 </li>
 <li><a href="chap19.html">19. Clear Commands</a>
@@ -331,7 +332,7 @@
 <li class="current"><a href="chap25.html#mesh-task-output">25.2. Task Shader Output</a></li>
 <li class="current"><a href="chap25.html#mesh-generation">25.3. Mesh Generation</a></li>
 <li class="current"><a href="chap25.html#mesh-input">25.4. Mesh Shader Input</a></li>
-<li class="current"><a href="chap25.html#mesh-output">25.5. Mesh Shader Output Primitives</a></li>
+<li class="current"><a href="chap25.html#mesh-output">25.5. Mesh Shader Output</a></li>
 <li class="current"><a href="chap25.html#mesh-output-perview">25.6. Mesh Shader Per-View Outputs</a></li>
 <li class="current"><a href="chap25.html#mesh-ordering">25.7. Mesh Shader Primitive Ordering</a></li>
 </ul>
@@ -649,15 +650,29 @@ There are no inputs other than the builtin workgroup identifiers.</p>
 <div class="sect2">
 <h3 id="mesh-task-output"><a class="anchor" href="chap25.html#mesh-task-output"></a>25.2. Task Shader Output</h3>
 <div class="paragraph">
-<p>The task shader can emit zero or more mesh workgroups to be generated using
-the <a href="chap15.html#interfaces-builtin-variables">built-in variable</a> <code>TaskCountNV</code>.
+<p>The task shader can emit zero or more mesh workgroups to be generated.
+Shaders using the <code>TaskNV</code> <code>Execution</code> <code>Model</code> can do so using the
+<a href="chap15.html#interfaces-builtin-variables">built-in variable</a> <code>TaskCountNV</code>.
 This value <strong class="purple">must</strong> be less than or equal to
-<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxTaskOutputCount</code>.</p>
+<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxTaskOutputCount</code>.
+Shaders using the <code>TaskEXT</code> <code>Execution</code> <code>Model</code> can do so using the
+<code>OpEmitMeshTasksEXT</code> instruction.
+The <code>groupCountX</code>, <code>groupCountY</code> and <code>groupCountZ</code> arguments passed
+to this instruction <strong class="purple">must</strong> be less than or equal to the respective dimension
+within
+<code>VkPhysicalDeviceMeshShaderPropertiesEXT</code>::<code>maxMeshWorkGroupCount</code>.
+The product of these arguments <strong class="purple">must</strong> be less than or equal to
+<code>VkPhysicalDeviceMeshShaderPropertiesEXT</code>::<code>maxMeshWorkGroupTotalCount</code>.</p>
 </div>
 <div class="paragraph">
-<p>It can also output user-defined data that is passed as input to all mesh
-shader invocations that the task creates.
-These outputs are decorated as <code>PerTaskNV</code>.</p>
+<p>The task shader can also pass user-defined data to all mesh shader
+invocations that it creates.
+Shaders using the <code>TaskNV</code> <code>Execution</code> <code>Model</code> can do so by writing to
+output variables that are decorated with <code>PerTaskNV</code>.
+They are available as inputs in mesh shaders.
+Shaders using the <code>TaskEXT</code> <code>Execution</code> <code>Model</code> can do so by writing to a
+payload variable with <code>TaskPayloadWorkgroupEXT</code> storage class that is
+passed to the <code>OpEmitMeshTasksEXT</code> instruction.</p>
 </div>
 </div>
 <div class="sect2">
@@ -673,43 +688,118 @@ invocations directly.</p>
 <h3 id="mesh-input"><a class="anchor" href="chap25.html#mesh-input"></a>25.4. Mesh Shader Input</h3>
 <div class="paragraph">
 <p>The only inputs available to the mesh shader are variables identifying the
-specific workgroup and invocation and, if applicable, any outputs written as
-<code>PerTaskNV</code> by the task shader that spawned the mesh shader’s workgroup.
+specific workgroup and invocation and, if applicable,
+any outputs written as <code>PerTaskNV</code>
+or
+the payload variable passed to the <code>OpEmitMeshTasksEXT</code> instruction
+by the task shader that spawned the mesh shader’s workgroup.
 The mesh shader can operate without a task shader as well.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="mesh-output"><a class="anchor" href="chap25.html#mesh-output"></a>25.5. Mesh Shader Output Primitives</h3>
+<h3 id="mesh-output"><a class="anchor" href="chap25.html#mesh-output"></a>25.5. Mesh Shader Output</h3>
 <div class="paragraph">
 <p>A mesh shader generates primitives in one of three output modes: points,
 lines, or triangles.
-The primitive mode is specified in the shader using an <code>OpExecutionMode</code>
-instruction with the <code>OutputPoints</code>, <code>OutputLinesNV</code>, or
-<code>OutputTrianglesNV</code> modes, respectively.
+For shaders using the <code>MeshNV</code> <code>Execution</code> <code>Model</code> the primitive mode is
+specified in the shader using an <code>OpExecutionMode</code> instruction with the
+<code>OutputPoints</code>, <code>OutputLinesNV</code>, or <code>OutputTrianglesNV</code> modes,
+respectively.
+For shaders using the <code>MeshEXT</code> <code>Execution</code> <code>Model</code> the primitive mode is
+specified in the shader using an <code>OpExecutionMode</code> instruction with the
+<code>OutputPoints</code>, <code>OutputLinesEXT</code>, or <code>OutputTrianglesEXT</code> modes,
+respectively.
 Each mesh shader <strong class="purple">must</strong> include exactly one output primitive mode.</p>
 </div>
 <div class="paragraph">
-<p>The maximum output vertex count is specified as a literal in the shader
-using an <code>OpExecutionMode</code> instruction with the mode set to
-<code>OutputVertices</code> and <strong class="purple">must</strong> be less than or equal to
-<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxMeshOutputVertices</code>.</p>
+<p>For shaders using the <code>MeshNV</code> <code>Execution</code> <code>Model</code> the maximum output vertex
+count is specified as a literal in the shader using an <code>OpExecutionMode</code>
+instruction with the mode set to <code>OutputVertices</code> and <strong class="purple">must</strong> be less than
+or equal to
+<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxMeshOutputVertices</code>.
+For shaders using the <code>MeshEXT</code> <code>Execution</code> <code>Model</code> the maximum output
+vertex count is specified as a literal in the shader using an
+<code>OpExecutionMode</code> instruction with the mode set to <code>OutputVertices</code>
+and <strong class="purple">must</strong> be less than or equal to
+<code>VkPhysicalDeviceMeshShaderPropertiesEXT</code>::<code>maxMeshOutputVertices</code>.</p>
 </div>
 <div class="paragraph">
-<p>The maximum output primitive count is specified as a literal in the shader
-using an <code>OpExecutionMode</code> instruction with the mode set to
+<p>For shaders using the <code>MeshNV</code> <code>Execution</code> <code>Model</code> the maximum output
+primitive count is specified as a literal in the shader using an
+<code>OpExecutionMode</code> instruction with the mode set to
 <code>OutputPrimitivesNV</code> and <strong class="purple">must</strong> be less than or equal to
-<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxMeshOutputPrimitives</code>.</p>
+<code>VkPhysicalDeviceMeshShaderPropertiesNV</code>::<code>maxMeshOutputPrimitives</code>.
+For shaders using the <code>MeshEXT</code> <code>Execution</code> <code>Model</code> the maximum output
+primitive count is specified as a literal in the shader using an
+<code>OpExecutionMode</code> instruction with the mode set to
+<code>OutputPrimitivesEXT</code>, and <strong class="purple">must</strong> be less than or equal to
+<code>VkPhysicalDeviceMeshShaderPropertiesEXT</code>::<code>maxMeshOutputPrimitives</code>.</p>
 </div>
 <div class="paragraph">
-<p>The number of primitives output by the mesh shader is provided via writing
-to the <a href="chap15.html#interfaces-builtin-variables">built-in variable</a>
-<code>PrimitiveCountNV</code> and <strong class="purple">must</strong> be less than or equal to the maximum output
-primitive count specified in the shader.
+<p>For shaders using the <code>MeshNV</code> <code>Execution</code> <code>Model</code> the number of primitives
+output by the mesh shader is provided via writing to the
+<a href="chap15.html#interfaces-builtin-variables">built-in variable</a> <code>PrimitiveCountNV</code> and
+<strong class="purple">must</strong> be less than or equal to the maximum output primitive count specified
+in the shader.
 A variable decorated with <code>PrimitiveIndicesNV</code> is an output array of
 local index values into the vertex output arrays from which primitives are
 assembled according to the output primitive type.
-These resulting primitives are then further processed as described in
+For shaders using the <code>MeshEXT</code> <code>Execution</code> <code>Model</code> the number of vertices
+and primitives output by the mesh shader is provided via calling the
+<code>OpSetMeshOutputsEXT</code> instruction.
+The <code>vertexCount</code> argument <strong class="purple">must</strong> be less than or equal to the maximum
+output vertex count specified in the shader.
+The <code>primitiveCount</code> argument <strong class="purple">must</strong> be less than or equal to the maximum
+output primitive count specified in the shader.</p>
+</div>
+<div class="paragraph">
+<p>Depending on the output primitive mode an appropriately-decorated variable
+is the output array of local index values into the vertex output arrays from
+which primitives are assembled according to the output primitive type:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>OutputPoints</code> uses the <code>PrimitivePointIndicesEXT</code> decoration.</p>
+</li>
+<li>
+<p><code>OutputLinesEXT</code> uses the <code>PrimitiveLineIndicesEXT</code> decoration.</p>
+</li>
+<li>
+<p><code>OutputTrianglesEXT</code> uses the <code>PrimitiveTriangleIndicesEXT</code>
+decoration.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These resulting primitives are then further processed as described in
 <a href="chap27.html">Rasterization</a>.</p>
+</div>
+<div class="paragraph">
+<p>With the exception of primitive indices, all output built-ins and custom
+attributes count towards the total storage size occupied by output variables
+in mesh shaders.
+This size can be calculated as follows, taking into account the fact that
+the number of effective scalar attributes is 4 times the number of effective
+locations used according to the <a href="chap15.html#interfaces-iointerfaces-locations">location
+assignment rules</a>.
+Let <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span></span></span></span> be the number of views, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be the number of
+effective scalar per-vertex attributes not dependent on <code>ViewIndex</code>,
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> be the number of effective scalar per-vertex attributes
+dependent on <code>ViewIndex</code>, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be the maximum number of
+vertices specified by the <code>OutputVertices</code> <code>Execution</code> <code>Mode</code>,
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be <code>meshOutputPerVertexGranularity</code>, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> be
+the number of effective scalar per-primitive attributes not dependent on
+<code>ViewIndex</code>, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> be the number of effective scalar
+per-primitive attributes dependent on <code>ViewIndex</code>, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> be the
+maximum number of primitives specified by the <code>OutputPrimitivesEXT</code>
+<code>Execution</code> <code>Mode</code> and <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.716668em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> be
+<code>meshOutputPerPrimitiveGranularity</code>:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">)</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathrm">a</span><span class="mord mathrm">l</span><span class="mord mathrm">i</span><span class="mord mathrm" style="margin-right:0.01389em;">g</span><span class="mord mathrm">n</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight">p</span><span class="mord mathdefault mtight" style="margin-right:0.03588em;">v</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mclose">)</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathrm">a</span><span class="mord mathrm">l</span><span class="mord mathrm">i</span><span class="mord mathrm" style="margin-right:0.01389em;">g</span><span class="mord mathrm">n</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -739,6 +829,11 @@ The view number is used to index the first dimension of these arrays.</p>
 input is taken from the element of the per-view output array that
 corresponds to the view that is currently being processed by the fragment
 shader.</p>
+</div>
+<div class="paragraph">
+<p>These <em>per-view</em> outputs are available only in shaders using the <code>MeshNV</code>
+<code>Execution</code> <code>Model</code>.
+They are not available in shaders using the <code>MeshEXT</code> <code>Execution</code> <code>Model</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -780,8 +875,8 @@ to high address).</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.225<br>
-Last updated 2022-06-15 23:17:00 -0700
+Version 1.0.226<br>
+Last updated 2022-09-01 02:00:31 -0700
 </div>
 </div>
 
