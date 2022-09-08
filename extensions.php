@@ -145,6 +145,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_image_view_min_lod.html"> VK_EXT_image_view_min_lod </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_index_type_uint8.html"> VK_EXT_index_type_uint8 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_inline_uniform_block.html"> VK_EXT_inline_uniform_block </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_legacy_dithering.html"> VK_EXT_legacy_dithering </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_memory_budget.html"> VK_EXT_memory_budget </a> </li>
