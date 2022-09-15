@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.227 - A Specification</title>
+<title>Vulkan® 1.0.228 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.227 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.0.228 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.227,</span>
-<span id="revdate">2022-09-08 08:53:32Z</span>
-<br><span id="revremark">from git branch: github-main commit: 09d120580acb942d9cc3a96c863815a05990893c</span>
+<span id="revnumber">version 1.0.228,</span>
+<span id="revdate">2022-09-15 08:47:28Z</span>
+<br><span id="revremark">from git branch: github-main commit: 355367640f2eabd2a0d492010a0afc166696aa72</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -398,6 +398,7 @@
 <li><a href="chap40.html#boilerplate-headers">Vulkan Header Files</a></li>
 <li><a href="chap40.html#boilerplate-wsi-header">Window System-Specific Header Control (Informative)</a></li>
 <li><a href="chap40.html#boilerplate-provisional-header">Provisional Extension Header Control (Informative)</a></li>
+<li><a href="chap40.html#boilerplate-video-std-headers">Video Std Headers (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap41.html">Appendix F: Invariance</a>
@@ -2539,24 +2540,19 @@ the queue family of <code>queue</code> at resource creation time</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap3.html#fundamentals-queueoperation-command-types">Command Type</a></th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Any</p></td>
-</tr>
-</tbody>
 </table>
 </div>
 </div>
@@ -2769,13 +2765,11 @@ there <strong class="purple">must</strong> be a prior signal of that semaphore t
 a different wait on the semaphore.</p>
 </div>
 <div class="paragraph">
-<p>Command buffers in the submission <strong class="purple">can</strong> include <a href="chap7.html#vkCmdWaitEvents">vkCmdWaitEvents</a>
-commands that wait on events that will not be signaled by earlier commands
-in the queue.
-Such events <strong class="purple">must</strong> be signaled by the application using <a href="chap7.html#vkSetEvent">vkSetEvent</a>, and
-the <code>vkCmdWaitEvents</code> commands that wait upon them <strong class="purple">must</strong> not be inside a
-render pass instance.
-The event <strong class="purple">must</strong> be set before the <a href="chap7.html#vkCmdWaitEvents">vkCmdWaitEvents</a> command is executed.</p>
+<p>If a command buffer submission waits for any events to be signaled, the
+application <strong class="purple">must</strong> ensure that command buffer submissions will be able to
+complete without any subsequent operations by the application.
+Events signaled by the host <strong class="purple">must</strong> be signaled before the command buffer
+waits on those events.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2786,8 +2780,15 @@ The event <strong class="purple">must</strong> be set before the <a href="chap7.
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Implementations may have some tolerance for waiting on events to be set, but
-this is defined outside of the scope of Vulkan.</p>
+<p>The ability for commands to wait on the host to set an events was originally
+added to allow low-latency updates to resources between host and device.
+However, to ensure quality of service, implementations would necessarily
+detect extended stalls in execution and timeout after a short period.
+As this period is not defined in the Vulkan specification, it is impossible
+to correctly validate any application with any wait period.
+Since the original users of this functionality were highly limited and
+platform-specific, this functionality is now considered defunct and should
+not be used.</p>
 </div>
 </td>
 </tr>
@@ -3098,15 +3099,17 @@ that image subresource as an attachment</p>
 <div class="title">Command Properties</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
 <th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap3.html#fundamentals-queueoperation-command-types">Command Type</a></th>
 </tr>
 </thead>
 <tbody>
@@ -3116,6 +3119,7 @@ that image subresource as an attachment</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
 Graphics<br>
 Compute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Indirection</p></td>
 </tr>
 </tbody>
 </table>
@@ -3138,8 +3142,8 @@ Compute</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.227<br>
-Last updated 2022-09-08 01:33:26 -0700
+Version 1.0.228<br>
+Last updated 2022-09-15 01:27:48 -0700
 </div>
 </div>
 
