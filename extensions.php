@@ -116,6 +116,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_address_binding_report.html"> VK_EXT_device_address_binding_report </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_fault.html"> VK_EXT_device_fault </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_memory_report.html"> VK_EXT_device_memory_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_direct_mode_display.html"> VK_EXT_direct_mode_display </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_directfb_surface.html"> VK_EXT_directfb_surface </a> </li>
@@ -124,6 +126,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_display_surface_counter.html"> VK_EXT_display_surface_counter </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_extended_dynamic_state.html"> VK_EXT_extended_dynamic_state </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_extended_dynamic_state2.html"> VK_EXT_extended_dynamic_state2 </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_extended_dynamic_state3.html"> VK_EXT_extended_dynamic_state3 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_external_memory_dma_buf.html"> VK_EXT_external_memory_dma_buf </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_external_memory_host.html"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_filter_cubic.html"> VK_EXT_filter_cubic </a> </li>
@@ -157,12 +160,14 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_multisampled_render_to_single_sampled.html"> VK_EXT_multisampled_render_to_single_sampled </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_mutable_descriptor_type.html"> VK_EXT_mutable_descriptor_type </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_non_seamless_cube_map.html"> VK_EXT_non_seamless_cube_map </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_opacity_micromap.html"> VK_EXT_opacity_micromap </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pageable_device_local_memory.html"> VK_EXT_pageable_device_local_memory </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pci_bus_info.html"> VK_EXT_pci_bus_info </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_physical_device_drm.html"> VK_EXT_physical_device_drm </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_properties.html"> VK_EXT_pipeline_properties </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_protected_access.html"> VK_EXT_pipeline_protected_access </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_robustness.html"> VK_EXT_pipeline_robustness </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
@@ -285,6 +290,8 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_linear_color_attachment.html"> VK_NV_linear_color_attachment </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_present_barrier.html"> VK_NV_present_barrier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_representative_fragment_test.html"> VK_NV_representative_fragment_test </a> </li>
