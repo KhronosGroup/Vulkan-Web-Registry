@@ -865,59 +865,38 @@ specifying the regions to copy.</p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Each region in <code>pRegions</code> is copied from the source image to the same
-region of the destination image.
-<code>srcImage</code> and <code>dstImage</code> <strong class="purple">can</strong> be the same image or alias the same
-memory.</p>
+<p>Each source region specified by <code>pRegions</code> is copied from the source
+image to the destination region of the destination image.
+If any of the specified regions in <code>srcImage</code> overlaps in memory with
+any of the specified regions in <code>dstImage</code>, values read from those
+overlapping regions are undefined.</p>
 </div>
 <div class="paragraph">
-<p>If either <code>srcImage</code> or <code>dstImage</code> has a
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-requiring-sampler-ycbcr-conversion" target="_blank" rel="noopener"><em>multi-planar</em> format</a>,
-regions of each plane to be copied <strong class="purple">must</strong> be specified separately using the
-<code>srcSubresource</code> and <code>dstSubresource</code> members of the
-<a href="VkImageCopy.html">VkImageCopy</a> structure.
-In this case, the <code>aspectMask</code> of the <code>srcSubresource</code> or
-<code>dstSubresource</code> that refers to the multi-planar image <strong class="purple">must</strong> be
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>, <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code>, or
-<code>VK_IMAGE_ASPECT_PLANE_2_BIT</code>.
-For the purposes of <code>vkCmdCopyImage</code>, each plane of a multi-planar image
-is treated as having the format listed in <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-compatible-planes" class="bare" target="_blank" rel="noopener">https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-compatible-planes</a> for
-the plane identified by the <code>aspectMask</code> of the corresponding
-subresource.
-This applies both to <a href="VkFormat.html">VkFormat</a> and to coordinates used in the copy,
-which correspond to texels in the <em>plane</em> rather than how these texels map
-to coordinates in the image as a whole.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>For example, the <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code> plane of a
-<code>VK_FORMAT_G8_B8R8_2PLANE_420_UNORM</code> image is compatible with an image
-of format <code>VK_FORMAT_R8G8_UNORM</code> and (less usefully) with the
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code> plane of an image of format
-<code>VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16</code>, as each texel is
-2 bytes in size.</p>
-</div>
-</td>
-</tr>
-</table>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-requiring-sampler-ycbcr-conversion" target="_blank" rel="noopener">Multi-planar images</a> <strong class="purple">can</strong>
+only be copied on a per-plane basis, and the subresources used in each
+region when copying to or from such images <strong class="purple">must</strong> specify only one plane,
+though different regions <strong class="purple">can</strong> specify different planes.
+When copying planes of multi-planar images, the format considered is the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-compatible-planes" target="_blank" rel="noopener">compatible format for that plane</a>, rather than
+the format of the multi-planar image.</p>
 </div>
 <div class="paragraph">
 <p>If the format of the destination image has a different
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-compatibility-classes" target="_blank" rel="noopener">block extent</a> than the source image (e.g.
 one is a compressed format), the offset and extent for each of the regions
 specified is <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#formats-size-compatibility" target="_blank" rel="noopener">scaled according to the block
-extents of each format</a> to match in size.</p>
+extents of each format</a> to match in size.
+Copy regions for each image <strong class="purple">must</strong> be aligned to a multiple of the texel
+block extent in each dimension, except at the edges of the image, where
+region extents <strong class="purple">must</strong> match the edge of the image.</p>
 </div>
 <div class="paragraph">
-<p><code>vkCmdCopyImage</code> <strong class="purple">can</strong> be used to copy image data between multisample
-images, but both images <strong class="purple">must</strong> have the same number of samples.</p>
+<p>Image data <strong class="purple">can</strong> be copied between images with different image types.
+If one image is <code>VK_IMAGE_TYPE_3D</code> and the other image is
+<code>VK_IMAGE_TYPE_2D</code> with multiple layers, then each slice is copied to or
+from a different layer; <code>depth</code> slices in the 3D image correspond to
+<code>layerCount</code> layers in the 2D image, with an effective <code>depth</code> of
+<code>1</code> used for the 2D image.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1569,8 +1548,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.230<br>
-Last updated 2022-09-28 20:46:52 -0700
+Version 1.3.231<br>
+Last updated 2022-10-13 00:21:20 -0700
 </div>
 </div>
 

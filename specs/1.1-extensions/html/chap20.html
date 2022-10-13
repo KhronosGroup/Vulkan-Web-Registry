@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.230 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.231 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.230 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.231 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.230,</span>
-<span id="revdate">2022-09-29 03:59:33Z</span>
-<br><span id="revremark">from git branch: github-main commit: ac3762095459e0190a75c433af1f85d2f6023d44</span>
+<span id="revnumber">version 1.1.231,</span>
+<span id="revdate">2022-10-13 07:33:43Z</span>
+<br><span id="revremark">from git branch: github-main commit: 7a319840243ea33aa4caa42cdce0143b150e02bb</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -700,11 +700,11 @@ specifying the regions to copy.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Each region in <code>pRegions</code> is copied from the source buffer to the same
-region of the destination buffer.
-<code>srcBuffer</code> and <code>dstBuffer</code> <strong class="purple">can</strong> be the same buffer or alias the
-same memory, but the resulting values are undefined if the copy regions
-overlap in memory.</p>
+<p>Each source region specified by <code>pRegions</code> is copied from the source
+buffer to the destination region of the destination buffer.
+If any of the specified regions in <code>srcBuffer</code> overlaps in memory with
+any of the specified regions in <code>dstBuffer</code>, values read from those
+overlapping regions are undefined.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -971,9 +971,13 @@ structure describing the copy parameters.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command is functionally identical to <a href="chap20.html#vkCmdCopyBuffer">vkCmdCopyBuffer</a>, but
-includes extensible sub-structures that include <code>sType</code> and <code>pNext</code>
-parameters, allowing them to be more easily extended.</p>
+<p>Each source region specified by <code>pCopyBufferInfo-&gt;pname</code>:pRegions is
+copied from the source buffer to the destination region of the destination
+buffer.
+If any of the specified regions in <code>pCopyBufferInfo-&gt;pname</code>:srcBuffer
+overlaps in memory with any of the specified regions in
+<code>pCopyBufferInfo-&gt;pname</code>:dstBuffer, values read from those overlapping
+regions are undefined.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1139,12 +1143,6 @@ structure.</p>
 structures specifying the regions to copy.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>Members defined by this structure with the same name as parameters in
-<a href="chap20.html#vkCmdCopyBuffer">vkCmdCopyBuffer</a> have the identical effect to those parameters; the
-child structure <a href="chap20.html#VkBufferCopy2">VkBufferCopy2</a> is a variant of <a href="chap20.html#VkBufferCopy">VkBufferCopy</a> which
-includes <code>sType</code> and <code>pNext</code> parameters, allowing it to be extended.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1332,15 +1330,6 @@ The <code>size</code> <strong class="purple">must</strong> be greater than <code
 </div>
 <div class="sect2">
 <h3 id="copies-images"><a class="anchor" href="chap20.html#copies-images"></a>20.2. Copying Data Between Images</h3>
-<div class="paragraph">
-<p><code>vkCmdCopyImage</code> performs image copies in a similar manner to a host
-memcpy.
-It does not perform general-purpose conversions such as scaling, resizing,
-blending, color-space conversion, or format conversions.
-Rather, it simply copies raw image data.
-<code>vkCmdCopyImage</code> <strong class="purple">can</strong> copy between images with different formats,
-provided the formats are compatible as defined below.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -1389,59 +1378,38 @@ specifying the regions to copy.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Each region in <code>pRegions</code> is copied from the source image to the same
-region of the destination image.
-<code>srcImage</code> and <code>dstImage</code> <strong class="purple">can</strong> be the same image or alias the same
-memory.</p>
+<p>Each source region specified by <code>pRegions</code> is copied from the source
+image to the destination region of the destination image.
+If any of the specified regions in <code>srcImage</code> overlaps in memory with
+any of the specified regions in <code>dstImage</code>, values read from those
+overlapping regions are undefined.</p>
 </div>
 <div class="paragraph">
-<p>If either <code>srcImage</code> or <code>dstImage</code> has a
-<a href="chap45.html#formats-requiring-sampler-ycbcr-conversion"><em>multi-planar</em> format</a>,
-regions of each plane to be copied <strong class="purple">must</strong> be specified separately using the
-<code>srcSubresource</code> and <code>dstSubresource</code> members of the
-<a href="chap20.html#VkImageCopy">VkImageCopy</a> structure.
-In this case, the <code>aspectMask</code> of the <code>srcSubresource</code> or
-<code>dstSubresource</code> that refers to the multi-planar image <strong class="purple">must</strong> be
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>, <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code>, or
-<code>VK_IMAGE_ASPECT_PLANE_2_BIT</code>.
-For the purposes of <code>vkCmdCopyImage</code>, each plane of a multi-planar image
-is treated as having the format listed in <a href="chap45.html#formats-compatible-planes">Compatible formats of planes of multi-planar formats</a> for
-the plane identified by the <code>aspectMask</code> of the corresponding
-subresource.
-This applies both to <a href="chap45.html#VkFormat">VkFormat</a> and to coordinates used in the copy,
-which correspond to texels in the <em>plane</em> rather than how these texels map
-to coordinates in the image as a whole.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tbody><tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>For example, the <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code> plane of a
-<code>VK_FORMAT_G8_B8R8_2PLANE_420_UNORM</code> image is compatible with an image
-of format <code>VK_FORMAT_R8G8_UNORM</code> and (less usefully) with the
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code> plane of an image of format
-<code>VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16</code>, as each texel is
-2 bytes in size.</p>
-</div>
-</td>
-</tr>
-</tbody></table>
+<p><a href="chap45.html#formats-requiring-sampler-ycbcr-conversion">Multi-planar images</a> <strong class="purple">can</strong>
+only be copied on a per-plane basis, and the subresources used in each
+region when copying to or from such images <strong class="purple">must</strong> specify only one plane,
+though different regions <strong class="purple">can</strong> specify different planes.
+When copying planes of multi-planar images, the format considered is the
+<a href="chap45.html#formats-compatible-planes">compatible format for that plane</a>, rather than
+the format of the multi-planar image.</p>
 </div>
 <div class="paragraph">
 <p>If the format of the destination image has a different
 <a href="chap45.html#formats-compatibility-classes">block extent</a> than the source image (e.g.
 one is a compressed format), the offset and extent for each of the regions
 specified is <a href="chap45.html#formats-size-compatibility">scaled according to the block
-extents of each format</a> to match in size.</p>
+extents of each format</a> to match in size.
+Copy regions for each image <strong class="purple">must</strong> be aligned to a multiple of the texel
+block extent in each dimension, except at the edges of the image, where
+region extents <strong class="purple">must</strong> match the edge of the image.</p>
 </div>
 <div class="paragraph">
-<p><code>vkCmdCopyImage</code> <strong class="purple">can</strong> be used to copy image data between multisample
-images, but both images <strong class="purple">must</strong> have the same number of samples.</p>
+<p>Image data <strong class="purple">can</strong> be copied between images with different image types.
+If one image is <code>VK_IMAGE_TYPE_3D</code> and the other image is
+<code>VK_IMAGE_TYPE_2D</code> with multiple layers, then each slice is copied to or
+from a different layer; <code>depth</code> slices in the 3D image correspond to
+<code>layerCount</code> layers in the 2D image, with an effective <code>depth</code> of
+<code>1</code> used for the 2D image.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2094,20 +2062,6 @@ destination image data.</p>
 <code>height</code> and <code>depth</code>.</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>For <code>VK_IMAGE_TYPE_3D</code> images, copies are performed slice by slice
-starting with the <code>z</code> member of the <code>srcOffset</code> or <code>dstOffset</code>,
-and copying <code>depth</code> slices.
-For images with multiple layers, copies are performed layer by layer
-starting with the <code>baseArrayLayer</code> member of the <code>srcSubresource</code> or
-<code>dstSubresource</code> and copying <code>layerCount</code> layers.
-Image data <strong class="purple">can</strong> be copied between images with different image types.
-If one image is <code>VK_IMAGE_TYPE_3D</code> and the other image is
-<code>VK_IMAGE_TYPE_2D</code> with multiple layers, then each slice is copied to or
-from a different layer; <code>depth</code> slices in the 3D image correspond to
-<code>layerCount</code> layers in the 2D image, with an effective <code>depth</code> of
-<code>1</code> used for the 2D image.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -3094,6 +3048,359 @@ non-3D)</p>
 </div>
 <div class="sect2">
 <h3 id="copies-buffers-images"><a class="anchor" href="chap20.html#copies-buffers-images"></a>20.3. Copying Data Between Buffers and Images</h3>
+<div class="paragraph">
+<p>Data <strong class="purple">can</strong> be copied between buffers and images, enabling applications to
+load and store data between images and user defined offsets in buffer
+memory.</p>
+</div>
+<div id="copies-buffers-images-addressing" class="paragraph">
+<p>When copying between a buffer and an image, whole texel blocks are always
+copied; each texel block in the specified extent in the image to be copied
+will be written to a region in the buffer, specified according to the
+position of the texel block, and the <a href="chap45.html#formats-compatibility-classes">texel
+block extent</a> and size of the format being copied.</p>
+</div>
+<div class="paragraph">
+<p>For a set of coordinates <span class="eq">(x,y,z,layer)</span>, where:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x</span> is in the range <span class="eq">[<code>imageOffset.x</code> / blockWidth,
+⌈(<code>imageOffset.x</code> +  <code>imageExtent.width</code>) /
+blockWidth⌉)</span>,</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y</span> is in the range <span class="eq">[<code>imageOffset.y</code> / blockHeight,
+⌈(<code>imageOffset.y</code> +  <code>imageExtent.height</code>) /
+blockHeight⌉)</span>,</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">z</span> is in the range <span class="eq">[<code>imageOffset.z</code> / blockDepth,
+⌈(<code>imageOffset.z</code> +  <code>imageExtent.depth</code>) /
+blockDepth⌉)</span>,</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">layer</span> is in the range
+[<code>imageSubresource.baseArrayLayer</code>,
+<code>imageSubresource.baseArrayLayer</code> + 
+<code>imageSubresource.layerCount</code>),</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>and where <span class="eq">blockWidth</span>, <span class="eq">blockHeight</span>, and <span class="eq">blockDepth</span> are the
+dimensions of the <a href="chap45.html#formats-compatibility-classes">texel block extent</a> of
+the image’s format.</p>
+</div>
+<div class="paragraph">
+<p>For each <span class="eq">(x,y,z,layer)</span> coordinate, texels in the image layer selected
+by <span class="eq">layer</span> are accessed in the following ranges:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[x × blockWidth, max( (x × blockWidth) + 
+blockWidth, imageWidth) )</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[y × blockHeight, max( (y × blockHeight) + 
+blockHeight, imageHeight) )</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[z × blockDepth, max( (z × blockDepth) + 
+blockDepth, imageDepth) )</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>where <span class="eq">imageWidth</span>, <span class="eq">imageHeight</span>, and <span class="eq">imageDepth</span> are the
+dimensions of the image subresource.</p>
+</div>
+<div class="paragraph">
+<p>For each <span class="eq">(x,y,z,layer)</span> coordinate, bytes in the buffer are accessed at
+offsets in the range <span class="eq">[texelOffset, texelOffset +  blockSize)</span>,
+where:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">texelOffset = <code>bufferOffset</code> +  (x ×
+blockSize) +  (y × rowExtent) +  (z ×
+sliceExtent) + (layer × layerExtent)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockSize</span> is the size of the block in bytes for the format</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">rowExtent = max(<code>bufferRowLength</code>,
+⌈<code>imageExtent.width</code> / blockWidth⌉ ×
+blockSize)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">sliceExtent = max(<code>bufferImageHeight</code>,
+<code>imageExtent.height</code> × rowExtent)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">layerExtent = <code>imageExtent.depth</code> × sliceExtent</span></p>
+</dd>
+</dl>
+</div>
+<div id="copies-buffers-images-rotation-addressing" class="paragraph">
+<p>If a rotation is specified by <a href="chap20.html#VkCopyCommandTransformInfoQCOM">VkCopyCommandTransformInfoQCOM</a>, the 2D
+region of the image being addressed is rotated around the offset, modifying
+the range of <span class="eq">x</span> and <span class="eq">y</span> coordinates for the image address according
+to the specified <a href="chap33.html#VkSurfaceTransformFlagBitsKHR">VkSurfaceTransformFlagBitsKHR</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</code> is specified, no rotation
+is performed:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x'</span> is in the same range as <span class="eq">x</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y'</span> is in the same range as <span class="eq">y</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockWidth' = blockWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockHeight' = blockHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageWidth' = imageWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageHeight' = imageHeight</span></p>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p>If <code>VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR</code> is specified</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x'</span> is in the range <span class="eq">[⌈(<code>imageOffset.x</code>
+-  <code>imageExtent.height</code>) / blockHeight⌉,
+<code>imageOffset.x</code> -  image/ blockHeight)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y'</span> is in the range <span class="eq">[<code>imageOffset.y</code> /
+blockWidth, ⌈(<code>imageOffset.y</code> + 
+<code>imageExtent.width</code>) / blockWidth⌉)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockWidth' = blockHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockHeight' = blockWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageWidth' = imageHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageHeight' = imageWidth</span></p>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p>If <code>VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR</code> is specified:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x'</span> is in the range <span class="eq">[⌈(<code>imageOffset.x</code>
+-  <code>imageExtent.width</code>) / blockWidth⌉,
+<code>imageOffset.x</code> / blockWidth)</span>,</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y'</span> is in the range <span class="eq">[⌈(<code>imageOffset.x</code>
++  <code>imageExtent.height</code>) / blockHeight⌉,
+<code>imageOffset.x</code> / blockHeight)</span>,</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockWidth' = blockWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockHeight' = blockHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageWidth' = imageWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageHeight' = imageHeight</span></p>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p>If <code>VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR</code> is specified:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">x</span> is in the range <span class="eq">[<code>imageOffset.x</code> /
+blockHeight, ⌈(<code>imageOffset.x</code> + 
+<code>imageExtent.height</code>) / blockHeight⌉)</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">y</span> is in the range <span class="eq">[⌈(<code>imageOffset.y</code>
+-  <code>imageExtent.width</code>) / blockWidth⌉,
+<code>imageOffset.y</code> / blockWidth)</span>.</p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockWidth' = blockHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">blockHeight' = blockWidth</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageWidth' = imageHeight</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">imageHeight' = imageWidth</span></p>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When rotation is performed, for each <span class="eq">(x,y,z,layer)</span> coordinate, texels
+in the image layer selected by <span class="eq">layer</span> are instead accessed in the
+following ranges:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[x' × blockWidth', max( (x' × blockWidth')
++  blockWidth', imageWidth') )</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[y' × blockHeight', max( (y' × blockHeight')
++  blockHeight', imageHeight') )</span></p>
+</dd>
+<dt class="hdlist1"></dt>
+<dd>
+<p><span class="eq">[z' × blockDepth', max( (z' × blockDepth')
++  blockDepth', imageDepth') )</span></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Buffer addressing calculations are unaffected by this rotation.</p>
+</div>
+<div id="copies-buffers-images-depth-stencil" class="paragraph">
+<p>When copying between a buffer and the depth or stencil aspect of an image,
+data in the buffer is assumed to be laid out as separate planes rather than
+interleaved.
+Addressing calculations are thus performed for a different format than the
+base image, according to the aspect, as described in the following table:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 95%;">
+<caption class="title">Table 29. Depth/Stencil Aspect Copy Table</caption>
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-center valign-top">Base Format</th>
+<th class="tableblock halign-center valign-top">Depth Aspect Format</th>
+<th class="tableblock halign-center valign-top">Stencil Aspect Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_X8_D24_UNORM_PACK32</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_X8_D24_UNORM_PACK32</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM_S8_UINT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D16_UNORM</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D24_UNORM_S8_UINT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_X8_D24_UNORM_PACK32</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT_S8_UINT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_D32_SFLOAT</code></p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock"><code>VK_FORMAT_S8_UINT</code></p></td>
+</tr>
+</tbody>
+</table>
+<div id="copies-buffers-images-multi-planar" class="paragraph">
+<p>When copying between a buffer and any plane of a
+<a href="chap45.html#formats-requiring-sampler-ycbcr-conversion">multi-planar image</a>,
+addressing calculations are performed using the <a href="chap45.html#formats-compatible-planes">compatible format for that plane</a>, rather than the format of the
+multi-planar image.</p>
+</div>
+<div class="paragraph">
+<p>Each texel block is copied from one resource to the other according to the
+above addressing equations.</p>
+</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3137,24 +3444,22 @@ structures specifying the regions to copy.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Each region in <code>pRegions</code> is copied from the specified region of the
-source buffer to the specified region of the destination image.</p>
+<p>Each source region specified by <code>pRegions</code> is copied from the source
+buffer to the destination region of the destination image according to the
+<a href="chap20.html#copies-buffers-images-addressing">addressing calculations</a> for each
+resource.
+If any of the specified regions in <code>srcBuffer</code> overlaps in memory with
+any of the specified regions in <code>dstImage</code>, values read from those
+overlapping regions are undefined.
+If any region accesses a depth aspect in <code>dstImage</code>
+and the <code><a href="chap52.html#VK_EXT_depth_range_unrestricted">VK_EXT_depth_range_unrestricted</a></code> extension is not enabled,
+values copied from <code>srcBuffer</code> outside of the range <span class="eq">[0,1]</span> will be
+be written as undefined values to the destination image.</p>
 </div>
 <div class="paragraph">
-<p>If <code>dstImage</code> has a
-<a href="chap45.html#formats-requiring-sampler-ycbcr-conversion">multi-planar format</a>, regions
-of each plane to be a target of a copy <strong class="purple">must</strong> be specified separately using
-the <code>pRegions</code> member of the <a href="chap20.html#VkBufferImageCopy">VkBufferImageCopy</a> structure.
-In this case, the <code>aspectMask</code> of <code>imageSubresource</code> <strong class="purple">must</strong> be
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>, <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code>, or
-<code>VK_IMAGE_ASPECT_PLANE_2_BIT</code>.
-For the purposes of <code>vkCmdCopyBufferToImage</code>, each plane of a
-multi-planar image is treated as having the format listed in
-<a href="chap45.html#formats-compatible-planes">Compatible formats of planes of multi-planar formats</a> for the plane identified by the
-<code>aspectMask</code> of the corresponding subresource.
-This applies both to <a href="chap45.html#VkFormat">VkFormat</a> and to coordinates used in the copy,
-which correspond to texels in the <em>plane</em> rather than how these texels map
-to coordinates in the image as a whole.</p>
+<p>Copy regions for the image <strong class="purple">must</strong> be aligned to a multiple of the texel block
+extent in each dimension, except at the edges of the image, where region
+extents <strong class="purple">must</strong> match the edge of the image.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -3624,23 +3929,18 @@ structures specifying the regions to copy.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Each region in <code>pRegions</code> is copied from the specified region of the
-source image to the specified region of the destination buffer.</p>
+<p>Each source region specified by <code>pRegions</code> is copied from the source
+buffer to the destination region of the destination image according to the
+<a href="chap20.html#copies-buffers-images-addressing">addressing calculations</a> for each
+resource.
+If any of the specified regions in <code>srcImage</code> overlaps in memory with
+any of the specified regions in <code>dstBuffer</code>, values read from those
+overlapping regions are undefined.</p>
 </div>
 <div class="paragraph">
-<p>If <code>srcImage</code> has a <a href="chap45.html#formats-requiring-sampler-ycbcr-conversion">multi-planar format</a>, regions of each plane to be a source of a copy <strong class="purple">must</strong>
-be specified separately using the <code>pRegions</code> member of the
-<a href="chap20.html#VkBufferImageCopy">VkBufferImageCopy</a> structure.
-In this case, the <code>aspectMask</code> of <code>imageSubresource</code> <strong class="purple">must</strong> be
-<code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>, <code>VK_IMAGE_ASPECT_PLANE_1_BIT</code>, or
-<code>VK_IMAGE_ASPECT_PLANE_2_BIT</code>.
-For the purposes of <code>vkCmdCopyBufferToImage</code>, each plane of a
-multi-planar image is treated as having the format listed in
-<a href="chap45.html#formats-compatible-planes">Compatible formats of planes of multi-planar formats</a> for the plane identified by the
-<code>aspectMask</code> of the corresponding subresource.
-This applies both to <a href="chap45.html#VkFormat">VkFormat</a> and to coordinates used in the copy,
-which correspond to texels in the <em>plane</em> rather than how these texels map
-to coordinates in the image as a whole.</p>
+<p>Copy regions for the image <strong class="purple">must</strong> be aligned to a multiple of the texel block
+extent in each dimension, except at the edges of the image, where region
+extents <strong class="purple">must</strong> match the edge of the image.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -4109,70 +4409,6 @@ in texels of the sub-region of the source or destination image data.</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>When copying to or from a depth or stencil aspect, the data in buffer memory
-uses a layout that is a (mostly) tightly packed representation of the depth
-or stencil data.
-Specifically:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>data copied to or from the stencil aspect of any depth/stencil format is
-tightly packed with one <code>VK_FORMAT_S8_UINT</code> value per texel.</p>
-</li>
-<li>
-<p>data copied to or from the depth aspect of a <code>VK_FORMAT_D16_UNORM</code>
-or <code>VK_FORMAT_D16_UNORM_S8_UINT</code> format is tightly packed with one
-<code>VK_FORMAT_D16_UNORM</code> value per texel.</p>
-</li>
-<li>
-<p>data copied to or from the depth aspect of a <code>VK_FORMAT_D32_SFLOAT</code>
-or <code>VK_FORMAT_D32_SFLOAT_S8_UINT</code> format is tightly packed with one
-<code>VK_FORMAT_D32_SFLOAT</code> value per texel.</p>
-</li>
-<li>
-<p>data copied to or from the depth aspect of a
-<code>VK_FORMAT_X8_D24_UNORM_PACK32</code> or <code>VK_FORMAT_D24_UNORM_S8_UINT</code>
-format is packed with one 32-bit word per texel with the D24 value in
-the LSBs of the word, and undefined values in the eight MSBs.</p>
-</li>
-</ul>
-</div>
-<div class="admonitionblock note">
-<table>
-<tbody><tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>To copy both the depth and stencil aspects of a depth/stencil format, two
-entries in <code>pRegions</code> <strong class="purple">can</strong> be used, where one specifies the depth aspect
-in <code>imageSubresource</code>, and the other specifies the stencil aspect.</p>
-</div>
-</td>
-</tr>
-</tbody></table>
-</div>
-<div class="paragraph">
-<p>Because depth or stencil aspect buffer to image copies <strong class="purple">may</strong> require format
-conversions on some implementations, they are not supported on queues that
-do not support graphics.</p>
-</div>
-<div class="paragraph">
-<p>When copying to a depth aspect,
-and the <code><a href="chap52.html#VK_EXT_depth_range_unrestricted">VK_EXT_depth_range_unrestricted</a></code> extension is not enabled,
-the data in buffer memory <strong class="purple">must</strong> be in the range <span class="eq">[0,1]</span>, or the
-resulting values are undefined.</p>
-</div>
-<div class="paragraph">
-<p>Copies are done layer by layer starting with image layer
-<code>baseArrayLayer</code> member of <code>imageSubresource</code>.
-<code>layerCount</code> layers are copied from the source image or to the
-destination image.</p>
-</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -4453,7 +4689,7 @@ it <strong class="purple">must</strong> be a region that is contained within the
 If the image region specified by each element of <code>pRegions</code> contains
 <a href="chap20.html#VkCopyCommandTransformInfoQCOM">VkCopyCommandTransformInfoQCOM</a> in its <code>pNext</code> chain, the
 rotated destination region as described in
-<a href="chap20.html#copies-buffers-images-rotation-addressing">Buffer and Image Addressing with Rotation</a> <strong class="purple">must</strong> be contained within
+<a href="chap20.html#copies-buffers-images-rotation-addressing">[copies-buffers-images-rotation-addressing]</a> <strong class="purple">must</strong> be contained within
 <code>dstImage</code></p>
 </li>
 <li>
@@ -5033,7 +5269,7 @@ it <strong class="purple">must</strong> be contained within the specified <code>
 If the image region specified by each element of <code>pRegions</code> contains
 <a href="chap20.html#VkCopyCommandTransformInfoQCOM">VkCopyCommandTransformInfoQCOM</a> in its <code>pNext</code> chain, the
 rotated source region as described in
-<a href="chap20.html#copies-buffers-images-rotation-addressing">Buffer and Image Addressing with Rotation</a> <strong class="purple">must</strong> be contained within
+<a href="chap20.html#copies-buffers-images-rotation-addressing">[copies-buffers-images-rotation-addressing]</a> <strong class="purple">must</strong> be contained within
 <code>srcImage</code></p>
 </li>
 <li>
@@ -5523,22 +5759,10 @@ single bit set</p>
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p>For both <a href="chap20.html#vkCmdCopyBufferToImage2KHR">vkCmdCopyBufferToImage2KHR</a> and <a href="chap20.html#vkCmdCopyImageToBuffer2KHR">vkCmdCopyImageToBuffer2KHR</a>,
-each region copied can include a rotation.
-To specify a region with rotation, add the
-<a href="chap20.html#VkCopyCommandTransformInfoQCOM">VkCopyCommandTransformInfoQCOM</a> to the <code>pNext</code> chain of
-<a href="chap20.html#VkBufferImageCopy2">VkBufferImageCopy2</a>.
-When a rotation is specified, <a href="chap20.html#copies-buffers-images-rotation-addressing">Buffer and Image Addressing with Rotation</a> specifies how coordinates of
-texels in the source region are rotated by <code>transform</code> to produce texel
-coordinates in the destination region.
-When rotation is specified, the source and destination images <strong class="purple">must</strong> each be
-2D images.</p>
-</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
-<p>The <code>VkRenderPassTransformBeginInfoQCOM</code> structure is defined as:</p>
+<p>The <code>VkCopyCommandTransformInfoQCOM</code> structure is defined as:</p>
 </div>
 <div id="VkCopyCommandTransformInfoQCOM" class="listingblock">
 <div class="content">
@@ -5564,6 +5788,29 @@ structure.</p>
 describing the transform to be applied.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Including this structure in the <code>pNext</code> chain of
+<a href="chap20.html#VkBufferImageCopy2">VkBufferImageCopy2</a> defines a rotation to be performed when copying
+between an image and a buffer.
+Including this structure in the <code>pNext</code> chain of <a href="chap20.html#VkBlitImageInfo2">VkBlitImageInfo2</a>
+defines a rotation to be performed when blitting between two images.
+If this structure is not specified in either case, the implementation
+behaves as if it was specified with a <code>transform</code> equal to
+<code>VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>Specifying a transform for a copy between an image and a buffer
+<a href="chap20.html#copies-buffers-images-rotation-addressing">rotates the region accessed in
+the image around the offset</a>.
+Specifying a transform for a blit performs a similar transform as described
+in <a href="chap20.html#copies-images-scaling-rotation">Image Blits with Scaling and
+Rotation</a>.</p>
+</div>
+<div class="paragraph">
+<p>Rotations other than <code>VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</code> <strong class="purple">can</strong> only
+be specified for single-plane 2D images with a 1x1x1
+<a href="chap45.html#formats-compatibility-classes">texel block extent</a>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -5595,183 +5842,6 @@ describing the transform to be applied.</p>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="copies-buffers-images-addressing"><a class="anchor" href="chap20.html#copies-buffers-images-addressing"></a>20.3.1. Buffer and Image Addressing</h4>
-<div class="paragraph">
-<p>Pseudocode for image/buffer addressing of uncompressed formats is:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferRowLength</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">rowLength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
-
-<span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferImageHeight</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">imageHeight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
-
-<span class="n">texelBlockSize</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">texel</span> <span class="n">block</span> <span class="n">size</span> <span class="n">of</span> <span class="n">the</span> <span class="n">format</span> <span class="n">of</span> <span class="n">the</span> <span class="n">src</span><span class="o">/</span><span class="n">dstImage</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="n">address</span> <span class="n">of</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferOffset</span> <span class="o">+</span> <span class="p">(((</span><span class="n">z</span> <span class="o">*</span> <span class="n">imageHeight</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">rowLength</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">texelBlockSize</span><span class="p">;</span>
-
-<span class="n">where</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="n">range</span> <span class="n">from</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">to</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.{</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">,</span><span class="n">depth</span><span class="p">}.</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that <code>imageOffset</code> does not affect addressing calculations for
-buffer memory.
-Instead, <code>bufferOffset</code> <strong class="purple">can</strong> be used to select the starting address in
-buffer memory.</p>
-</div>
-<div class="paragraph">
-<p>For block-compressed formats, all parameters are still specified in texels
-rather than compressed texel blocks, but the addressing math operates on
-whole compressed texel blocks.
-Pseudocode for compressed copy addressing is:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferRowLength</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">rowLength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
-
-<span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferImageHeight</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">imageHeight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
-
-<span class="n">compressedTexelBlockSizeInBytes</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">compressed</span> <span class="n">texel</span> <span class="n">block</span> <span class="n">size</span> <span class="n">taken</span> <span class="n">from</span> <span class="n">the</span> <span class="n">src</span><span class="o">/</span><span class="n">dstImage</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="n">rowLength</span> <span class="o">=</span> <span class="p">(</span><span class="n">rowLength</span> <span class="o">+</span> <span class="n">compressedTexelBlockWidth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">compressedTexelBlockWidth</span><span class="p">;</span>
-<span class="n">imageHeight</span> <span class="o">=</span> <span class="p">(</span><span class="n">imageHeight</span> <span class="o">+</span> <span class="n">compressedTexelBlockHeight</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">compressedTexelBlockHeight</span><span class="p">;</span>
-
-<span class="n">address</span> <span class="n">of</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferOffset</span> <span class="o">+</span> <span class="p">(((</span><span class="n">z</span> <span class="o">*</span> <span class="n">imageHeight</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">rowLength</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">compressedTexelBlockSizeInBytes</span><span class="p">;</span>
-
-<span class="n">where</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="n">range</span> <span class="n">from</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="n">to</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.{</span><span class="n">width</span><span class="o">/</span><span class="n">compressedTexelBlockWidth</span><span class="p">,</span><span class="n">height</span><span class="o">/</span><span class="n">compressedTexelBlockHeight</span><span class="p">,</span><span class="n">depth</span><span class="o">/</span><span class="n">compressedTexelBlockDepth</span><span class="p">}.</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Copying to or from block-compressed images is typically done in multiples of
-the compressed texel block size.
-For this reason the <code>imageExtent</code> <strong class="purple">must</strong> be a multiple of the compressed
-texel block dimension.
-There is one exception to this rule which is <strong class="purple">required</strong> to handle compressed
-images created with dimensions that are not a multiple of the compressed
-texel block dimensions:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>If <code>imageExtent.width</code> is not a multiple of the compressed texel
-block width, then <span class="eq">(<code>imageExtent.width</code> + 
-<code>imageOffset.x</code>)</span> <strong class="purple">must</strong> equal the image subresource width.</p>
-</li>
-<li>
-<p>If <code>imageExtent.height</code> is not a multiple of the compressed texel
-block height, then <span class="eq">(<code>imageExtent.height</code> + 
-<code>imageOffset.y</code>)</span> <strong class="purple">must</strong> equal the image subresource height.</p>
-</li>
-<li>
-<p>If <code>imageExtent.depth</code> is not a multiple of the compressed texel
-block depth, then <span class="eq">(<code>imageExtent.depth</code> + 
-<code>imageOffset.z</code>)</span> <strong class="purple">must</strong> equal the image subresource depth.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>This allows the last compressed texel block of the image in each
-non-multiple dimension to be included as a source or destination of the
-copy.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="copies-buffers-images-rotation-addressing"><a class="anchor" href="chap20.html#copies-buffers-images-rotation-addressing"></a>20.3.2. Buffer and Image Addressing with Rotation</h4>
-<div class="paragraph">
-<p>When <a href="chap20.html#VkCopyCommandTransformInfoQCOM">VkCopyCommandTransformInfoQCOM</a> is in the <code>pNext</code> chain of
-<a href="chap20.html#VkBufferImageCopy2">VkBufferImageCopy2</a>, a <em>rotated copy</em> is specified.
-For both <a href="chap20.html#vkCmdCopyImageToBuffer2KHR">vkCmdCopyImageToBuffer2KHR</a> and <a href="chap20.html#vkCmdCopyBufferToImage2KHR">vkCmdCopyBufferToImage2KHR</a>, a
-rotation is applied to the region used for image accesses, but a non-rotated
-region is used for buffer accesses.
-In the case of rotated <a href="chap20.html#vkCmdCopyImageToBuffer2KHR">vkCmdCopyImageToBuffer2KHR</a>, the source image
-region is rotated.
-In the case of rotated <a href="chap20.html#vkCmdCopyBufferToImage2KHR">vkCmdCopyBufferToImage2KHR</a>, the destination image
-region is rotated.</p>
-</div>
-<div class="paragraph">
-<p>For a <em>rotated copy</em>, the following description of rotated addressing
-replaces the description in <a href="chap20.html#copies-buffers-images-addressing">Buffer and
-Image Addressing</a>.</p>
-</div>
-<div class="paragraph">
-<p>The following code computes rotation of unnormalized coordinates.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="c1">// Forward rotation of unnormalized coordinates</span>
-<span class="n">VkOffset2D</span> <span class="nf">RotateUV</span><span class="p">(</span><span class="n">VkOffset2D</span> <span class="n">in</span><span class="p">,</span> <span class="n">VkSurfaceTransformFlagBitsKHR</span> <span class="n">flags</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">VkOffset2D</span> <span class="n">output</span><span class="p">;</span>
-    <span class="k">switch</span> <span class="p">(</span><span class="n">flags</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="k">case</span> <span class="n">VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">in</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">in</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="n">VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">in</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">in</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="n">VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">in</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">in</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="k">case</span> <span class="n">VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">in</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
-            <span class="n">out</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">in</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-            <span class="k">break</span><span class="p">;</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">out</span><span class="p">;</span>
-<span class="p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Pseudocode for image/buffer addressing of uncompressed formats with rotation
-is:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferRowLength</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">rowLength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">rowLength</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
-
-<span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferImageHeight</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">imageHeight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">imageHeight</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">imageExtent</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
-
-<span class="n">texelBlockSize</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">texel</span> <span class="n">block</span> <span class="n">size</span> <span class="n">of</span> <span class="n">the</span> <span class="n">format</span> <span class="n">of</span> <span class="n">the</span> <span class="n">src</span><span class="o">/</span><span class="n">dstImage</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="c1">// Buffer addressing is unaffected by rotation:</span>
-<span class="n">address</span> <span class="n">of</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="n">region</span><span class="o">-&gt;</span><span class="n">bufferOffset</span> <span class="o">+</span> <span class="p">(((</span><span class="n">z</span> <span class="o">*</span> <span class="n">imageHeight</span><span class="p">)</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">rowLength</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">texelBlockSize</span><span class="p">;</span>
-
-<span class="c1">// When copying from buffer to image, the source buffer coordinates x,y,z range from (0,0,0) to</span>
-<span class="c1">// region-&gt;imageExtent.{width,height,depth}.  The source extent is rotated by the specified</span>
-<span class="c1">// VK_SURFACE_TRANSFORM, centered on the imageOffset, to define a rotated destination region.</span>
-<span class="c1">// For each source buffer texel with coordinates (x,y) the rotated destination image texel has</span>
-<span class="c1">// coordinates (x',y') defined as:</span>
-<span class="p">(</span><span class="n">x</span><span class="err">'</span><span class="p">,</span><span class="n">y</span><span class="err">'</span><span class="p">)</span><span class="o">=</span> <span class="n">RotateUV</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">ImageOffset</span><span class="p">.{</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">}</span>
-
-<span class="c1">// When copying from image to buffer, the the destination buffer coordinates x,y,z range from (0,0,0) to</span>
-<span class="c1">// region-&gt;imageExtent.{width,height,depth}.  The destination extent is rotated by the specified</span>
-<span class="c1">//  VK_SURFACE_TRANSFORM, centered on the imageOffset, to define a rotated source region.  For each destination</span>
-<span class="c1">// buffer texel with coordinates (x,y) the rotated source image texel has coordinates (x',y') defined as:</span>
-<span class="p">(</span><span class="n">x</span><span class="err">'</span><span class="p">,</span><span class="n">y</span><span class="err">'</span><span class="p">)</span><span class="o">=</span> <span class="n">RotateUV</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="n">ImageOffset</span><span class="p">.{</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that <code>imageOffset</code> does not affect addressing calculations for
-buffer memory.
-Instead, <code>bufferOffset</code> <strong class="purple">can</strong> be used to select the starting address in
-buffer memory.</p>
 </div>
 </div>
 </div>
@@ -9156,7 +9226,7 @@ Compute</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.230<br>
+Version 1.1.231<br>
 Last updated 2022-09-28 20:43:24 -0700
 </div>
 </div>

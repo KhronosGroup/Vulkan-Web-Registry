@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.3.230 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.3.231 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.230 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.231 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.3.230,</span>
-<span id="revdate">2022-09-29 03:46:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: ac3762095459e0190a75c433af1f85d2f6023d44</span>
+<span id="revnumber">version 1.3.231,</span>
+<span id="revdate">2022-10-13 07:21:21Z</span>
+<br><span id="revremark">from git branch: github-main commit: 7a319840243ea33aa4caa42cdce0143b150e02bb</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2498,6 +2498,15 @@ emanating from the shader code of this shader stage</p>
 and a pipeline stage, the <code>VkPipelineRobustnessCreateInfoEXT</code> specified
 for the pipeline stage will take precedence.</p>
 </div>
+<div class="paragraph">
+<p>When <code>VkPipelineRobustnessCreateInfoEXT</code> is specified for a pipeline, it
+only affects the subset of the pipeline that is specified by the create
+info, as opposed to subsets linked from pipeline libraries.
+For <a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a>, that subset is specified by
+<a href="chap10.html#VkGraphicsPipelineLibraryCreateInfoEXT">VkGraphicsPipelineLibraryCreateInfoEXT</a>::<code>flags</code>.
+For <a href="chap10.html#VkRayTracingPipelineCreateInfoKHR">VkRayTracingPipelineCreateInfoKHR</a>, that subset is specified by the
+specific stages in <a href="chap10.html#VkRayTracingPipelineCreateInfoKHR">VkRayTracingPipelineCreateInfoKHR</a>::<code>pStages</code>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -2622,8 +2631,8 @@ is not supported, <code>images</code> <strong class="purple">must</strong> not b
 <ul>
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT_EXT</code>
-specifies that this pipeline stage follows the robustness behavior of
-the logical device that created this pipeline</p>
+specifies that this pipeline stage follows the behavior of robustness
+features that are enabled on the device that created this pipeline</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED_EXT</code> specifies that
@@ -2665,8 +2674,8 @@ relevant resource types behave as if the <a href="chap43.html#features-robustBuf
 <ul>
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT_EXT</code> specifies
-that this pipeline stage follows the robustness behavior of the logical
-device that created this pipeline</p>
+that this pipeline stage follows the behavior of robustness features
+that are enabled on the device that created this pipeline</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DISABLED_EXT</code> specifies that
@@ -6272,9 +6281,9 @@ set to <a href="chap54.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>.</p>
 <li>
 <p>When creating multiple pipelines,
 <code>VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT</code> specifies that
-control will be returned to the application on failure of the
-corresponding pipeline rather than continuing to create additional
-pipelines.</p>
+control will be returned to the application if any individual pipeline
+returns a result which is not <code>VK_SUCCESS</code> rather than continuing to
+create additional pipelines.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV</code> specifies that
@@ -7167,9 +7176,9 @@ ignored and <strong class="purple">must</strong> be set dynamically with
 <li>
 <p><code>VK_DYNAMIC_STATE_DEPTH_CLIP_ENABLE_EXT</code> specifies that the
 <code>depthClipEnable</code> state in
-<a href="chap43.html#VkPhysicalDeviceDepthClipEnableFeaturesEXT">VkPhysicalDeviceDepthClipEnableFeaturesEXT</a> will be ignored and
-<strong class="purple">must</strong> be set dynamically with <a href="chap26.html#vkCmdSetDepthClipEnableEXT">vkCmdSetDepthClipEnableEXT</a> before
-any draw call.</p>
+<a href="chap27.html#VkPipelineRasterizationDepthClipStateCreateInfoEXT">VkPipelineRasterizationDepthClipStateCreateInfoEXT</a> will be ignored
+and <strong class="purple">must</strong> be set dynamically with <a href="chap26.html#vkCmdSetDepthClipEnableEXT">vkCmdSetDepthClipEnableEXT</a>
+before any draw call.</p>
 </li>
 <li>
 <p><code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_ENABLE_EXT</code> specifies that the
@@ -10291,6 +10300,10 @@ The implementation will attempt to create all pipelines, and only return
 <code>VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT</code> set, pipelines at an
 index in the <code>pPipelines</code> array greater than or equal to that of the
 failing pipeline <strong class="purple">must</strong> be set to <a href="chap54.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>.</p>
+</div>
+<div class="paragraph">
+<p>If multiple pipelines fail to be created, the <a href="chap3.html#VkResult">VkResult</a> <strong class="purple">must</strong> be the
+return value of any of the pipelines which did not return <code>VK_SUCCESS</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -13973,7 +13986,7 @@ or more <a href="chap10.html#VkPipelineCreationFeedbackFlagBits">VkPipelineCreat
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.230<br>
+Version 1.3.231<br>
 Last updated 2022-09-28 20:43:24 -0700
 </div>
 </div>
