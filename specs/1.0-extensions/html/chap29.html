@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.231 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.232 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.231 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.232 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.231,</span>
-<span id="revdate">2022-10-13 07:33:32Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7a319840243ea33aa4caa42cdce0143b150e02bb</span>
+<span id="revnumber">version 1.0.232,</span>
+<span id="revdate">2022-10-27 04:58:16Z</span>
+<br><span id="revremark">from git branch: github-main commit: 7dcf16f3b4a1118ff92207316b68145446f08bb3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -745,18 +745,16 @@ color blending information.</p>
 <li>
 <p><code>pAttachments</code> is a pointer to an array of
 <a href="chap29.html#VkPipelineColorBlendAttachmentState">VkPipelineColorBlendAttachmentState</a> structures defining blend
-state for each color attachment.</p>
+state for each color attachment.
+It is ignored if the pipeline is created with
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>, and
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code> dynamic states set.</p>
 </li>
 <li>
 <p><code>blendConstants</code> is a pointer to an array of four values used as the
 R, G, B, and A components of the blend constant that are used in
 blending, depending on the <a href="chap29.html#framebuffer-blendfactors">blend factor</a>.</p>
-</li>
-<li>
-<p><code>pAttachments</code> is ignored if all of
-<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
-<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>, and
-<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code> dynamic states set.</p>
 </li>
 </ul>
 </div>
@@ -793,10 +791,13 @@ If the <a href="chap43.html#features-rasterizationOrderColorAttachmentAccess"><c
 <li>
 <p><a id="VUID-VkPipelineColorBlendStateCreateInfo-pAttachments-07353" href="chap29.html#VUID-VkPipelineColorBlendStateCreateInfo-pAttachments-07353"></a> <span class="vuid">VUID-VkPipelineColorBlendStateCreateInfo-pAttachments-07353</span><br>
 
-If any of <code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+If <code>attachmentCount</code> is not <code>0</code>, and any of
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
 <code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>, or
 <code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code> are not set,
-<code>pAttachments</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
+<code>pAttachments</code> <strong class="purple">must</strong> be a valid pointer to an array of
+<code>attachmentCount</code> valid <a href="chap29.html#VkPipelineColorBlendAttachmentState">VkPipelineColorBlendAttachmentState</a>
+structures</p>
 </li>
 </ul>
 </div>
@@ -1629,10 +1630,6 @@ The <a href="chap43.html#features-extendedDynamicState3ColorWriteMask"><code>ext
 <li>
 <p><a id="VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-parameter" href="chap29.html#VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-parameter"></a> <span class="vuid">VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-parameter</span><br>
  <code>pColorWriteMasks</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>attachmentCount</code> valid combinations of <a href="chap29.html#VkColorComponentFlagBits">VkColorComponentFlagBits</a> values</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-requiredbitmask" href="chap29.html#VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-requiredbitmask"></a> <span class="vuid">VUID-vkCmdSetColorWriteMaskEXT-pColorWriteMasks-requiredbitmask</span><br>
- Each element of <code>pColorWriteMasks</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdSetColorWriteMaskEXT-commandBuffer-recording" href="chap29.html#VUID-vkCmdSetColorWriteMaskEXT-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetColorWriteMaskEXT-commandBuffer-recording</span><br>
@@ -3892,8 +3889,12 @@ not enabled, all elements of <code>pColorWriteEnables</code> <strong class="purp
 <code>VK_TRUE</code></p>
 </li>
 <li>
-<p><a id="VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-04802" href="chap29.html#VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-04802"></a> <span class="vuid">VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-04802</span><br>
+<p><a id="VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-07608" href="chap29.html#VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-07608"></a> <span class="vuid">VUID-VkPipelineColorWriteCreateInfoEXT-attachmentCount-07608</span><br>
 
+If the pipeline is being created with
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>, or
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code> dynamic states not set,
 <code>attachmentCount</code> <strong class="purple">must</strong> be equal to the <code>attachmentCount</code> member
 of the <code>VkPipelineColorBlendStateCreateInfo</code> structure specified
 during pipeline creation</p>
@@ -4198,7 +4199,7 @@ array can be indexed using the <code>postMergeIndex</code> value provided in
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.231<br>
+Version 1.0.232<br>
 Last updated 2022-09-28 20:43:24 -0700
 </div>
 </div>
