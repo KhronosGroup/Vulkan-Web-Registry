@@ -270,6 +270,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_clip_space_w_scaling.html"> VK_NV_clip_space_w_scaling </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_compute_shader_derivatives.html"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_cooperative_matrix.html"> VK_NV_cooperative_matrix </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_copy_memory_indirect.html"> VK_NV_copy_memory_indirect </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_corner_sampled_image.html"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_coverage_reduction_mode.html"> VK_NV_coverage_reduction_mode </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_dedicated_allocation.html"> VK_NV_dedicated_allocation </a> </li>
@@ -290,10 +291,12 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_glsl_shader.html"> VK_NV_glsl_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_linear_color_attachment.html"> VK_NV_linear_color_attachment </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_memory_decompression.html"> VK_NV_memory_decompression </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_present_barrier.html"> VK_NV_present_barrier </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing_invocation_reorder.html"> VK_NV_ray_tracing_invocation_reorder </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_representative_fragment_test.html"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_NV_sample_mask_override_coverage.html"> VK_NV_sample_mask_override_coverage </a> </li>

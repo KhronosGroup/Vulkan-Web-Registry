@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.232 - A Specification</title>
+<title>Vulkan® 1.2.233 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.232 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.233 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.232,</span>
-<span id="revdate">2022-10-27 05:02:57Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7dcf16f3b4a1118ff92207316b68145446f08bb3</span>
+<span id="revnumber">version 1.2.233,</span>
+<span id="revdate">2022-11-03 09:00:48Z</span>
+<br><span id="revremark">from git branch: github-main commit: 42d3f5a641810c52bbe53c0f049be1130af07f2f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3546,10 +3546,13 @@ handles in which the resulting descriptor set objects are returned.</p>
 <div class="paragraph">
 <p>The allocated descriptor sets are returned in <code>pDescriptorSets</code>.</p>
 </div>
-<div class="paragraph">
+<div id="descriptor-set-initial-state" class="paragraph">
 <p>When a descriptor set is allocated, the initial state is largely
-uninitialized and all descriptors are undefined.
-Descriptors also become undefined if the underlying resource is destroyed.
+uninitialized and all descriptors are undefined, with the exception that
+samplers with a non-null <code>pImmutableSamplers</code> are initialized on
+allocation.
+Descriptors also become undefined if the underlying resource or view object
+is destroyed.
 Descriptor sets containing undefined descriptors <strong class="purple">can</strong> still be bound and
 used, subject to the following conditions:</p>
 </div>
@@ -4498,9 +4501,8 @@ each element of <code>pImageInfo</code> <strong class="purple">must</strong> be 
 
 If <code>descriptorType</code> is
 <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>,
-<code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>,
-<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, or
-<code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>, the <code>imageView</code> member of
+<code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, or
+<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, the <code>imageView</code> member of
 each element of <code>pImageInfo</code> <strong class="purple">must</strong> be either a valid
 <code>VkImageView</code> handle or <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
 </li>
@@ -4509,12 +4511,18 @@ each element of <code>pImageInfo</code> <strong class="purple">must</strong> be 
 
 If <code>descriptorType</code> is
 <code>VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER</code>,
-<code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>,
-<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, or
-<code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code> and the
+<code>VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE</code>, or
+<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, and the
 <a href="chap31.html#features-nullDescriptor"><code>nullDescriptor</code></a> feature is not
 enabled, the <code>imageView</code> member of each element of <code>pImageInfo</code>
 <strong class="purple">must</strong> not be <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+</li>
+<li>
+<p><a id="VUID-VkWriteDescriptorSet-descriptorType-07683" href="chap14.html#VUID-VkWriteDescriptorSet-descriptorType-07683"></a> <span class="vuid">VUID-VkWriteDescriptorSet-descriptorType-07683</span><br>
+
+If <code>descriptorType</code> is <code>VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT</code>,
+the <code>imageView</code> member of each element of <code>pImageInfo</code> <strong class="purple">must</strong> not
+be <a href="chap41.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
 </li>
 <li>
 <p><a id="VUID-VkWriteDescriptorSet-descriptorType-00327" href="chap14.html#VUID-VkWriteDescriptorSet-descriptorType-00327"></a> <span class="vuid">VUID-VkWriteDescriptorSet-descriptorType-00327</span><br>
@@ -5953,6 +5961,35 @@ with a particular set number, then no descriptor set need be bound for that
 set number, even if the pipeline layout includes a non-trivial descriptor
 set layout for that set number.</p>
 </div>
+<div id="descriptor-validity" class="paragraph">
+<p>When consuming a descriptor, a descriptor is considered valid if the
+descriptor is not undefined as described by
+<a href="chap14.html#descriptor-set-initial-state">descriptor set allocation</a>.
+A descriptor that was disturbed by <a href="chap14.html#descriptorsets-compatibility">Pipeline
+Layout Compatibility</a>, or was never bound by <code>vkCmdBindDescriptorSets</code>
+is not considered valid.
+If a pipeline accesses a descriptor either statically or dynamically
+depending on the <a href="chap14.html#VkDescriptorBindingFlagBits">VkDescriptorBindingFlagBits</a>, the consuming descriptor
+type in the pipeline <strong class="purple">must</strong> match the <a href="chap14.html#VkDescriptorType">VkDescriptorType</a> in
+<a href="chap14.html#VkDescriptorSetLayoutCreateInfo">VkDescriptorSetLayoutCreateInfo</a> for the descriptor to be considered
+valid.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Further validation may be carried out beyond validation for descriptor
+types, e.g. <a href="chap16.html#textures-input-validation">Texel Input Validation</a>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
 <div id="descriptorsets-binding-dynamicoffsets" class="paragraph">
 <p>If any of the sets being bound include dynamic uniform or storage buffers,
 then <code>pDynamicOffsets</code> includes one element for each array element in
@@ -6691,8 +6728,8 @@ If <code>device</code> was created with multiple physical devices, then the
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.232<br>
-Last updated 2022-09-28 20:43:24 -0700
+Version 1.2.233<br>
+Last updated 2022-11-03 01:43:08 -0700
 </div>
 </div>
 
