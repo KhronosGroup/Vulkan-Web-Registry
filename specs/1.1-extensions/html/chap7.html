@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.1.234 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.235 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.234 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.235 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.1.234,</span>
-<span id="revdate">2022-11-10 12:08:07Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3abd2bbc91a7e74186a8acc82268d726cee6a731</span>
+<span id="revnumber">version 1.1.235,</span>
+<span id="revdate">2022-11-17 12:30:43Z</span>
+<br><span id="revremark">from git branch: github-main commit: f4eb3e9a7acdef9ab62ac9af954a50409895ac6d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -220,6 +220,7 @@
 <li><a href="chap14.html#descriptorsets-types">14.1. Descriptor Types</a></li>
 <li><a href="chap14.html#descriptorsets-sets">14.2. Descriptor Sets</a></li>
 <li><a href="chap14.html#descriptorsets-physical-storage-buffer">14.3. Physical Storage Buffer Access</a></li>
+<li><a href="chap14.html#descriptorbuffers">14.4. Descriptor Buffers</a></li>
 </ul>
 </li>
 <li><a href="chap15.html">15. Shader Interfaces</a>
@@ -2399,6 +2400,8 @@ members of <a href="chap7.html#VkMemoryBarrier2KHR">VkMemoryBarrier2KHR</a>, <a 
 <span class="k">static</span> <span class="k">const</span> <span class="n">VkAccessFlagBits2</span> <span class="n">VK_ACCESS_2_FRAGMENT_DENSITY_MAP_READ_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x01000000ULL</span><span class="p">;</span>
 <span class="c1">// Provided by VK_KHR_synchronization2 with VK_EXT_blend_operation_advanced</span>
 <span class="k">static</span> <span class="k">const</span> <span class="n">VkAccessFlagBits2</span> <span class="n">VK_ACCESS_2_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00080000ULL</span><span class="p">;</span>
+<span class="c1">// Provided by VK_EXT_descriptor_buffer</span>
+<span class="k">static</span> <span class="k">const</span> <span class="n">VkAccessFlagBits2</span> <span class="n">VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x20000000000ULL</span><span class="p">;</span>
 <span class="c1">// Provided by VK_HUAWEI_invocation_mask</span>
 <span class="k">static</span> <span class="k">const</span> <span class="n">VkAccessFlagBits2</span> <span class="n">VK_ACCESS_2_INVOCATION_MASK_READ_BIT_HUAWEI</span> <span class="o">=</span> <span class="mh">0x8000000000ULL</span><span class="p">;</span>
 <span class="c1">// Provided by VK_KHR_ray_tracing_maintenance1 with VK_KHR_synchronization2 and VK_KHR_ray_tracing_pipeline</span>
@@ -2709,6 +2712,11 @@ pipeline stage.</p>
 an image or buffer resource as part of a <a href="chap41.html#video-encode-operations">video encode operation</a>.
 Such access occurs in the <code>VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR</code>
 pipeline stage.</p>
+</li>
+<li>
+<p><code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code> specifies read access
+to a <a href="chap14.html#descriptorbuffers">descriptor buffer</a> in any shader pipeline
+stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV</code> specifies read access to an
@@ -13684,6 +13692,15 @@ If <code>srcAccessMask</code> includes
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
 </li>
+<li>
+<p><a id="VUID-VkMemoryBarrier2-srcAccessMask-08118" href="chap7.html#VUID-VkMemoryBarrier2-srcAccessMask-08118"></a> <span class="vuid">VUID-VkMemoryBarrier2-srcAccessMask-08118</span><br>
+
+If <code>srcAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>srcStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -14118,6 +14135,15 @@ If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_MICROMAP_READ_BIT_EXT</code>, <code>dstStageMask</code> <strong class="purple">must</strong>
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkMemoryBarrier2-dstAccessMask-08118" href="chap7.html#VUID-VkMemoryBarrier2-dstAccessMask-08118"></a> <span class="vuid">VUID-VkMemoryBarrier2-dstAccessMask-08118</span><br>
+
+If <code>dstAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>dstStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
 </li>
 </ul>
 </div>
@@ -14807,6 +14833,15 @@ If <code>srcAccessMask</code> includes
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
 </li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-srcAccessMask-08118" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcAccessMask-08118"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcAccessMask-08118</span><br>
+
+If <code>srcAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>srcStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -15241,6 +15276,15 @@ If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_MICROMAP_READ_BIT_EXT</code>, <code>dstStageMask</code> <strong class="purple">must</strong>
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-dstAccessMask-08118" href="chap7.html#VUID-VkBufferMemoryBarrier2-dstAccessMask-08118"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-dstAccessMask-08118</span><br>
+
+If <code>dstAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>dstStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
 </li>
 </ul>
 </div>
@@ -16185,6 +16229,15 @@ If <code>srcAccessMask</code> includes
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
 </li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-srcAccessMask-08118" href="chap7.html#VUID-VkImageMemoryBarrier2-srcAccessMask-08118"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcAccessMask-08118</span><br>
+
+If <code>srcAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>srcStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -16619,6 +16672,15 @@ If <code>dstAccessMask</code> includes
 <code>VK_ACCESS_2_MICROMAP_READ_BIT_EXT</code>, <code>dstStageMask</code> <strong class="purple">must</strong>
 include <code>VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT</code> or
 <code>VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-dstAccessMask-08118" href="chap7.html#VUID-VkImageMemoryBarrier2-dstAccessMask-08118"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-dstAccessMask-08118</span><br>
+
+If <code>dstAccessMask</code> includes
+<code>VK_ACCESS_2_DESCRIPTOR_BUFFER_READ_BIT_EXT</code>, <code>dstStageMask</code>
+<strong class="purple">must</strong> include <code>VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT</code>,
+<code>VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT</code>, or one of
+<code>VK_PIPELINE_STAGE_*_SHADER_BIT</code> stages</p>
 </li>
 </ul>
 </div>
@@ -18302,7 +18364,7 @@ this example:</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.234<br>
+Version 1.1.235<br>
 Last updated 2022-11-03 01:43:08 -0700
 </div>
 </div>

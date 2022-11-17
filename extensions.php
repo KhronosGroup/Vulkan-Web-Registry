@@ -115,6 +115,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_control.html"> VK_EXT_depth_clip_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_depth_range_unrestricted.html"> VK_EXT_depth_range_unrestricted </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_buffer.html"> VK_EXT_descriptor_buffer </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_address_binding_report.html"> VK_EXT_device_address_binding_report </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_device_fault.html"> VK_EXT_device_fault </a> </li>
