@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.235 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.236 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.235 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.236 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.235,</span>
-<span id="revdate">2022-11-17 12:36:40Z</span>
-<br><span id="revremark">from git branch: github-main commit: f4eb3e9a7acdef9ab62ac9af954a50409895ac6d</span>
+<span id="revnumber">version 1.0.236,</span>
+<span id="revdate">2022-12-01 12:12:52Z</span>
+<br><span id="revremark">from git branch: github-main commit: db2b908b59b7774da9aa8b07baed4f5d018ae4d9</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -394,6 +394,7 @@
 <li><a href="chap34.html#ray-tracing-commands">34.2. Ray Tracing Commands</a></li>
 <li><a href="chap34.html#shader-binding-table">34.3. Shader Binding Table</a></li>
 <li><a href="chap34.html#ray-tracing-pipeline-stack">34.4. Ray Tracing Pipeline Stack</a></li>
+<li><a href="chap34.html#ray-tracing-capture-replay">34.5. Ray Tracing Capture Replay</a></li>
 </ul>
 </li>
 <li><a href="chap35.html">35. Video Decode and Encode Operations</a>
@@ -3118,6 +3119,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDraw-viewType-07752" href="chap20.html#VUID-vkCmdDraw-viewType-07752"></a> <span class="vuid">VUID-vkCmdDraw-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDraw-format-07753" href="chap20.html#VUID-vkCmdDraw-format-07753"></a> <span class="vuid">VUID-vkCmdDraw-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDraw-None-04115" href="chap20.html#VUID-vkCmdDraw-None-04115"></a> <span class="vuid">VUID-vkCmdDraw-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -3156,10 +3172,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDraw-None-02686" href="chap20.html#VUID-vkCmdDraw-None-02686"></a> <span class="vuid">VUID-vkCmdDraw-None-02686</span><br>
+<p><a id="VUID-vkCmdDraw-None-07748" href="chap20.html#VUID-vkCmdDraw-None-07748"></a> <span class="vuid">VUID-vkCmdDraw-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDraw-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDraw-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDraw-OpTypeImage-07468</span><br>
@@ -3173,10 +3189,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDraw-None-07469" href="chap20.html#VUID-vkCmdDraw-None-07469"></a> <span class="vuid">VUID-vkCmdDraw-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDraw-None-06537" href="chap20.html#VUID-vkCmdDraw-None-06537"></a> <span class="vuid">VUID-vkCmdDraw-None-06537</span><br>
@@ -3770,6 +3789,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDrawIndexed-viewType-07752" href="chap20.html#VUID-vkCmdDrawIndexed-viewType-07752"></a> <span class="vuid">VUID-vkCmdDrawIndexed-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexed-format-07753" href="chap20.html#VUID-vkCmdDrawIndexed-format-07753"></a> <span class="vuid">VUID-vkCmdDrawIndexed-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDrawIndexed-None-04115" href="chap20.html#VUID-vkCmdDrawIndexed-None-04115"></a> <span class="vuid">VUID-vkCmdDrawIndexed-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -3808,10 +3842,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndexed-None-02686" href="chap20.html#VUID-vkCmdDrawIndexed-None-02686"></a> <span class="vuid">VUID-vkCmdDrawIndexed-None-02686</span><br>
+<p><a id="VUID-vkCmdDrawIndexed-None-07748" href="chap20.html#VUID-vkCmdDrawIndexed-None-07748"></a> <span class="vuid">VUID-vkCmdDrawIndexed-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexed-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDrawIndexed-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDrawIndexed-OpTypeImage-07468</span><br>
@@ -3825,10 +3859,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDrawIndexed-None-07469" href="chap20.html#VUID-vkCmdDrawIndexed-None-07469"></a> <span class="vuid">VUID-vkCmdDrawIndexed-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexed-None-06537" href="chap20.html#VUID-vkCmdDrawIndexed-None-06537"></a> <span class="vuid">VUID-vkCmdDrawIndexed-None-06537</span><br>
@@ -4421,6 +4458,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDrawIndirect-viewType-07752" href="chap20.html#VUID-vkCmdDrawIndirect-viewType-07752"></a> <span class="vuid">VUID-vkCmdDrawIndirect-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndirect-format-07753" href="chap20.html#VUID-vkCmdDrawIndirect-format-07753"></a> <span class="vuid">VUID-vkCmdDrawIndirect-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDrawIndirect-None-04115" href="chap20.html#VUID-vkCmdDrawIndirect-None-04115"></a> <span class="vuid">VUID-vkCmdDrawIndirect-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -4459,10 +4511,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndirect-None-02686" href="chap20.html#VUID-vkCmdDrawIndirect-None-02686"></a> <span class="vuid">VUID-vkCmdDrawIndirect-None-02686</span><br>
+<p><a id="VUID-vkCmdDrawIndirect-None-07748" href="chap20.html#VUID-vkCmdDrawIndirect-None-07748"></a> <span class="vuid">VUID-vkCmdDrawIndirect-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirect-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDrawIndirect-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDrawIndirect-OpTypeImage-07468</span><br>
@@ -4476,10 +4528,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDrawIndirect-None-07469" href="chap20.html#VUID-vkCmdDrawIndirect-None-07469"></a> <span class="vuid">VUID-vkCmdDrawIndirect-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirect-None-06537" href="chap20.html#VUID-vkCmdDrawIndirect-None-06537"></a> <span class="vuid">VUID-vkCmdDrawIndirect-None-06537</span><br>
@@ -5191,6 +5246,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDrawIndirectCount-viewType-07752" href="chap20.html#VUID-vkCmdDrawIndirectCount-viewType-07752"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndirectCount-format-07753" href="chap20.html#VUID-vkCmdDrawIndirectCount-format-07753"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDrawIndirectCount-None-04115" href="chap20.html#VUID-vkCmdDrawIndirectCount-None-04115"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -5229,10 +5299,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndirectCount-None-02686" href="chap20.html#VUID-vkCmdDrawIndirectCount-None-02686"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-None-02686</span><br>
+<p><a id="VUID-vkCmdDrawIndirectCount-None-07748" href="chap20.html#VUID-vkCmdDrawIndirectCount-None-07748"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirectCount-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDrawIndirectCount-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-OpTypeImage-07468</span><br>
@@ -5246,10 +5316,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDrawIndirectCount-None-07469" href="chap20.html#VUID-vkCmdDrawIndirectCount-None-07469"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndirectCount-None-06537" href="chap20.html#VUID-vkCmdDrawIndirectCount-None-06537"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-None-06537</span><br>
@@ -5920,6 +5993,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-viewType-07752" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-viewType-07752"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-format-07753" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-format-07753"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-04115" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-None-04115"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -5958,10 +6046,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndexedIndirect-None-02686" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-None-02686"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-None-02686</span><br>
+<p><a id="VUID-vkCmdDrawIndexedIndirect-None-07748" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-None-07748"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-OpTypeImage-07468</span><br>
@@ -5975,10 +6063,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-07469" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-None-07469"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirect-None-06537" href="chap20.html#VUID-vkCmdDrawIndexedIndirect-None-06537"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirect-None-06537</span><br>
@@ -6713,6 +6804,21 @@ enables <a href="chap13.html#samplers-YCbCr-conversion">sampler Y′C<sub>B</sub
 object <strong class="purple">must</strong> not use the <code>ConstOffset</code> and <code>Offset</code> operands</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdDrawIndexedIndirectCount-viewType-07752" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-viewType-07752"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-viewType-07752</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>viewType</code> <strong class="purple">must</strong> match the <code>Dim</code> operand of the
+<code>OpTypeImage</code> as described in <a href="chap16.html#textures-operation-validation">Instruction/Sampler/Image View Validation</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdDrawIndexedIndirectCount-format-07753" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-format-07753"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-format-07753</span><br>
+
+If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed as a result of this command, then the
+image view’s <code>format</code> <strong class="purple">must</strong> match the numeric format from the
+<code>Sampled</code> <code>Type</code> operand of the <code>OpTypeImage</code> as described in
+the SPIR-V Sampled Type column of the <a href="chap39.html#formats-numericformat">Interpretation of Numeric Format</a> table</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdDrawIndexedIndirectCount-None-04115" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-None-04115"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-None-04115</span><br>
 
 If a <a href="chap12.html#VkImageView">VkImageView</a> is accessed using <code>OpImageWrite</code> as a result
@@ -6751,10 +6857,10 @@ specified when creating the <code>VkPipeline</code> bound to
 <code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdDrawIndexedIndirectCount-None-02686" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-None-02686"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-None-02686</span><br>
+<p><a id="VUID-vkCmdDrawIndexedIndirectCount-None-07748" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-None-07748"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-None-07748</span><br>
 
-Every input attachment used by the current subpass <strong class="purple">must</strong> be bound to the
-pipeline via a descriptor set</p>
+If any shader statically accesses an input attachment, a valid
+descriptor <strong class="purple">must</strong> be bound to the pipeline via a descriptor set</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirectCount-OpTypeImage-07468" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-OpTypeImage-07468"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-OpTypeImage-07468</span><br>
@@ -6768,10 +6874,13 @@ input attachment in the current subpass</p>
 <p><a id="VUID-vkCmdDrawIndexedIndirectCount-None-07469" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-None-07469"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-None-07469</span><br>
 
 Input attachment views accessed in a subpass <strong class="purple">must</strong> be created with the
-same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition be created
-with a <a href="chap12.html#VkImageView">VkImageView</a> that is an attachment in the currently bound
-<a href="chap8.html#VkFramebuffer">VkFramebuffer</a> at an index that corresponds to a valid input
-attachment in the current subpass</p>
+same <a href="chap39.html#VkFormat">VkFormat</a> as the corresponding subpass definition, and be
+created with a <a href="chap12.html#VkImageView">VkImageView</a> that is compatible with the attachment
+referenced by the subpass'
+<code>pInputAttachments</code>[<code>InputAttachmentIndex</code>] in the currently
+bound <a href="chap8.html#VkFramebuffer">VkFramebuffer</a> as specified by
+<a href="chap15.html#compatibility-inputattachment">Fragment Input Attachment
+Compatibility</a></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdDrawIndexedIndirectCount-None-06537" href="chap20.html#VUID-vkCmdDrawIndexedIndirectCount-None-06537"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-None-06537</span><br>
@@ -7225,7 +7334,7 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.235<br>
+Version 1.0.236<br>
 Last updated 2022-11-03 01:43:08 -0700
 </div>
 </div>

@@ -261,6 +261,8 @@
     <li> <b>  INTEL Extensions (Intel Corporation)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_INTEL_performance_query.html"> VK_INTEL_performance_query </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_INTEL_shader_integer_functions2.html"> VK_INTEL_shader_integer_functions2 </a> </li>
+    <li> <b>  LUNARG Extensions (LunarG, Inc.)  </b> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_LUNARG_direct_driver_loading.html"> VK_LUNARG_direct_driver_loading </a> </li>
     <li> <b>  MVK Extensions (The Brenwill Workshop Ltd.)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_MVK_ios_surface.html"> VK_MVK_ios_surface </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_MVK_macos_surface.html"> VK_MVK_macos_surface </a> </li>
@@ -316,6 +318,7 @@
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_fragment_density_map_offset.html"> VK_QCOM_fragment_density_map_offset </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_image_processing.html"> VK_QCOM_image_processing </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_multiview_per_view_viewports.html"> VK_QCOM_multiview_per_view_viewports </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_shader_resolve.html"> VK_QCOM_render_pass_shader_resolve </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_store_ops.html"> VK_QCOM_render_pass_store_ops </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
