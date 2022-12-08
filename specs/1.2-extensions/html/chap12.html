@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.2.236 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.237 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.236 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.237 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.2.236,</span>
-<span id="revdate">2022-12-01 12:06:47Z</span>
-<br><span id="revremark">from git branch: github-main commit: db2b908b59b7774da9aa8b07baed4f5d018ae4d9</span>
+<span id="revnumber">version 1.2.237,</span>
+<span id="revdate">2022-12-08 13:54:00Z</span>
+<br><span id="revremark">from git branch: github-main commit: 0e28607b55dc1eee4ff80967f1e0a7e99356d075</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3118,6 +3118,13 @@ If <code>flags</code> contains <code>VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT</co
 <code>imageType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_3D</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageCreateInfo-flags-07755" href="chap12.html#VUID-VkImageCreateInfo-flags-07755"></a> <span class="vuid">VUID-VkImageCreateInfo-flags-07755</span><br>
+
+If <code>flags</code> contains
+<code>VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT</code>, <code>imageType</code> <strong class="purple">must</strong>
+be <code>VK_IMAGE_TYPE_3D</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageCreateInfo-extent-02252" href="chap12.html#VUID-VkImageCreateInfo-extent-02252"></a> <span class="vuid">VUID-VkImageCreateInfo-extent-02252</span><br>
 
 <code>extent.width</code> <strong class="purple">must</strong> be less than or equal to
@@ -5578,6 +5585,11 @@ be used to create a <code>VkImageView</code> of type
 <code>VK_IMAGE_VIEW_TYPE_2D</code> or <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code>.</p>
 </li>
 <li>
+<p><code>VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT</code> specifies that the
+image <strong class="purple">can</strong> be used to create a <code>VkImageView</code> of type
+<code>VK_IMAGE_VIEW_TYPE_2D</code>.</p>
+</li>
+<li>
 <p><code>VK_IMAGE_CREATE_PROTECTED_BIT</code> specifies that the image is a
 protected image.</p>
 </li>
@@ -7240,10 +7252,7 @@ the <code>VK_IMAGE_USAGE_TRANSFER_DST_BIT</code> usage bit enabled.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_LAYOUT_PRESENT_SRC_KHR</code> <strong class="purple">must</strong> only be used for presenting
-a presentable image for display.
-A swapchain’s image <strong class="purple">must</strong> be transitioned to this layout before calling
-<a href="chap33.html#vkQueuePresentKHR">vkQueuePresentKHR</a>, and <strong class="purple">must</strong> be transitioned away from this layout
-after calling <a href="chap33.html#vkAcquireNextImageKHR">vkAcquireNextImageKHR</a>.</p>
+a presentable image for display.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR</code> is valid only for shared
@@ -16674,6 +16683,15 @@ are used to determine the memory that the image is bound to, instead of
 <code>imageIndex</code> <strong class="purple">must</strong> be less than the number of images in
 <code>swapchain</code></p>
 </li>
+<li>
+<p><a id="VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756" href="chap12.html#VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756"></a> <span class="vuid">VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756</span><br>
+
+    If the <code>swapchain</code> has been created with
+    <code>VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT</code>,
+    <code>imageIndex</code> <strong class="purple">must</strong> be one that has previously been returned by
+    <a href="chap33.html#vkAcquireNextImageKHR">vkAcquireNextImageKHR</a>
+or <a href="chap33.html#vkAcquireNextImage2KHR">vkAcquireNextImage2KHR</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -17247,6 +17265,37 @@ to satisfy all the above requirements.</p>
 </td>
 </tr>
 </tbody></table>
+</div>
+<div class="sect3">
+<h4 id="resources-memory-overlap"><a class="anchor" href="chap12.html#resources-memory-overlap"></a>12.10.1. Resource Memory Overlap</h4>
+<div class="paragraph">
+<p>Applications <strong class="purple">can</strong> safely access a resource concurrently as long as the
+memory locations do not overlap as defined in
+<a href="chap50.html#memory-model-memory-location">Memory Location</a>.
+This includes aliased resources if such aliasing is well-defined.
+It also includes access from different queues and/or queue families if such
+concurrent access is supported by the resource.
+Transfer commands only access memory locations specified by the range of the
+transfer command.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The intent is that buffers (or linear images) can be accessed concurrently,
+even when they share cache lines, but otherwise do not access the same
+memory range.
+The concept of a device cache line size is not exposed in the memory model.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -18790,7 +18839,7 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.236<br>
+Version 1.2.237<br>
 Last updated 2022-11-03 01:43:08 -0700
 </div>
 </div>

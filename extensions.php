@@ -194,7 +194,9 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_shader_viewport_index_layer.html"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_subgroup_size_control.html"> VK_EXT_subgroup_size_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_subpass_merge_feedback.html"> VK_EXT_subpass_merge_feedback </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_surface_maintenance1.html"> VK_EXT_surface_maintenance1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_swapchain_colorspace.html"> VK_EXT_swapchain_colorspace </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_swapchain_maintenance1.html"> VK_EXT_swapchain_maintenance1 </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_texel_buffer_alignment.html"> VK_EXT_texel_buffer_alignment </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_texture_compression_astc_hdr.html"> VK_EXT_texture_compression_astc_hdr </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_tooling_info.html"> VK_EXT_tooling_info </a> </li>
