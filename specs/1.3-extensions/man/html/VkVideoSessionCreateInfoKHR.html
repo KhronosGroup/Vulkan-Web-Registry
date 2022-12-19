@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>VkVideoSessionCreateInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkVideoSessionCreateInfoKHR - Structure specifying parameters of a newly created video decode session</p>
+<p>VkVideoSessionCreateInfoKHR - Structure specifying parameters of a newly created video session</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -845,7 +845,8 @@ typedef struct VkVideoSessionCreateInfoKHR {
 structure.</p>
 </li>
 <li>
-<p><code>queueFamilyIndex</code> is the queue family of the created video session.</p>
+<p><code>queueFamilyIndex</code> is the index of the queue family the created
+video session will be used with.</p>
 </li>
 <li>
 <p><code>flags</code> is a bitmask of <a href="VkVideoSessionCreateFlagBitsKHR.html">VkVideoSessionCreateFlagBitsKHR</a>
@@ -853,36 +854,43 @@ specifying creation flags.</p>
 </li>
 <li>
 <p><code>pVideoProfile</code> is a pointer to a <a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>
-structure.</p>
+structure specifying the video profile the created video session will be
+used with.</p>
 </li>
 <li>
-<p><code>pictureFormat</code> is the format of the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#resources-image-views" target="_blank" rel="noopener">image
-views</a> representing decoded <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decoded-output-picture" target="_blank" rel="noopener">Output</a> or
-encoded <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">Input</a> pictures.</p>
+<p><code>pictureFormat</code> is the image format the created video session will
+be used with.
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies a decode
+operation, then <code>pictureFormat</code> is the image format of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-output-picture" target="_blank" rel="noopener">decode output pictures</a> usable with the
+created video session.
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies an encode
+operation, then <code>pictureFormat</code> is the image format of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">encode input pictures</a> usable with the created
+video session.</p>
 </li>
 <li>
-<p><code>maxCodedExtent</code> is the maximum width and height of the coded
-pictures that this instance will be able to support.</p>
+<p><code>maxCodedExtent</code> is the maximum width and height of the coded frames
+the created video session will be used with.</p>
 </li>
 <li>
-<p><code>referencePicturesFormat</code> is the format of the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb" target="_blank" rel="noopener">DPB</a> image
-views representing the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">Reference Pictures</a>.</p>
+<p><code>referencePictureFormat</code> is the image format of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">reference pictures</a> stored in the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb" target="_blank" rel="noopener">DPB</a> the
+created video session will be used with.</p>
 </li>
 <li>
 <p><code>maxDpbSlots</code> is the maximum number of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB Slots</a> that
-can be activated with associated <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resources" target="_blank" rel="noopener">Video Picture
-Resources</a> for the created video session.</p>
+<strong class="purple">can</strong> be used with the created video session.</p>
 </li>
 <li>
-<p><code>maxActiveReferencePictures</code> is the maximum number of active
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB Slots</a> that can be used as Dpb or Reconstructed
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">Reference Pictures</a> within a single decode or
-encode operation for the created video session.</p>
+<p><code>maxActiveReferencePictures</code> is the maximum number of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#active-reference-pictures" target="_blank" rel="noopener">active reference pictures</a> that <strong class="purple">can</strong> be
+used in a single video coding operation using the created video session.</p>
 </li>
 <li>
 <p><code>pStdHeaderVersion</code> is a pointer to a <a href="VkExtensionProperties.html">VkExtensionProperties</a>
-structure requesting the Video Std header version to use for
-<code>codecOperation</code> in <code>pVideoProfile</code>.</p>
+structure requesting the Video Std header version to use for the
+<code>videoCodecOperation</code> specified in <code>pVideoProfile</code>.</p>
 </li>
 </ul>
 </div>
@@ -897,105 +905,126 @@ structure requesting the Video Std header version to use for
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-pVideoProfile-04845"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pVideoProfile-04845</span><br>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-protectedMemory-07189"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-protectedMemory-07189</span><br>
 
-<code>pVideoProfile</code> <strong class="purple">must</strong> be a pointer to a valid
-<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a> structure whose <code>pNext</code> chain <strong class="purple">must</strong>
-include a valid codec-specific profile structure</p>
+If the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-protectedMemory" target="_blank" rel="noopener"><code>protectedMemory</code></a> feature is
+not enabled or if <a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>flags</code> does not
+include <code>VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR</code>, as returned
+by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile
+specified by <code>pVideoProfile</code>, then <code>flags</code> <strong class="purple">must</strong> not include
+<code>VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR</code></p>
 </li>
 <li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04846"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04846</span><br>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-pVideoProfile-04845"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pVideoProfile-04845</span><br>
 
-If <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">Reference Pictures</a> are required for use with
-the created video session, the <code>maxDpbSlots</code> <strong class="purple">must</strong> be set to a value
-bigger than <code>0</code></p>
+<code>pVideoProfile</code> <strong class="purple">must</strong> be a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-support" target="_blank" rel="noopener">supported video
+profile</a></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04847"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04847</span><br>
 
-<code>maxDpbSlots</code> <strong class="purple">cannot</strong> exceed the implementation reported
-<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxDpbSlots</code></p>
-</li>
-<li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04848"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04848</span><br>
-
-If <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">Reference Pictures</a> are required for use with
-the created video session, the <code>maxActiveReferencePictures</code> <strong class="purple">must</strong> be
-set to a value bigger than <code>0</code></p>
+<code>maxDpbSlots</code> <strong class="purple">must</strong> be less than or equal to
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxDpbSlots</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile
+specified by <code>pVideoProfile</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04849"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04849</span><br>
 
-<code>maxActiveReferencePictures</code> <strong class="purple">cannot</strong> exceed the implementation
-reported <a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxActiveReferencePictures</code></p>
+<code>maxActiveReferencePictures</code> <strong class="purple">must</strong> be less than or equal to
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxActiveReferencePictures</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile specified by <code>pVideoProfile</code></p>
 </li>
 <li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04850"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxActiveReferencePictures-04850</span><br>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04850"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxDpbSlots-04850</span><br>
 
-<code>maxActiveReferencePictures</code> <strong class="purple">cannot</strong> exceed the <code>maxDpbSlots</code></p>
+If either <code>maxDpbSlots</code> or <code>maxActiveReferencePictures</code> is <code>0</code>,
+then both <strong class="purple">must</strong> be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-maxCodedExtent-04851"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-maxCodedExtent-04851</span><br>
 
-<code>maxCodedExtent</code> <strong class="purple">cannot</strong> be smaller than
-<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minExtent</code> and bigger than
-<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxExtent</code></p>
+<code>maxCodedExtent</code> <strong class="purple">must</strong> be between
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minCodedExtent</code> and
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>maxCodedExtent</code>, inclusive, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile specified by <code>pVideoProfile</code></p>
 </li>
 <li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-04852"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-referencePicturesFormat-04852</span><br>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-referencePictureFormat-04852"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-referencePictureFormat-04852</span><br>
 
-If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
-a decode operation then <code>referencePicturesFormat</code> <strong class="purple">must</strong> be one of
-the supported decode DPB formats as reported by
-<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
-member of <a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> when called with the
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies a decode operation
+and <code>maxActiveReferencePictures</code> is greater than <code>0</code>, then
+<code>referencePictureFormat</code> <strong class="purple">must</strong> be one of the supported decode DPB
+formats, as returned by
+<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>format</code> when called with the
 <code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
 containing <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>, and with a
-<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure chained to its
-<code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code> member contains
-an entry matching <code>pVideoProfile</code></p>
+<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure specified in the <code>pNext</code>
+chain of its <code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code>
+member contains an element matching <code>pVideoProfile</code></p>
 </li>
 <li>
-<p><a id="VUID-VkVideoSessionCreateInfoKHR-videoCodecOperation-06814"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-videoCodecOperation-06814</span><br>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-referencePictureFormat-06814"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-referencePictureFormat-06814</span><br>
 
-If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
-an encode operation then <code>referencePicturesFormat</code> <strong class="purple">must</strong> be one of
-the supported encode DPB formats as reported by
-<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
-member of <a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> when called with the
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies an encode
+operation and <code>maxActiveReferencePictures</code> is greater than <code>0</code>, then
+<code>referencePictureFormat</code> <strong class="purple">must</strong> be one of the supported decode DPB
+formats, as returned by then <code>referencePictureFormat</code> <strong class="purple">must</strong> be one
+of the supported encode DPB formats, as returned by
+<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>format</code> when called with the
 <code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
 containing <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code>, and with a
-<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure chained to its
-<code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code> member contains
-an entry matching <code>pVideoProfile</code></p>
+<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure specified in the <code>pNext</code>
+chain of its <code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code>
+member contains an element matching <code>pVideoProfile</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04853"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04853</span><br>
 
-If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
-a decode operation then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the
-supported decode output formats as reported by
-<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
-member of <a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> when called with the
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies a decode
+operation, then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the supported decode
+output formats, as returned by
+<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>format</code> when called with the
 <code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
 containing <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>, and with a
-<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure chained to its
-<code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code> member contains
-an entry matching <code>pVideoProfile</code></p>
+<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure specified in the <code>pNext</code>
+chain of its <code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code>
+member contains an element matching <code>pVideoProfile</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04854"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pictureFormat-04854</span><br>
 
-If the <code>videoCodecOperation</code> member of <code>pVideoProfile</code> specifies
-an encode operation then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the
-supported encode input formats as reported by
-<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in the <code>format</code>
-member of <a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> when called with the
+If <code>pVideoProfile-&gt;videoCodecOperation</code> specifies an encode
+operation, then <code>pictureFormat</code> <strong class="purple">must</strong> be one of the supported encode
+input formats, as returned by
+<a href="vkGetPhysicalDeviceVideoFormatPropertiesKHR.html">vkGetPhysicalDeviceVideoFormatPropertiesKHR</a> in
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a>::<code>format</code> when called with the
 <code>imageUsage</code> member of its <code>pVideoFormatInfo</code> parameter
 containing <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code>, and with a
-<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure chained to its
-<code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code> member contains
-an entry matching <code>pVideoProfile</code></p>
+<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure specified in the <code>pNext</code>
+chain of its <code>pVideoFormatInfo</code> parameter whose <code>pProfiles</code>
+member contains an element matching <code>pVideoProfile</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-07190"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-07190</span><br>
+
+<code>pStdHeaderVersion-&gt;extensionName</code> <strong class="purple">must</strong> match
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>stdHeaderVersion.extensionName</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile specified by <code>pVideoProfile</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-07191"></a> <span class="vuid">VUID-VkVideoSessionCreateInfoKHR-pStdHeaderVersion-07191</span><br>
+
+<code>pStdHeaderVersion-&gt;specVersion</code> <strong class="purple">must</strong> be less than or equal to
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>stdHeaderVersion.specVersion</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile specified by <code>pVideoProfile</code></p>
 </li>
 </ul>
 </div>
@@ -1074,8 +1103,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.237<br>
-Last updated 2022-12-08 05:40:35 -0800
+Version 1.3.238<br>
+Last updated 2022-12-18 23:43:00 -0800
 </div>
 </div>
 

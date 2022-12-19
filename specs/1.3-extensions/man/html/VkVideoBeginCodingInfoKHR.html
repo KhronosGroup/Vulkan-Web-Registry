@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>VkVideoBeginCodingInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkVideoBeginCodingInfoKHR - Structure specifying parameters of decode starts</p>
+<p>VkVideoBeginCodingInfoKHR - Structure specifying video coding scope begin information</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -848,27 +848,22 @@ structure.</p>
 processing of the video commands.</p>
 </li>
 <li>
-<p><code>videoSessionParameters</code> is <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a> or a handle of a
+<p><code>videoSessionParameters</code> is <code>VK_NULL_HANDLE</code> or a handle of a
 <a href="VkVideoSessionParametersKHR.html">VkVideoSessionParametersKHR</a> object to be used for the processing
 of the video commands.
-If <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, then no video session parameters apply to this
-command buffer context.</p>
+If <code>VK_NULL_HANDLE</code>, then no video session parameters object is
+bound for the duration of the video coding scope.</p>
 </li>
 <li>
-<p><code>referenceSlotCount</code> is the number of reference slot entries
-provided in <code>pReferenceSlots</code>.</p>
+<p><code>referenceSlotCount</code> is the number of elements in the
+<code>pReferenceSlots</code> array.</p>
 </li>
 <li>
 <p><code>pReferenceSlots</code> is a pointer to an array of
-<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structures specifying reference slots,
-used within the video command context between this
-<a href="vkCmdBeginVideoCodingKHR.html">vkCmdBeginVideoCodingKHR</a> command and the
-<a href="vkCmdEndVideoCodingKHR.html">vkCmdEndVideoCodingKHR</a> command that follows.
-Each reference slot provides a slot index and the
-<a href="VkVideoPictureResourceInfoKHR.html">VkVideoPictureResourceInfoKHR</a> specifying the reference picture
-resource bound to this slot index.
-A slot index <strong class="purple">must</strong> not appear more than once in <code>pReferenceSlots</code> in
-a given command.</p>
+<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structures specifying the information
+used to determine the set of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#bound-reference-picture-resources" target="_blank" rel="noopener">bound
+reference picture resources</a> for the video coding scope and their
+initial association with <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB slot</a> indices.</p>
 </li>
 </ul>
 </div>
@@ -877,24 +872,158 @@ a given command.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Limiting values are defined below that are referenced by the relevant valid
+usage statements of this structure.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Let <code>VkOffset2D codedOffsetGranularity</code> be the minimum alignment
+requirement for the coded offset of video picture resources.
+Unless otherwise defined, the value of the <code>x</code> and <code>y</code> members
+of <code>codedOffsetGranularity</code> are <code>0</code>.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>videoSession</code> was created with an <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h264-profile" target="_blank" rel="noopener">H.264
+decode profile</a> with a
+<a href="VkVideoDecodeH264ProfileInfoKHR.html">VkVideoDecodeH264ProfileInfoKHR</a>::<code>pictureLayout</code> of
+<code>VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR</code>,
+then <code>codedOffsetGranularity</code> is equal to
+<a href="VkVideoDecodeH264CapabilitiesKHR.html">VkVideoDecodeH264CapabilitiesKHR</a>::<code>fieldOffsetGranularity</code>,
+as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for that
+video profile.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoBeginCodingInfoKHR-referenceSlotCount-04856"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-referenceSlotCount-04856</span><br>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSession-07237"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSession-07237</span><br>
 
-<a href="VkVideoBeginCodingInfoKHR.html">VkVideoBeginCodingInfoKHR</a>::<code>referenceSlotCount</code> <strong class="purple">must</strong> not
-exceed the value specified in
-<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> when creating the
-video session object that is being provided in <code>videoSession</code></p>
+<code>videoSession</code> <strong class="purple">must</strong> have memory bound to all of its memory bindings
+returned by <a href="vkGetVideoSessionMemoryRequirementsKHR.html">vkGetVideoSessionMemoryRequirementsKHR</a> for
+<code>videoSession</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-slotIndex-04856"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-slotIndex-04856</span><br>
+
+Each non-negative <a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a>::<code>slotIndex</code>
+specified in the elements of <code>pReferenceSlots</code> <strong class="purple">must</strong> be less than
+the <a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> specified when
+<code>videoSession</code> was created</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07238"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07238</span><br>
+
+Each video picture resource corresponding to any non-<code>NULL</code>
+<code>pPictureResource</code> member specified in the elements of
+<code>pReferenceSlots</code> <strong class="purple">must</strong> be <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resource-uniqueness" target="_blank" rel="noopener">unique</a> within <code>pReferenceSlots</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07240"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07240</span><br>
+
+If the <code>pPictureResource</code> member of any element of
+<code>pReferenceSlots</code> is not <code>NULL</code>, then the image view specified in
+<code>pPictureResource-&gt;imageViewBinding</code> for that element <strong class="purple">must</strong> be
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-compatibility" target="_blank" rel="noopener">compatible</a> with the video profile
+<code>videoSession</code> was created with</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07241"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07241</span><br>
+
+If the <code>pPictureResource</code> member of any element of
+<code>pReferenceSlots</code> is not <code>NULL</code>, then the format of the image view
+specified in <code>pPictureResource-&gt;imageViewBinding</code> for that element
+<strong class="purple">must</strong> match the
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::referencePictureFormat
+<code>videoSession</code> was created with</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07242"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07242</span><br>
+
+If the <code>pPictureResource</code> member of any element of
+<code>pReferenceSlots</code> is not <code>NULL</code>, then its <code>codedOffset</code> member
+<strong class="purple">must</strong> be an integer multiple of <code>codedOffsetGranularity</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07243"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-pPictureResource-07243</span><br>
+
+If the <code>pPictureResource</code> member of any element of
+<code>pReferenceSlots</code> is not <code>NULL</code>, then its <code>codedExtent</code> member
+<strong class="purple">must</strong> be between <code>minCodedExtent</code> and <code>maxCodedExtent</code>,
+inclusive, <code>videoSession</code> was created with</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-flags-07244"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-flags-07244</span><br>
+
+If <a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR</code>, as returned
+by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile
+<code>videoSession</code> was created with, then
+<code>pPictureResource-&gt;imageViewBinding</code> of all elements of
+<code>pReferenceSlots</code> with a non-<code>NULL</code> <code>pPictureResource</code> member
+<strong class="purple">must</strong> specify image views created from the same image</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-slotIndex-07245"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-slotIndex-07245</span><br>
+
+If <code>videoSession</code> was created with a decode operation and the
+<code>slotIndex</code> member of any element of <code>pReferenceSlots</code> is not
+negative, then the image view specified in
+<code>pPictureResource-&gt;imageViewBinding</code> for that element <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-slotIndex-07246"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-slotIndex-07246</span><br>
+
+If <code>videoSession</code> was created with an encode operation and the
+<code>slotIndex</code> member of any element of <code>pReferenceSlots</code> is not
+negative, then the image view specified in
+<code>pPictureResource-&gt;imageViewBinding</code> for that element <strong class="purple">must</strong> have
+been created with <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSession-07247"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSession-07247</span><br>
+
+If <code>videoSession</code> was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR</code>, then
+<code>videoSessionParameters</code> <strong class="purple">must</strong> not be <code>VK_NULL_HANDLE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSession-07248"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSession-07248</span><br>
+
+If <code>videoSession</code> was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR</code>, then
+<code>videoSessionParameters</code> <strong class="purple">must</strong> not be <code>VK_NULL_HANDLE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSession-07249"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSession-07249</span><br>
+
+If <code>videoSession</code> was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_EXT</code>, then
+<code>videoSessionParameters</code> <strong class="purple">must</strong> not be <code>VK_NULL_HANDLE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSession-07250"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSession-07250</span><br>
+
+If <code>videoSession</code> was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_EXT</code>, then
+<code>videoSessionParameters</code> <strong class="purple">must</strong> not be <code>VK_NULL_HANDLE</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoBeginCodingInfoKHR-videoSessionParameters-04857"></a> <span class="vuid">VUID-VkVideoBeginCodingInfoKHR-videoSessionParameters-04857</span><br>
 
-If <code>videoSessionParameters</code> is not <a href="VK_NULL_HANDLE.html">VK_NULL_HANDLE</a>, it <strong class="purple">must</strong>
-have been created using <code>videoSession</code> as a parent object</p>
+If <code>videoSessionParameters</code> is not <code>VK_NULL_HANDLE</code>, it <strong class="purple">must</strong>
+have been created with <code>videoSession</code> specified in
+<a href="VkVideoSessionParametersCreateInfoKHR.html">VkVideoSessionParametersCreateInfoKHR</a>::<code>videoSession</code></p>
 </li>
 </ul>
 </div>
@@ -977,8 +1106,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.237<br>
-Last updated 2022-12-08 05:40:35 -0800
+Version 1.3.238<br>
+Last updated 2022-12-18 23:43:00 -0800
 </div>
 </div>
 

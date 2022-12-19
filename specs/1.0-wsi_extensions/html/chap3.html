@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.17">
 <meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.0.237 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.238 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.237 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.238 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.0.237,</span>
-<span id="revdate">2022-12-08 14:00:39Z</span>
-<br><span id="revremark">from git branch: github-main commit: 0e28607b55dc1eee4ff80967f1e0a7e99356d075</span>
+<span id="revnumber">version 1.0.238,</span>
+<span id="revdate">2022-12-19 08:02:19Z</span>
+<br><span id="revremark">from git branch: github-main commit: 9a2e576a052a1e65a5d41b593e693ff02745604b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -243,7 +243,7 @@
 <li><a href="chap17.html#queries-timestamps">17.5. Timestamp Queries</a></li>
 <li><a href="chap17.html#queries-performance">17.6. Performance Queries</a></li>
 <li><a href="chap17.html#queries-result-status-only">17.7. Result Status Queries</a></li>
-<li><a href="chap17.html#queries-video-encode-bitstream-buffer-range">17.8. Video Encode Bitstream Buffer Range</a></li>
+<li><a href="chap17.html#queries-video-encode-bitstream-buffer-range">17.8. Video Encode Bitstream Buffer Range Queries</a></li>
 </ul>
 </li>
 <li><a href="chap18.html">18. Clear Commands</a>
@@ -397,14 +397,21 @@
 <li><a href="chap34.html#ray-tracing-capture-replay">34.5. Ray Tracing Capture Replay</a></li>
 </ul>
 </li>
-<li><a href="chap35.html">35. Video Decode and Encode Operations</a>
+<li><a href="chap35.html">35. Video Coding</a>
 <ul class="sectlevel2">
-<li><a href="chap35.html#_technical_terminology_and_semantics">35.1. Technical Terminology and Semantics</a></li>
-<li><a href="chap35.html#_introduction">35.2. Introduction</a></li>
-<li><a href="chap35.html#video-physical-device-capabilities">35.3. Video Physical Device Capabilities</a></li>
-<li><a href="chap35.html#video-session-objects">35.4. Video Session Objects</a></li>
-<li><a href="chap35.html#video-decode-operations">35.5. Video Decode Operations</a></li>
-<li><a href="chap35.html#video-encode-operations">35.6. Video Encode Operations</a></li>
+<li><a href="chap35.html#video-picture-resources">35.1. Video Picture Resources</a></li>
+<li><a href="chap35.html#dpb">35.2. Decoded Picture Buffer</a></li>
+<li><a href="chap35.html#video-profiles">35.3. Video Profiles</a></li>
+<li><a href="chap35.html#video-capabilities">35.4. Video Capabilities</a></li>
+<li><a href="chap35.html#video-session">35.5. Video Sessions</a></li>
+<li><a href="chap35.html#video-profile-compatibility">35.6. Video Profile Compatibility</a></li>
+<li><a href="chap35.html#video-session-parameters">35.7. Video Session Parameters</a></li>
+<li><a href="chap35.html#video-coding-scope">35.8. Video Coding Scope</a></li>
+<li><a href="chap35.html#video-coding-control">35.9. Video Coding Control</a></li>
+<li><a href="chap35.html#video-decode-operations">35.10. Video Decode Operations</a></li>
+<li><a href="chap35.html#decode-h264">35.11. H.264 Decode Operations</a></li>
+<li><a href="chap35.html#decode-h265">35.12. H.265 Decode Operations</a></li>
+<li><a href="chap35.html#video-encode-operations">35.13. Video Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap36.html">36. Extending Vulkan</a>
@@ -511,7 +518,7 @@
 <li><a href="chap47.html#boilerplate-headers">Vulkan Header Files</a></li>
 <li><a href="chap47.html#boilerplate-wsi-header">Window System-Specific Header Control (Informative)</a></li>
 <li><a href="chap47.html#boilerplate-provisional-header">Provisional Extension Header Control (Informative)</a></li>
-<li><a href="chap47.html#boilerplate-video-std-headers">Video Std Headers (Informative)</a></li>
+<li><a href="chap47.html#boilerplate-video-std-headers">Video Std Headers</a></li>
 </ul>
 </li>
 <li><a href="chap48.html">Appendix G: Invariance</a>
@@ -612,10 +619,10 @@ Queues within a single family are considered <em>compatible</em> with one anothe
 and work produced for a family of queues <strong class="purple">can</strong> be executed on any queue
 within that family.
 This specification defines the following types of functionality that queues
-<strong class="purple">may</strong> support:
+<strong class="purple">may</strong> support: graphics, compute,
 video decode,
 video encode,
-graphics, compute, transfer and sparse memory management.</p>
+transfer, and sparse memory management.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -944,6 +951,12 @@ state</a>:</p>
 <li>
 <p><code>VkAccelerationStructureKHR</code></p>
 </li>
+<li>
+<p><code>VkVideoSessionKHR</code></p>
+</li>
+<li>
+<p><code>VkVideoSessionParametersKHR</code></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1088,6 +1101,12 @@ This includes the following objects:</p>
 </li>
 <li>
 <p><code>VkAccelerationStructureKHR</code></p>
+</li>
+<li>
+<p><code>VkVideoSessionKHR</code></p>
+</li>
+<li>
+<p><code>VkVideoSessionParametersKHR</code></p>
 </li>
 </ul>
 </div>
@@ -2843,31 +2862,19 @@ The possible codes are:</p>
     <span class="n">VK_ERROR_OUT_OF_DATE_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000001004</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_display_swapchain</span>
     <span class="n">VK_ERROR_INCOMPATIBLE_DISPLAY_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000003001</span><span class="p">,</span>
-<span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023000</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023001</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023002</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023003</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023004</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000023005</span><span class="p">,</span>
-<span class="cp">#endif
-</span>  <span class="c1">// Provided by VK_KHR_global_priority</span>
+  <span class="c1">// Provided by VK_KHR_global_priority</span>
     <span class="n">VK_ERROR_NOT_PERMITTED_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000174001</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_deferred_host_operations</span>
     <span class="n">VK_THREAD_IDLE_KHR</span> <span class="o">=</span> <span class="mi">1000268000</span><span class="p">,</span>
@@ -3790,87 +3797,59 @@ Specification.</p>
     <span class="n">VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000008000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_win32_surface</span>
     <span class="n">VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000009000</span><span class="p">,</span>
-<span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023000</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR</span> <span class="o">=</span> <span class="mi">1000023001</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023002</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR</span> <span class="o">=</span> <span class="mi">1000023003</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023004</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023005</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023006</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023007</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023008</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023009</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023010</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023011</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR</span> <span class="o">=</span> <span class="mi">1000023012</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023013</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000023014</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR</span> <span class="o">=</span> <span class="mi">1000023015</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR</span> <span class="o">=</span> <span class="mi">1000023016</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000024000</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR</span> <span class="o">=</span> <span class="mi">1000024001</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000024002</span><span class="p">,</span>
-<span class="cp">#endif
-</span>  <span class="c1">// Provided by VK_KHR_dynamic_rendering with VK_KHR_fragment_shading_rate</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR</span> <span class="o">=</span> <span class="mi">1000040000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000040001</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000040003</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000040004</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000040005</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h264</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000040006</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_dynamic_rendering with VK_KHR_fragment_shading_rate</span>
     <span class="n">VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000044006</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_dynamic_rendering with VK_EXT_fragment_density_map</span>
     <span class="n">VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000044007</span><span class="p">,</span>
@@ -4004,6 +3983,18 @@ Specification.</p>
 <span class="cp">#endif
 </span>  <span class="c1">// Provided by VK_KHR_shader_clock</span>
     <span class="n">VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR</span> <span class="o">=</span> <span class="mi">1000181000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR</span> <span class="o">=</span> <span class="mi">1000187000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000187001</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000187002</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000187003</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000187004</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_decode_h265</span>
+    <span class="n">VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000187005</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_global_priority</span>
     <span class="n">VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000174000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_global_priority</span>
@@ -4391,7 +4382,7 @@ correct name.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.237<br>
+Version 1.0.238<br>
 Last updated 2022-11-03 01:43:08 -0700
 </div>
 </div>

@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>vkGetPhysicalDeviceVideoFormatPropertiesKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>vkGetPhysicalDeviceVideoFormatPropertiesKHR - Query supported Video Decode and Encode image formats</p>
+<p>vkGetPhysicalDeviceVideoFormatPropertiesKHR - Query supported video decode and encode image formats and capabilities</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -810,8 +810,8 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_c_specification"><a class="anchor" href="#_c_specification"></a>C Specification</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To enumerate the supported output, input and DPB image formats for a
-specific codec operation and video profile, call:</p>
+<p>To enumerate the supported output, input and DPB image formats and
+corresponding capabilities for a specific video profile, call:</p>
 </div>
 <div id="vkGetPhysicalDeviceVideoFormatPropertiesKHR" class="listingblock">
 <div class="content">
@@ -831,12 +831,14 @@ VkResult vkGetPhysicalDeviceVideoFormatPropertiesKHR(
 <div class="ulist">
 <ul>
 <li>
-<p><code>physicalDevice</code> is the physical device being queried.</p>
+<p><code>physicalDevice</code> is the physical device from which to query the
+video format properties.</p>
 </li>
 <li>
 <p><code>pVideoFormatInfo</code> is a pointer to a
-<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a> structure specifying the codec
-and video profile for which information is returned.</p>
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a> structure specifying the usage
+and video profiles for which supported image formats and capabilities
+are returned.</p>
 </li>
 <li>
 <p><code>pVideoFormatPropertyCount</code> is a pointer to an integer related to
@@ -845,8 +847,8 @@ below.</p>
 </li>
 <li>
 <p><code>pVideoFormatProperties</code> is a pointer to an array of
-<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> structures in which supported formats
-and image parameters are returned.</p>
+<a href="VkVideoFormatPropertiesKHR.html">VkVideoFormatPropertiesKHR</a> structures in which supported image
+formats and capabilities are returned.</p>
 </li>
 </ul>
 </div>
@@ -870,34 +872,61 @@ values will be written to <code>pVideoFormatProperties</code>, and
 indicate that not all the available values were returned.</p>
 </div>
 <div class="paragraph">
-<p>If an implementation reports
-<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> is
-supported but
-<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> is not
-supported in <a href="VkVideoDecodeCapabilitiesKHR.html">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
-for video format properties for decode DPB or output,
-<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have both
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> set.
+<p>Video format properties are always queried with respect to a specific set of
+video profiles.
+These are specified by chaining the <a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a>
+structure to <code>pVideoFormatInfo</code>.</p>
+</div>
+<div class="paragraph">
+<p>For most use cases, the images are used by a single video session and a
+single video profile is provided.
+For a use case such as video transcoding, where a decode session output
+image <strong class="purple">can</strong> be used as encode input in one or more encode sessions, multiple
+video profiles corresponding to the video sessions that will share the image
+<strong class="purple">must</strong> be provided.</p>
+</div>
+<div class="paragraph">
+<p>If any of the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profiles" target="_blank" rel="noopener">video profiles</a> specified via
+<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a>::<code>pProfiles</code> are not supported, then
+this command returns one of the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-error-codes" target="_blank" rel="noopener">video-profile-specific error codes</a>.
+Furthermore, if <a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code>
+includes any image usage flags not supported by the specified video
+profiles, then this command returns
+<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>This command also returns <code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code> if
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> does not include
+the appropriate flags as dictated by the decode capability flags returned in
+<a href="VkVideoDecodeCapabilitiesKHR.html">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code> for any of the profiles
+specified in the <a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure provided in the
+<code>pNext</code> chain of <code>pVideoFormatInfo</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the decode capability flags include
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> but not
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code>, then in
+order to query video format properties for decode DPB and output usage,
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> include
+both <code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> and
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>.
 Otherwise, the call will fail with
 <code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
 </div>
 <div class="paragraph">
-<p>If an implementation reports
-<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> is
-supported but
-<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code> is not
-supported in <a href="VkVideoDecodeCapabilitiesKHR.html">VkVideoDecodeCapabilitiesKHR</a>::<code>flags</code>, then to query
-for video format properties for decode DPB,
-<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> set and
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> not set.
+<p>If the decode capability flags include
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR</code> but not
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code>, then in
+order to query video format properties for decode DPB usage,
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> include
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>, but not
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>.
 Otherwise, the call will fail with
 <code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.
-Similarly, to query for video format properties for decode output,
-<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> have
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> set and
-<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code> not set.
+Similarly, to query video format properties for decode output usage,
+<a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code> <strong class="purple">must</strong> include
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>, but not
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>.
 Otherwise, the call will fail with
 <code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
 </div>
@@ -936,30 +965,6 @@ flags <strong class="purple">can</strong> be set.</p>
 </table>
 </div>
 <div class="paragraph">
-<p>Video format properties are always queried with respect to a specific set of
-video profiles, as defined by the <a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a> structure.
-These are specified by chaining the <a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a>
-structure to <code>pVideoFormatInfo</code>.</p>
-</div>
-<div class="paragraph">
-<p>For most use cases, the images are used by a single video session and a
-single video profile is provided.
-For a use case such as transcode, where a decode session output image <strong class="purple">can</strong>
-be used as encode input in one or more encode sessions, multiple video
-profiles corresponding to the video sessions that will share the image <strong class="purple">must</strong>
-be provided.</p>
-</div>
-<div class="paragraph">
-<p>If any of the profiles specified via
-<a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a>::<code>pProfiles</code> are not supported, then
-<code>vkGetPhysicalDeviceVideoFormatPropertiesKHR</code> returns one of the
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-error-codes" target="_blank" rel="noopener">video-profile-specific error codes</a>.
-Furthermore, if <a href="VkPhysicalDeviceVideoFormatInfoKHR.html">VkPhysicalDeviceVideoFormatInfoKHR</a>::<code>imageUsage</code>
-includes any image usage flags not supported by the specified video profiles
-then <code>vkGetPhysicalDeviceVideoFormatPropertiesKHR</code> returns
-<code>VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR</code>.</p>
-</div>
-<div class="paragraph">
 <p>Multiple <code>VkVideoFormatPropertiesKHR</code> entries <strong class="purple">may</strong> be returned with the
 same <code>format</code> member with different <code>componentMapping</code>,
 <code>imageType</code>, or <code>imageTiling</code> values, as described later.</p>
@@ -991,7 +996,7 @@ entries and adding the same <a href="VkVideoProfileListInfoKHR.html">VkVideoProf
 <div class="paragraph">
 <p>The <code>componentMapping</code> member of <code>VkVideoFormatPropertiesKHR</code>
 defines the ordering of the Y′C<sub>B</sub>C<sub>R</sub> color channels from the perspective of
-the video codec operations specified in <code>VkVideoProfileListInfoKHR</code>.
+the video codec operations specified in <a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a>.
 For example, if the implementation produces video decode output with the
 format <code>VK_FORMAT_G8_B8R8_2PLANE_420_UNORM</code> where the blue and red
 chrominance channels are swapped then the <code>componentMapping</code> member of
@@ -1014,7 +1019,7 @@ components.a = VK_COMPONENT_SWIZZLE_IDENTITY; // unused, defaults to 1.0</code><
 <li>
 <p><a id="VUID-vkGetPhysicalDeviceVideoFormatPropertiesKHR-pNext-06812"></a> <span class="vuid">VUID-vkGetPhysicalDeviceVideoFormatPropertiesKHR-pNext-06812</span><br>
 
-The <code>pNext</code> chain of <code>pVideoFormatInfo</code> <strong class="purple">must</strong> include a valid
+The <code>pNext</code> chain of <code>pVideoFormatInfo</code> <strong class="purple">must</strong> include a
 <a href="VkVideoProfileListInfoKHR.html">VkVideoProfileListInfoKHR</a> structure with <code>profileCount</code>
 greater than <code>0</code></p>
 </li>
@@ -1133,8 +1138,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.237<br>
-Last updated 2022-12-08 05:40:35 -0800
+Version 1.3.238<br>
+Last updated 2022-12-18 23:43:00 -0800
 </div>
 </div>
 

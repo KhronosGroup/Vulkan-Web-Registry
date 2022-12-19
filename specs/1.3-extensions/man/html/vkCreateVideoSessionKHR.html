@@ -830,22 +830,19 @@ VkResult vkCreateVideoSessionKHR(
 <div class="ulist">
 <ul>
 <li>
-<p><code>device</code> is the logical device that creates the decode or encode
-session object.</p>
+<p><code>device</code> is the logical device that creates the video session.</p>
 </li>
 <li>
 <p><code>pCreateInfo</code> is a pointer to a <a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>
-structure containing parameters specifying the creation of the decode or
-encode session.</p>
+structure containing parameters to be used to create the video session.</p>
 </li>
 <li>
 <p><code>pAllocator</code> controls host memory allocation as described in the
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#memory-allocation" target="_blank" rel="noopener">Memory Allocation</a> chapter.</p>
 </li>
 <li>
-<p><code>pVideoSession</code> is a pointer to a <a href="VkVideoSessionKHR.html">VkVideoSessionKHR</a> structure
-specifying the decode or encode video session object which will be
-created by this function when it returns <code>VK_SUCCESS</code></p>
+<p><code>pVideoSession</code> is a pointer to a <a href="VkVideoSessionKHR.html">VkVideoSessionKHR</a> handle in
+which the resulting video session object is returned.</p>
 </li>
 </ul>
 </div>
@@ -855,11 +852,63 @@ created by this function when it returns <code>VK_SUCCESS</code></p>
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>The resulting video session object is said to be created with the video
+codec operation specified in
+<code>pCreateInfo-&gt;pVideoProfile-&gt;videoCodecOperation</code>.</p>
+</div>
+<div class="paragraph">
+<p>The name and version of the codec-specific Video Std header to be used with
+the video session is specified by the <a href="VkExtensionProperties.html">VkExtensionProperties</a> structure
+pointed to by <code>pCreateInfo-&gt;pStdHeaderVersion</code>.
+If a non-existent or unsupported Video Std header version is specified in
+<code>pCreateInfo-&gt;pStdHeaderVersion-&gt;specVersion</code>, then this command returns
+<code>VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR</code>.</p>
+</div>
+<div id="video-session-uninitialized" class="paragraph">
 <p>Video session objects are created in <em>uninitialized</em> state.
 In order to transition the video session into <em>initial</em> state, the
-application <strong class="purple">must</strong> issue a <a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> command with the
-<code>flags</code> member of <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> including
+application <strong class="purple">must</strong> issue a <a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> command with
+<a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a>::<code>flags</code> including
 <code>VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>Video session objects also maintain the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-state-and-backing-store" target="_blank" rel="noopener">state</a> of the DPB.
+The number of DPB slots usable with the created video session is specified
+in <code>pCreateInfo-&gt;maxDpbSlots</code>, and each slot is initially in the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot-states" target="_blank" rel="noopener">inactive state</a>.</p>
+</div>
+<div class="paragraph">
+<p>Each <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB slot</a> maintained by the created video session <strong class="purple">can</strong>
+refer to a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">reference picture</a> representing a video
+frame.</p>
+</div>
+<div id="decode-h264-interlaced-support" class="paragraph">
+<p>In addition, if the <code>videoCodecOperation</code> member of the
+<a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a> structure pointed to by
+<code>pCreateInfo-&gt;pVideoProfile</code> is
+<code>VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR</code> and the
+<code>pictureLayout</code> member of the <a href="VkVideoDecodeH264ProfileInfoKHR.html">VkVideoDecodeH264ProfileInfoKHR</a>
+structure provided in the <a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a>::<code>pNext</code> chain is
+not <code>VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR</code>, then the
+created video session supports <em>interlaced</em> frames and each <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB
+slot</a> maintained by the created video session <strong class="purple">can</strong> instead refer to
+separate top field and bottom field <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">reference pictures</a>
+that together <strong class="purple">can</strong> represent a full video frame.
+In this case, it is up to the application, driven by the video content,
+whether it associates any individual DPB slot with separate top and/or
+bottom field pictures or a single picture representing a full frame.</p>
+</div>
+<div class="paragraph">
+<p>The created video session <strong class="purple">can</strong> be used to perform video coding operations
+using video frames up to the maximum size specified in
+<code>pCreateInfo-&gt;maxCodedExtent</code>.
+The minimum frame size allowed is implicitly derived from
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minCodedExtent</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile
+specified by <code>pCreateInfo-&gt;pVideoProfile</code>.
+Accordingly, the created video session is said to be created with a
+<code>minCodedExtent</code> equal to that.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -960,8 +1009,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.237<br>
-Last updated 2022-12-08 05:40:35 -0800
+Version 1.3.238<br>
+Last updated 2022-12-18 23:43:00 -0800
 </div>
 </div>
 

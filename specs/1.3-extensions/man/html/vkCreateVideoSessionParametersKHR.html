@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>vkCreateVideoSessionParametersKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>vkCreateVideoSessionParametersKHR - Creates video session video session parameter object</p>
+<p>vkCreateVideoSessionParametersKHR - Creates video session parameters object</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -830,13 +830,13 @@ VkResult vkCreateVideoSessionParametersKHR(
 <div class="ulist">
 <ul>
 <li>
-<p><code>device</code> is the logical device that was used for the creation of the
-video session object.</p>
+<p><code>device</code> is the logical device that creates the video session
+parameters object.</p>
 </li>
 <li>
 <p><code>pCreateInfo</code> is a pointer to
-<a href="VkVideoSessionParametersCreateInfoKHR.html">VkVideoSessionParametersCreateInfoKHR</a> structure specifying the
-video session parameters.</p>
+<a href="VkVideoSessionParametersCreateInfoKHR.html">VkVideoSessionParametersCreateInfoKHR</a> structure containing
+parameters to be used to create the video session parameters object.</p>
 </li>
 <li>
 <p><code>pAllocator</code> controls host memory allocation as described in the
@@ -844,8 +844,8 @@ video session parameters.</p>
 </li>
 <li>
 <p><code>pVideoSessionParameters</code> is a pointer to a
-<a href="VkVideoSessionParametersKHR.html">VkVideoSessionParametersKHR</a> handle in which the video session
-parameters object is returned.</p>
+<a href="VkVideoSessionParametersKHR.html">VkVideoSessionParametersKHR</a> handle in which the resulting video
+session parameters object is returned.</p>
 </li>
 </ul>
 </div>
@@ -854,6 +854,152 @@ parameters object is returned.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>The resulting video session parameters object is said to be created with the
+video codec operation <code>pCreateInfo-&gt;videoSession</code> was created with.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then it will be used as a template for constructing
+the new video session parameters object.
+This happens by first adding any parameters according to the additional
+creation parameters provided in the <code>pCreateInfo-&gt;pNext</code> chain, followed
+by adding any parameters from the template object that have a key that does
+not match the key of any of the already added parameters.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pCreateInfo-&gt;videoSession</code> was created with the video codec
+operation <code>VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR</code>, then the
+created video session parameters object will initially contain the following
+sets of parameter entries:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>StdVideoH264SequenceParameterSet</code> structures representing
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h264-sps" target="_blank" rel="noopener">H.264 SPS</a> entries, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>pParametersAddInfo</code> member of the
+<a href="VkVideoDecodeH264SessionParametersCreateInfoKHR.html">VkVideoDecodeH264SessionParametersCreateInfoKHR</a> structure
+provided in the <code>pCreateInfo-&gt;pNext</code> chain is not <code>NULL</code>, then the
+set of <code>StdVideoH264SequenceParameterSet</code> entries specified in
+<code>pParametersAddInfo-&gt;pStdSPSs</code> are added first;</p>
+</li>
+<li>
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then each <code>StdVideoH264SequenceParameterSet</code>
+entry stored in it is copied to the created video session parameters
+object if the created object does not already contain such an entry
+with the same <code>seq_parameter_set_id</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>StdVideoH264PictureParameterSet</code> structures representing
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h264-pps" target="_blank" rel="noopener">H.264 PPS</a> entries, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>pParametersAddInfo</code> member of the
+<a href="VkVideoDecodeH264SessionParametersCreateInfoKHR.html">VkVideoDecodeH264SessionParametersCreateInfoKHR</a> structure
+provided in the <code>pCreateInfo-&gt;pNext</code> chain is not <code>NULL</code>, then the
+set of <code>StdVideoH264PictureParameterSet</code> entries specified in
+<code>pParametersAddInfo-&gt;pStdPPSs</code> are added first;</p>
+</li>
+<li>
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then each <code>StdVideoH264PictureParameterSet</code>
+entry stored in it is copied to the created video session parameters
+object if the created object does not already contain such an entry
+with the same <code>seq_parameter_set_id</code> and
+<code>pic_parameter_set_id</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pCreateInfo-&gt;videoSession</code> was created with the video codec
+operation <code>VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR</code>, then the
+created video session parameters object will initially contain the following
+sets of parameter entries:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>StdVideoH265VideoParameterSet</code> structures representing
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h265-vps" target="_blank" rel="noopener">H.264 VPS</a> entries, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>pParametersAddInfo</code> member of the
+<a href="VkVideoDecodeH265SessionParametersCreateInfoKHR.html">VkVideoDecodeH265SessionParametersCreateInfoKHR</a> structure
+provided in the <code>pCreateInfo-&gt;pNext</code> chain is not <code>NULL</code>, then the
+set of <code>StdVideoH265VideoParameterSet</code> entries specified in
+<code>pParametersAddInfo-&gt;pStdVPSs</code> are added first;</p>
+</li>
+<li>
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then each <code>StdVideoH265VideoParameterSet</code>
+entry stored in it is copied to the created video session parameters
+object if the created object does not already contain such an entry
+with the same <code>vps_video_parameter_set_id</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>StdVideoH265SequenceParameterSet</code> structures representing
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h265-sps" target="_blank" rel="noopener">H.265 SPS</a> entries, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>pParametersAddInfo</code> member of the
+<a href="VkVideoDecodeH265SessionParametersCreateInfoKHR.html">VkVideoDecodeH265SessionParametersCreateInfoKHR</a> structure
+provided in the <code>pCreateInfo-&gt;pNext</code> chain is not <code>NULL</code>, then the
+set of <code>StdVideoH265SequenceParameterSet</code> entries specified in
+<code>pParametersAddInfo-&gt;pStdSPSs</code> are added first;</p>
+</li>
+<li>
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then each <code>StdVideoH265SequenceParameterSet</code>
+entry stored in it is copied to the created video session parameters
+object if the created object does not already contain such an entry
+with the same <code>sps_video_parameter_set_id</code> and
+<code>sps_seq_parameter_set_id</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>StdVideoH265PictureParameterSet</code> structures representing
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-h265-pps" target="_blank" rel="noopener">H.265 PPS</a> entries, as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>pParametersAddInfo</code> member of the
+<a href="VkVideoDecodeH265SessionParametersCreateInfoKHR.html">VkVideoDecodeH265SessionParametersCreateInfoKHR</a> structure
+provided in the <code>pCreateInfo-&gt;pNext</code> chain is not <code>NULL</code>, then the
+set of <code>StdVideoH265PictureParameterSet</code> entries specified in
+<code>pParametersAddInfo-&gt;pStdPPSs</code> are added first;</p>
+</li>
+<li>
+<p>If <code>pCreateInfo-&gt;videoSessionParametersTemplate</code> is not
+<code>VK_NULL_HANDLE</code>, then each <code>StdVideoH265PictureParameterSet</code>
+entry stored in it is copied to the created video session parameters
+object if the created object does not already contain such an entry
+with the same <code>sps_video_parameter_set_id</code>,
+<code>pps_seq_parameter_set_id</code>, and <code>pps_pic_parameter_set_id</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage (Implicit)</div>
@@ -899,16 +1045,13 @@ parameters object is returned.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
-</li>
-<li>
 <p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
 </li>
 <li>
 <p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
 </li>
 <li>
-<p><code>VK_ERROR_TOO_MANY_OBJECTS</code></p>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
 </li>
 </ul>
 </div>
@@ -953,8 +1096,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.237<br>
-Last updated 2022-12-08 05:40:35 -0800
+Version 1.3.238<br>
+Last updated 2022-12-18 23:43:00 -0800
 </div>
 </div>
 
