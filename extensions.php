@@ -169,6 +169,7 @@
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_physical_device_drm.html"> VK_EXT_physical_device_drm </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_cache_control.html"> VK_EXT_pipeline_creation_cache_control </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_creation_feedback.html"> VK_EXT_pipeline_creation_feedback </a> </li>
+    <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_library_group_handles.html"> VK_EXT_pipeline_library_group_handles </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_properties.html"> VK_EXT_pipeline_properties </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_protected_access.html"> VK_EXT_pipeline_protected_access </a> </li>
     <li> <a href="specs/1.2-extensions/man/html/VK_EXT_pipeline_robustness.html"> VK_EXT_pipeline_robustness </a> </li>
