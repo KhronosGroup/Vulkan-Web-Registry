@@ -1052,9 +1052,9 @@ pre.rouge .w {
 <h1>The Khronos<sup>®</sup> Vulkan<sup>®</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.3.240,</span>
-<span id="revdate">2023-01-26 08:58:52Z</span>
-<br><span id="revremark">from git branch: github-main commit: b33bd816a24012b0ac51e8b05567cc221171ccf1</span>
+<span id="revnumber">version 1.3.241,</span>
+<span id="revdate">2023-02-16 10:18:50Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1b1c4dd43a35341c8c8e82ad985ed66d8beff5ba</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1310,7 +1310,7 @@ pre.rouge .w {
 <div class="sectionbody">
 <div style="page-break-after: always;"></div>
 <div class="paragraph">
-<p>Copyright 2014-2022 The Khronos Group Inc.</p>
+<p>Copyright 2014-2023 The Khronos Group Inc.</p>
 </div>
 <div class="paragraph">
 <p>SPDX-License-Identifier: CC-BY-4.0</p>
@@ -1953,6 +1953,23 @@ and <code>union</code>, as described below.</p>
 Arbitrary string (unused).</p>
 </li>
 <li>
+<p><code>deprecated</code> - optional.
+Indicates that this type has been deprecated.
+Possible values are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>"true"</code> - deprecated, but no explanation given.</p>
+</li>
+<li>
+<p><code>"aliased"</code> - an old name not following Vulkan conventions.
+The equivalent alias following Vulkan conventions should be used
+instead.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
 <p><code>parent</code> - only applicable if <code>"category"</code> is <code>handle</code>.
 Notes another type with the <code>handle</code> category that acts as a parent
 object for this type.</p>
@@ -2059,6 +2076,22 @@ It is a comma separated list that has size equal to only the <code>latexmath</co
 item count in <code>len</code> list.
 This attribute is intended to support consumers of the XML who need to
 generate validation code from the allowed length.</p>
+</li>
+<li>
+<p><code>deprecated</code> - optional.
+Indicates that this member has been deprecated.
+Possible values are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>"true"</code> - deprecated, but no explanation given.</p>
+</li>
+<li>
+<p><code>"ignored"</code> - functionality described by this member no longer
+operates.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><code>externsync</code> - denotes that the member should be externally
@@ -2492,6 +2525,26 @@ may have different values for the same token.
 This definition is only used if the requested API name matches the
 attribute.
 May be used to address subtle incompatibilities.</p>
+</li>
+<li>
+<p><code>deprecated</code> - optional.
+Indicates that this enum has been deprecated.
+Possible values are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>"true"</code> - deprecated, but no explanation given.</p>
+</li>
+<li>
+<p><code>"ignored"</code> - functionality described by this enum no longer operates.</p>
+</li>
+<li>
+<p><code>"aliased"</code> - an old name not following Vulkan conventions.
+The equivalent alias following Vulkan conventions should be used
+instead.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><code>type</code> - may be used only when <code>value</code> is specified.
@@ -3257,16 +3310,64 @@ attribute just like <code>author</code>.</p>
 Must be either <code>'device'</code> or <code>'instance'</code>, if present.</p>
 </li>
 <li>
-<p><code>requires</code> - optional.
-Comma-separated list of extension names this extension requires to be
-enabled to use any device-level functionality it provides.
-Extensions whose <code>type</code> is <code>'instance'</code> must not require extensions
-whose <code>type</code> is <code>'device'</code>.</p>
+<p><code>depends</code> - optional.
+String containing a boolean expression of one or more API core version
+and extension names.
+The extension requires the expression in the string to be satisfied to
+use any functionality it defines (for instance extensions), or to use
+any device-level functionality it provides (for device extensions).
+Supported operators include <code>,</code> for logical OR, <code>+</code> for logical AND, and
+<code>(</code> <code>)</code> for grouping.
+Terms which are core version names are true if the corresponding
+API version is supported.
+Terms which are extension names are true if the corresponding extension
+is enabled.</p>
+<div class="openblock">
+<div class="content">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>depends</code> is a breaking change in Vulkan 1.3.241, replacing the
+<code>requires</code> and <code>requiresCore</code> attributes.
+For example, an extension which previously specified these two attributes in
+<code>vk.xml</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>requires="VK_KHR_dep_a,VK_EXT_dep_b"</code></p>
 </li>
 <li>
-<p><code>requiresCore</code> - optional.
-Core version of Vulkan required by the extension, e.g. "1.1".
-Defaults to "1.0".</p>
+<p><code>requiresCore="1.1"</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>should replace them both with</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>depends="VK_VERSION_1_1+VK_KHR_dep_a+VK_EXT_dep_b"</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Note that the use of <code>,</code> in the old <code>requires</code> attribute was treated as a
+logical AND, and must be replaced by <code>+</code> in the <code>depends</code> attribute.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p><code>protect</code> - optional.
@@ -3363,14 +3464,14 @@ Arbitrary string (unused).</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>The <code>requires</code> attribute is used to specify other extensions that <strong>must</strong>
+<p>The <code>depends</code> attribute is used to specify other extensions that <strong>must</strong>
 be enabled for an extension to be enabled.</p>
 </div>
 <div class="paragraph">
 <p>In some cases, an extension may include functionality which is only defined
 <strong>if</strong> another extension is enabled.
-Such functionality should be specified within a <code>require</code>, using the
-<code>extension</code> attribute to specify that extension.</p>
+Such functionality should be specified within a <code>require</code> tag, using the
+<code>depends</code> attribute to specify that extension.</p>
 </div>
 </td>
 </tr>
@@ -3507,23 +3608,14 @@ If not specified, interfaces are required (or removed) for all APIs.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>extension</code> - optional, and only for <code>require</code> tags.
-String containing one or more API extension names separated by <code>,</code> or
-<code>+</code>.
-Interfaces in the tag are only required if enabled extensions satisfy
-the logical expression in the string, where <code>,</code> is interpreted as a
-logical OR and '+' as a logical AND.
-Each extension name in the string must match the <code>name</code> of a
-<code>extension</code> tag.</p>
-</li>
-<li>
-<p><code>feature</code> - optional, and only for <code>require</code> tags.
-String containing an API feature name.
-Interfaces in the tag are only required if the string matches the
-<code>name</code> of a <code>feature</code> tag, and that feature is enabled.</p>
-</li>
-</ul>
-</div>
+<p><code>depends</code> - optional, and only for <code>require</code> tags.
+String containing a boolean expression of one or more API core version
+and extension names.
+The syntax of this string is identical to that of the <code>extension</code>
+<code>depends</code> attribute.
+Interfaces in the tag are only required if the expression is satisfied.</p>
+<div class="openblock">
+<div class="content">
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -3533,14 +3625,17 @@ Interfaces in the tag are only required if the string matches the
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>The <code>extension</code> attribute currently does not affect output generators in
-any way, and is simply metadata.
-This will be addressed as we better define different types of dependencies
-between extensions.</p>
+<p><code>depends</code> is a breaking change in Vulkan 1.3.241, replacing the
+<code>extension</code> and <code>feature</code> attributes.</p>
 </div>
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
@@ -4445,22 +4540,18 @@ So you must introduce a dependency on new features in the corresponding
 <code>feature</code> tag.</p>
 </div>
 <div class="paragraph">
-<p>Initially, the only API feature is Vulkan 1.0, so there is only one
-<code>feature</code> tag in <code>vk.xml</code>.
-You can find it by searching for the following block of <code>vk.xml</code>:</p>
+<p>There are multiple API versions defined for Vulkan at this time.
+The initial Vulkan 1.0 tag can be found by searching for</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;comment&gt;</span>
-<span class="nt">&lt;feature</span> <span class="na">api=</span><span class="s">"vulkan"</span> <span class="na">name=</span><span class="s">"VK_VERSION_1_0"</span> <span class="na">number=</span><span class="s">"1.0"</span>
-         <span class="na">comment=</span><span class="s">"Vulkan core API interface definitions"</span><span class="nt">&gt;</span></code></pre>
+<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;feature</span> <span class="na">api=</span><span class="s">"vulkan"</span> <span class="na">name=</span><span class="s">"VK_VERSION_1_0"</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Inside the <code>feature</code> tag are nested multiple <code>require</code> tags.
-These are just being used as a logical grouping mechanism for related parts
-of Vulkan 1.0 at present, though they may have more meaningful roles in the
-future if different API profiles are defined.</p>
+<p>Inside a <code>feature</code> tag are multiple <code>require</code> tags.
+Some of these tags are used to express extension interactions, and others
+only as a logical grouping mechanism for related parts of that API feature.</p>
 </div>
 <div class="sect3">
 <h4 id="_api_feature_walkthrough"><a class="anchor" href="#_api_feature_walkthrough"></a>30.2.1. API Feature Walkthrough</h4>
@@ -4630,7 +4721,7 @@ used in the header.</p>
 <span class="cp">#endif
 </span>
 <span class="cm">/*
-** Copyright 2015-2022 The Khronos Group Inc.
+** Copyright 2015-2023 The Khronos Group Inc.
     ...
 */</span>
 
@@ -5267,6 +5358,17 @@ Changes to the <code>.xml</code> files and Python scripts are logged in Github h
 <div class="ulist">
 <ul>
 <li>
+<p>2023-02-14 - replace <code>extension</code> attributes <code>requiresCore</code> and
+<code>requires</code>, and <code>require</code> attributes <code>feature</code> and
+<code>extension</code>, by a new <code>depends</code> attribute. This is an intentional
+breaking change to support a more flexible and consistent expression
+syntax for these dependencies (internal issues 2883, 3272).</p>
+</li>
+<li>
+<p>2023-01-11 - add <code>deprecated</code> attribute to <code>enum</code>, <code>type</code>,
+and <code>type</code> <code>member</code> tags.</p>
+</li>
+<li>
 <p>2022-11-23 - update <code>command</code> <code>queues</code> syntax to include all queue
 types currently in use.</p>
 </li>
@@ -5571,8 +5673,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.240<br>
-Last updated 2022-12-01 03:52:16 -0800
+Version 1.3.241<br>
+Last updated 2023-02-16 01:34:18 -0800
 </div>
 </div>
 

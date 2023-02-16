@@ -3,8 +3,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
-<meta name="author" content="The Khronos® Vulkan Working Group">
-<title>Vulkan® 1.3.240 - A Specification (with all registered Vulkan extensions)</title>
+<meta name="author" content="The Khronos® Vulkan  Working Group">
+<title>Vulkan® 1.3.241 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.240 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.241 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
-<span id="author" class="author">The Khronos<sup>®</sup> Vulkan Working Group</span><br>
-<span id="revnumber">version 1.3.240,</span>
-<span id="revdate">2023-01-26 08:42:09Z</span>
-<br><span id="revremark">from git branch: github-main commit: b33bd816a24012b0ac51e8b05567cc221171ccf1</span>
+<span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
+<span id="revnumber">version 1.3.241,</span>
+<span id="revdate">2023-02-16 10:01:26Z</span>
+<br><span id="revremark">from git branch: github-main commit: 1b1c4dd43a35341c8c8e82ad985ed66d8beff5ba</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -623,6 +623,7 @@
 </li>
 <li><a href="chap54.html">Appendix E: Layers &amp; Extensions (Informative)</a>
 <ul class="sectlevel2">
+<li><a href="chap54.html#_extension_dependencies">Extension Dependencies</a></li>
 <li><a href="chap54.html#extension-appendices-list">List of Current Extensions</a></li>
 <li><a href="chap54.html#provisional-extension-appendices-list">List of Provisional Extensions</a></li>
 <li><a href="chap54.html#deprecated-extension-appendices-list">List of Deprecated Extensions</a></li>
@@ -985,9 +986,22 @@ callback to capture debug messages from a variety of Vulkan components.</p>
 <h4 id="debugging-object-debug-annotation"><a class="anchor" href="chap49.html#debugging-object-debug-annotation"></a>49.1.1. Object Debug Annotation</h4>
 <div class="paragraph">
 <p>It can be useful for an application to provide its own content relative to a
-specific Vulkan object.
-The following commands allow application developers to associate
-user-defined information with Vulkan objects.</p>
+specific Vulkan object.</p>
+</div>
+<div class="paragraph">
+<p>The following commands allow application developers to associate
+user-defined information with Vulkan objects.
+These commands are device-level commands but they <strong class="purple">may</strong> reference
+instance-level objects (such as <a href="chap4.html#VkInstance">VkInstance</a>) and physical device-level
+objects (such as <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a>) with a few restrictions:
+  * The data for the corresponding object <strong class="purple">may</strong> still be available after the
+    <a href="chap5.html#VkDevice">VkDevice</a> used in the corresponding API call to set it is
+    destroyed, but access to this data is not guaranteed and should be
+    avoided.
+  * Subsequent calls to change the data of the same object across multiple
+    <code>VkDevice</code> objects, <strong class="purple">may</strong> result in the data being changed to the
+    most recent version for all <code>VkDevice</code> objects and not just the
+    <code>VkDevice</code> used in the most recent API call.</p>
 </div>
 <div class="sect4">
 <h5 id="debugging-object-naming"><a class="anchor" href="chap49.html#debugging-object-naming"></a>Object Naming</h5>
@@ -1008,7 +1022,8 @@ user-defined information with Vulkan objects.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>device</code> is the device that created the object.</p>
+<p><code>device</code> is the device that is associated with the named object
+passed in via <code>objectHandle</code>.</p>
 </li>
 <li>
 <p><code>pNameInfo</code> is a pointer to a <a href="chap49.html#VkDebugUtilsObjectNameInfoEXT">VkDebugUtilsObjectNameInfoEXT</a>
@@ -1030,6 +1045,29 @@ structure specifying parameters of the name to set on the object.</p>
 <p><a id="VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-02588" href="chap49.html#VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-02588"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-02588</span><br>
 
 <code>pNameInfo-&gt;objectHandle</code> <strong class="purple">must</strong> not be <a href="chap56.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+</li>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07872" href="chap49.html#VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07872"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07872</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of an
+instance-level object, the <a href="chap5.html#VkDevice">VkDevice</a> identified by <code>device</code>
+<strong class="purple">must</strong> be a descendent of the same <a href="chap4.html#VkInstance">VkInstance</a> as the object
+identified by <code>pNameInfo-&gt;pname</code>:objectHandle</p>
+</li>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07873" href="chap49.html#VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07873"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07873</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of a
+physical-device-level object, the <a href="chap5.html#VkDevice">VkDevice</a> identified by
+<code>device</code> <strong class="purple">must</strong> be a descendant of the same <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a> as
+the object identified by <code>pNameInfo-&gt;pname</code>:objectHandle</p>
+</li>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07874" href="chap49.html#VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07874"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectNameEXT-pNameInfo-07874</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of a
+device-level object, that object <strong class="purple">must</strong> be a descendent of the
+<a href="chap5.html#VkDevice">VkDevice</a> identified by <code>device</code></p>
 </li>
 </ul>
 </div>
@@ -1235,6 +1273,38 @@ attached to it to aid in offline shader tracing.</p>
 structure specifying parameters of the tag to attach to the object.</p>
 </li>
 </ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07875" href="chap49.html#VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07875"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07875</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of an
+instance-level object, the <a href="chap5.html#VkDevice">VkDevice</a> identified by <code>device</code>
+<strong class="purple">must</strong> be a descendent of the same <a href="chap4.html#VkInstance">VkInstance</a> as the object
+identified by <code>pNameInfo-&gt;pname</code>:objectHandle</p>
+</li>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07876" href="chap49.html#VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07876"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07876</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of a
+physical-device-level object, the <a href="chap5.html#VkDevice">VkDevice</a> identified by
+<code>device</code> <strong class="purple">must</strong> be a descendant of the same <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a> as
+the object identified by <code>pNameInfo-&gt;pname</code>:objectHandle</p>
+</li>
+<li>
+<p><a id="VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07877" href="chap49.html#VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07877"></a> <span class="vuid">VUID-vkSetDebugUtilsObjectTagEXT-pNameInfo-07877</span><br>
+
+If <code>pNameInfo-&gt;pname</code>:objectHandle is the valid handle of a
+device-level object, that object <strong class="purple">must</strong> be a descendent of the
+<a href="chap5.html#VkDevice">VkDevice</a> identified by <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -6254,8 +6324,8 @@ more <a href="chap49.html#VkToolPurposeFlagBits">VkToolPurposeFlagBits</a>.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.240<br>
-Last updated 2023-01-19 03:02:03 -0800
+Version 1.3.241<br>
+Last updated 2023-02-16 01:34:18 -0800
 </div>
 </div>
 
