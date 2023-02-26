@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.241 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.242 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.241 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.242 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.241,</span>
-<span id="revdate">2023-02-16 10:14:37Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1b1c4dd43a35341c8c8e82ad985ed66d8beff5ba</span>
+<span id="revnumber">version 1.2.242,</span>
+<span id="revdate">2023-02-26 11:56:02Z</span>
+<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1462,7 +1462,7 @@ is used as <code>pStencilAttachment</code>).</p>
 <div class="paragraph">
 <p>At the end of rendering, the values written to each pixel location in
 <code>imageView</code> will be resolved according to <code>resolveMode</code> and stored
-into the the same location in <code>resolveImageView</code>.</p>
+into the same location in <code>resolveImageView</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4138,13 +4138,25 @@ stage mask</a></p>
 </div>
 <div class="paragraph">
 <p>If <code>srcSubpass</code> is equal to <code>dstSubpass</code> then the
-<a href="chap8.html#VkSubpassDependency">VkSubpassDependency</a> describes a
-<a href="chap7.html#synchronization-pipeline-barriers-subpass-self-dependencies">subpass
-self-dependency</a>, and only constrains the pipeline barriers allowed within
-a subpass instance.
-Otherwise, when a render pass instance which includes a subpass dependency
-is submitted to a queue, it defines a memory dependency between the
-subpasses identified by <code>srcSubpass</code> and <code>dstSubpass</code>.</p>
+<a href="chap8.html#VkSubpassDependency">VkSubpassDependency</a> does not directly define a
+<a href="chap7.html#synchronization-dependencies">dependency</a>.
+Instead, it enables pipeline barriers to be used in a render pass instance
+within the identified subpass, where the scopes of one pipeline barrier
+<strong class="purple">must</strong> be a subset of those described by one subpass dependency.
+Subpass dependencies specified in this way that include
+<a href="chap7.html#synchronization-framebuffer-regions">framebuffer-space stages</a> in the
+<code>srcStageMask</code> <strong class="purple">must</strong> only include
+<a href="chap7.html#synchronization-framebuffer-regions">framebuffer-space stages</a> in
+<code>dstStageMask</code>, and <strong class="purple">must</strong> include <code>VK_DEPENDENCY_BY_REGION_BIT</code>.
+When a subpass dependency is specified in this way for a subpass that has
+more than one view in its view mask, its <code>dependencyFlags</code> <strong class="purple">must</strong> include
+<code>VK_DEPENDENCY_VIEW_LOCAL_BIT</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>srcSubpass</code> and <code>dstSubpass</code> are not equal, when a render pass
+instance which includes a subpass dependency is submitted to a queue, it
+defines a <a href="chap7.html#synchronization-dependencies">dependency</a> between the subpasses
+identified by <code>srcSubpass</code> and <code>dstSubpass</code>.</p>
 </div>
 <div class="paragraph">
 <p>If <code>srcSubpass</code> is equal to <code>VK_SUBPASS_EXTERNAL</code>, the first
@@ -4623,14 +4635,12 @@ attachment only, and the depth/stencil attachment is not written to.</p>
 <li>
 <p>If a memory dependency is inserted between when the attachment is
 written and when it is subsequently read by later fragments.
-<a href="chap7.html#synchronization-pipeline-barriers">Pipeline barriers</a> expressing a
-<a href="chap7.html#synchronization-pipeline-barriers-subpass-self-dependencies">subpass
-self-dependency</a> are the only way to achieve this, and one <strong class="purple">must</strong> be
-inserted every time a fragment will read values at a particular sample
-(x, y, layer, sample) coordinate, if those values have been written
-since the most recent pipeline barrier; or since the start of the
-subpass, if there have been no pipeline barriers since the start of the
-subpass.</p>
+<a href="chap7.html#synchronization-pipeline-barriers">Pipeline barriers</a> are the only
+way to achieve this, and one <strong class="purple">must</strong> be inserted every time a fragment
+will read values at a particular sample (x, y, layer, sample)
+coordinate, if those values have been written since the most recent
+pipeline barrier; or since the start of the subpass, if there have been
+no pipeline barriers since the start of the subpass.</p>
 </li>
 </ul>
 </div>
@@ -10111,8 +10121,8 @@ structure.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.241<br>
-Last updated 2023-02-16 01:34:18 -0800
+Version 1.2.242<br>
+Last updated 2023-02-22 21:37:35 -0800
 </div>
 </div>
 

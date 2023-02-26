@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.241 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.3.242 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.241 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.242 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.241,</span>
-<span id="revdate">2023-02-16 10:08:36Z</span>
-<br><span id="revremark">from git branch: github-main commit: 1b1c4dd43a35341c8c8e82ad985ed66d8beff5ba</span>
+<span id="revnumber">version 1.3.242,</span>
+<span id="revdate">2023-02-26 11:50:26Z</span>
+<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1219,17 +1219,57 @@ as it is more efficient on some implementations.</p>
 <p>If any attachment’s <code>aspectMask</code> to be cleared is not backed by an image
 view, the clear has no effect on that aspect.</p>
 </div>
+<div class="paragraph">
+<p>If an attachment being cleared refers to an image view created with an
+<code>aspectMask</code> equal to one of <code>VK_IMAGE_ASPECT_PLANE_0_BIT</code>,
+<code>VK_IMAGE_ASPECT_PLANE_1_BIT</code> or <code>VK_IMAGE_ASPECT_PLANE_2_BIT</code>, it
+is considered to be <code>VK_IMAGE_ASPECT_COLOR_BIT</code> for purposes of this
+command, and <strong class="purple">must</strong> be cleared with the <code>VK_IMAGE_ASPECT_COLOR_BIT</code>
+aspect as specified by <a href="chap12.html#image-views-plane-promotion">image view creation</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdClearAttachments-pAttachments-07270" href="chap18.html#VUID-vkCmdClearAttachments-pAttachments-07270"></a> <span class="vuid">VUID-vkCmdClearAttachments-pAttachments-07270</span><br>
+<p><a id="VUID-vkCmdClearAttachments-aspectMask-07882" href="chap18.html#VUID-vkCmdClearAttachments-aspectMask-07882"></a> <span class="vuid">VUID-vkCmdClearAttachments-aspectMask-07882</span><br>
 
-For each element of <code>pAttachments</code>, the corresponding attachment in
-the current render pass instance <strong class="purple">must</strong> either not be backed by an image
-view, or contain each of the aspects specified in <code>aspectMask</code></p>
+If the current render pass instance uses dynamic rendering, the
+<code>aspectMask</code> member of any element of <code>pAttachments</code> contains
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code>,
+<a href="chap8.html#VkRenderingInfo">VkRenderingInfo</a>::<code>pDepthAttachment</code> is not <code>NULL</code>, and
+<code>pDepthAttachment-&gt;imageView</code> is not <a href="chap49.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the
+render pass <code>format</code> <strong class="purple">must</strong> contain a depth aspect</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdClearAttachments-aspectMask-07883" href="chap18.html#VUID-vkCmdClearAttachments-aspectMask-07883"></a> <span class="vuid">VUID-vkCmdClearAttachments-aspectMask-07883</span><br>
+
+If the current render pass instance uses dynamic rendering, the
+<code>aspectMask</code> member of any element of <code>pAttachments</code> contains
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code>,
+<a href="chap8.html#VkRenderingInfo">VkRenderingInfo</a>::<code>pStencilAttachment</code> is not <code>NULL</code>, and
+<code>pStencilAttachment-&gt;imageView</code> is not <a href="chap49.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the
+render pass <code>format</code> <strong class="purple">must</strong> contain a stencil aspect</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdClearAttachments-aspectMask-07884" href="chap18.html#VUID-vkCmdClearAttachments-aspectMask-07884"></a> <span class="vuid">VUID-vkCmdClearAttachments-aspectMask-07884</span><br>
+
+If the current render pass instance does not use dynamic rendering, and
+the <code>aspectMask</code> member of any element of <code>pAttachments</code>
+contains <code>VK_IMAGE_ASPECT_DEPTH_BIT</code>, the current subpass instance’s
+depth-stencil attachment <strong class="purple">must</strong> be either <code>VK_ATTACHMENT_UNUSED</code> or
+the attachment <code>format</code> <strong class="purple">must</strong> contain a depth aspect</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdClearAttachments-aspectMask-07885" href="chap18.html#VUID-vkCmdClearAttachments-aspectMask-07885"></a> <span class="vuid">VUID-vkCmdClearAttachments-aspectMask-07885</span><br>
+
+If the current render pass instance does not use dynamic rendering, and
+the <code>aspectMask</code> member of any element of <code>pAttachments</code>
+contains <code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, the current subpass
+instance’s depth-stencil attachment <strong class="purple">must</strong> be either
+<code>VK_ATTACHMENT_UNUSED</code> or the attachment <code>format</code> <strong class="purple">must</strong> contain
+a stencil aspect</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdClearAttachments-aspectMask-07271" href="chap18.html#VUID-vkCmdClearAttachments-aspectMask-07271"></a> <span class="vuid">VUID-vkCmdClearAttachments-aspectMask-07271</span><br>
@@ -2121,8 +2161,8 @@ This was a historical anomaly, as the source data may be of other types.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.241<br>
-Last updated 2023-02-16 01:34:18 -0800
+Version 1.3.242<br>
+Last updated 2023-02-22 21:37:35 -0800
 </div>
 </div>
 

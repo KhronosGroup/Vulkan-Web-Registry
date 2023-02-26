@@ -300,6 +300,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_glsl_shader.html"> VK_NV_glsl_shader </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_linear_color_attachment.html"> VK_NV_linear_color_attachment </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_low_latency.html"> VK_NV_low_latency </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_memory_decompression.html"> VK_NV_memory_decompression </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
