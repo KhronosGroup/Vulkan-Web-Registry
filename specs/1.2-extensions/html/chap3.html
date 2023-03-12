@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.242 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.243 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.242 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.243 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.242,</span>
-<span id="revdate">2023-02-26 11:55:27Z</span>
-<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
+<span id="revnumber">version 1.2.243,</span>
+<span id="revdate">2023-03-12 07:20:58Z</span>
+<br><span id="revremark">from git branch: github-main commit: 84ccde6b1b92820feee54c8b7577387b2cf1ce17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -274,7 +274,7 @@
 <li><a href="chap18.html#queries-mesh-shader">18.9. Mesh Shader Queries</a></li>
 <li><a href="chap18.html#queries-performance-intel">18.10. Intel performance queries</a></li>
 <li><a href="chap18.html#queries-result-status-only">18.11. Result Status Queries</a></li>
-<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.12. Video Encode Bitstream Buffer Range Queries</a></li>
+<li><a href="chap18.html#queries-video-encode-feedback">18.12. Video Encode Feedback Queries</a></li>
 </ul>
 </li>
 <li><a href="chap19.html">19. Clear Commands</a>
@@ -3339,7 +3339,7 @@ Specification</em>, <strong class="purple">can</strong> be <code>NULL</code>.</p
 <div class="paragraph">
 <p>Any parameter of an enumerated type <strong class="purple">must</strong> be a valid enumerant for that
 type.
-A enumerant is valid if:</p>
+Use of an enumerant is valid if the following conditions are true:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -3347,23 +3347,68 @@ A enumerant is valid if:</p>
 <p>The enumerant is defined as part of the enumerated type.</p>
 </li>
 <li>
-<p>The enumerant is not the special value (suffixed with
-<code>_MAX_ENUM</code><sup>1</sup>) defined for the enumerated type.</p>
+<p>The enumerant is not a value suffixed with <code>_MAX_ENUM</code><sup>1</sup>.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This value exists only to ensure that C <code>enum</code> types are 32 bits in
+size and <strong class="purple">must</strong> not be used by applications.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>If the enumerant is defined by an extension or core version which adds
-that value to the enumerated type, it is valid only if the corresponding
-extension is enabled, or is a supported <a href="chap44.html#device-extensions">physical
-device extension</a>; or the corresponding core version is supported.</p>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">1</dt>
-<dd>
-<p>This special value exists only to ensure that C <code>enum</code> types are 32 bits
-in size.
-It is not part of the API, and <strong class="purple">should</strong> not be used by applications.</p>
-</dd>
-</dl>
+<p>If the enumerant is used in a function that has a <a href="chap4.html#VkInstance">VkInstance</a> as
+its first parameter and either:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>it was added by a core version that is supported
+(as reported by <a href="chap4.html#vkEnumerateInstanceVersion">vkEnumerateInstanceVersion</a>)
+and the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> is greater
+than or equal to the version that added it; or</p>
+</li>
+<li>
+<p>it was added by an <a href="chap54.html">instance extension</a> that was enabled
+for the instance.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the enumerant is used in a function that has a <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a>
+object as its first parameter and either:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>it was added by a core version that is supported by that device (as
+reported by <a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code>);</p>
+</li>
+<li>
+<p>it was added by an <a href="chap54.html">instance extension</a> that was enabled
+for the instance; or</p>
+</li>
+<li>
+<p>it was added by a <a href="chap54.html">device extension</a> that is supported by
+that device.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the enumerant is used in a function that has any other dispatchable
+object as its first parameter and either:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>it was added by a core version that is supported for the device (as
+reported by <a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code>); or</p>
+</li>
+<li>
+<p>it was added by a <a href="chap54.html">device extension</a> that was enabled for
+the device.</p>
+</li>
+</ul>
 </div>
 </li>
 </ul>
@@ -3458,24 +3503,15 @@ that type, is used.</p>
 <div class="paragraph">
 <p>Any <code>Vk*Flags</code> member or parameter used in the API as an input <strong class="purple">must</strong> be
 a valid combination of bit flags.
-A valid combination is either zero or the bitwise OR of valid bit flags.
-A bit flag is valid if:</p>
+A valid combination is either zero or the bitwise OR of valid bit flags.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>The bit flag is defined as part of the <code>Vk*FlagBits</code> type, where the
-bits type is obtained by taking the flag type and replacing the trailing
-<code>Flags</code> with <code>FlagBits</code>.
-For example, a flag value of type <a href="chap30.html#VkColorComponentFlags">VkColorComponentFlags</a> <strong class="purple">must</strong>
-contain only bit flags defined by <a href="chap30.html#VkColorComponentFlagBits">VkColorComponentFlagBits</a>.</p>
-</li>
-<li>
-<p>The flag is allowed in the context in which it is being used.
-For example, in some cases, certain bit flags or combinations of bit
-flags are mutually exclusive.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>An individual bit flag is valid for a <code>Vk*Flags</code> type if it would be a
+<a href="chap3.html#fundamentals-validusage-enums">valid enumerant</a> when used with the
+equivalent <code>Vk*FlagBits</code> type, where the bits type is obtained by taking
+the flag type and replacing the trailing <code>Flags</code> with <code>FlagBits</code>.
+For example, a flag value of type <a href="chap30.html#VkColorComponentFlags">VkColorComponentFlags</a> <strong class="purple">must</strong> contain
+only bit flags defined by <a href="chap30.html#VkColorComponentFlagBits">VkColorComponentFlagBits</a>.</p>
 </div>
 <div class="paragraph">
 <p>Any <code>Vk*Flags</code> member or parameter returned from a query command or
@@ -3531,24 +3567,16 @@ that type, is used.</p>
 <div class="paragraph">
 <p>Any <code>Vk*Flags2</code> member or parameter used in the API as an input <strong class="purple">must</strong> be
 a valid combination of bit flags.
-A valid combination is either zero or the bitwise OR of valid bit flags.
-A bit flag is valid if:</p>
+A valid combination is either zero or the bitwise OR of valid bit flags.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>The bit flag is defined as part of the <code>Vk*FlagBits2</code> type, where
-the bits type is obtained by taking the flag type and replacing the
-trailing <code>Flags2</code> with <code>FlagBits2</code>.
-For example, a flag value of type <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> <strong class="purple">must</strong> contain
-only bit flags defined by <a href="chap7.html#VkAccessFlagBits2KHR">VkAccessFlagBits2KHR</a>.</p>
-</li>
-<li>
-<p>The flag is allowed in the context in which it is being used.
-For example, in some cases, certain bit flags or combinations of bit
-flags are mutually exclusive.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>An individual bit flag is valid for a <code>Vk*Flags2</code> type if it would be a
+<a href="chap3.html#fundamentals-validusage-enums">valid enumerant</a> when used with the
+equivalent <code>Vk*FlagBits2</code> type, where the bits type is obtained by
+taking the flag type and replacing the trailing <code>Flags2</code> with
+<code>FlagBits2</code>.
+For example, a flag value of type <a href="chap7.html#VkAccessFlags2KHR">VkAccessFlags2KHR</a> <strong class="purple">must</strong> contain only
+bit flags defined by <a href="chap7.html#VkAccessFlagBits2KHR">VkAccessFlagBits2KHR</a>.</p>
 </div>
 <div class="paragraph">
 <p>Any <code>Vk*Flags2</code> member or parameter returned from a query command or
@@ -3865,7 +3893,11 @@ The possible codes are:</p>
     <span class="n">VK_OPERATION_DEFERRED_KHR</span> <span class="o">=</span> <span class="mi">1000268002</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_deferred_host_operations</span>
     <span class="n">VK_OPERATION_NOT_DEFERRED_KHR</span> <span class="o">=</span> <span class="mi">1000268003</span><span class="p">,</span>
-  <span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
+</span>  <span class="c1">// Provided by VK_KHR_video_encode_queue</span>
+    <span class="n">VK_ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000299000</span><span class="p">,</span>
+<span class="cp">#endif
+</span>  <span class="c1">// Provided by VK_EXT_image_compression_control</span>
     <span class="n">VK_ERROR_COMPRESSION_EXHAUSTED_EXT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1000338000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_maintenance1</span>
     <span class="n">VK_ERROR_OUT_OF_POOL_MEMORY_KHR</span> <span class="o">=</span> <span class="n">VK_ERROR_OUT_OF_POOL_MEMORY</span><span class="p">,</span>
@@ -4080,6 +4112,14 @@ supported.</p>
 <li>
 <p><code>VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR</code> The specified video
 Std header version is not supported.</p>
+</li>
+<li>
+<p><code>VK_ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR</code> The specified Video Std
+parameters do not adhere to the syntactic or semantic requirements of
+the used video compression standard, or values derived from parameters
+according to the rules defined by the used video compression standard do
+not adhere to the capabilities of the video compression standard or the
+implementation.</p>
 </li>
 <li>
 <p><code>VK_ERROR_UNKNOWN</code> An unknown error has occurred; either the
@@ -5072,10 +5112,6 @@ Specification.</p>
 <span class="cp">#endif
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_EXT_video_encode_h264</span>
-    <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_EMIT_PICTURE_PARAMETERS_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000038006</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_EXT_video_encode_h264</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PROFILE_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000038007</span><span class="p">,</span>
 <span class="cp">#endif
 #ifdef VK_ENABLE_BETA_EXTENSIONS
@@ -5085,10 +5121,6 @@ Specification.</p>
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_EXT_video_encode_h264</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_RATE_CONTROL_LAYER_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000038009</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_EXT_video_encode_h264</span>
-    <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_REFERENCE_LISTS_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000038010</span><span class="p">,</span>
 <span class="cp">#endif
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_EXT_video_encode_h265</span>
@@ -5116,15 +5148,7 @@ Specification.</p>
 <span class="cp">#endif
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_EXT_video_encode_h265</span>
-    <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_EMIT_PICTURE_PARAMETERS_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000039006</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_EXT_video_encode_h265</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000039007</span><span class="p">,</span>
-<span class="cp">#endif
-#ifdef VK_ENABLE_BETA_EXTENSIONS
-</span>  <span class="c1">// Provided by VK_EXT_video_encode_h265</span>
-    <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_REFERENCE_LISTS_INFO_EXT</span> <span class="o">=</span> <span class="mi">1000039008</span><span class="p">,</span>
 <span class="cp">#endif
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_EXT_video_encode_h265</span>
@@ -5721,6 +5745,10 @@ Specification.</p>
 #ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_KHR_video_encode_queue</span>
     <span class="n">VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000299004</span><span class="p">,</span>
+<span class="cp">#endif
+#ifdef VK_ENABLE_BETA_EXTENSIONS
+</span>  <span class="c1">// Provided by VK_KHR_video_encode_queue</span>
+    <span class="n">VK_STRUCTURE_TYPE_QUERY_POOL_VIDEO_ENCODE_FEEDBACK_CREATE_INFO_KHR</span> <span class="o">=</span> <span class="mi">1000299005</span><span class="p">,</span>
 <span class="cp">#endif
 </span>  <span class="c1">// Provided by VK_NV_device_diagnostics_config</span>
     <span class="n">VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV</span> <span class="o">=</span> <span class="mi">1000300000</span><span class="p">,</span>
@@ -6479,8 +6507,8 @@ correct name.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.242<br>
-Last updated 2023-02-22 21:37:35 -0800
+Version 1.2.243<br>
+Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
 

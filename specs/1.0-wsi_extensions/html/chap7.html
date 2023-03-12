@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.242 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.243 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.242 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.243 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.242,</span>
-<span id="revdate">2023-02-26 12:00:47Z</span>
-<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
+<span id="revnumber">version 1.0.243,</span>
+<span id="revdate">2023-03-12 07:23:06Z</span>
+<br><span id="revremark">from git branch: github-main commit: 84ccde6b1b92820feee54c8b7577387b2cf1ce17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -243,7 +243,7 @@
 <li><a href="chap17.html#queries-timestamps">17.5. Timestamp Queries</a></li>
 <li><a href="chap17.html#queries-performance">17.6. Performance Queries</a></li>
 <li><a href="chap17.html#queries-result-status-only">17.7. Result Status Queries</a></li>
-<li><a href="chap17.html#queries-video-encode-bitstream-buffer-range">17.8. Video Encode Bitstream Buffer Range Queries</a></li>
+<li><a href="chap17.html#queries-video-encode-feedback">17.8. Video Encode Feedback Queries</a></li>
 </ul>
 </li>
 <li><a href="chap18.html">18. Clear Commands</a>
@@ -1142,11 +1142,11 @@ operations</a> for framebuffer attachments with a depth/stencil format.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT</code> specifies the
-stage of the pipeline after blending where the final color values are
-output from the pipeline.
-This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass load and
-store operations</a>, multisample resolve operations for framebuffer
-attachments with a color
+stage of the pipeline where final color values are output from the
+pipeline.
+This stage includes <a href="chap27.html#framebuffer-blending">blending</a>,
+<a href="chap27.html#framebuffer-logicop">logic operations</a>, <a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>, multisample resolve operations for
+framebuffer attachments with a color
 or depth/stencil
 format, and <a href="chap18.html#vkCmdClearAttachments">vkCmdClearAttachments</a>.</p>
 </li>
@@ -1584,16 +1584,20 @@ more <a href="chap7.html#VkPipelineStageFlagBits">VkPipelineStageFlagBits</a>.</
 <div id="synchronization-pipeline-stages-masks" class="paragraph">
 <p>If a synchronization command includes a source stage mask, its first
 <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a> only includes
-execution of the pipeline stages specified in that mask, and its first
-<a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> only includes
-memory accesses performed by pipeline stages specified in that mask.</p>
+execution of the pipeline stages specified in that mask and any
+<a href="chap7.html#synchronization-pipeline-stages-order">logically earlier</a> stages.
+Its first <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> only
+includes memory accesses performed by pipeline stages explicitly specified
+in the source stage mask.</p>
 </div>
 <div class="paragraph">
 <p>If a synchronization command includes a destination stage mask, its second
 <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a> only includes
-execution of the pipeline stages specified in that mask, and its second
-<a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> only includes
-memory access performed by pipeline stages specified in that mask.</p>
+execution of the pipeline stages specified in that mask and any
+<a href="chap7.html#synchronization-pipeline-stages-order">logically later</a> stages.
+Its second <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> only
+includes memory accesses performed by pipeline stages explicitly specified
+in the destination stage mask.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1604,18 +1608,9 @@ memory access performed by pipeline stages specified in that mask.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>Including a particular pipeline stage in the first
-<a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a> of a command
-implicitly includes <a href="chap7.html#synchronization-pipeline-stages-order">logically
-earlier</a> pipeline stages in the synchronization scope.
-Similarly, the second <a href="chap7.html#synchronization-dependencies-scopes">synchronization
-scope</a> includes <a href="chap7.html#synchronization-pipeline-stages-order">logically later</a>
-pipeline stages.</p>
-</div>
-<div class="paragraph">
-<p>However, note that <a href="chap7.html#synchronization-dependencies-access-scopes">access
-scopes</a> are not affected in this way - only the precise stages specified
-are considered part of each access scope.</p>
+<p>Note that <a href="chap7.html#synchronization-dependencies-access-scopes">access scopes</a> do
+not interact with the logically earlier or later stages for either scope -
+only the stages the app specifies are considered part of each access scope.</p>
 </div>
 </td>
 </tr>
@@ -2132,10 +2127,12 @@ stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT</code> specifies read access to a
-<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
-Such access occurs in the
-<code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
+    <a href="chap8.html">color attachment</a>, such as via
+<a href="chap27.html#framebuffer-blending">blending</a>,
+    <a href="chap27.html#framebuffer-logicop">logic operations</a>, or certain
+    <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+    Such access occurs in the
+    <code>VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT</code> specifies write access to a
@@ -2148,7 +2145,7 @@ Such access occurs in the
 <li>
 <p><code>VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read
 access to a <a href="chap8.html">depth/stencil attachment</a>, via
-<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain
 <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT</code> or
@@ -2157,7 +2154,7 @@ Such access occurs in the
 <li>
 <p><code>VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
 access to a <a href="chap8.html">depth/stencil attachment</a>, via
-<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain
 <a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT</code> or
@@ -2427,7 +2424,7 @@ stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_COLOR_ATTACHMENT_READ_BIT</code> specifies read access to a
-<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or via certain
+<a href="chap8.html">color attachment</a>, such as via <a href="chap27.html#framebuffer-blending">blending</a>, <a href="chap27.html#framebuffer-logicop">logic operations</a>, or certain
 <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.</p>
 </li>
 <li>
@@ -2440,8 +2437,7 @@ Such access occurs in the
 </li>
 <li>
 <p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read access
-to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
 <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stages.</p>
@@ -2449,7 +2445,7 @@ Such access occurs in the
 <li>
 <p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
 access to a <a href="chap8.html">depth/stencil attachment</a>, via
-<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or via certain
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain
 <a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
@@ -9306,6 +9302,13 @@ If the <a href="chap37.html#features-synchronization2"><code>synchronization2</c
 not enabled, <code>stageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
+<p><a id="VUID-vkCmdSetEvent-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdSetEvent-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdSetEvent-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdSetEvent-stageMask-06457" href="chap7.html#VUID-vkCmdSetEvent-stageMask-06457"></a> <span class="vuid">VUID-vkCmdSetEvent-stageMask-06457</span><br>
 
 Any pipeline stage included in <code>stageMask</code> <strong class="purple">must</strong> be supported by the
@@ -9499,6 +9502,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-vkCmdResetEvent2-rayTracingPipeline-07947" href="chap7.html#VUID-vkCmdResetEvent2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-vkCmdResetEvent2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdResetEvent2-synchronization2-03829" href="chap7.html#VUID-vkCmdResetEvent2-synchronization2-03829"></a> <span class="vuid">VUID-vkCmdResetEvent2-synchronization2-03829</span><br>
 
 The <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature <strong class="purple">must</strong>
@@ -9688,6 +9698,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 
 If the <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature is
 not enabled, <code>stageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdResetEvent-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdResetEvent-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdResetEvent-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdResetEvent-stageMask-06458" href="chap7.html#VUID-vkCmdResetEvent-stageMask-06458"></a> <span class="vuid">VUID-vkCmdResetEvent-stageMask-06458</span><br>
@@ -10295,6 +10312,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 If the <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature is
 not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdWaitEvents-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdWaitEvents-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -10326,6 +10350,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 
 If the <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature is
 not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdWaitEvents-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdWaitEvents-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdWaitEvents-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -10982,6 +11013,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 If the <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature is
 not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -11013,6 +11051,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 
 If the <a href="chap37.html#features-synchronization2"><code>synchronization2</code></a> feature is
 not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950" href="chap7.html#VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950"></a> <span class="vuid">VUID-vkCmdPipelineBarrier-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -11476,6 +11521,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-VkMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkMemoryBarrier2-srcAccessMask-03900" href="chap7.html#VUID-VkMemoryBarrier2-srcAccessMask-03900"></a> <span class="vuid">VUID-VkMemoryBarrier2-srcAccessMask-03900</span><br>
 
 If <code>srcAccessMask</code> includes
@@ -11740,6 +11792,13 @@ is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> n
 If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not enabled,
 <code>dstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 <li>
 <p><a id="VUID-VkMemoryBarrier2-dstAccessMask-03900" href="chap7.html#VUID-VkMemoryBarrier2-dstAccessMask-03900"></a> <span class="vuid">VUID-VkMemoryBarrier2-dstAccessMask-03900</span><br>
@@ -12261,6 +12320,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkBufferMemoryBarrier2-srcAccessMask-03900" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcAccessMask-03900"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcAccessMask-03900</span><br>
 
 If <code>srcAccessMask</code> includes
@@ -12525,6 +12591,13 @@ is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> n
 If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not enabled,
 <code>dstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 <li>
 <p><a id="VUID-VkBufferMemoryBarrier2-dstAccessMask-03900" href="chap7.html#VUID-VkBufferMemoryBarrier2-dstAccessMask-03900"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-dstAccessMask-03900</span><br>
@@ -13301,6 +13374,13 @@ If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attach
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>srcStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageMemoryBarrier2-srcAccessMask-03900" href="chap7.html#VUID-VkImageMemoryBarrier2-srcAccessMask-03900"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcAccessMask-03900</span><br>
 
 If <code>srcAccessMask</code> includes
@@ -13565,6 +13645,13 @@ is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> n
 If the <a href="chap37.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> feature is not enabled,
 <code>dstStageMask</code> <strong class="purple">must</strong> not contain
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947" href="chap7.html#VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap37.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>dstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier2-dstAccessMask-03900" href="chap7.html#VUID-VkImageMemoryBarrier2-dstAccessMask-03900"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-dstAccessMask-03900</span><br>
@@ -15241,8 +15328,8 @@ waited on by a different physical device.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.242<br>
-Last updated 2023-02-22 21:37:35 -0800
+Version 1.0.243<br>
+Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
 

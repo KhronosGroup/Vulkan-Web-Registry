@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.242 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.3.243 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.242 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.243 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.242,</span>
-<span id="revdate">2023-02-26 11:50:26Z</span>
-<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
+<span id="revnumber">version 1.3.243,</span>
+<span id="revdate">2023-03-12 07:18:59Z</span>
+<br><span id="revremark">from git branch: github-main commit: 84ccde6b1b92820feee54c8b7577387b2cf1ce17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -246,7 +246,7 @@
 <li><a href="chap17.html#queries-timestamps">17.5. Timestamp Queries</a></li>
 <li><a href="chap17.html#queries-performance">17.6. Performance Queries</a></li>
 <li><a href="chap17.html#queries-result-status-only">17.7. Result Status Queries</a></li>
-<li><a href="chap17.html#queries-video-encode-bitstream-buffer-range">17.8. Video Encode Bitstream Buffer Range Queries</a></li>
+<li><a href="chap17.html#queries-video-encode-feedback">17.8. Video Encode Feedback Queries</a></li>
 </ul>
 </li>
 <li><a href="chap18.html">18. Clear Commands</a>
@@ -2620,7 +2620,7 @@ If any element of <code>pColorAttachmentFormats</code> is not
 <p><a id="VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06540" href="chap6.html#VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06540"></a> <span class="vuid">VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06540</span><br>
 
 If <code>depthAttachmentFormat</code> is not <code>VK_FORMAT_UNDEFINED</code>, it
-<strong class="purple">must</strong> be a format that includes a depth aspect</p>
+<strong class="purple">must</strong> be a format that includes a depth component</p>
 </li>
 <li>
 <p><a id="VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06007" href="chap6.html#VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06007"></a> <span class="vuid">VUID-VkCommandBufferInheritanceRenderingInfo-depthAttachmentFormat-06007</span><br>
@@ -2733,6 +2733,34 @@ If the application wishes to further use the command buffer, the command
 buffer <strong class="purple">must</strong> be reset.</p>
 </div>
 <div class="paragraph">
+<p>In case the application recorded one or more <a href="chap36.html#video-encode-operations">video
+encode operations</a> into the command buffer, implementations <strong class="purple">may</strong> return the
+<code>VK_ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR</code> error if any of the
+specified Video Std parameters do not adhere to the syntactic or semantic
+requirements of the used video compression standard, or if values derived
+from parameters according to the rules defined by the used video compression
+standard do not adhere to the capabilities of the video compression standard
+or the implementation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Applications <strong class="purple">should</strong> not rely on the
+<code>VK_ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR</code> error being returned by any
+command as a means to verify Video Std parameters, as implementations are
+not required to report the error in any specific set of cases.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
 <p>The command buffer <strong class="purple">must</strong> have been in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a>, and is moved to the <a href="chap6.html#commandbuffers-lifecycle">executable state</a>.</p>
 </div>
 <div class="sidebarblock">
@@ -2818,6 +2846,9 @@ There <strong class="purple">must</strong> be no video session object bound</p>
 </li>
 <li>
 <p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -3550,6 +3581,13 @@ If the <a href="chap38.html#features-attachmentFragmentShadingRate"><code>attach
 <code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSemaphoreSubmitInfo-rayTracingPipeline-07947" href="chap6.html#VUID-VkSemaphoreSubmitInfo-rayTracingPipeline-07947"></a> <span class="vuid">VUID-VkSemaphoreSubmitInfo-rayTracingPipeline-07947</span><br>
+
+If the <a href="chap38.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>stageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkSemaphoreSubmitInfo-device-03888" href="chap6.html#VUID-VkSemaphoreSubmitInfo-device-03888"></a> <span class="vuid">VUID-VkSemaphoreSubmitInfo-device-03888</span><br>
 
 If the <code>device</code> that <code>semaphore</code> was created on is not a device
@@ -4122,6 +4160,13 @@ If the <a href="chap38.html#features-synchronization2"><code>synchronization2</c
 not enabled, <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
+<p><a id="VUID-VkSubmitInfo-rayTracingPipeline-07950" href="chap6.html#VUID-VkSubmitInfo-rayTracingPipeline-07950"></a> <span class="vuid">VUID-VkSubmitInfo-rayTracingPipeline-07950</span><br>
+
+If the <a href="chap38.html#features-rayTracingPipeline"><code>rayTracingPipeline</code> feature</a>
+is not enabled, <code>pWaitDstStageMask</code> <strong class="purple">must</strong> not contain
+<code>VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkSubmitInfo-pCommandBuffers-00075" href="chap6.html#VUID-VkSubmitInfo-pCommandBuffers-00075"></a> <span class="vuid">VUID-VkSubmitInfo-pCommandBuffers-00075</span><br>
 
 Each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not have been allocated with
@@ -4473,17 +4518,15 @@ waiting for and signaling such semaphores.</p>
 <p><a id="VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079" href="chap6.html#VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079"></a> <span class="vuid">VUID-VkD3D12FenceSubmitInfoKHR-waitSemaphoreValuesCount-00079</span><br>
 
 <code>waitSemaphoreValuesCount</code> <strong class="purple">must</strong> be the same value as
-<code>VkSubmitInfo</code>::<code>waitSemaphoreCount</code>, where <code>VkSubmitInfo</code>
-is in the <code>pNext</code> chain of this <code>VkD3D12FenceSubmitInfoKHR</code>
-structure</p>
+<code>VkSubmitInfo</code>::<code>waitSemaphoreCount</code>, where this structure is in
+the <code>pNext</code> chain of a <code>VkSubmitInfo</code> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080" href="chap6.html#VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080"></a> <span class="vuid">VUID-VkD3D12FenceSubmitInfoKHR-signalSemaphoreValuesCount-00080</span><br>
 
 <code>signalSemaphoreValuesCount</code> <strong class="purple">must</strong> be the same value as
-<code>VkSubmitInfo</code>::<code>signalSemaphoreCount</code>, where <code>VkSubmitInfo</code>
-is in the <code>pNext</code> chain of this <code>VkD3D12FenceSubmitInfoKHR</code>
-structure</p>
+<code>VkSubmitInfo</code>::<code>signalSemaphoreCount</code>, where this structure is
+in the <code>pNext</code> chain of a <code>VkSubmitInfo</code> structure</p>
 </li>
 </ul>
 </div>
@@ -5740,8 +5783,8 @@ Transfer</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.242<br>
-Last updated 2023-02-22 21:37:35 -0800
+Version 1.3.243<br>
+Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
 

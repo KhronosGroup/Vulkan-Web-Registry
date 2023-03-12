@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.242 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.243 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.242 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.243 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.242,</span>
-<span id="revdate">2023-02-26 11:55:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: f3e686fc22251102713a2a1a1cd071f60ab6efd8</span>
+<span id="revnumber">version 1.1.243,</span>
+<span id="revdate">2023-03-12 07:20:56Z</span>
+<br><span id="revremark">from git branch: github-main commit: 84ccde6b1b92820feee54c8b7577387b2cf1ce17</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -274,7 +274,7 @@
 <li><a href="chap18.html#queries-mesh-shader">18.9. Mesh Shader Queries</a></li>
 <li><a href="chap18.html#queries-performance-intel">18.10. Intel performance queries</a></li>
 <li><a href="chap18.html#queries-result-status-only">18.11. Result Status Queries</a></li>
-<li><a href="chap18.html#queries-video-encode-bitstream-buffer-range">18.12. Video Encode Bitstream Buffer Range Queries</a></li>
+<li><a href="chap18.html#queries-video-encode-feedback">18.12. Video Encode Feedback Queries</a></li>
 </ul>
 </li>
 <li><a href="chap19.html">19. Clear Commands</a>
@@ -676,7 +676,7 @@ multidimensional and <strong class="purple">may</strong> have associated metadat
 <div class="content">
 <div class="paragraph">
 <p>Buffers represent linear arrays of data which are used for various purposes
-by binding them to a graphics or compute pipeline via descriptor sets or via
+by binding them to a graphics or compute pipeline via descriptor sets or
 certain commands, or by directly specifying them as parameters to certain
 commands.</p>
 </div>
@@ -8770,11 +8770,13 @@ The slice coordinates are integer coordinates within the
 specified in <a href="chap12.html#resources-image-miplevel-sizing">Image Miplevel Sizing</a>.</p>
 </div>
 <div class="paragraph">
-<p>If this image view is not accessed through a
-<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>, <code>VkImageViewSlicedCreateInfoEXT</code>
-is ignored.
-<code>sliceOffset</code> is considered to be equal to 0, and <code>sliceCount</code> is
-considered to be equal to <code>VK_REMAINING_3D_SLICES_EXT</code>.</p>
+<p>Shader access to this image view is only affected by
+<code>VkImageViewSlicedCreateInfoEXT</code> if it uses a descriptor of type
+<code>VK_DESCRIPTOR_TYPE_STORAGE_IMAGE</code>.
+For access using any other descriptor type, the contents of
+<code>VkImageViewSlicedCreateInfoEXT</code> are ignored; instead, <code>sliceOffset</code>
+is treated as being equal to 0, and <code>sliceCount</code> is treated as being
+equal to <code>VK_REMAINING_3D_SLICES_EXT</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -8802,6 +8804,11 @@ less than or equal to the effective view depth as specified in
 <code>VK_IMAGE_TYPE_3D</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageViewSlicedCreateInfoEXT-viewType-07909" href="chap12.html#VUID-VkImageViewSlicedCreateInfoEXT-viewType-07909"></a> <span class="vuid">VUID-VkImageViewSlicedCreateInfoEXT-viewType-07909</span><br>
+
+<code>viewType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_VIEW_TYPE_3D</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageViewSlicedCreateInfoEXT-None-07870" href="chap12.html#VUID-VkImageViewSlicedCreateInfoEXT-None-07870"></a> <span class="vuid">VUID-VkImageViewSlicedCreateInfoEXT-None-07870</span><br>
 
 The image view <strong class="purple">must</strong> reference exactly 1 mip level</p>
@@ -8827,6 +8834,21 @@ be enabled on the device</p>
 </li>
 </ul>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p><code>VK_REMAINING_3D_SLICES_EXT</code> is a special constant value used for
+<a href="chap12.html#VkImageViewSlicedCreateInfoEXT">VkImageViewSlicedCreateInfoEXT</a>::<code>sliceCount</code> to indicate that all
+remaining 3D slices in an image after the first slice offset specified
+should be included in the view.</p>
+</div>
+<div id="VK_REMAINING_3D_SLICES_EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="cp">#define VK_REMAINING_3D_SLICES_EXT        (~0U)</span></code></pre>
 </div>
 </div>
 </div>
@@ -15198,6 +15220,16 @@ buffer handle created with identical creation parameters to <code>buffer</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
 </li>
 <li>
+<p><a id="VUID-vkBindBufferMemory-apiVersion-07920" href="chap12.html#VUID-vkBindBufferMemory-apiVersion-07920"></a> <span class="vuid">VUID-vkBindBufferMemory-apiVersion-07920</span><br>
+
+If the <a href="chap54.html#VK_KHR_dedicated_allocation">VK_KHR_dedicated_allocation</a> extension is not enabled,
+<a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> is less than Vulkan
+1.1, and <code>buffer</code> was not created with
+<a href="chap12.html#VkDedicatedAllocationBufferCreateInfoNV">VkDedicatedAllocationBufferCreateInfoNV</a>::<code>dedicatedAllocation</code>
+equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</strong> not have been allocated
+dedicated for a specific buffer or image</p>
+</li>
+<li>
 <p><a id="VUID-vkBindBufferMemory-memory-02726" href="chap12.html#VUID-vkBindBufferMemory-memory-02726"></a> <span class="vuid">VUID-vkBindBufferMemory-memory-02726</span><br>
 
 If the value of <a href="chap11.html#VkExportMemoryAllocateInfo">VkExportMemoryAllocateInfo</a>::<code>handleTypes</code> used
@@ -15587,6 +15619,16 @@ buffer handle created with identical creation parameters to <code>buffer</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
 </li>
 <li>
+<p><a id="VUID-VkBindBufferMemoryInfo-apiVersion-07920" href="chap12.html#VUID-VkBindBufferMemoryInfo-apiVersion-07920"></a> <span class="vuid">VUID-VkBindBufferMemoryInfo-apiVersion-07920</span><br>
+
+If the <a href="chap54.html#VK_KHR_dedicated_allocation">VK_KHR_dedicated_allocation</a> extension is not enabled,
+<a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> is less than Vulkan
+1.1, and <code>buffer</code> was not created with
+<a href="chap12.html#VkDedicatedAllocationBufferCreateInfoNV">VkDedicatedAllocationBufferCreateInfoNV</a>::<code>dedicatedAllocation</code>
+equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</strong> not have been allocated
+dedicated for a specific buffer or image</p>
+</li>
+<li>
 <p><a id="VUID-VkBindBufferMemoryInfo-memory-02726" href="chap12.html#VUID-VkBindBufferMemoryInfo-memory-02726"></a> <span class="vuid">VUID-VkBindBufferMemoryInfo-memory-02726</span><br>
 
 If the value of <a href="chap11.html#VkExportMemoryAllocateInfo">VkExportMemoryAllocateInfo</a>::<code>handleTypes</code> used
@@ -15923,6 +15965,16 @@ equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</
 <a href="chap11.html#VkDedicatedAllocationMemoryAllocateInfoNV">VkDedicatedAllocationMemoryAllocateInfoNV</a>::<code>image</code> equal to an
 image handle created with identical creation parameters to <code>image</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
+</li>
+<li>
+<p><a id="VUID-vkBindImageMemory-apiVersion-07921" href="chap12.html#VUID-vkBindImageMemory-apiVersion-07921"></a> <span class="vuid">VUID-vkBindImageMemory-apiVersion-07921</span><br>
+
+If the <a href="chap54.html#VK_KHR_dedicated_allocation">VK_KHR_dedicated_allocation</a> extension is not enabled,
+<a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> is less than Vulkan
+1.1, and <code>image</code> was not created with
+<a href="chap12.html#VkDedicatedAllocationImageCreateInfoNV">VkDedicatedAllocationImageCreateInfoNV</a>::<code>dedicatedAllocation</code>
+equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</strong> not have been allocated
+dedicated for a specific buffer or image</p>
 </li>
 <li>
 <p><a id="VUID-vkBindImageMemory-memory-02728" href="chap12.html#VUID-vkBindImageMemory-memory-02728"></a> <span class="vuid">VUID-vkBindImageMemory-memory-02728</span><br>
@@ -16340,6 +16392,16 @@ equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</
 <a href="chap11.html#VkDedicatedAllocationMemoryAllocateInfoNV">VkDedicatedAllocationMemoryAllocateInfoNV</a>::<code>image</code> equal to an
 image handle created with identical creation parameters to <code>image</code>
 and <code>memoryOffset</code> <strong class="purple">must</strong> be zero</p>
+</li>
+<li>
+<p><a id="VUID-VkBindImageMemoryInfo-apiVersion-07921" href="chap12.html#VUID-VkBindImageMemoryInfo-apiVersion-07921"></a> <span class="vuid">VUID-VkBindImageMemoryInfo-apiVersion-07921</span><br>
+
+If the <a href="chap54.html#VK_KHR_dedicated_allocation">VK_KHR_dedicated_allocation</a> extension is not enabled,
+<a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>apiVersion</code> is less than Vulkan
+1.1, and <code>image</code> was not created with
+<a href="chap12.html#VkDedicatedAllocationImageCreateInfoNV">VkDedicatedAllocationImageCreateInfoNV</a>::<code>dedicatedAllocation</code>
+equal to <code>VK_TRUE</code>, <code>memory</code> <strong class="purple">must</strong> not have been allocated
+dedicated for a specific buffer or image</p>
 </li>
 <li>
 <p><a id="VUID-VkBindImageMemoryInfo-memory-02728" href="chap12.html#VUID-VkBindImageMemoryInfo-memory-02728"></a> <span class="vuid">VUID-VkBindImageMemoryInfo-memory-02728</span><br>
@@ -16810,11 +16872,10 @@ are used to determine the memory that the image is bound to, instead of
 <li>
 <p><a id="VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756" href="chap12.html#VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756"></a> <span class="vuid">VUID-VkBindImageMemorySwapchainInfoKHR-swapchain-07756</span><br>
 
-    If the <code>swapchain</code> has been created with
-    <code>VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT</code>,
-    <code>imageIndex</code> <strong class="purple">must</strong> be one that has previously been returned by
-    <a href="chap34.html#vkAcquireNextImageKHR">vkAcquireNextImageKHR</a>
-or <a href="chap34.html#vkAcquireNextImage2KHR">vkAcquireNextImage2KHR</a></p>
+If the <code>swapchain</code> has been created with
+<code>VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT</code>,
+<code>imageIndex</code> <strong class="purple">must</strong> be one that has previously been returned by
+<a href="chap34.html#vkAcquireNextImageKHR">vkAcquireNextImageKHR</a> or <a href="chap34.html#vkAcquireNextImage2KHR">vkAcquireNextImage2KHR</a></p>
 </li>
 </ul>
 </div>
@@ -18963,8 +19024,8 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.242<br>
-Last updated 2023-02-22 21:37:35 -0800
+Version 1.1.243<br>
+Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
 
