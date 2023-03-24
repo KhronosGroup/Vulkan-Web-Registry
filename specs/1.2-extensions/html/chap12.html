@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.244 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.245 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.244 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.245 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.244,</span>
-<span id="revdate">2023-03-18 03:16:17Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7beccb60daac498d700a09763945719c31510ab6</span>
+<span id="revnumber">version 1.2.245,</span>
+<span id="revdate">2023-03-24 11:32:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: 729dda35a16d57611636d6684a1fcb27f7e0a722</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -11122,6 +11122,15 @@ corresponding member of <code>pBuildInfo</code> also contains
 <a href="chap37.html#VkAccelerationStructureTrianglesOpacityMicromapEXT">VkAccelerationStructureTrianglesOpacityMicromapEXT</a> and with an
 equivalent <code>micromap</code>.</p>
 </li>
+<li>
+<p>For each element of either <code>pGeometries</code> or <code>ppGeometries</code> at a
+given index, with a <code>geometryType</code> member equal to
+<code>VK_GEOMETRY_TYPE_TRIANGLES_KHR</code>, if the <code>pNext</code> chain contains
+<a href="chap37.html#VkAccelerationStructureTrianglesDisplacementMicromapNV">VkAccelerationStructureTrianglesDisplacementMicromapNV</a> the
+corresponding member of <code>pBuildInfo</code> also contains
+<a href="chap37.html#VkAccelerationStructureTrianglesDisplacementMicromapNV">VkAccelerationStructureTrianglesDisplacementMicromapNV</a> and with
+an equivalent <code>micromap</code>.</p>
+</li>
 </ul>
 </div>
 </li>
@@ -11395,7 +11404,11 @@ specifying additional parameters for acceleration structure builds, are:</p>
     <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT</span> <span class="o">=</span> <span class="mh">0x00000080</span><span class="p">,</span>
   <span class="c1">// Provided by VK_EXT_opacity_micromap</span>
     <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT</span> <span class="o">=</span> <span class="mh">0x00000100</span><span class="p">,</span>
-  <span class="c1">// Provided by VK_NV_ray_tracing</span>
+<span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
+</span>  <span class="c1">// Provided by VK_NV_displacement_micromap</span>
+    <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV</span> <span class="o">=</span> <span class="mh">0x00000200</span><span class="p">,</span>
+<span class="cp">#endif
+</span>  <span class="c1">// Provided by VK_NV_ray_tracing</span>
     <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_NV</span> <span class="o">=</span> <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR</span><span class="p">,</span>
   <span class="c1">// Provided by VK_NV_ray_tracing</span>
     <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_NV</span> <span class="o">=</span> <span class="n">VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR</span><span class="p">,</span>
@@ -11469,6 +11482,12 @@ structure update.</p>
 indicates that the specified acceleration structure <strong class="purple">may</strong> be referenced
 in an instance with
 <code>VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT</code> set.</p>
+</li>
+<li>
+<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV</code>
+indicates that the displacement micromaps associated with the specified
+acceleration structure <strong class="purple">may</strong> change with an acceleration structure
+update.</p>
 </li>
 </ul>
 </div>
@@ -13518,14 +13537,22 @@ specifying the type of micromap, are:</p>
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_opacity_micromap</span>
 <span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkMicromapTypeEXT</span> <span class="p">{</span>
     <span class="n">VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-<span class="p">}</span> <span class="n">VkMicromapTypeEXT</span><span class="p">;</span></code></pre>
+<span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
+</span>  <span class="c1">// Provided by VK_NV_displacement_micromap</span>
+    <span class="n">VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV</span> <span class="o">=</span> <span class="mi">1000397000</span><span class="p">,</span>
+<span class="cp">#endif
+</span><span class="p">}</span> <span class="n">VkMicromapTypeEXT</span><span class="p">;</span></code></pre>
 </div>
 </div>
 <div class="ulist">
 <ul>
 <li>
 <p><code>VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT</code> is a micromap containing
-data to control the opacity of a triangle</p>
+data to control the opacity of a triangle.</p>
+</li>
+<li>
+<p><code>VK_MICROMAP_TYPE_DISPLACEMENT_MICROMAP_NV</code> is a micromap containing
+data to control the displacement of subtriangles within a triangle.</p>
 </li>
 </ul>
 </div>
@@ -19034,7 +19061,7 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.244<br>
+Version 1.2.245<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

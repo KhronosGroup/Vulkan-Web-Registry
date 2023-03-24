@@ -288,6 +288,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_diagnostic_checkpoints.html"> VK_NV_device_diagnostic_checkpoints </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_diagnostics_config.html"> VK_NV_device_diagnostics_config </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands.html"> VK_NV_device_generated_commands </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_displacement_micromap.html"> VK_NV_displacement_micromap </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory.html"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory_capabilities.html"> VK_NV_external_memory_capabilities </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory_rdma.html"> VK_NV_external_memory_rdma </a> </li>
