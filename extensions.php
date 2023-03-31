@@ -193,9 +193,11 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_demote_to_helper_invocation.html"> VK_EXT_shader_demote_to_helper_invocation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_image_atomic_int64.html"> VK_EXT_shader_image_atomic_int64 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_module_identifier.html"> VK_EXT_shader_module_identifier </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_object.html"> VK_EXT_shader_object </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_stencil_export.html"> VK_EXT_shader_stencil_export </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_subgroup_ballot.html"> VK_EXT_shader_subgroup_ballot </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_subgroup_vote.html"> VK_EXT_shader_subgroup_vote </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_tile_image.html"> VK_EXT_shader_tile_image </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_shader_viewport_index_layer.html"> VK_EXT_shader_viewport_index_layer </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_subgroup_size_control.html"> VK_EXT_subgroup_size_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_subpass_merge_feedback.html"> VK_EXT_subpass_merge_feedback </a> </li>

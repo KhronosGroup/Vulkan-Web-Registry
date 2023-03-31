@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.245 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.1.246 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.245 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.246 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.245,</span>
-<span id="revdate">2023-03-24 11:38:08Z</span>
-<br><span id="revremark">from git branch: github-main commit: 729dda35a16d57611636d6684a1fcb27f7e0a722</span>
+<span id="revnumber">version 1.1.246,</span>
+<span id="revdate">2023-03-31 10:14:20Z</span>
+<br><span id="revremark">from git branch: github-main commit: ce847fd14cc3a81751329352ce505501c46ce35e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -589,7 +589,7 @@ attributes.</p>
 <div class="paragraph">
 <p>In GLSL, vertex shaders associate input variables with a vertex input
 attribute number using the <code>location</code> layout qualifier.
-The <code>component</code> layout qualifier associates components of a vertex shader
+The <code>Component</code> layout qualifier associates components of a vertex shader
 input variable with components of a vertex input attribute.</p>
 </div>
 <div class="listingblock">
@@ -642,28 +642,19 @@ The <code>Location</code> and <code>Component</code> decorations are specified v
 <div class="sect3">
 <h4 id="fxvertex-attrib-location"><a class="anchor" href="chap21.html#fxvertex-attrib-location"></a>21.1.1. Attribute Location and Component Assignment</h4>
 <div class="paragraph">
-<p>Vertex shaders allow <code>Location</code> and <code>Component</code> decorations on input
-variable declarations.
-The <code>Location</code> decoration specifies which vertex input attribute is used
-to read and interpret the data that a variable will consume.
-The <code>Component</code> decoration allows the location to be more finely
-specified for scalars and vectors, down to the individual components within
-a location that are consumed.
-The components within a location are 0, 1, 2, and 3.
-A variable starting at component N will consume components N, N+1, N+2, …​
-up through its size.
-For single precision types, it is invalid if the sequence of components gets
-larger than 3.</p>
+<p>The <code>Location</code> decoration specifies which vertex input attribute is used
+to read and interpret the data that a variable will consume.</p>
 </div>
 <div class="paragraph">
 <p>When a vertex shader input variable declared using a 16- or 32-bit scalar or
-vector data type is assigned a location, its value(s) are taken from the
-components of the input attribute specified with the corresponding
+vector data type is assigned a <code>Location</code>, its value(s) are taken from
+the components of the input attribute specified with the corresponding
 <code>VkVertexInputAttributeDescription</code>::<code>location</code>.
 The components used depend on the type of variable and the <code>Component</code>
 decoration specified in the variable declaration, as identified in
 <a href="chap21.html#fxvertex-attrib-components">Input attribute components accessed by 16-bit and 32-bit input variables</a>.
-Any 16-bit or 32-bit scalar or vector input will consume a single location.
+Any 16-bit or 32-bit scalar or vector input will consume a single
+<code>Location</code>.
 For 16-bit and 32-bit data types, missing components are filled in with
 default values as described <a href="chap21.html#fxvertex-input-extraction">below</a>.</p>
 </div>
@@ -742,7 +733,7 @@ default value.</p>
 </div>
 <div class="paragraph">
 <p>When a vertex shader input variable declared using a 32-bit floating point
-matrix type is assigned a location <em>i</em>, its values are taken from
+matrix type is assigned a <code>Location</code> <em>i</em>, its values are taken from
 consecutive input attributes starting with the corresponding
 <code>VkVertexInputAttributeDescription</code>::<code>location</code>.
 Such matrices are treated as an array of column vectors with values taken
@@ -833,31 +824,15 @@ value.</p>
 </div>
 <div class="paragraph">
 <p>When a vertex shader input variable declared using a scalar or vector 64-bit
-data type is assigned a location <em>i</em>, its values are taken from consecutive
-input attributes starting with the corresponding
+data type is assigned a <code>Location</code> <em>i</em>, its values are taken from
+consecutive input attributes starting with the corresponding
 <code>VkVertexInputAttributeDescription</code>::<code>location</code>.
-The locations and components used depend on the type of variable and the
-<code>Component</code> decoration specified in the variable declaration, as
-identified in <a href="chap21.html#fxvertex-attrib-double">Input attribute locations and components accessed by 64-bit input variables</a>.
+The <code>Location</code> slots and <code>Component</code> words used depend on the type of
+variable and the <code>Component</code> decoration specified in the variable
+declaration, as identified in <a href="chap21.html#fxvertex-attrib-double">Input attribute locations and components accessed by 64-bit input variables</a>.
 For 64-bit data types, no default attribute values are provided.
 Input variables <strong class="purple">must</strong> not use more components than provided by the
-attribute.
-Input attributes which have one- or two-component 64-bit formats will
-consume a single location.
-Input attributes which have three- or four-component 64-bit formats will
-consume two consecutive locations.
-A 64-bit scalar data type will consume two components, and a 64-bit
-two-component vector data type will consume all four components available
-within a location.
-A three- or four-component 64-bit data type <strong class="purple">must</strong> not specify a component.
-A three-component 64-bit data type will consume all four components of the
-first location and components 0 and 1 of the second location.
-This leaves components 2 and 3 available for other component-qualified
-declarations.
-A four-component 64-bit data type will consume all four components of the
-first location and all four components of the second location.
-It is invalid for a scalar or two-component 64-bit data type to specify a
-component of 1 or 3.</p>
+attribute.</p>
 </div>
 <table id="fxvertex-attrib-double" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 27. Input attribute locations and components accessed by 64-bit input variables</caption>
@@ -1001,12 +976,12 @@ provided by the input format.</p>
 </div>
 <div class="paragraph">
 <p>When a vertex shader input variable declared using a 64-bit floating-point
-matrix type is assigned a location <em>i</em>, its values are taken from
+matrix type is assigned a <code>Location</code> <em>i</em>, its values are taken from
 consecutive input attribute locations.
 Such matrices are treated as an array of column vectors with values taken
 from the input attributes as shown in <a href="chap21.html#fxvertex-attrib-double">Input attribute locations and components accessed by 64-bit input variables</a>.
-Each column vector starts at the location immediately following the last
-location of the previous column vector.
+Each column vector starts at the <code>Location</code> immediately following the
+last <code>Location</code> of the previous column vector.
 The number of attributes and components assigned to each matrix is
 determined by the matrix dimensions and ranges from two to eight locations.</p>
 </div>
@@ -1025,14 +1000,11 @@ but all at the same specified component within each location.</p>
 <div class="paragraph">
 <p>Only input variables declared with the data types and component decorations
 as specified above are supported.
-<em>Location aliasing</em> is causing two variables to have the same location
-number.
-<em>Component aliasing</em> is assigning the same (or overlapping) component number
-for two location aliases.
-Location aliasing is allowed only if it does not cause component aliasing.
-Further, when location aliasing, the aliases sharing the location <strong class="purple">must</strong> all
-have the same SPIR-V floating-point component type or all have the same
-width integer-type components.</p>
+Two variables are allowed to share the same <code>Location</code> slot only if their
+<code>Component</code> words do not overlap.
+If multiple variables share the same <code>Location</code> slot, they <strong class="purple">must</strong> all have
+the same SPIR-V floating-point component type or all have the same width
+scalar type components.</p>
 </div>
 </div>
 </div>
@@ -1658,7 +1630,7 @@ discarded.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.245<br>
+Version 1.1.246<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

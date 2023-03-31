@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.245 - A Specification</title>
+<title>Vulkan® 1.3.246 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.245 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.3.246 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.245,</span>
-<span id="revdate">2023-03-24 11:37:12Z</span>
-<br><span id="revremark">from git branch: github-main commit: 729dda35a16d57611636d6684a1fcb27f7e0a722</span>
+<span id="revnumber">version 1.3.246,</span>
+<span id="revdate">2023-03-31 10:13:18Z</span>
+<br><span id="revremark">from git branch: github-main commit: ce847fd14cc3a81751329352ce505501c46ce35e</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -892,8 +892,8 @@ immediately before the rasterization stage.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the discard enable for subsequent drawing commands when
-the graphics pipeline is created with
+<p>This command sets the discard enable for subsequent drawing commands
+when the graphics pipeline is created with
 <code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE</code> set in
 <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
 Otherwise, this state is specified by the
@@ -1049,7 +1049,7 @@ Each set of samples has a number of samples determined by
 Each sample in a set is assigned a unique <em>sample index</em> <span class="eq">i</span> in the
 range <span class="eq">[0, <code>rasterizationSamples</code>)</span>.</p>
 </div>
-<div class="paragraph">
+<div id="primsrast-multisampling-coverageindex" class="paragraph">
 <p>Each sample in a fragment is also assigned a unique <em>coverage index</em> <span class="eq">j</span>
 in the range <span class="eq">[0, n × <code>rasterizationSamples</code>)</span>, where <span class="eq">n</span>
 is the number of sets in the fragment.
@@ -1350,31 +1350,49 @@ shader at least <span class="eq">max(⌈
 <a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>minSampleShading</code> ×
 <a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>rasterizationSamples</code>
 ⌉, 1)</span> times per fragment.
-If a fragment shader entry point’s interface includes an input variable
-decorated with a <code>BuiltIn</code> of <code>SampleId</code> or <code>SamplePosition</code>, a
-value of <code>1.0</code> is used instead of <code>minSampleShading</code>.</p>
+If <a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>sampleShadingEnable</code> is
+set to <code>VK_TRUE</code>, sample shading is enabled.</p>
 </div>
 <div class="paragraph">
-<p>Sample shading is enabled if at least one of the following conditions is
-true:</p>
+<p>If a fragment shader entry point <a href="chap9.html#shaders-staticuse">statically uses</a> an
+input variable decorated with a <code>BuiltIn</code> of <code>SampleId</code> or
+<code>SamplePosition</code>, sample shading is enabled and a value of <code>1.0</code> is used
+instead of <code>minSampleShading</code>.
+If a fragment shader entry point <a href="chap9.html#shaders-staticuse">statically uses</a> an
+input variable decorated with <code>Sample</code>, sample shading <strong class="purple">may</strong> be enabled
+and a value of <code>1.0</code> will be used instead of <code>minSampleShading</code> if it
+is.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="chap25.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>sampleShadingEnable</code> is
-set to <code>VK_TRUE</code>, or</p>
-</li>
-<li>
-<p>the fragment shader’s entry point interface includes input variables
-decorated with a <code>BuiltIn</code> of <code>SampleId</code> or <code>SamplePosition</code>
-built-ins.</p>
-</li>
-</ul>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If a shader decorates an input variable with <code>Sample</code> and that value
+meaningfully impacts the output of a shader, sample shading will be enabled
+to ensure that the input is in fact interpolated per-sample.
+This is inherent to the specification and not spelled out here - if an
+application simply declares such a variable it is implementation-defined
+whether sample shading is enabled or not.
+It is possible to see the effects of this by using atomics in the shader or
+using a pipeline statistics query to query the number of fragment
+invocations, even if the shader itself does not use any per-sample
+variables.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
-<p>If there are fewer invocations than <a href="chap26.html">covered samples</a>,
+<p>If there are fewer fragment invocations than <a href="chap26.html">covered samples</a>,
 implementations <strong class="purple">may</strong> include those samples in fragment shader invocations in
-any manner as long as covered samples are all shaded at least once.</p>
+any manner as long as covered samples are all shaded at least once, and each
+invocation that is not a <a href="chap9.html#shaders-helper-invocations">helper invocation</a>
+covers at least one sample.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1483,9 +1501,9 @@ recorded.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the line width for subsequent drawing commands when the
-graphics pipeline is created with <code>VK_DYNAMIC_STATE_LINE_WIDTH</code> set in
-<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+<p>This command sets the line width for subsequent drawing commands
+when the graphics pipeline is created with <code>VK_DYNAMIC_STATE_LINE_WIDTH</code>
+set in <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
 Otherwise, this state is specified by the
 <a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>lineWidth</code> value used to
 create the currently active pipeline.</p>
@@ -2264,9 +2282,9 @@ recorded.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the cull mode for subsequent drawing commands when the
-graphics pipeline is created with <code>VK_DYNAMIC_STATE_CULL_MODE</code> set in
-<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+<p>This command sets the cull mode for subsequent drawing commands
+when the graphics pipeline is created with <code>VK_DYNAMIC_STATE_CULL_MODE</code>
+set in <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
 Otherwise, this state is specified by the
 <a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>cullMode</code> value used to
 create the currently active pipeline.</p>
@@ -2567,8 +2585,8 @@ recorded.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>This command sets the depth bias enable for subsequent drawing commands when
-the graphics pipeline is created with
+<p>This command sets the depth bias enable for subsequent drawing commands
+when the graphics pipeline is created with
 <code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE</code> set in
 <a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
 Otherwise, this state is specified by the
@@ -2903,7 +2921,7 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.245<br>
+Version 1.3.246<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
