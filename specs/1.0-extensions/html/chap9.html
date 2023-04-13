@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.246 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.247 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.246 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.247 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.246,</span>
-<span id="revdate">2023-03-31 10:08:39Z</span>
-<br><span id="revremark">from git branch: github-main commit: ce847fd14cc3a81751329352ce505501c46ce35e</span>
+<span id="revnumber">version 1.0.247,</span>
+<span id="revdate">2023-04-13 10:11:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 79d2478e22ad88e6206b5f15f2580ca8e9722709</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -353,8 +353,8 @@
 <ul class="sectlevel2">
 <li><a href="chap26.html#cluster-culling-input">26.1. Cluster Culling Shader Input</a></li>
 <li><a href="chap26.html#cluster-culling-output">26.2. Cluster Culling Shader Output</a></li>
-<li><a href="chap26.html#primitive-ordering">26.3. Cluster Culling Shader Cluster Ordering</a></li>
-<li><a href="chap26.html#_cluster_culling_shader_primitive_ordering">26.4. Cluster Culling Shader Primitive Ordering</a></li>
+<li><a href="chap26.html#cluster-culling-cluster-ordering">26.3. Cluster Culling Shader Cluster Ordering</a></li>
+<li><a href="chap26.html#cluster-culling-primitive-ordering">26.4. Cluster Culling Shader Primitive Ordering</a></li>
 </ul>
 </li>
 <li><a href="chap27.html">27. Fixed-Function Vertex Post-Processing</a>
@@ -702,11 +702,10 @@ subsections.</p>
 <div class="sect2">
 <h3 id="shaders-objects"><a class="anchor" href="chap9.html#shaders-objects"></a>9.1. Shader Objects</h3>
 <div class="paragraph">
-<p>Shaders <strong class="purple">may</strong> be compiled and linked into monolithic pipeline objects as
-described in <a href="chap10.html">Pipelines</a> chapter, or if the
-<a href="chap45.html#features-shaderObject"><code>shaderObject</code></a> feature is enabled they <strong class="purple">may</strong>
-be compiled into individual per-stage <em>shader objects</em> which <strong class="purple">can</strong> be bound
-on a command buffer independently from one another.
+<p>Shaders <strong class="purple">may</strong> be compiled and linked into pipeline objects as described in
+<a href="chap10.html">Pipelines</a> chapter, or if the <a href="chap45.html#features-shaderObject"><code>shaderObject</code></a> feature is enabled they <strong class="purple">may</strong> be compiled into
+individual per-stage <em>shader objects</em> which <strong class="purple">can</strong> be bound on a command
+buffer independently from one another.
 Unlike pipelines, shader objects are not intrinsically tied to any specific
 set of state.
 Instead, state is specified dynamically on the command buffer.</p>
@@ -783,9 +782,9 @@ that every element of <code>pShaders</code> will have been overwritten by either
 <p>This means that whenever shader creation fails, the application <strong class="purple">can</strong>
 determine which shader the returned error pertains to by locating the first
 <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> element in <code>pShaders</code>.
-It also means that an application <strong class="purple">can</strong> always clean up from a failed call by
-iterating over the <code>pShaders</code> array and destroying every element that is
-not <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>.</p>
+It also means that an application <strong class="purple">can</strong> reliably clean up from a failed call
+by iterating over the <code>pShaders</code> array and destroying every element that
+is not <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -985,7 +984,7 @@ The <code>codeType</code> member of all elements of <code>pCreateInfos</code> wh
 structure.</p>
 </li>
 <li>
-<p><code>flags</code> is a bitmask of <a href="chap9.html#VkShaderCreateFlagsEXT">VkShaderCreateFlagsEXT</a> describing
+<p><code>flags</code> is a bitmask of <a href="chap9.html#VkShaderCreateFlagBitsEXT">VkShaderCreateFlagBitsEXT</a> describing
 additional parameters of the shader.</p>
 </li>
 <li>
@@ -993,9 +992,9 @@ additional parameters of the shader.</p>
 shader stage.</p>
 </li>
 <li>
-<p><code>nextStage</code> is a bitmask of <a href="chap10.html#VkShaderStageFlags">VkShaderStageFlags</a> specifying zero
-or more logically later stages which <strong class="purple">may</strong> be used as a logically next
-bound stage when drawing with the shader bound.</p>
+<p><code>nextStage</code> is a bitmask of <a href="chap10.html#VkShaderStageFlagBits">VkShaderStageFlagBits</a> specifying
+zero or stages which <strong class="purple">may</strong> be used as a logically next bound stage when
+drawing with the shader bound.</p>
 </li>
 <li>
 <p><code>codeType</code> is a <a href="chap9.html#VkShaderCodeTypeEXT">VkShaderCodeTypeEXT</a> value specifying the type
@@ -1042,6 +1041,62 @@ structure, as described in
 <div class="ulist">
 <ul>
 <li>
+<p><a id="VUID-VkSubpassDependency2-codeSize-08735" href="chap9.html#VUID-VkSubpassDependency2-codeSize-08735"></a> <span class="vuid">VUID-VkSubpassDependency2-codeSize-08735</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>codeSize</code> <strong class="purple">must</strong> be a multiple of 4</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08736" href="chap9.html#VUID-VkSubpassDependency2-pCode-08736"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08736</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code> <strong class="purple">must</strong> point to valid SPIR-V code,
+formatted and packed as described by the <a href="chap2.html#spirv-spec">Khronos SPIR-V
+Specification</a></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08737" href="chap9.html#VUID-VkSubpassDependency2-pCode-08737"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08737</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code> <strong class="purple">must</strong> adhere to the validation rules
+described by the <a href="chap50.html#spirvenv-module-validation">Validation Rules within a
+Module</a> section of the <a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a>
+appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08738" href="chap9.html#VUID-VkSubpassDependency2-pCode-08738"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08738</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code> <strong class="purple">must</strong> declare the <code>Shader</code> capability
+for SPIR-V code</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08739" href="chap9.html#VUID-VkSubpassDependency2-pCode-08739"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08739</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code> <strong class="purple">must</strong> not declare any capability that is
+not supported by the API, as described by the
+<a href="chap50.html#spirvenv-module-validation">Capabilities</a> section of the
+<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08740" href="chap9.html#VUID-VkSubpassDependency2-pCode-08740"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08740</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, and <code>pCode</code> declares any of the capabilities
+listed in the <a href="chap50.html#spirvenv-capabilities-table">SPIR-V Environment</a>
+appendix, one of the corresponding requirements <strong class="purple">must</strong> be satisfied</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08741" href="chap9.html#VUID-VkSubpassDependency2-pCode-08741"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08741</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code> <strong class="purple">must</strong> not declare any SPIR-V extension
+that is not supported by the API, as described by the
+<a href="chap50.html#spirvenv-extensions">Extension</a> section of the
+<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08742" href="chap9.html#VUID-VkSubpassDependency2-pCode-08742"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08742</span><br>
+
+If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, and <code>pCode</code> declares any of the SPIR-V extensions
+listed in the <a href="chap50.html#spirvenv-extensions-table">SPIR-V Environment</a>
+appendix, one of the corresponding requirements <strong class="purple">must</strong> be satisfied</p>
+</li>
+<li>
 <p><a id="VUID-VkShaderCreateInfoEXT-flags-08412" href="chap9.html#VUID-VkShaderCreateInfoEXT-flags-08412"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-flags-08412</span><br>
 
 If <code>stage</code> is not <code>VK_SHADER_STAGE_TASK_BIT_EXT</code>,
@@ -1071,7 +1126,7 @@ If the <a href="chap45.html#features-attachmentFragmentShadingRate"><code>attach
 
 If <code>stage</code> is not <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>, <code>flags</code>
 <strong class="purple">must</strong> not include
-VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT</p>
+<code>VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-flags-08489" href="chap9.html#VUID-VkShaderCreateInfoEXT-flags-08489"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-flags-08489</span><br>
@@ -1176,16 +1231,15 @@ If <code>stage</code> is <code>VK_SHADER_STAGE_VERTEX_BIT</code>, <code>nextStag
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-nextStage-08428" href="chap9.html#VUID-VkShaderCreateInfoEXT-nextStage-08428"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-nextStage-08428</span><br>
 
-If <code>stage</code> is <code>VK_SHADER_STAGE_VERTEX_BIT</code> and the
-<a href="chap45.html#features-tessellationShader"><code>tessellationShader</code></a> feature is not
-enabled, <code>nextStage</code> <strong class="purple">must</strong> not include
-<code>VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT</code></p>
+If the <a href="chap45.html#features-tessellationShader"><code>tessellationShader</code></a> feature
+is not enabled, <code>nextStage</code> <strong class="purple">must</strong> not include
+<code>VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT</code> or
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-nextStage-08429" href="chap9.html#VUID-VkShaderCreateInfoEXT-nextStage-08429"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-nextStage-08429</span><br>
 
-If <code>stage</code> is <code>VK_SHADER_STAGE_VERTEX_BIT</code> and the
-<a href="chap45.html#features-geometryShader"><code>geometryShader</code></a> feature is not
+If the <a href="chap45.html#features-geometryShader"><code>geometryShader</code></a> feature is not
 enabled, <code>nextStage</code> <strong class="purple">must</strong> not include
 <code>VK_SHADER_STAGE_GEOMETRY_BIT</code></p>
 </li>
@@ -1203,14 +1257,6 @@ If <code>stage</code> is <code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code
 <code>nextStage</code> <strong class="purple">must</strong> not include any bits other than
 <code>VK_SHADER_STAGE_GEOMETRY_BIT</code> and
 <code>VK_SHADER_STAGE_FRAGMENT_BIT</code></p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-nextStage-08432" href="chap9.html#VUID-VkShaderCreateInfoEXT-nextStage-08432"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-nextStage-08432</span><br>
-
-If <code>stage</code> is <code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> and
-the <a href="chap45.html#features-geometryShader"><code>geometryShader</code></a> feature is not
-enabled, <code>nextStage</code> <strong class="purple">must</strong> not include
-<code>VK_SHADER_STAGE_GEOMETRY_BIT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-nextStage-08433" href="chap9.html#VUID-VkShaderCreateInfoEXT-nextStage-08433"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-nextStage-08433</span><br>
@@ -1237,70 +1283,11 @@ If <code>stage</code> is <code>VK_SHADER_STAGE_MESH_BIT_EXT</code>, <code>nextSt
 <strong class="purple">must</strong> not include any bits other than <code>VK_SHADER_STAGE_FRAGMENT_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkShaderCreateInfoEXT-codeSize-08439" href="chap9.html#VUID-VkShaderCreateInfoEXT-codeSize-08439"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-codeSize-08439</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>codeSize</code>
-<strong class="purple">must</strong> be a multiple of 4</p>
-</li>
-<li>
 <p><a id="VUID-VkShaderCreateInfoEXT-pName-08440" href="chap9.html#VUID-VkShaderCreateInfoEXT-pName-08440"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pName-08440</span><br>
 
 If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pName</code>
 <strong class="purple">must</strong> be the name of an <code>OpEntryPoint</code> in <code>pCode</code> with an
 execution model that matches <code>stage</code></p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08441" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08441"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08441</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code>
-<strong class="purple">must</strong> point to valid SPIR-V code, formatted and packed as described by
-the <a href="chap2.html#spirv-spec">Khronos SPIR-V Specification</a></p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08442" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08442"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08442</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code>
-<strong class="purple">must</strong> adhere to the validation rules described by the
-<a href="chap50.html#spirvenv-module-validation">Validation Rules within a Module</a> section
-of the <a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08443" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08443"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08443</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code>
-<strong class="purple">must</strong> declare the <code>Shader</code> capability for SPIR-V code</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08444" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08444"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08444</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code>
-<strong class="purple">must</strong> not declare any capability that is not supported by the API, as
-described by the <a href="chap50.html#spirvenv-module-validation">Capabilities</a> section of
-the <a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08445" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08445"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08445</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, and
-<code>pCode</code> declares any of the capabilities listed in the
-<a href="chap50.html#spirvenv-capabilities-table">SPIR-V Environment</a> appendix, one of the
-corresponding requirements <strong class="purple">must</strong> be satisfied</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08446" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08446"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08446</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, <code>pCode</code>
-<strong class="purple">must</strong> not declare any SPIR-V extension that is not supported by the API,
-as described by the <a href="chap50.html#spirvenv-extensions">Extension</a> section of the
-<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderCreateInfoEXT-pCode-08447" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08447"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08447</span><br>
-
-If <code>codeType</code> is <code>VK_SHADER_CODE_TYPE_SPIRV_EXT</code>, and
-<code>pCode</code> declares any of the SPIR-V extensions listed in the
-<a href="chap50.html#spirvenv-extensions-table">SPIR-V Environment</a> appendix, one of the
-corresponding requirements <strong class="purple">must</strong> be satisfied</p>
 </li>
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-pCode-08448" href="chap9.html#VUID-VkShaderCreateInfoEXT-pCode-08448"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-pCode-08448</span><br>
@@ -1514,11 +1501,17 @@ specifying how a shader object is created, are:</p>
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_shader_object</span>
 <span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkShaderCreateFlagBitsEXT</span> <span class="p">{</span>
     <span class="n">VK_SHADER_CREATE_LINK_STAGE_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_shader_object with VK_EXT_subgroup_size_control or VK_VERSION_1_3</span>
     <span class="n">VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_shader_object with VK_EXT_subgroup_size_control or VK_VERSION_1_3</span>
     <span class="n">VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000004</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_shader_object with VK_EXT_mesh_shader or VK_NV_mesh_shader</span>
     <span class="n">VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000008</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_shader_object with VK_KHR_device_group or VK_VERSION_1_1</span>
     <span class="n">VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000010</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_fragment_shading_rate with VK_EXT_shader_object</span>
     <span class="n">VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000020</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_fragment_density_map with VK_EXT_shader_object</span>
     <span class="n">VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000040</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkShaderCreateFlagBitsEXT</span><span class="p">;</span></code></pre>
 </div>
@@ -1526,27 +1519,25 @@ specifying how a shader object is created, are:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_SHADER_CREATE_LINK_STAGE_BIT_EXT</code> specifies that this stage is
-linked to all other stages being created in the same
-<a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a> call whose <a href="chap9.html#VkShaderCreateInfoEXT">VkShaderCreateInfoEXT</a>
-structures have the <code>VK_SHADER_CREATE_LINK_STAGE_BIT_EXT</code> flag set
-in <code>flags</code>.</p>
+<p><code>VK_SHADER_CREATE_LINK_STAGE_BIT_EXT</code> specifies that a shader is
+linked to all other shaders created in the same <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a>
+call whose <a href="chap9.html#VkShaderCreateInfoEXT">VkShaderCreateInfoEXT</a> structures' <code>flags</code> include
+<code>VK_SHADER_CREATE_LINK_STAGE_BIT_EXT</code>.</p>
 </li>
 <li>
 <p><code>VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code> specifies
 that the <a href="chap15.html#interfaces-builtin-variables-sgs"><code>SubgroupSize</code></a> <strong class="purple">may</strong>
-vary in the shader stage.</p>
+vary in a compute shader.</p>
 </li>
 <li>
 <p><code>VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code> specifies that the
-subgroup sizes <strong class="purple">must</strong> be launched with all invocations active in the
-compute stage.</p>
+subgroup sizes <strong class="purple">must</strong> be launched with all invocations active in a
+compute shader.</p>
 </li>
 <li>
-<p><code>VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT</code> specifies that the mesh
-shader being created <strong class="purple">must</strong> only be used without a task shader.
-Otherwise, the mesh shader being created <strong class="purple">must</strong> only be used with a task
-shader.</p>
+<p><code>VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT</code> specifies that a mesh
+shader <strong class="purple">must</strong> only be used without a task shader.
+Otherwise, the mesh shader <strong class="purple">must</strong> only be used with a task shader.</p>
 </li>
 <li>
 <p><code>VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT</code> specifies that a compute
@@ -1555,12 +1546,12 @@ workgroup.</p>
 </li>
 <li>
 <p><code>VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT</code>
-specifies that the fragment shader <strong class="purple">can</strong> be used with a fragment shading
+specifies that a fragment shader <strong class="purple">can</strong> be used with a fragment shading
 rate attachment.</p>
 </li>
 <li>
 <p><code>VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT</code> specifies
-that the fragment shader <strong class="purple">can</strong> be used with a fragment density map
+that a fragment shader <strong class="purple">can</strong> be used with a fragment density map
 attachment.</p>
 </li>
 </ul>
@@ -1694,7 +1685,7 @@ large enough to fit the data it its entirety.</p>
 </div>
 <div class="paragraph">
 <p>Binary shader code retrieved using <code>vkGetShaderBinaryDataEXT</code> <strong class="purple">can</strong> be
-passed to a subsequent call to <code>vkCreateShadersEXT</code> on a compatible
+passed to a subsequent call to <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a> on a compatible
 physical device by specifying <code>VK_SHADER_CODE_TYPE_BINARY_EXT</code> in the
 <code>codeType</code> member of <code>VkShaderCreateInfoEXT</code>.</p>
 </div>
@@ -1789,14 +1780,14 @@ enabled</p>
 <h4 id="shaders-objects-binary-compatibility"><a class="anchor" href="chap9.html#shaders-objects-binary-compatibility"></a>9.1.3. Binary Shader Compatibility</h4>
 <div class="paragraph">
 <p>Binary shader compatibility means that binary shader code returned from a
-call to <code>vkGetShaderBinaryDataEXT</code> <strong class="purple">can</strong> be passed to a later call to
-<code>vkCreateShadersEXT</code>, potentially on a different logical and/or physical
+call to <a href="chap9.html#vkGetShaderBinaryDataEXT">vkGetShaderBinaryDataEXT</a> <strong class="purple">can</strong> be passed to a later call to
+<a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a>, potentially on a different logical and/or physical
 device, and that this will result in the successful creation of a shader
 object functionally equivalent to the shader object that the code was
 originally queried from.</p>
 </div>
 <div class="paragraph">
-<p>Binary shader code queried from <code>vkGetShaderBinaryDataEXT</code> is not
+<p>Binary shader code queried from <a href="chap9.html#vkGetShaderBinaryDataEXT">vkGetShaderBinaryDataEXT</a> is not
 guaranteed to be compatible across all devices, but implementations are
 required to provide some compatibility guarantees.
 Applications <strong class="purple">may</strong> determine binary shader compatibility using either (or
@@ -1814,14 +1805,14 @@ higher <code>shaderBinaryVersion</code>.</p>
 </div>
 <div class="paragraph">
 <p>Whenever a new version of an implementation incorporates any changes that
-affect the output of <code>vkGetShaderBinaryDataEXT</code>, the implementation
+affect the output of <a href="chap9.html#vkGetShaderBinaryDataEXT">vkGetShaderBinaryDataEXT</a>, the implementation
 <strong class="purple">should</strong> either increment <code>shaderBinaryVersion</code> if binary shader code
 retrieved from older versions remains compatible with the new
 implementation, or else replace <code>shaderBinaryUUID</code> with a new value if
 backward compatibility has been broken.
 Binary shader code queried from a device with a matching
 <code>shaderBinaryUUID</code> and lower <code>shaderBinaryVersion</code> relative to the
-device on which <code>vkCreateShadersEXT</code> is being called <strong class="purple">may</strong> be suboptimal
+device on which <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a> is being called <strong class="purple">may</strong> be suboptimal
 for the new device in ways that do not change shader functionality, but it
 is still guaranteed to be usable to successfully create the shader
 object(s).</p>
@@ -1847,14 +1838,14 @@ necessary.</p>
 </div>
 <div class="paragraph">
 <p>In addition to the shader compatibility guarantees described above, it is
-valid for an application to call <code>vkCreateShadersEXT</code> with binary shader
+valid for an application to call <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a> with binary shader
 code created on a device with a different or unknown <code>shaderBinaryUUID</code>
 and/or higher <code>shaderBinaryVersion</code>.
 In this case, the implementation <strong class="purple">may</strong> use any unspecified means of its
 choosing to determine whether the provided binary shader code is usable.
-If it is, the <code>vkCreateShadersEXT</code> call <strong class="purple">must</strong> return <code>VK_SUCCESS</code>,
+If it is, the <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a> call <strong class="purple">must</strong> return <code>VK_SUCCESS</code>,
 and the created shader object is guaranteed to be valid.
-Otherwise, in the absence of some other error, the <code>vkCreateShadersEXT</code>
+Otherwise, in the absence of some other error, the <a href="chap9.html#vkCreateShadersEXT">vkCreateShadersEXT</a>
 call <strong class="purple">must</strong> return <code>VK_ERROR_INCOMPATIBLE_SHADER_BINARY_EXT</code> to indicate
 that the provided binary shader code is not compatible with the device.</p>
 </div>
@@ -2004,6 +1995,22 @@ and <code>pShaders</code> is not <code>NULL</code>, the same index in <code>pSha
 be <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
 </li>
 <li>
+<p><a id="VUID-vkCmdBindShadersEXT-pShaders-08490" href="chap9.html#VUID-vkCmdBindShadersEXT-pShaders-08490"></a> <span class="vuid">VUID-vkCmdBindShadersEXT-pShaders-08490</span><br>
+
+If the <a href="chap45.html#features-taskShader"><code>taskShader</code></a> feature is not enabled,
+and <code>pStages</code> contains <code>VK_SHADER_STAGE_TASK_BIT_EXT</code>, and
+<code>pShaders</code> is not <code>NULL</code>, the same index in <code>pShaders</code> <strong class="purple">must</strong> be
+<a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBindShadersEXT-pShaders-08491" href="chap9.html#VUID-vkCmdBindShadersEXT-pShaders-08491"></a> <span class="vuid">VUID-vkCmdBindShadersEXT-pShaders-08491</span><br>
+
+If the <a href="chap45.html#features-meshShader"><code>meshShader</code></a> feature is not enabled,
+and <code>pStages</code> contains <code>VK_SHADER_STAGE_MESH_BIT_EXT</code>, and
+<code>pShaders</code> is not <code>NULL</code>, the same index in <code>pShaders</code> <strong class="purple">must</strong> be
+<a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
+</li>
+<li>
 <p><a id="VUID-vkCmdBindShadersEXT-pShaders-08476" href="chap9.html#VUID-vkCmdBindShadersEXT-pShaders-08476"></a> <span class="vuid">VUID-vkCmdBindShadersEXT-pShaders-08476</span><br>
 
 If <code>pStages</code> contains <code>VK_SHADER_STAGE_COMPUTE_BIT</code>, the
@@ -2139,6 +2146,9 @@ called to set the relevant state on the command buffer prior to drawing:</p>
 <li>
 <p><a href="chap27.html#vkCmdSetScissorWithCountEXT">vkCmdSetScissorWithCountEXT</a></p>
 </li>
+<li>
+<p><a href="chap28.html#vkCmdSetRasterizerDiscardEnableEXT">vkCmdSetRasterizerDiscardEnableEXT</a></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -2176,18 +2186,6 @@ command <strong class="purple">must</strong> have been called on the command buf
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, the
-following command <strong class="purple">must</strong> have been called on the command buffer prior to
-drawing:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="chap28.html#vkCmdSetRasterizerDiscardEnableEXT">vkCmdSetRasterizerDiscardEnableEXT</a></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
 <p>If <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following commands
 <strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
@@ -2210,10 +2208,11 @@ drawing:</p>
 </li>
 <li>
 <p><a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a>, if <code>polygonMode</code> is
-<code>VK_POLYGON_MODE_LINE</code>, or if a shader is bound to the
-<code>VK_SHADER_STAGE_VERTEX_BIT</code> stage and <code>primitiveTopology</code> is a
-line topology, or if a shader which outputs line primitives is bound to
-the <code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
+<code>VK_POLYGON_MODE_LINE</code>, or if
+a shader is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code> stage and
+<code>primitiveTopology</code> is a line topology, or if a shader which outputs
+line primitives is bound to the
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
 <code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage</p>
 </li>
 <li>
@@ -2245,7 +2244,7 @@ or if the fragment shader uses a variable decorated with
 <p><a href="chap28.html#vkCmdSetDepthBiasEnableEXT">vkCmdSetDepthBiasEnableEXT</a></p>
 </li>
 <li>
-<p><a href="chap28.html#vkCmdSetDepthBias">vkCmdSetDepthBias</a>, <code>depthBiasEnable</code> is <code>VK_TRUE</code></p>
+<p><a href="chap28.html#vkCmdSetDepthBias">vkCmdSetDepthBias</a>, if <code>depthBiasEnable</code> is <code>VK_TRUE</code></p>
 </li>
 <li>
 <p><a href="chap27.html#vkCmdSetDepthClampEnableEXT">vkCmdSetDepthClampEnableEXT</a>, if the <a href="chap45.html#features-depthClamp">depthClamp</a> feature is enabled on the device</p>
@@ -2297,13 +2296,10 @@ member with a value of <code>VK_BLEND_FACTOR_CONSTANT_COLOR</code>,
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and one or more of the
-<a href="chap45.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a>,
-<a href="chap45.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a>, or
-<a href="chap45.html#features-attachmentFragmentShadingRate"><code>attachmentFragmentShadingRate</code></a> features are enabled on the device,
-the following command <strong class="purple">must</strong> have been called on the command buffer prior to
-drawing:</p>
+<p>If the <a href="chap45.html#features-pipelineFragmentShadingRate"><code>pipelineFragmentShadingRate</code></a> feature is enabled on the device, and a
+shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
+<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following command <strong class="purple">must</strong>
+have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2313,10 +2309,10 @@ drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, and
-the <a href="chap45.html#features-geometryStreams"><code>geometryStreams</code></a> feature is enabled
-on the device, the following command <strong class="purple">must</strong> have been called on the command
-buffer prior to drawing:</p>
+<p>If the <a href="chap45.html#features-geometryStreams"><code>geometryStreams</code></a> feature is
+enabled on the device, and a shader is bound to the
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, the following command <strong class="purple">must</strong> have
+been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2346,11 +2342,9 @@ prior to drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<code><a href="chap54.html#VK_EXT_conservative_rasterization">VK_EXT_conservative_rasterization</a></code> extension is enabled on the
-device, the following commands <strong class="purple">must</strong> have been called on the command buffer
-prior to drawing:</p>
+<p>If <code><a href="chap54.html#VK_EXT_conservative_rasterization">VK_EXT_conservative_rasterization</a></code> extension is enabled on the
+device, and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following
+commands <strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2378,8 +2372,8 @@ command buffer prior to drawing:</p>
 </div>
 <div class="paragraph">
 <p>If the <code><a href="chap54.html#VK_EXT_sample_locations">VK_EXT_sample_locations</a></code> extension is enabled on the device,
-the following commands <strong class="purple">must</strong> have been called on the command buffer prior to
-drawing:</p>
+and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following commands
+<strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2394,8 +2388,8 @@ drawing:</p>
 </div>
 <div class="paragraph">
 <p>If the <code><a href="chap54.html#VK_EXT_provoking_vertex">VK_EXT_provoking_vertex</a></code> extension is enabled on the device,
-the following command <strong class="purple">must</strong> have been called on the command buffer prior to
-drawing:</p>
+and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following command
+<strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2405,12 +2399,11 @@ drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<code><a href="chap54.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled on the device, and
-if <code>polygonMode</code> is <code>VK_POLYGON_MODE_LINE</code> or a shader is bound to
-the <code>VK_SHADER_STAGE_VERTEX_BIT</code> stage and <code>primitiveTopology</code> is a
-line topology or a shader which outputs line primitives is bound to the
+<p>If the <code><a href="chap54.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled on the
+device, and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and if
+<code>polygonMode</code> is <code>VK_POLYGON_MODE_LINE</code> or a shader is bound to the
+<code>VK_SHADER_STAGE_VERTEX_BIT</code> stage and <code>primitiveTopology</code> is a line
+topology or a shader which outputs line primitives is bound to the
 <code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
 <code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, the following commands <strong class="purple">must</strong> have
 been called on the command buffer prior to drawing:</p>
@@ -2442,11 +2435,11 @@ command buffer prior to drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<a href="chap45.html#features-colorWriteEnable"><code>colorWriteEnable</code></a> feature is enabled on
-the device, the following command <strong class="purple">must</strong> have been called on the command
-buffer prior to drawing:</p>
+<p>If the <a href="chap45.html#features-colorWriteEnable"><code>colorWriteEnable</code></a> feature is
+enabled on the device, a shader is bound to the
+<code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and <code>rasterizerDiscardEnable</code>
+is <code>VK_FALSE</code>, the following command <strong class="purple">must</strong> have been called on the
+command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2485,11 +2478,10 @@ drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<code><a href="chap54.html#VK_NV_fragment_coverage_to_color">VK_NV_fragment_coverage_to_color</a></code> extension is enabled on the
-device, the following commands <strong class="purple">must</strong> have been called on the command buffer
-prior to drawing:</p>
+<p>If the <code><a href="chap54.html#VK_NV_fragment_coverage_to_color">VK_NV_fragment_coverage_to_color</a></code> extension is enabled on the
+device, and a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following
+commands <strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2503,11 +2495,9 @@ is <code>VK_TRUE</code></p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<code><a href="chap54.html#VK_NV_framebuffer_mixed_samples">VK_NV_framebuffer_mixed_samples</a></code> extension is enabled on the device,
-the following commands <strong class="purple">must</strong> have been called on the command buffer prior to
-drawing:</p>
+<p>If the <code><a href="chap54.html#VK_NV_framebuffer_mixed_samples">VK_NV_framebuffer_mixed_samples</a></code> extension is enabled on the
+device, and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following
+commands <strong class="purple">must</strong> have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2526,11 +2516,10 @@ drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<a href="chap45.html#features-coverageReductionMode"><code>coverageReductionMode</code></a> feature is
-enabled on the device, the following command <strong class="purple">must</strong> have been called on the
-command buffer prior to drawing:</p>
+<p>If the <a href="chap45.html#features-coverageReductionMode"><code>coverageReductionMode</code></a>
+feature is enabled on the device, and <code>rasterizerDiscardEnable</code> is
+<code>VK_FALSE</code>, the following command <strong class="purple">must</strong> have been called on the command
+buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2540,11 +2529,9 @@ command buffer prior to drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<a href="chap45.html#features-representativeFragmentTest"><code>representativeFragmentTest</code></a>
-feature is enabled on the device, the following command <strong class="purple">must</strong> have been
-called on the command buffer prior to drawing:</p>
+<p>If the <a href="chap45.html#features-representativeFragmentTest"><code>representativeFragmentTest</code></a> feature is enabled on the device, and
+<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following command <strong class="purple">must</strong>
+have been called on the command buffer prior to drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2554,11 +2541,10 @@ called on the command buffer prior to drawing:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If a shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
-<code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, and the
-<a href="chap45.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is enabled on
-the device, the following commands <strong class="purple">must</strong> have been called on the command
-buffer prior to drawing:</p>
+<p>If the <a href="chap45.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is
+enabled on the device, and <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>,
+the following commands <strong class="purple">must</strong> have been called on the command buffer prior to
+drawing:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2599,7 +2585,7 @@ commands.</p>
 <div class="sect3">
 <h4 id="shaders-objects-pipeline-interaction"><a class="anchor" href="chap9.html#shaders-objects-pipeline-interaction"></a>9.1.6. Interaction with Pipelines</h4>
 <div class="paragraph">
-<p>Calling <code>vkCmdBindShadersEXT</code> causes the pipeline bind points
+<p>Calling <a href="chap9.html#vkCmdBindShadersEXT">vkCmdBindShadersEXT</a> causes the pipeline bind points
 corresponding to each stage in <code>pStages</code> to be disturbed, meaning that
 any <a href="chap10.html">pipelines</a> that had previously been bound to those
 pipeline bind points are no longer bound.</p>
@@ -2667,7 +2653,7 @@ the previously bound pipeline did not specify as <a href="chap10.html#pipelines-
 issuing drawing commands using shader objects.</p>
 </div>
 <div class="paragraph">
-<p>Calls to <code>vkCmdBindPipeline</code> likewise disturb the shader stage(s)
+<p>Calls to <a href="chap10.html#vkCmdBindPipeline">vkCmdBindPipeline</a> likewise disturb the shader stage(s)
 corresponding to <code>pipelineBindPoint</code>, meaning that any shaders that had
 previously been bound to any of those stages are no longer bound, even if
 the pipeline was created without shaders for some of those stages.</p>
@@ -2968,9 +2954,60 @@ memory addressed by <code>pCode</code>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkShaderModuleCreateInfo-codeSize-01085" href="chap9.html#VUID-VkShaderModuleCreateInfo-codeSize-01085"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-codeSize-01085</span><br>
+<p><a id="VUID-VkSubpassDependency2-codeSize-08735" href="chap9.html#VUID-VkSubpassDependency2-codeSize-08735"></a> <span class="vuid">VUID-VkSubpassDependency2-codeSize-08735</span><br>
 
-<code>codeSize</code> <strong class="purple">must</strong> be greater than 0</p>
+If pCode is a pointer to SPIR-V code, <code>codeSize</code> <strong class="purple">must</strong> be a multiple of 4</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08736" href="chap9.html#VUID-VkSubpassDependency2-pCode-08736"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08736</span><br>
+
+If pCode is a pointer to SPIR-V code, <code>pCode</code> <strong class="purple">must</strong> point to valid SPIR-V code,
+formatted and packed as described by the <a href="chap2.html#spirv-spec">Khronos SPIR-V
+Specification</a></p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08737" href="chap9.html#VUID-VkSubpassDependency2-pCode-08737"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08737</span><br>
+
+If pCode is a pointer to SPIR-V code, <code>pCode</code> <strong class="purple">must</strong> adhere to the validation rules
+described by the <a href="chap50.html#spirvenv-module-validation">Validation Rules within a
+Module</a> section of the <a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a>
+appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08738" href="chap9.html#VUID-VkSubpassDependency2-pCode-08738"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08738</span><br>
+
+If pCode is a pointer to SPIR-V code, <code>pCode</code> <strong class="purple">must</strong> declare the <code>Shader</code> capability
+for SPIR-V code</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08739" href="chap9.html#VUID-VkSubpassDependency2-pCode-08739"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08739</span><br>
+
+If pCode is a pointer to SPIR-V code, <code>pCode</code> <strong class="purple">must</strong> not declare any capability that is
+not supported by the API, as described by the
+<a href="chap50.html#spirvenv-module-validation">Capabilities</a> section of the
+<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08740" href="chap9.html#VUID-VkSubpassDependency2-pCode-08740"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08740</span><br>
+
+If pCode is a pointer to SPIR-V code, and <code>pCode</code> declares any of the capabilities
+listed in the <a href="chap50.html#spirvenv-capabilities-table">SPIR-V Environment</a>
+appendix, one of the corresponding requirements <strong class="purple">must</strong> be satisfied</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08741" href="chap9.html#VUID-VkSubpassDependency2-pCode-08741"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08741</span><br>
+
+If pCode is a pointer to SPIR-V code, <code>pCode</code> <strong class="purple">must</strong> not declare any SPIR-V extension
+that is not supported by the API, as described by the
+<a href="chap50.html#spirvenv-extensions">Extension</a> section of the
+<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
+</li>
+<li>
+<p><a id="VUID-VkSubpassDependency2-pCode-08742" href="chap9.html#VUID-VkSubpassDependency2-pCode-08742"></a> <span class="vuid">VUID-VkSubpassDependency2-pCode-08742</span><br>
+
+If pCode is a pointer to SPIR-V code, and <code>pCode</code> declares any of the SPIR-V extensions
+listed in the <a href="chap50.html#spirvenv-extensions-table">SPIR-V Environment</a>
+appendix, one of the corresponding requirements <strong class="purple">must</strong> be satisfied</p>
 </li>
 <li>
 <p><a id="VUID-VkShaderModuleCreateInfo-pCode-07912" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-07912"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-07912</span><br>
@@ -2979,64 +3016,15 @@ If the <a href="chap54.html#VK_NV_glsl_shader">VK_NV_glsl_shader</a> extension i
 <strong class="purple">must</strong> be a pointer to SPIR-V code</p>
 </li>
 <li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01376" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01376"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01376</span><br>
-
-If <code>pCode</code> is a pointer to SPIR-V code, <code>codeSize</code> <strong class="purple">must</strong> be a
-multiple of 4</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01377" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01377"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01377</span><br>
-
-<code>pCode</code> <strong class="purple">must</strong> point to either valid SPIR-V code, formatted and
-packed as described by the <a href="chap2.html#spirv-spec">Khronos SPIR-V Specification</a>
-or valid GLSL code which <strong class="purple">must</strong> be written to the <code>GL_KHR_vulkan_glsl</code>
-extension specification</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01378" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01378"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01378</span><br>
-
-If <code>pCode</code> is a pointer to SPIR-V code, that code <strong class="purple">must</strong> adhere to
-the validation rules described by the <a href="chap50.html#spirvenv-module-validation">Validation Rules within a Module</a> section of the
-<a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
-</li>
-<li>
 <p><a id="VUID-VkShaderModuleCreateInfo-pCode-01379" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01379"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01379</span><br>
 
 If <code>pCode</code> is a pointer to GLSL code, it <strong class="purple">must</strong> be valid GLSL code
 written to the <code>GL_KHR_vulkan_glsl</code> GLSL extension specification</p>
 </li>
 <li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01089" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01089"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01089</span><br>
+<p><a id="VUID-VkShaderModuleCreateInfo-codeSize-01085" href="chap9.html#VUID-VkShaderModuleCreateInfo-codeSize-01085"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-codeSize-01085</span><br>
 
-<code>pCode</code> <strong class="purple">must</strong> declare the <code>Shader</code> capability for SPIR-V code</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01090" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01090"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01090</span><br>
-
-<code>pCode</code> <strong class="purple">must</strong> not declare any capability that is not supported by
-the API, as described by the <a href="chap50.html#spirvenv-module-validation">Capabilities</a> section of the <a href="chap50.html#spirvenv-capabilities">SPIR-V
-Environment</a> appendix</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-01091" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-01091"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-01091</span><br>
-
-If <code>pCode</code> declares any of the capabilities listed in the
-<a href="chap50.html#spirvenv-capabilities-table">SPIR-V Environment</a> appendix, one of the
-corresponding requirements <strong class="purple">must</strong> be satisfied</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-04146" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-04146"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-04146</span><br>
-
-<code>pCode</code> <strong class="purple">must</strong> not declare any SPIR-V extension that is not supported
-by the API, as described by the <a href="chap50.html#spirvenv-extensions">Extension</a>
-section of the <a href="chap50.html#spirvenv-capabilities">SPIR-V Environment</a> appendix</p>
-</li>
-<li>
-<p><a id="VUID-VkShaderModuleCreateInfo-pCode-04147" href="chap9.html#VUID-VkShaderModuleCreateInfo-pCode-04147"></a> <span class="vuid">VUID-VkShaderModuleCreateInfo-pCode-04147</span><br>
-
-If <code>pCode</code> declares any of the SPIR-V extensions listed in the
-<a href="chap50.html#spirvenv-extensions-table">SPIR-V Environment</a> appendix, one of the
-corresponding requirements <strong class="purple">must</strong> be satisfied</p>
+<code>codeSize</code> <strong class="purple">must</strong> be greater than 0</p>
 </li>
 </ul>
 </div>
@@ -5970,7 +5958,7 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.246<br>
+Version 1.0.247<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
