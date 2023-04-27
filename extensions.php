@@ -59,6 +59,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_ray_query.html"> VK_KHR_ray_query </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_ray_tracing_maintenance1.html"> VK_KHR_ray_tracing_maintenance1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_ray_tracing_pipeline.html"> VK_KHR_ray_tracing_pipeline </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_ray_tracing_position_fetch.html"> VK_KHR_ray_tracing_position_fetch </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_relaxed_block_layout.html"> VK_KHR_relaxed_block_layout </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_sampler_mirror_clamp_to_edge.html"> VK_KHR_sampler_mirror_clamp_to_edge </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_sampler_ycbcr_conversion.html"> VK_KHR_sampler_ycbcr_conversion </a> </li>
