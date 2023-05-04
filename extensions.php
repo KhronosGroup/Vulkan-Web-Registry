@@ -103,6 +103,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_acquire_drm_display.html"> VK_EXT_acquire_drm_display </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_acquire_xlib_display.html"> VK_EXT_acquire_xlib_display </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_astc_decode_mode.html"> VK_EXT_astc_decode_mode </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_attachment_feedback_loop_dynamic_state.html"> VK_EXT_attachment_feedback_loop_dynamic_state </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_attachment_feedback_loop_layout.html"> VK_EXT_attachment_feedback_loop_layout </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_blend_operation_advanced.html"> VK_EXT_blend_operation_advanced </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_border_color_swizzle.html"> VK_EXT_border_color_swizzle </a> </li>
