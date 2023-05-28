@@ -130,6 +130,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_discard_rectangles.html"> VK_EXT_discard_rectangles </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_display_control.html"> VK_EXT_display_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_display_surface_counter.html"> VK_EXT_display_surface_counter </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_dynamic_rendering_unused_attachments.html"> VK_EXT_dynamic_rendering_unused_attachments </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state.html"> VK_EXT_extended_dynamic_state </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state2.html"> VK_EXT_extended_dynamic_state2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state3.html"> VK_EXT_extended_dynamic_state3 </a> </li>
