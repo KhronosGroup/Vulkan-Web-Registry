@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.251 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.252 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.251 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.252 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.251,</span>
-<span id="revdate">2023-05-28 12:20:26Z</span>
-<br><span id="revremark">from git branch: github-main commit: 45b5ba66f8128be493745da2d45f0bb407d9296a</span>
+<span id="revnumber">version 1.2.252,</span>
+<span id="revdate">2023-06-02 12:19:08Z</span>
+<br><span id="revremark">from git branch: github-main commit: 5718db0a370b5bd91e6cf2268a3dc2af9cfc15d1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -739,7 +739,9 @@ This specification defines the following types of functionality that queues
 <strong class="purple">may</strong> support: graphics, compute,
 video decode,
 video encode,
-transfer, and sparse memory management.</p>
+protected memory management,
+sparse memory management,
+and transfer.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -802,10 +804,10 @@ ordering constraints</a>.</p>
 </div>
 <div class="paragraph">
 <p>Work is submitted to queues using <em>queue submission commands</em> that typically
-take the form <code>vkQueue*</code> (e.g. <a href="chap6.html#vkQueueSubmit">vkQueueSubmit</a>,
-<a href="chap33.html#vkQueueBindSparse">vkQueueBindSparse</a>), and <strong class="purple">can</strong> take a list of semaphores upon which to
-wait before work begins and a list of semaphores to signal once work has
-completed.
+take the form <code>vkQueue*</code> (e.g. <a href="chap6.html#vkQueueSubmit">vkQueueSubmit</a>
+, <a href="chap33.html#vkQueueBindSparse">vkQueueBindSparse</a>
+), and <strong class="purple">can</strong> take a list of semaphores upon which to wait before work begins
+and a list of semaphores to signal once work has completed.
 The work itself, as well as signaling and waiting on the semaphores are all
 <em>queue operations</em>.
 Queue submission commands return control to the application once queue
@@ -824,9 +826,10 @@ be expressed with <a href="chap7.html#synchronization-semaphores">semaphores</a>
 <a href="chap7.html#synchronization-submission-order">submission order</a> and other
 <a href="chap7.html#synchronization-implicit">implicit ordering guarantees</a>, but otherwise
 <strong class="purple">may</strong> overlap or execute out of order.
-Other types of batches and queue submissions against a single queue (e.g.
-<a href="chap33.html#sparsemem-memory-binding">sparse memory binding</a>) have no implicit
-ordering constraints with any other queue submission or batch.
+Other types of batches and queue submissions against a single queue
+(e.g. <a href="chap33.html#sparsemem-memory-binding">sparse memory binding</a>)
+have no implicit ordering constraints with any other queue submission or
+batch.
 Additional explicit ordering constraints between queue submissions and
 individual batches can be expressed with
 <a href="chap7.html#synchronization-semaphores">semaphores</a> and
@@ -971,7 +974,8 @@ objects, and not to destroy them while they are still in use.</p>
 </div>
 <div id="fundamentals-objectmodel-lifetime-acquire" class="paragraph">
 <p>The ownership of application-owned memory is immediately acquired by any
-Vulkan command it is passed into.
+Vulkan command it is passed
+into.
 Ownership of such memory <strong class="purple">must</strong> be released back to the application at the
 end of the duration of the command,
 unless that command was deferred,
@@ -1169,8 +1173,13 @@ objects that were allocated from it.</p>
 <li>
 <p><code>VkDevice</code> objects <strong class="purple">can</strong> be destroyed when all <code>VkQueue</code> objects
 retrieved from them are idle, and all objects created from them have
-been destroyed.
-This includes the following objects:</p>
+been destroyed.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This includes the following objects:</p>
+<div class="openblock">
+<div class="content">
 <div class="ulist">
 <ul>
 <li>
@@ -1250,6 +1259,11 @@ This includes the following objects:</p>
 </li>
 <li>
 <p><code>VkVideoSessionParametersKHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </li>
 </ul>
 </div>
@@ -4110,6 +4124,11 @@ This <strong class="purple">may</strong> occur due to implementation-dependent r
 application’s control.</p>
 </li>
 <li>
+<p><code>VK_ERROR_VALIDATION_FAILED_EXT</code>
+A command failed because invalid usage was detected by the
+implementation or a validation-layer.</p>
+</li>
+<li>
 <p><code>VK_ERROR_COMPRESSION_EXHAUSTED_EXT</code> An image creation failed
 because internal resources required for compression are exhausted.
 This <strong class="purple">must</strong> only be returned when fixed-rate compression is requested.</p>
@@ -4218,6 +4237,12 @@ implementor should be contacted for support.</p>
 </td>
 </tr>
 </tbody></table>
+</div>
+<div class="paragraph">
+<p>Any command returning a <a href="chap3.html#VkResult">VkResult</a> <strong class="purple">may</strong> return
+<code>VK_ERROR_VALIDATION_FAILED_EXT</code>
+if a violation of valid usage is detected, even though commands do not
+explicitly list this as a possible return code.</p>
 </div>
 <div class="paragraph">
 <p>Performance-critical commands generally do not have return codes.
@@ -6087,6 +6112,8 @@ Specification.</p>
     <span class="n">VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_PROPERTIES_QCOM</span> <span class="o">=</span> <span class="mi">1000440001</span><span class="p">,</span>
   <span class="c1">// Provided by VK_QCOM_image_processing</span>
     <span class="n">VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM</span> <span class="o">=</span> <span class="mi">1000440002</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_external_memory_acquire_unmodified</span>
+    <span class="n">VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_ACQUIRE_UNMODIFIED_EXT</span> <span class="o">=</span> <span class="mi">1000453000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_EXT_extended_dynamic_state3</span>
     <span class="n">VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT</span> <span class="o">=</span> <span class="mi">1000455000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_EXT_extended_dynamic_state3</span>
@@ -6572,7 +6599,7 @@ correct name.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.251<br>
+Version 1.2.252<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

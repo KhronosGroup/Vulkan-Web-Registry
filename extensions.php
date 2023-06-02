@@ -134,6 +134,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state.html"> VK_EXT_extended_dynamic_state </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state2.html"> VK_EXT_extended_dynamic_state2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_extended_dynamic_state3.html"> VK_EXT_extended_dynamic_state3 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_external_memory_acquire_unmodified.html"> VK_EXT_external_memory_acquire_unmodified </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_external_memory_dma_buf.html"> VK_EXT_external_memory_dma_buf </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_external_memory_host.html"> VK_EXT_external_memory_host </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_filter_cubic.html"> VK_EXT_filter_cubic </a> </li>
