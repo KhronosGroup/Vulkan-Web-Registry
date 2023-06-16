@@ -116,6 +116,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_debug_marker.html"> VK_EXT_debug_marker </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_debug_report.html"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_debug_utils.html"> VK_EXT_debug_utils </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_bias_control.html"> VK_EXT_depth_bias_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clamp_zero_one.html"> VK_EXT_depth_clamp_zero_one </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clip_control.html"> VK_EXT_depth_clip_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
@@ -341,6 +342,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_rotated_copy_commands.html"> VK_QCOM_rotated_copy_commands </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_tile_properties.html"> VK_QCOM_tile_properties </a> </li>
     <li> <b>  QNX Extensions (BlackBerry Limited)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_QNX_external_memory_screen_buffer.html"> VK_QNX_external_memory_screen_buffer </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QNX_screen_surface.html"> VK_QNX_screen_surface </a> </li>
     <li> <b>  SEC Extensions (Samsung Electronics Co., Ltd.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_SEC_amigo_profiling.html"> VK_SEC_amigo_profiling </a> </li>
