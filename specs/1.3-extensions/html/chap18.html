@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.254 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.3.255 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.254 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.255 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.254,</span>
-<span id="revdate">2023-06-16 13:11:24Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7c839d85b51cb639444183c586e53b2b2ab21e2e</span>
+<span id="revnumber">version 1.3.255,</span>
+<span id="revdate">2023-06-23 11:41:13Z</span>
+<br><span id="revremark">from git branch: github-main commit: 012db30fd16929f9fd30dfbc2a7c86e048d64015</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -171,7 +171,8 @@
 <li><a href="chap9.html#shaders-derivative-operations">9.28. Derivative Operations</a></li>
 <li><a href="chap9.html#shaders-helper-invocations">9.29. Helper Invocations</a></li>
 <li><a href="chap9.html#_cooperative_matrices">9.30. Cooperative Matrices</a></li>
-<li><a href="chap9.html#shaders-validation-cache">9.31. Validation Cache</a></li>
+<li><a href="chap9.html#_cooperative_matrices_2">9.31. Cooperative Matrices</a></li>
+<li><a href="chap9.html#shaders-validation-cache">9.32. Validation Cache</a></li>
 </ul>
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
@@ -4476,10 +4477,6 @@ specified by <code>stage</code>.</p>
 <p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
 includes only the timestamp write operation.</p>
 </div>
-<div class="paragraph">
-<p>When the timestamp value is written, the availability status of the query is
-set to available.</p>
-</div>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -4489,17 +4486,24 @@ set to available.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>If an implementation is unable to detect completion and latch the timer
-immediately after <code>stage</code> has completed, it <strong class="purple">may</strong> instead do so at any
-logically later stage.</p>
+<p>Implementations may write the timestamp at any stage that is
+<a href="chap7.html#synchronization-pipeline-stages-order">logically later</a> than <code>stage</code>.</p>
 </div>
 </td>
 </tr>
 </tbody></table>
 </div>
 <div class="paragraph">
-<p>Comparisons between timestamps are not meaningful if the timestamps are
-written by commands submitted to different queues.</p>
+<p>Any timestamp write that <a href="chap7.html#synchronization-dependencies-execution">happens-after</a> another timestamp write in the same submission <strong class="purple">must</strong> not
+have a lower value unless its value overflows the maximum supported integer
+bit width of the query.
+If apiext:`VK_EXT_calibrated_timestamps` is enabled, this extends to
+timestamp writes across all submissions on the same logical device: any
+timestamp write that <a href="chap7.html#synchronization-dependencies-execution">happens-after</a> another <strong class="purple">must</strong> not have a lower value unless its value
+overflows the maximum supported integer bit width of the query.
+Timestamps written by this command <strong class="purple">must</strong> be in the
+<code>VK_TIME_DOMAIN_DEVICE_EXT</code> <a href="chap7.html#VkTimeDomainEXT">time domain</a>.
+If an overflow occurs, the timestamp value <strong class="purple">must</strong> wrap back to zero.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4510,8 +4514,13 @@ written by commands submitted to different queues.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>An example of such a comparison is subtracting an older timestamp from a
-newer one to determine the execution time of a sequence of commands.</p>
+<p>Comparisons between timestamps should be done between timestamps where they
+are guaranteed to not decrease.
+For example, subtracting an older timestamp from a newer one to determine
+the execution time of a sequence of commands is only a reliable measurement
+if the two timestamp writes were performed in the same
+submission, or if the writes were performed on the same logical device and
+apiext:`VK_EXT_calibrated_timestamps` is enabled.</p>
 </div>
 </td>
 </tr>
@@ -4829,10 +4838,6 @@ specified by <code>pipelineStage</code>.</p>
 <p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
 includes only the timestamp write operation.</p>
 </div>
-<div class="paragraph">
-<p>When the timestamp value is written, the availability status of the query is
-set to available.</p>
-</div>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -4842,17 +4847,24 @@ set to available.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>If an implementation is unable to detect completion and latch the timer
-immediately after <code>stage</code> has completed, it <strong class="purple">may</strong> instead do so at any
-logically later stage.</p>
+<p>Implementations may write the timestamp at any stage that is
+<a href="chap7.html#synchronization-pipeline-stages-order">logically later</a> than <code>stage</code>.</p>
 </div>
 </td>
 </tr>
 </tbody></table>
 </div>
 <div class="paragraph">
-<p>Comparisons between timestamps are not meaningful if the timestamps are
-written by commands submitted to different queues.</p>
+<p>Any timestamp write that <a href="chap7.html#synchronization-dependencies-execution">happens-after</a> another timestamp write in the same submission <strong class="purple">must</strong> not
+have a lower value unless its value overflows the maximum supported integer
+bit width of the query.
+If apiext:`VK_EXT_calibrated_timestamps` is enabled, this extends to
+timestamp writes across all submissions on the same logical device: any
+timestamp write that <a href="chap7.html#synchronization-dependencies-execution">happens-after</a> another <strong class="purple">must</strong> not have a lower value unless its value
+overflows the maximum supported integer bit width of the query.
+Timestamps written by this command <strong class="purple">must</strong> be in the
+<code>VK_TIME_DOMAIN_DEVICE_EXT</code> <a href="chap7.html#VkTimeDomainEXT">time domain</a>.
+If an overflow occurs, the timestamp value <strong class="purple">must</strong> wrap back to zero.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4863,8 +4875,13 @@ written by commands submitted to different queues.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>An example of such a comparison is subtracting an older timestamp from a
-newer one to determine the execution time of a sequence of commands.</p>
+<p>Comparisons between timestamps should be done between timestamps where they
+are guaranteed to not decrease.
+For example, subtracting an older timestamp from a newer one to determine
+the execution time of a sequence of commands is only a reliable measurement
+if the two timestamp writes were performed in the same
+submission, or if the writes were performed on the same logical device and
+apiext:`VK_EXT_calibrated_timestamps` is enabled.</p>
 </div>
 </td>
 </tr>
@@ -7245,7 +7262,7 @@ zero or more <a href="chap18.html#VkVideoEncodeFeedbackFlagBitsKHR">VkVideoEncod
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.254<br>
+Version 1.3.255<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

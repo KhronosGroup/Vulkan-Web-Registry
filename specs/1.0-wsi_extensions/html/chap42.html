@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.254 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.255 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.254 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.255 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.254,</span>
-<span id="revdate">2023-06-16 13:32:35Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7c839d85b51cb639444183c586e53b2b2ab21e2e</span>
+<span id="revnumber">version 1.0.255,</span>
+<span id="revdate">2023-06-23 12:02:57Z</span>
+<br><span id="revremark">from git branch: github-main commit: 012db30fd16929f9fd30dfbc2a7c86e048d64015</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -161,6 +161,7 @@
 <li><a href="chap9.html#shaders-scope">9.20. Scope</a></li>
 <li><a href="chap9.html#shaders-derivative-operations">9.21. Derivative Operations</a></li>
 <li><a href="chap9.html#shaders-helper-invocations">9.22. Helper Invocations</a></li>
+<li><a href="chap9.html#_cooperative_matrices">9.23. Cooperative Matrices</a></li>
 </ul>
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
@@ -934,6 +935,10 @@ the <a href="chap5.html#VkDevice">VkDevice</a> specified in the <code>device</co
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a id="spirvenv-capabilities-table-RayTracingPositionFetchKHR"></a><code>RayTracingPositionFetchKHR</code><br>
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a href="chap37.html#features-rayTracingPositionFetch"><code>VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR</code>::<code>rayTracingPositionFetch</code></a></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="spirvenv-capabilities-table-CooperativeMatrixKHR"></a><code>CooperativeMatrixKHR</code><br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <a href="chap37.html#features-cooperativeMatrix"><code>VkPhysicalDeviceCooperativeMatrixFeaturesKHR</code>::<code>cooperativeMatrix</code></a></p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -1074,6 +1079,10 @@ parameter of <a href="chap9.html#vkCreateShaderModule">vkCreateShaderModule</a>:
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>SPV_KHR_ray_tracing_position_fetch</code><br>
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <code><a href="chap46.html#VK_KHR_ray_tracing_position_fetch">VK_KHR_ray_tracing_position_fetch</a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SPV_KHR_cooperative_matrix</code><br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <code><a href="chap46.html#VK_KHR_cooperative_matrix">VK_KHR_cooperative_matrix</a></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -2006,6 +2015,14 @@ Interface</a></p>
 The <code>TileImageEXT</code> <code>Storage</code> <code>Class</code> <strong class="purple">must</strong> only be used for declaring
 tile image variables.</p>
 </li>
+<li>
+<p><a id="VUID-StandaloneSpirv-Pointer-08973" href="chap42.html#VUID-StandaloneSpirv-Pointer-08973"></a> <span class="vuid">VUID-StandaloneSpirv-Pointer-08973</span><br>
+
+The <code>Storage</code> <code>Class</code> of the <code>Pointer</code> operand to
+<code>OpCooperativeMatrixLoadKHR</code> or <code>OpCooperativeMatrixStoreKHR</code>
+<strong class="purple">must</strong> be limited to <code>Workgroup</code>, <code>CrossWorkgroup</code>,
+<code>StorageBuffer</code>, or <code>PhysicalStorageBuffer</code>.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -2256,12 +2273,115 @@ pointer value of a memory access instruction <strong class="purple">must</strong
 aligned as specified by the <code>Aligned</code> memory access operand</p>
 </li>
 <li>
+<p><a id="VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-" href="chap42.html#VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-</span><br>
+
+For <code>OpTypeCooperativeMatrixKHR</code>, the component type, scope, number
+of rows, and number of columns <strong class="purple">must</strong> match one of the matrices in any of
+the supported <a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the type of <code>A</code> <strong class="purple">must</strong> have
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>MSize</code> rows and
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>KSize</code> columns and have a
+component type that matches
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>AType</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, when the component type of <code>A</code>
+is a signed integer type, the <code>MatrixASignedComponents</code> cooperative
+matrix operand <strong class="purple">must</strong> be present.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the type of <code>B</code> <strong class="purple">must</strong> have
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>KSize</code> rows and
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>NSize</code> columns and have a
+component type that matches
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>BType</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, when the component type of <code>B</code>
+is a signed integer type, the <code>MatrixBSignedComponents</code> cooperative
+matrix operand <strong class="purple">must</strong> be present.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the type of <code>C</code> <strong class="purple">must</strong> have
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>MSize</code> rows and
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>NSize</code> columns and have a
+component type that matches
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>CType</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, when the component type of <code>C</code>
+is a signed integer type, the <code>MatrixCSignedComponents</code> cooperative
+matrix operand <strong class="purple">must</strong> be present.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the type of <code>Result</code> <strong class="purple">must</strong>
+have <a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>MSize</code> rows and
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>NSize</code> columns and have a
+component type that matches
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>ResultType</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, when the component type of
+<code>Result</code> is a signed integer type, the
+<code>MatrixResultSignedComponents</code> cooperative matrix operand <strong class="purple">must</strong> be
+present.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the <code>SaturatingAccumulation</code>
+cooperative matrix operand <strong class="purple">must</strong> be present if and only if
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>::<code>saturatingAccumulation</code> is
+<code>VK_TRUE</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixMulAddKHR-</span><br>
+
+For <code>OpCooperativeMatrixMulAddKHR</code>, the type of <code>A</code>, <code>B</code>,
+<code>C</code>, and <code>Result</code> <strong class="purple">must</strong> all have a scope of <code>scope</code>.</p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-" href="chap42.html#VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpTypeCooperativeMatrixKHR-</span><br>
+
+<code>OpTypeCooperativeMatrixKHR</code> and <code>OpCooperativeMatrix*</code>
+instructions <strong class="purple">must</strong> not be used in shader stages not included in
+<a href="chap38.html#VkPhysicalDeviceCooperativeMatrixPropertiesKHR">VkPhysicalDeviceCooperativeMatrixPropertiesKHR</a>::<code>cooperativeMatrixSupportedStages</code>.</p>
+</li>
+<li>
 <p><a id="VUID-RuntimeSpirv-DescriptorSet-06323" href="chap42.html#VUID-RuntimeSpirv-DescriptorSet-06323"></a> <span class="vuid">VUID-RuntimeSpirv-DescriptorSet-06323</span><br>
 
 <code>DescriptorSet</code> and <code>Binding</code> decorations <strong class="purple">must</strong> obey the
 constraints on <code>Storage</code> <code>Class</code>, type, and descriptor type described in
 <a href="chap15.html#interfaces-resources-setandbinding">DescriptorSet and Binding
 Assignment</a></p>
+</li>
+<li>
+<p><a id="VUID-RuntimeSpirv-OpCooperativeMatrixLoadKHR-" href="chap42.html#VUID-RuntimeSpirv-OpCooperativeMatrixLoadKHR-"></a> <span class="vuid">VUID-RuntimeSpirv-OpCooperativeMatrixLoadKHR-</span><br>
+
+For <code>OpCooperativeMatrixLoadKHR</code> and <code>OpCooperativeMatrixStoreKHR</code>
+instructions, the <code>Pointer</code> and <code>Stride</code> operands <strong class="purple">must</strong> be aligned
+to at least the lesser of 16 bytes or the natural alignment of a row or
+column (depending on <code>ColumnMajor</code>) of the matrix (where the natural
+alignment is the number of columns/rows multiplied by the component
+size).</p>
 </li>
 <li>
 <p><a id="VUID-RuntimeSpirv-shaderSampleRateInterpolationFunctions-06325" href="chap42.html#VUID-RuntimeSpirv-shaderSampleRateInterpolationFunctions-06325"></a> <span class="vuid">VUID-RuntimeSpirv-shaderSampleRateInterpolationFunctions-06325</span><br>
@@ -3333,6 +3453,10 @@ additional functionality beyond what <code>OpUMod</code> provides.</p>
 </tr>
 </tbody></table>
 </div>
+<div class="paragraph">
+<p><code>OpCooperativeMatrixMulAddKHR</code> performs its operations in an
+implementation-dependent order and internal precision.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -3775,7 +3899,7 @@ matrix multiplication.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.254<br>
+Version 1.0.255<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

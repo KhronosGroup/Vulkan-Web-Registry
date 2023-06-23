@@ -857,6 +857,14 @@ or<br>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_extension_proposal"><a class="anchor" href="#_extension_proposal"></a>Extension Proposal</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/KhronosGroup/Vulkan-Docs/tree/main/proposals/VK_EXT_calibrated_timestamps.adoc">VK_EXT_calibrated_timestamps</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_other_extension_metadata"><a class="anchor" href="#_other_extension_metadata"></a>Other Extension Metadata</h2>
 <div class="sectionbody">
 <div class="dlist">
@@ -972,106 +980,6 @@ quasi simultaneously from two time domains.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_issues"><a class="anchor" href="#_issues"></a>Issues</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>1) Is the device timestamp value returned in the same time domain as the
-timestamp values written by <a href="vkCmdWriteTimestamp.html">vkCmdWriteTimestamp</a>?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: Yes.</p>
-</div>
-<div class="paragraph">
-<p>2) What time domain is the host timestamp returned in?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: A query is provided to determine the calibrateable time domains.
-The expected host time domain used on Windows is that of
-QueryPerformanceCounter, and on Linux that of CLOCK_MONOTONIC.</p>
-</div>
-<div class="paragraph">
-<p>3) Should we support other time domain combinations than just one host and
-the device time domain?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: Supporting that would need the application to query the set of
-supported time domains, while supporting only one host and the device time
-domain would only need a query for the host time domain type.
-The proposed API chooses the general approach for the sake of extensibility.</p>
-</div>
-<div class="paragraph">
-<p>4) Should we use CLOCK_MONOTONIC_RAW instead of CLOCK_MONOTONIC?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: CLOCK_MONOTONIC is usable in a wider set of situations, however,
-it is subject to NTP adjustments so some use cases may prefer
-CLOCK_MONOTONIC_RAW.
-Thus this extension allows both to be exposed.</p>
-</div>
-<div class="paragraph">
-<p>5) How can the application extrapolate future device timestamp values from
-the calibrated timestamp value?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: <a href="VkPhysicalDeviceLimits.html">VkPhysicalDeviceLimits</a>::<code>timestampPeriod</code> makes it
-possible to calculate future device timestamps as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">futureTimestamp = calibratedTimestamp + deltaNanoseconds / timestampPeriod</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>6) In what queue are timestamp values in time domain
-<code>VK_TIME_DOMAIN_DEVICE_EXT</code> captured by
-<a href="vkGetCalibratedTimestampsEXT.html">vkGetCalibratedTimestampsEXT</a>?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: An implementation supporting this extension will have all its
-VkQueue share the same time domain.</p>
-</div>
-<div class="paragraph">
-<p>6) Can the host and device timestamp values drift apart over longer periods
-of time?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: Yes, especially as some time domains by definition allow for
-that to happen (e.g. CLOCK_MONOTONIC is subject to NTP adjustments).
-Thus it is recommended that applications re-calibrate from time to time.</p>
-</div>
-<div class="paragraph">
-<p>7) Should we add a query for reporting the maximum deviation of the
-timestamp values returned by calibrated timestamp queries?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: A global query seems inappropriate and difficult to enforce.
-However, it is possible to return the maximum deviation any single
-calibrated timestamp query can have by sampling one of the time domains
-twice as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-c" data-lang="c">timestampX = timestampX_before = SampleTimeDomain(X)
-for each time domain Y != X
-    timestampY = SampleTimeDomain(Y)
-timestampX_after = SampleTimeDomain(X)
-maxDeviation = timestampX_after - timestampX_before</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>8) Can the maximum deviation reported ever be zero?</p>
-</div>
-<div class="paragraph">
-<p><strong>RESOLVED</strong>: Unless the tick of each clock corresponding to the set of time
-domains coincides and all clocks can literally be sampled simultaneously,
-there is not really a possibility for the maximum deviation to be zero, so
-by convention the maximum deviation is always at least the maximum of the
-length of the ticks of the set of time domains calibrated and thus can never
-be zero.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -1134,8 +1042,8 @@ Fixes and changes should be made to the generator scripts, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.254<br>
-Last updated 2023-06-16 06:11:25 -0700
+Version 1.3.255<br>
+Last updated 2023-06-23 04:41:14 -0700
 </div>
 </div>
 

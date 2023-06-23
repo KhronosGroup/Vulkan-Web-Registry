@@ -1052,9 +1052,9 @@ pre.rouge .w {
 <h1>Vulkan<sup>®</sup> Documentation and Extensions: Procedures and Conventions</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech, Tobias Hector</span><br>
-<span id="revnumber">version 1.3.254,</span>
-<span id="revdate">2023-06-16 13:31:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: 7c839d85b51cb639444183c586e53b2b2ab21e2e</span>
+<span id="revnumber">version 1.3.255,</span>
+<span id="revdate">2023-06-23 12:02:27Z</span>
+<br><span id="revremark">from git branch: github-main commit: 012db30fd16929f9fd30dfbc2a7c86e048d64015</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3287,41 +3287,48 @@ specification files.</p>
 as specified <a href="#extensions-interactions-parent">in more detail below</a>.</p>
 </li>
 <li>
-<p>Valid usage statements <strong class="purple">must</strong> be kept atomic with regards to extension
-conditionals.
-Do not surround part of a single statement with conditionals.
-Valid usage statements are automatically extracted from the
-specification for use by ecosystem components like the validation
-layers, and the extraction scripts need to know which valid usage
-statements apply to which extensions.
-The loops required to deal with partial statements are simply not worth
-the trouble.
-For example, instead of</p>
+<p>Valid usage statements should be written including all relevant version
+and extension information embedded in the text, and surrounded by
+preprocessor directives as necessary, rather than simply relying on an
+<code>ifdef</code> to take care of it.
+For example, instead of:</p>
 <div class="listingblock">
 <div class="title">Example Markup</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="asciidoc">  * If pname:buffer was created with a sharing mode of
-    ename:VK_SHARING_MODE_EXCLUSIVE, pname:srcQueueFamilyIndex and
-    pname:dstQueueFamilyIndex must: either both be
-    ename:VK_QUEUE_FAMILY_IGNORED, or both be a valid queue family (see
-    &lt;&lt;devsandqueues-queueprops&gt;&gt;)
-ifdef::VK_KHR_external_memory[]
-    unless one of them is ename:VK_QUEUE_FAMILY_EXTERNAL_KHR and the other
-    is ename:VK_QUEUE_FAMILY_IGNORED.
-endif::VK_KHR_external_memory[]</code></pre>
+<pre class="rouge highlight"><code data-lang="asciidoc">ifndef::VK_VERSION_1_3[]
+  * At least one of the following must: be true:
+ifdef::VK_EXT_extended_dynamic_state[]
+  ** the &lt;&lt;features-extendedDynamicState, pname:extendedDynamicState&gt;&gt;
+     feature is enabled
+endif::VK_EXT_extended_dynamic_state[]
+ifdef::VK_EXT_shader_object[]
+  ** the &lt;&lt;features-shaderObject, pname:shaderObject&gt;&gt;
+     feature is enabled
+endif::VK_EXT_shader_object[]
+endif::VK_VERSION_1_3[]</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Use</p>
+<p>where the version overrides the need for the features, add a condition for
+the version too:</p>
 </div>
 <div class="listingblock">
 <div class="title">Example Markup</div>
 <div class="content">
-<pre class="rouge highlight"><code data-lang="asciidoc">  * If pname:buffer was created with a sharing mode of
-    ename:VK_SHARING_MODE_EXCLUSIVE, pname:srcQueueFamilyIndex and
-    pname:dstQueueFamilyIndex must: either both be
-    ename:VK_QUEUE_FAMILY_IGNORED, or both be a valid queue family (see
-    &lt;&lt;devsandqueues-queueprops&gt;&gt;)</code></pre>
+<pre class="rouge highlight"><code data-lang="asciidoc">  * At least one of the following must: be true:
+ifdef::VK_EXT_extended_dynamic_state[]
+  ** the &lt;&lt;features-extendedDynamicState, pname:extendedDynamicState&gt;&gt;
+     feature is enabled
+endif::VK_EXT_extended_dynamic_state[]
+ifdef::VK_EXT_shader_object[]
+  ** the &lt;&lt;features-shaderObject, pname:shaderObject&gt;&gt;
+     feature is enabled
+endif::VK_EXT_shader_object[]
+ifdef::VK_VERSION_1_3[]
+  ** the value of slink:VkApplicationInfo::pname:apiVersion used to create
+     the slink:VkInstance parent of pname:commandBuffer is greater than or
+     equal to Version 1.3
+endif::VK_VERSION_1_3[]</code></pre>
 </div>
 </div>
 </li>
@@ -8074,6 +8081,14 @@ to by the Vulkan Working Group.</p>
 <div class="ulist">
 <ul>
 <li>
+<p>2023-06-21 - Remove the style guide advice to keep valid usage statements
+&#8220;atomic&#8221; with respect to preprocessor directives, as a recent script and
+validation layer change has enabled preprocessor directives within VUs.
+In its place, add new advice about making sure all version and extension
+information is included in the text of the valid usage statement rather
+than relying on preprocessor directives.</p>
+</li>
+<li>
 <p>2023-05-03 - Add <a href="#markup-word-choices">preferred way to write</a> &#8220;called
 <em>in</em> a command buffer&#8221; (internal issue 3480).</p>
 </li>
@@ -8497,7 +8512,7 @@ Use American rather than British spelling conventions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.254<br>
+Version 1.3.255<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
