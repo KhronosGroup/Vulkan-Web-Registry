@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.256 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.0.257 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.256 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.257 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.256,</span>
-<span id="revdate">2023-06-30 13:06:48Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3dae5d7fbf332970ae0a97d5ab05ae5db93e62f0</span>
+<span id="revnumber">version 1.0.257,</span>
+<span id="revdate">2023-07-07 12:50:30Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -131,10 +131,15 @@
 </li>
 <li><a href="chap8.html">8. Render Pass</a>
 <ul class="sectlevel2">
-<li><a href="chap8.html#renderpass-creation">8.1. Render Pass Creation</a></li>
-<li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
-<li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
-<li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
+<li><a href="chap8.html#_render_pass_objects">8.1. Render Pass Objects</a></li>
+<li><a href="chap8.html#renderpass-creation">8.2. Render Pass Creation</a></li>
+<li><a href="chap8.html#renderpass-compatibility">8.3. Render Pass Compatibility</a></li>
+<li><a href="chap8.html#_framebuffers">8.4. Framebuffers</a></li>
+<li><a href="chap8.html#renderpass-load-operations">8.5. Render Pass Load Operations</a></li>
+<li><a href="chap8.html#renderpass-store-operations">8.6. Render Pass Store Operations</a></li>
+<li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
+<li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
+<li><a href="chap8.html#_common_render_pass_data_races_informative">8.9. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li class="current"><a href="chap9.html">9. Shaders</a>
@@ -748,7 +753,7 @@ If <code>pCreateInfo</code> is not <code>NULL</code>, <code>pCreateInfo-&gt;pNex
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -1954,8 +1959,8 @@ calculations described for <span class="eq">P<sub>0</sub></span>.</p>
 If the fragment shader invocations involved in the calculation cover
 multiple pixels, these operations cover a wider area, resulting in larger
 derivative values.
-This in turn will result in a coarser level of detail being selected for
-image sampling operations using derivatives.</p>
+This in turn will result in a coarser LOD being selected for image sampling
+operations using derivatives.</p>
 </div>
 <div class="paragraph">
 <p>Applications may want to account for this when using multi-pixel fragments;
@@ -2171,35 +2176,32 @@ properties were returned.</p>
 </div>
 </div>
 </div>
-<div class="openblock">
-<div class="content">
 <div class="paragraph">
-<p>Each <code>VkCooperativeMatrixPropertiesKHR</code> structure describes a single
-supported combination of types for a matrix multiply/add operation
-(<code>OpCooperativeMatrixMulAddKHR</code>).
+<p>Each
+<a href="chap9.html#VkCooperativeMatrixPropertiesKHR">VkCooperativeMatrixPropertiesKHR</a>
+structure describes a single supported combination of types for a matrix
+multiply/add operation (
+<code>OpCooperativeMatrixMulAddKHR</code>
+).
 The multiply <strong class="purple">can</strong> be described in terms of the following variables and types
 (in SPIR-V pseudocode):</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span> <span class="o">%</span><span class="n">A</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">AType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">KSize</span>
-    <span class="o">%</span><span class="n">MatrixAKHR</span> <span class="o">%</span><span class="n">B</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">BType</span> <span class="o">%</span><span class="n">scope</span>
-    <span class="o">%</span><span class="n">KSize</span> <span class="o">%</span><span class="n">NSize</span> <span class="o">%</span><span class="n">MatrixBKHR</span> <span class="o">%</span><span class="n">C</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span>
-    <span class="o">%</span><span class="n">CType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">NSize</span> <span class="o">%</span><span class="n">MatrixAccumulatorKHR</span> <span class="o">%</span><span class="n">Result</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span>
-    <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">ResultType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">NSize</span>
-    <span class="o">%</span><span class="n">MatrixAccumulatorKHR</span></code></pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>    %Result = %A * %B + %C // using OpCooperativeMatrixMulAddKHR
-~~~~</pre>
+<pre class="rouge highlight"><code data-lang="c">    <span class="o">%</span><span class="n">A</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">AType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">KSize</span> <span class="o">%</span><span class="n">MatrixAKHR</span>
+    <span class="o">%</span><span class="n">B</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">BType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">KSize</span> <span class="o">%</span><span class="n">NSize</span> <span class="o">%</span><span class="n">MatrixBKHR</span>
+    <span class="o">%</span><span class="n">C</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">CType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">NSize</span> <span class="o">%</span><span class="n">MatrixAccumulatorKHR</span>
+    <span class="o">%</span><span class="n">Result</span> <span class="n">is</span> <span class="n">of</span> <span class="n">type</span> <span class="n">OpTypeCooperativeMatrixKHR</span> <span class="o">%</span><span class="n">ResultType</span> <span class="o">%</span><span class="n">scope</span> <span class="o">%</span><span class="n">MSize</span> <span class="o">%</span><span class="n">NSize</span> <span class="o">%</span><span class="n">MatrixAccumulatorKHR</span>
+
+    <span class="o">%</span><span class="n">Result</span> <span class="o">=</span> <span class="o">%</span><span class="n">A</span> <span class="o">*</span> <span class="o">%</span><span class="n">B</span> <span class="o">+</span> <span class="o">%</span><span class="n">C</span> <span class="c1">// using OpCooperativeMatrixMulAddKHR</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>A matrix multiply with these dimensions is known as an <em>MxNxK</em> matrix
 multiply.</p>
 </div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
 <p>The <code>VkCooperativeMatrixPropertiesKHR</code> structure is defined as:</p>
 </div>
@@ -2224,7 +2226,7 @@ multiply.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2441,7 +2443,7 @@ scope.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.256<br>
+Version 1.0.257<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

@@ -884,10 +884,15 @@ Behavior when not all queries are available is described
 <p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, results for all
 queries in <code>queryPool</code> identified by <code>firstQuery</code> and
 <code>queryCount</code> are copied to <code>pData</code>, along with an extra availability
+or status
 value written directly after the results of each query and interpreted as an
 unsigned integer.
 A value of zero indicates that the results are not yet available, otherwise
-the query is complete and results are available.</p>
+the query is complete and results are available.
+The size of the availability
+or status
+values is 64 bits if <code>VK_QUERY_RESULT_64_BIT</code> is set in <code>flags</code>.
+Otherwise, it is 32 bits.</p>
 </div>
 <div class="paragraph">
 <p>If <code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code> is set, results for all queries
@@ -904,6 +909,26 @@ unsuccessfully.</p>
 <p><a href="VkQueryResultStatusKHR.html">VkQueryResultStatusKHR</a> defines specific meaning for values returned
 here, though implementations are free to return other values.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code>
+or <code>VK_QUERY_RESULT_WITH_STATUS_BIT_KHR</code>
+is set, the layout of data in the buffer is a <em>(result,availability)</em>
+or <em>(result,status)</em>
+pair for each query returned, and <code>stride</code> is the stride between each
+pair.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Results for any available query written by this command are final and
 represent the final result of the query.
@@ -913,7 +938,8 @@ is written for that query.
 Otherwise, any result written by this command is undefined.</p>
 </div>
 <div class="paragraph">
-<p>If <code>VK_QUERY_RESULT_64_BIT</code> is set, results and availability
+<p>If <code>VK_QUERY_RESULT_64_BIT</code> is set, results and, if returned,
+availability
 or status
 values for all queries are written as an array of 64-bit values.
 If the <code>queryPool</code> was created with
@@ -1030,6 +1056,15 @@ If <code>VK_QUERY_RESULT_64_BIT</code> is set in <code>flags</code> then <code>p
 and <code>stride</code> <strong class="purple">must</strong> be multiples of <code>8</code></p>
 </li>
 <li>
+<p><a id="VUID-vkGetQueryPoolResults-stride-08993" href="#VUID-vkGetQueryPoolResults-stride-08993"></a> <span class="vuid">VUID-vkGetQueryPoolResults-stride-08993</span><br>
+
+    If <code>VK_QUERY_RESULT_WITH_AVAILABILITY_BIT</code> is set, <code>stride</code>
+    <strong class="purple">must</strong> be large enough to contain the unsigned integer representing
+    availability
+or status
+    in addition to the query result.</p>
+</li>
+<li>
 <p><a id="VUID-vkGetQueryPoolResults-queryType-03229" href="#VUID-vkGetQueryPoolResults-queryType-03229"></a> <span class="vuid">VUID-vkGetQueryPoolResults-queryType-03229</span><br>
 
 If the <code>queryType</code> used to create <code>queryPool</code> was
@@ -1042,8 +1077,8 @@ If the <code>queryType</code> used to create <code>queryPool</code> was
 
 If the <code>queryType</code> used to create <code>queryPool</code> was
 <code>VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR</code>, then <code>stride</code> <strong class="purple">must</strong> be
-large enough to contain
-<code>VkQueryPoolPerformanceCreateInfoKHR</code>::<code>counterIndexCount</code> used
+large enough to contain the
+<a href="VkQueryPoolPerformanceCreateInfoKHR.html">VkQueryPoolPerformanceCreateInfoKHR</a>::<code>counterIndexCount</code> used
 to create <code>queryPool</code> times the size of
 <a href="VkPerformanceCounterResultKHR.html">VkPerformanceCounterResultKHR</a></p>
 </li>
@@ -1206,8 +1241,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.256<br>
-Last updated 2023-06-30 05:46:10 -0700
+Version 1.3.257<br>
+Last updated 2023-07-07 05:31:10 -0700
 </div>
 </div>
 

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.256 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.257 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.256 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.257 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.256,</span>
-<span id="revdate">2023-06-30 13:00:48Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3dae5d7fbf332970ae0a97d5ab05ae5db93e62f0</span>
+<span id="revnumber">version 1.1.257,</span>
+<span id="revdate">2023-07-07 12:44:59Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,11 +132,16 @@
 </li>
 <li><a href="chap8.html">8. Render Pass</a>
 <ul class="sectlevel2">
-<li><a href="chap8.html#renderpass-creation">8.1. Render Pass Creation</a></li>
-<li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
-<li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
-<li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
-<li><a href="chap8.html#renderpass-creation-feedback">8.5. Render Pass Creation Feedback</a></li>
+<li><a href="chap8.html#_render_pass_objects">8.1. Render Pass Objects</a></li>
+<li><a href="chap8.html#renderpass-creation">8.2. Render Pass Creation</a></li>
+<li><a href="chap8.html#renderpass-compatibility">8.3. Render Pass Compatibility</a></li>
+<li><a href="chap8.html#_framebuffers">8.4. Framebuffers</a></li>
+<li><a href="chap8.html#renderpass-load-operations">8.5. Render Pass Load Operations</a></li>
+<li><a href="chap8.html#renderpass-store-operations">8.6. Render Pass Store Operations</a></li>
+<li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
+<li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
+<li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
+<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -171,8 +176,7 @@
 <li><a href="chap9.html#shaders-derivative-operations">9.28. Derivative Operations</a></li>
 <li><a href="chap9.html#shaders-helper-invocations">9.29. Helper Invocations</a></li>
 <li><a href="chap9.html#_cooperative_matrices">9.30. Cooperative Matrices</a></li>
-<li><a href="chap9.html#_cooperative_matrices_2">9.31. Cooperative Matrices</a></li>
-<li><a href="chap9.html#shaders-validation-cache">9.32. Validation Cache</a></li>
+<li><a href="chap9.html#shaders-validation-cache">9.31. Validation Cache</a></li>
 </ul>
 </li>
 <li class="current"><a href="chap10.html">10. Pipelines</a>
@@ -1274,7 +1278,7 @@ to <code>pipelineCache</code> <strong class="purple">must</strong> be
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -1532,7 +1536,7 @@ is not <code>0</code>, it <strong class="purple">must</strong> be <code>1</code>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -1827,12 +1831,14 @@ is included in the <code>pNext</code> chain, the
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02756" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-pNext-02756"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-pNext-02756</span><br>
 
-If a <a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a> structure
-is included in the <code>pNext</code> chain and <code>stage</code> is
-<code>VK_SHADER_STAGE_COMPUTE_BIT</code>, the local workgroup size of the
-shader <strong class="purple">must</strong> be less than or equal to the product of
-<a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a>::<code>requiredSubgroupSize</code>
-and <a href="chap46.html#limits-maxComputeWorkgroupSubgroups"><code>maxComputeWorkgroupSubgroups</code></a></p>
+    If a <a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a> structure
+    is included in the <code>pNext</code> chain and <code>stage</code> is
+    <code>VK_SHADER_STAGE_COMPUTE_BIT</code>,
+<code>VK_SHADER_STAGE_MESH_BIT_EXT</code>, or <code>VK_SHADER_STAGE_TASK_BIT_EXT</code>,
+    the local workgroup size of the shader <strong class="purple">must</strong> be less than or equal to
+    the product of
+    <a href="chap10.html#VkPipelineShaderStageRequiredSubgroupSizeCreateInfo">VkPipelineShaderStageRequiredSubgroupSizeCreateInfo</a>::<code>requiredSubgroupSize</code>
+    and <a href="chap46.html#limits-maxComputeWorkgroupSubgroups"><code>maxComputeWorkgroupSubgroups</code></a></p>
 </li>
 <li>
 <p><a id="VUID-VkPipelineShaderStageCreateInfo-pNext-02757" href="chap10.html#VUID-VkPipelineShaderStageCreateInfo-pNext-02757"></a> <span class="vuid">VUID-VkPipelineShaderStageCreateInfo-pNext-02757</span><br>
@@ -2223,7 +2229,7 @@ defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2317,7 +2323,7 @@ of <a href="chap10.html#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2372,7 +2378,7 @@ pipeline will be used.</p>
 <div class="paragraph">
 <p>A subpass shading pipeline’s workgroup size is a 2D vector with number of
 power-of-two in width and height.
-The maximum number of width and height is implementation dependent, and <strong class="purple">may</strong>
+The maximum number of width and height is implementation-dependent, and <strong class="purple">may</strong>
 vary for different formats and sample counts of attachments in a render
 pass.</p>
 </div>
@@ -2493,7 +2499,7 @@ information.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2810,7 +2816,7 @@ defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2821,7 +2827,7 @@ structure.</p>
 <code>pIdentifier</code>.</p>
 </li>
 <li>
-<p><code>pIdentifier</code> points to a buffer of opaque data specifying an
+<p><code>pIdentifier</code> is a pointer to a buffer of opaque data specifying an
 identifier.</p>
 </li>
 </ul>
@@ -3109,7 +3115,7 @@ For this reason, it is still valid to set
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -3331,7 +3337,7 @@ specified, the full pipeline layout must be specified.</p>
 <p>If either the <code>pNext</code> chain includes a
 <a href="chap10.html#VkGraphicsPipelineLibraryCreateInfoEXT">VkGraphicsPipelineLibraryCreateInfoEXT</a> structure with
 <code>VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT</code>
-included in <code>flags</code> or it is not specified and would default to include
+included in <code>flags</code>, or it is not specified and would default to include
 that value, this state <strong class="purple">must</strong> be specified in the pipeline.</p>
 </div>
 <div id="pipelines-graphics-subsets-fragment-shader" class="paragraph">
@@ -6367,7 +6373,7 @@ state</a></p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -6395,9 +6401,9 @@ format of the stencil attachment used in this pipeline.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>When a pipeline is created without a <a href="chap8.html#VkRenderPass">VkRenderPass</a>, if this structure
-is present in the <code>pNext</code> chain of <a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a>,
-it specifies the view mask and format of attachments used for rendering.
+<p>When a pipeline is created without a <a href="chap8.html#VkRenderPass">VkRenderPass</a>, if the <code>pNext</code>
+chain of <a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCreateInfo</a> includes this structure, it
+specifies the view mask and format of attachments used for rendering.
 If this structure is not specified, and the pipeline does not include a
 <a href="chap8.html#VkRenderPass">VkRenderPass</a>, <code>viewMask</code> and <code>colorAttachmentCount</code> are <code>0</code>,
 and <code>depthAttachmentFormat</code> and <code>stencilAttachmentFormat</code> are
@@ -6807,7 +6813,7 @@ more <a href="chap10.html#VkPipelineCreateFlagBits">VkPipelineCreateFlagBits</a>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -6942,7 +6948,7 @@ state</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -7991,7 +7997,7 @@ as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -8136,7 +8142,7 @@ It is defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -8469,7 +8475,7 @@ tracing pipeline objects are returned.</p>
 </div>
 <div class="paragraph">
 <p>The <code>VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS</code> error is returned if the
-implementation is unable to re-use the shader group handles provided in
+implementation is unable to reuse the shader group handles provided in
 <a href="chap10.html#VkRayTracingShaderGroupCreateInfoKHR">VkRayTracingShaderGroupCreateInfoKHR</a>::<code>pShaderGroupCaptureReplayHandle</code>
 when
 <a href="chap45.html#VkPhysicalDeviceRayTracingPipelineFeaturesKHR">VkPhysicalDeviceRayTracingPipelineFeaturesKHR</a>::<code>rayTracingPipelineShaderGroupHandleCaptureReplay</code>
@@ -8661,7 +8667,7 @@ member of elements of <code>pCreateInfos</code> <strong class="purple">must</str
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -8984,7 +8990,7 @@ The <code>stage</code> value in all <code>pStages</code> elements <strong class=
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -9481,7 +9487,7 @@ bit set</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -9625,7 +9631,7 @@ referring to a shader of <code>VK_SHADER_STAGE_ANY_HIT_BIT_NV</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -9872,7 +9878,7 @@ as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -11047,7 +11053,7 @@ shorter than the duration of the <code>vkCreate*Pipelines</code> commands.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -12031,7 +12037,7 @@ appropriate creation mechanisms:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -12877,7 +12883,7 @@ with <code>device</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -13064,7 +13070,7 @@ The <a href="chap45.html#features-pipelinePropertiesIdentifier"><code>pipelinePr
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -13122,7 +13128,7 @@ values into which the pipeline identifier will be written.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -13165,7 +13171,7 @@ These statistics <strong class="purple">may</strong> include things such as inst
 spilling (if any), maximum number of simultaneous threads, or anything else
 which <strong class="purple">may</strong> aid developers in evaluating the expected performance of a
 shader.
-To query the compile-time statistics associated with a pipeline executable,
+To query the compile time statistics associated with a pipeline executable,
 call:</p>
 </div>
 <div id="vkGetPipelineExecutableStatisticsKHR" class="listingblock">
@@ -13317,7 +13323,7 @@ created with <code>VK_PIPELINE_CREATE_CAPTURE_STATISTICS_BIT_KHR</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -13394,7 +13400,7 @@ executables associated with <code>pipeline</code> as returned in the
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -13699,7 +13705,7 @@ as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -14098,7 +14104,7 @@ chain of <a href="chap10.html#VkGraphicsPipelineCreateInfo">VkGraphicsPipelineCr
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -14196,7 +14202,7 @@ The <code>VkPipelineCreationFeedbackCreateInfo</code> structure is defined as:</
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -14468,7 +14474,7 @@ or more <a href="chap10.html#VkPipelineCreationFeedbackFlagBits">VkPipelineCreat
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.256<br>
+Version 1.1.257<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.256 - A Specification</title>
+<title>Vulkan® 1.1.257 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.256 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.257 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.256,</span>
-<span id="revdate">2023-06-30 13:05:02Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3dae5d7fbf332970ae0a97d5ab05ae5db93e62f0</span>
+<span id="revnumber">version 1.1.257,</span>
+<span id="revdate">2023-07-07 12:48:50Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -134,7 +134,11 @@
 <li><a href="chap8.html#renderpass-creation">8.1. Render Pass Creation</a></li>
 <li><a href="chap8.html#renderpass-compatibility">8.2. Render Pass Compatibility</a></li>
 <li><a href="chap8.html#_framebuffers">8.3. Framebuffers</a></li>
-<li><a href="chap8.html#renderpass-commands">8.4. Render Pass Commands</a></li>
+<li><a href="chap8.html#renderpass-load-operations">8.4. Render Pass Load Operations</a></li>
+<li><a href="chap8.html#renderpass-store-operations">8.5. Render Pass Store Operations</a></li>
+<li><a href="chap8.html#renderpass-resolve-operations">8.6. Render Pass Multisample Resolve Operations</a></li>
+<li><a href="chap8.html#renderpass-commands">8.7. Render Pass Commands</a></li>
+<li><a href="chap8.html#_common_render_pass_data_races_informative">8.8. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -893,24 +897,26 @@ shader stage.</p>
 <p><code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> specifies the stage of
 the pipeline where early fragment tests (depth and stencil tests before
 fragment shading) are performed.
-This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass load
+This stage also includes <a href="chap8.html#renderpass-load-operations">render pass load
 operations</a> for framebuffer attachments with a depth/stencil format.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> specifies the stage of
 the pipeline where late fragment tests (depth and stencil tests after
 fragment shading) are performed.
-This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass store
-operations</a> for framebuffer attachments with a depth/stencil format.</p>
+This stage also includes <a href="chap8.html#renderpass-store-operations">render pass
+store operations</a> for framebuffer attachments with a depth/stencil
+format.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> specifies the stage
 of the pipeline after blending where the final color values are output
 from the pipeline.
-This stage also includes <a href="chap8.html#renderpass-load-store-ops">subpass load and
-store operations</a>, multisample resolve operations for framebuffer
-attachments with a color
-format, and <a href="chap18.html#vkCmdClearAttachments">vkCmdClearAttachments</a>.</p>
+This stage includes <a href="chap27.html#framebuffer-blending">blending</a>,
+<a href="chap27.html#framebuffer-logicop">logic operations</a>, render pass
+<a href="chap8.html#renderpass-load-operations">load</a> and <a href="chap8.html#renderpass-store-operations">store</a> operations for color attachments,
+<a href="chap8.html#renderpass-resolve-operations">render pass multisample resolve
+operations</a>, and <a href="chap18.html#vkCmdClearAttachments">vkCmdClearAttachments</a>.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT</code> specifies the execution of a
@@ -1426,21 +1432,22 @@ stage.</p>
     <a href="chap8.html">color attachment</a>, such as via
 <a href="chap27.html#framebuffer-blending">blending</a>,
     <a href="chap27.html#framebuffer-logicop">logic operations</a> or certain
-    <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+    <a href="chap8.html#renderpass-load-operations">render pass load operations</a>.
     Such access occurs in the
     <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT</code> specifies write access to a
 <a href="chap8.html">color or resolve attachment</a>
-during a <a href="chap8.html">render pass</a> or via certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+during a <a href="chap8.html">render pass</a> or via certain render pass
+<a href="chap8.html#renderpass-load-operations">load</a> and <a href="chap8.html#renderpass-store-operations">store</a> operations.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT</code> pipeline stage.</p>
 </li>
 <li>
 <p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT</code> specifies read access
-to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain <a href="chap8.html#renderpass-load-store-ops">subpass load operations</a>.
+to a <a href="chap8.html">depth/stencil attachment</a>, via <a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain
+<a href="chap8.html#renderpass-load-operations">render pass load operations</a>.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
 <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stages.</p>
@@ -1448,8 +1455,8 @@ Such access occurs in the
 <li>
 <p><code>VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT</code> specifies write
 access to a <a href="chap8.html">depth/stencil attachment</a>, via
-<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain
-<a href="chap8.html#renderpass-load-store-ops">subpass load and store operations</a>.
+<a href="chap26.html#fragops-ds-state">depth or stencil operations</a> or certain render pass
+<a href="chap8.html#renderpass-load-operations">load</a> and <a href="chap8.html#renderpass-store-operations">store</a> operations.
 Such access occurs in the
 <code>VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT</code> or
 <code>VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT</code> pipeline stages.</p>
@@ -2148,7 +2155,7 @@ object is returned.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -2243,7 +2250,7 @@ The <code>VkExportFenceCreateInfo</code> structure is defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -3180,7 +3187,7 @@ When created, the semaphore is in the unsignaled state.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -3253,7 +3260,7 @@ The <code>VkExportSemaphoreCreateInfo</code> structure is defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -3813,7 +3820,7 @@ object is returned.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -5710,7 +5717,7 @@ that exist at the time of its execution.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -5800,7 +5807,7 @@ specified buffer range.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -6035,7 +6042,7 @@ specified image subresource range.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sType</code> is the type of this structure.</p>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
 <p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
@@ -6873,7 +6880,7 @@ waited on by a different physical device.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.256<br>
+Version 1.1.257<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
