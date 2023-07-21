@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.257,</span>
-<span id="revdate">2023-07-07 12:45:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.2.258,</span>
+<span id="revdate">2023-07-21 10:11:36Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4727,6 +4727,104 @@ invocation in a subgroup <strong class="purple">must</strong> be in the same <a 
 <p>Only <a href="chap46.html#limits-subgroup-supportedStages">shader stages that support subgroup
 operations</a> have defined subgroups.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>In shaders, there are two kinds of uniformity that are of primary interest
+to applications: uniform within an invocation group (a.k.a.
+dynamically uniform), and uniform within a subgroup scope.</p>
+</div>
+<div class="paragraph">
+<p>While one could make the assumption that being uniform in invocation group
+implies being uniform in subgroup scope, it is not necessarily the case for
+shader stages without defined workgroups.</p>
+</div>
+<div class="paragraph">
+<p>For shader stages with defined workgroups however, the relationship between
+invocation group and subgroup scope is well defined as a subgroup is a
+subset of the workgroup, and the workgroup is the invocation group.
+If a value is uniform in invocation group, it is by definition also uniform
+in subgroup scope.
+This is important if writing code like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span> <span class="n">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span> <span class="n">uint</span> <span class="n">dynamicallyUniformValue</span> <span class="o">=</span>
+<span class="n">gl_WorkGroupID</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> <span class="n">vec4</span> <span class="n">value</span> <span class="o">=</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">Textures</span><span class="p">[</span><span class="n">dynamicallyUniformValue</span><span class="p">],</span>
+<span class="n">coord</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>vec4 subgroupUniformValue = subgroupBroadcastFirst(dynamicallyUniformValue);
+<sub>~</sub>~</p>
+</div>
+<div class="paragraph">
+<p>In shader stages without defined workgroups, this gets complicated.
+Due to scoping rules, there is no guarantee that a subgroup is a subset of
+the invocation group, which in turn defines the scope for dynamically
+uniform.
+In graphics, the invocation group is a single draw command, except for
+multi-draw situations, and indirect draws with drawCount &gt; 1, where there
+are multiple invocation groups, one per <code>DrawIndex</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span>
+<span class="c1">// Assume SubgroupSize = 8, where 3 draws are packed together.</span>
+<span class="c1">// Two subgroups were generated.</span>
+<span class="n">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>uint dynamicallyUniformValue = gl_DrawID;</p>
+</div>
+<div class="paragraph">
+<p>uint notActuallyDynamicallyUniformAnymore =
+    subgroupBroadcastFirst(dynamicallyUniformValue);</p>
+</div>
+<div class="paragraph">
+<p>vec4 value = texelFetch(Textures[notActuallyDynamicallyUniformAnymore],
+                        coord, 0);
+<sub>~</sub>~</p>
+</div>
+<div class="paragraph">
+<p>Another problematic scenario is when a shader attempts to help the compiler
+notice that a value is uniform in subgroup scope to potentially improve
+performance.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span> <span class="n">layout</span><span class="p">(</span><span class="n">location</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">flat</span> <span class="n">in</span> <span class="n">dynamicallyUniformIndex</span><span class="p">;</span>
+<span class="c1">// Vertex shader might have emitted a value that depends only on gl_DrawID,</span>
+<span class="c1">// making it dynamically uniform.</span>
+<span class="c1">// Give knowledge to compiler that the flat input is dynamically uniform,</span>
+<span class="c1">// as this is not a guarantee otherwise.</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>uint uniformIndex = subgroupBroadcastFirst(dynamicallyUniformIndex);</p>
+</div>
+<div class="paragraph">
+<p>DrawData d = UBO.perDrawData[uniformIndex]; <sub>~</sub>~</p>
+</div>
+<div class="paragraph">
+<p>For implementations where subgroups are packed across draws, the
+implementation must make sure to handle descriptor indexing correctly.
+From the specification’s point of view, a dynamically uniform index does not
+require <code>NonUniform</code> decoration, and such an implementation will likely
+either promote descriptor indexing into <code>NonUniform</code> on its own, or
+handle non-uniformity implicitly.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
 </div>
 <div class="sect3">
 <h4 id="shaders-scope-quad"><a class="anchor" href="chap9.html#shaders-scope-quad"></a>9.25.9. Quad</h4>
@@ -6670,7 +6768,7 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.257<br>
+Version 1.2.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

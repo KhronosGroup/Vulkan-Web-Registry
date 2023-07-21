@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.257,</span>
-<span id="revdate">2023-07-07 12:45:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.2.258,</span>
+<span id="revdate">2023-07-21 10:11:36Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1440,10 +1440,21 @@ stage <strong class="purple">must</strong> be less than or equal to
 <code>VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV</code></p>
 </li>
 <li>
-<p><a id="VUID-VkComputePipelineCreateInfo-flags-02874" href="chap10.html#VUID-VkComputePipelineCreateInfo-flags-02874"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-flags-02874</span><br>
+<p><a id="VUID-VkComputePipelineCreateInfo-flags-09007" href="chap10.html#VUID-VkComputePipelineCreateInfo-flags-09007"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-flags-09007</span><br>
 
-<code>flags</code> <strong class="purple">must</strong> not include
-<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+If <code>flags</code> includes
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code>, then the
+<a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineCreateInfo-flags-09008" href="chap10.html#VUID-VkComputePipelineCreateInfo-flags-09008"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-flags-09008</span><br>
+
+If <code>flags</code> includes
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code>, then the <code>pNext</code>
+chain <strong class="purple">must</strong> include a pointer to a valid instance of
+<a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a> specifying the address where
+the pipeline’s metadata will be saved</p>
 </li>
 <li>
 <p><a id="VUID-VkComputePipelineCreateInfo-pipelineCreationCacheControl-02875" href="chap10.html#VUID-VkComputePipelineCreateInfo-pipelineCreationCacheControl-02875"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-pipelineCreationCacheControl-02875</span><br>
@@ -2893,6 +2904,321 @@ equal to 0, the pipeline <strong class="purple">must</strong> be created with th
 </div>
 </div>
 </div>
+<div class="paragraph">
+<p>If a compute pipeline is going to be used in <a href="chap32.html">Device-Generated Commands</a>, then that pipeline’s associated metadata <strong class="purple">must</strong>
+be saved at a specified buffer device address for later use in indirect
+command generation.
+The buffer device address <strong class="purple">must</strong> be specified at the time of compute pipeline
+creation with <a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a> structure in the
+<code>pNext</code> chain of <a href="chap10.html#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a>.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkComputePipelineIndirectBufferInfoNV</code> structure is defined as:</p>
+</div>
+<div id="VkComputePipelineIndirectBufferInfoNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkComputePipelineIndirectBufferInfoNV</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkDeviceAddress</span>    <span class="n">deviceAddress</span><span class="p">;</span>
+    <span class="n">VkDeviceSize</span>       <span class="n">size</span><span class="p">;</span>
+    <span class="n">VkDeviceAddress</span>    <span class="n">pipelineDeviceAddressCaptureReplay</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkComputePipelineIndirectBufferInfoNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>deviceAddress</code> is the address where the pipeline’s metadata will be
+stored.</p>
+</li>
+<li>
+<p><code>size</code> is the size of pipeline’s metadata that was queried using
+<a href="chap32.html#vkGetPipelineIndirectMemoryRequirementsNV">vkGetPipelineIndirectMemoryRequirementsNV</a>.</p>
+</li>
+<li>
+<p><code>pipelineDeviceAddressCaptureReplay</code> is the device address where
+pipeline’s metadata was originally saved and can now be used to
+re-populate <code>deviceAddress</code> for replay.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pipelineDeviceAddressCaptureReplay</code> is zero, no specific address is
+requested.
+If <code>pipelineDeviceAddressCaptureReplay</code> is not zero, then it <strong class="purple">must</strong> be an
+address retrieved from an identically created pipeline on the same
+implementation.
+The pipeline metadata <strong class="purple">must</strong> also be placed on an identically created buffer
+and at the same offset using the <a href="chap10.html#vkCmdUpdatePipelineIndirectBuffer">vkCmdUpdatePipelineIndirectBuffer</a>
+command.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-deviceGeneratedComputePipelines-09009" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-deviceGeneratedComputePipelines-09009"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-deviceGeneratedComputePipelines-09009</span><br>
+
+The <a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-flags-09010" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-flags-09010"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-flags-09010</span><br>
+
+The pipeline creation flags in
+<a href="chap10.html#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a>::<code>flags</code> <strong class="purple">must</strong> include
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09011" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09011"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09011</span><br>
+
+<code>deviceAddress</code> <strong class="purple">must</strong> be aligned to the
+<a href="chap12.html#VkMemoryRequirements2">VkMemoryRequirements2</a>::<code>alignment</code>, as returned by
+<a href="chap32.html#vkGetPipelineIndirectMemoryRequirementsNV">vkGetPipelineIndirectMemoryRequirementsNV</a></p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09012" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09012"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-deviceAddress-09012</span><br>
+
+<code>deviceAddress</code> <strong class="purple">must</strong> have been allocated from a buffer that was
+created with usage <code>VK_BUFFER_USAGE_TRANSFER_DST_BIT</code> and
+<code>VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-size-09013" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-size-09013"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-size-09013</span><br>
+
+<code>size</code> <strong class="purple">must</strong> be greater than or equal to the
+<a href="chap12.html#VkMemoryRequirements2">VkMemoryRequirements2</a>::<code>size</code>, as returned by
+<a href="chap32.html#vkGetPipelineIndirectMemoryRequirementsNV">vkGetPipelineIndirectMemoryRequirementsNV</a></p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09014" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09014"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09014</span><br>
+
+If <code>pipelineDeviceAddressCaptureReplay</code> is non-zero then the
+<a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputeCaptureReplay</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09015" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09015"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09015</span><br>
+
+If <code>pipelineDeviceAddressCaptureReplay</code> is non-zero then that
+address <strong class="purple">must</strong> have been allocated with flag
+<code>VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09016" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09016"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09016</span><br>
+
+If <code>pipelineDeviceAddressCaptureReplay</code> is non-zero, the
+<code>pipeline</code> <strong class="purple">must</strong> have been recreated for replay</p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09017" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09017"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-pipelineDeviceAddressCaptureReplay-09017</span><br>
+
+<code>pipelineDeviceAddressCaptureReplay</code> <strong class="purple">must</strong> satisfy the
+<code>alignment</code> and <code>size</code> requirements similar to
+<code>deviceAddress</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-sType-sType" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-sType-sType"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkComputePipelineIndirectBufferInfoNV-pNext-pNext" href="chap10.html#VUID-VkComputePipelineIndirectBufferInfoNV-pNext-pNext"></a> <span class="vuid">VUID-VkComputePipelineIndirectBufferInfoNV-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To save a compute pipeline’s metadata at a device address call:</p>
+</div>
+<div id="vkCmdUpdatePipelineIndirectBuffer" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="kt">void</span> <span class="nf">vkCmdUpdatePipelineIndirectBuffer</span><span class="p">(</span>
+    <span class="n">VkCommandBuffer</span>                             <span class="n">commandBuffer</span><span class="p">,</span>
+    <span class="n">VkPipelineBindPoint</span>                         <span class="n">pipelineBindPoint</span><span class="p">,</span>
+    <span class="n">VkPipeline</span>                                  <span class="n">pipeline</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>pipelineBindPoint</code> is a <a href="chap10.html#VkPipelineBindPoint">VkPipelineBindPoint</a> value specifying
+the type of pipeline whose metadata will be saved.</p>
+</li>
+<li>
+<p><code>pipeline</code> is the pipeline whose metadata will be saved.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkCmdUpdatePipelineIndirectBuffer</code> is only allowed outside of a render
+pass.
+This command is treated as a “transfer” operation for the purposes of
+synchronization barriers.
+The writes to the address <strong class="purple">must</strong> be synchronized using stages
+<code>VK_PIPELINE_STAGE_2_COPY_BIT</code> and
+<code>VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV</code> and with access masks
+<code>VK_ACCESS_MEMORY_WRITE_BIT</code> and
+<code>VK_ACCESS_COMMAND_PREPROCESS_READ_BIT_NV</code> respectively before using the
+results in preprocessing.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-09018" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-09018"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-09018</span><br>
+
+<code>pipelineBindPoint</code> <strong class="purple">must</strong> be <code>VK_PIPELINE_BIND_POINT_COMPUTE</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09019" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09019"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09019</span><br>
+
+<code>pipeline</code> <strong class="purple">must</strong> have been created with
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code> flag set</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09020" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09020"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-09020</span><br>
+
+<code>pipeline</code> <strong class="purple">must</strong> have been created with
+<a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a> structure specifying a valid
+address where its metadata will be saved</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-deviceGeneratedComputePipelines-09021" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-deviceGeneratedComputePipelines-09021"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-deviceGeneratedComputePipelines-09021</span><br>
+
+The <a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-parameter" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-parameter" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-parameter"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-pipelineBindPoint-parameter</span><br>
+ <code>pipelineBindPoint</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipelineBindPoint">VkPipelineBindPoint</a> value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-parameter" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-parameter"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-pipeline-parameter</span><br>
+ <code>pipeline</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-recording" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-cmdpool" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support transfer, graphics, or compute operations</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-renderpass" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-renderpass"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-renderpass</span><br>
+ This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-videocoding" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-videocoding"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdUpdatePipelineIndirectBuffer-commonparent" href="chap10.html#VUID-vkCmdUpdatePipelineIndirectBuffer-commonparent"></a> <span class="vuid">VUID-vkCmdUpdatePipelineIndirectBuffer-commonparent</span><br>
+ Both of <code>commandBuffer</code>, and <code>pipeline</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap5.html#VkDevice">VkDevice</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap42.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap3.html#fundamentals-queueoperation-command-types">Command Type</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
+Graphics<br>
+Compute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Action</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="pipelines-graphics"><a class="anchor" href="chap10.html#pipelines-graphics"></a>10.2. Graphics Pipelines</h3>
@@ -3138,46 +3464,92 @@ the shader stages to be included in the graphics pipeline.</p>
 <p><code>pVertexInputState</code> is a pointer to a
 <a href="chap22.html#VkPipelineVertexInputStateCreateInfo">VkPipelineVertexInputStateCreateInfo</a> structure.
 It is ignored if the pipeline includes a mesh shader stage.
-It is ignored if the pipeline is created with the
+It <strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with the
 <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state set.</p>
 </li>
 <li>
 <p><code>pInputAssemblyState</code> is a pointer to a
 <a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a> structure which determines
 input assembly behavior for vertex shading, as described in <a href="chap21.html">Drawing Commands</a>.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with both
+<code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE</code>, and
+<code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY</code> dynamic states set and
+<a href="chap46.html#limits-dynamicPrimitiveTopologyUnrestricted"><code>dynamicPrimitiveTopologyUnrestricted</code></a> is <code>VK_TRUE</code>.
 It is ignored if the pipeline includes a mesh shader stage.</p>
 </li>
 <li>
 <p><code>pTessellationState</code> is a pointer to a
 <a href="chap23.html#VkPipelineTessellationStateCreateInfo">VkPipelineTessellationStateCreateInfo</a> structure defining
-tessellation state used by tessellation shaders.</p>
+tessellation state used by tessellation shaders.
+It <strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with the
+<code>VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT</code> dynamic state set.</p>
 </li>
 <li>
 <p><code>pViewportState</code> is a pointer to a
 <a href="chap27.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> structure defining viewport
-state used when rasterization is enabled.</p>
+state used when rasterization is enabled.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with both
+<code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code>, and
+<code>VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT</code> dynamic states set.</p>
 </li>
 <li>
 <p><code>pRasterizationState</code> is a pointer to a
 <a href="chap28.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure defining
-rasterization state.</p>
+rasterization state.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with all of
+<code>VK_DYNAMIC_STATE_DEPTH_CLAMP_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_POLYGON_MODE_EXT</code>,
+<code>VK_DYNAMIC_STATE_CULL_MODE</code>, <code>VK_DYNAMIC_STATE_FRONT_FACE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BIAS</code>, and <code>VK_DYNAMIC_STATE_LINE_WIDTH</code>
+dynamic states set.</p>
 </li>
 <li>
 <p><code>pMultisampleState</code> is a pointer to a
 <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure defining
-multisample state used when rasterization is enabled.</p>
+multisample state used when rasterization is enabled.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with all of
+<code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
+<code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>,
+<code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code>, and
+<code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> dynamic states set, in
+which case
+<a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>sampleShadingEnable</code> is
+assumed to be <code>VK_FALSE</code>.</p>
 </li>
 <li>
 <p><code>pDepthStencilState</code> is a pointer to a
 <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure defining
 depth/stencil state used when rasterization is enabled for depth or
-stencil attachments accessed during rendering.</p>
+stencil attachments accessed during rendering.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with all of
+<code>VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_COMPARE_OP</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_OP</code>, and
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic states set.</p>
 </li>
 <li>
 <p><code>pColorBlendState</code> is a pointer to a
 <a href="chap30.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a> structure defining color blend
 state used when rasterization is enabled for any color attachments
-accessed during rendering.</p>
+accessed during rendering.
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is enabled, it
+<strong class="purple">can</strong> be <code>NULL</code> if the pipeline is created with all of
+<code>VK_DYNAMIC_STATE_LOGIC_OP_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_LOGIC_OP_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code>, and
+<code>VK_DYNAMIC_STATE_BLEND_CONSTANTS</code> dynamic states set.</p>
 </li>
 <li>
 <p><code>pDynamicState</code> is a pointer to a
@@ -3221,6 +3593,26 @@ Derivatives</a>.</p>
 <p>If any shader stage fails to compile,
 the compile log will be reported back to the application, and
 <code>VK_ERROR_INVALID_SHADER_NV</code> will be generated.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>With <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code>, it is possible that many of
+the <code>VkGraphicsPipelineCreateInfo</code> members above <strong class="purple">can</strong> be <code>NULL</code> because
+all their state is dynamic and therefore ignored.
+This is optional so the application <strong class="purple">can</strong> still use a valid pointer if it
+needs to set the <code>pNext</code> or <code>flags</code> fields to specify state for
+other extensions.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div id="pipelines-graphics-subsets" class="paragraph">
 <p>The state required for a graphics pipeline is divided into
@@ -3607,12 +3999,20 @@ tessellation evaluation shader stage, it <strong class="purple">must</strong> in
 control shader stage</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-00731" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-00731"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-00731</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-09022" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-09022"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-09022</span><br>
 
 If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a> and <code>pStages</code> includes a
-tessellation control shader stage and a tessellation evaluation shader
-stage, <code>pTessellationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+tessellation control shader stage, and the
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled or the
+<code>VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT</code> dynamic state is not
+set, <code>pTessellationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap23.html#VkPipelineTessellationStateCreateInfo">VkPipelineTessellationStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pTessellationState-09023" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pTessellationState-09023"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pTessellationState-09023</span><br>
+
+If <code>pTessellationState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a pointer to a
+valid <a href="chap23.html#VkPipelineTessellationStateCreateInfo">VkPipelineTessellationStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-00732" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-00732"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-00732</span><br>
@@ -3831,12 +4231,23 @@ If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-ras
 <code>pRasterizationState</code> <strong class="purple">must</strong> be <code>1.0</code></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00750" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00750"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00750</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-09024" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-09024"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-09024</span><br>
 
-If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a>, and the <code>rasterizerDiscardEnable</code>
-member of <code>pRasterizationState</code> is <code>VK_FALSE</code>,
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a>, and the
+<code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE</code> dynamic state is
+enabled or the <code>rasterizerDiscardEnable</code> member of
+<code>pRasterizationState</code> is <code>VK_FALSE</code>, and either the
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled, or
+either the <code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code> or
+<code>VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT</code> dynamic states are not set,
 <code>pViewportState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap27.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pViewportState-09025" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pViewportState-09025"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pViewportState-09025</span><br>
+
+If <code>pViewportState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer to a
+valid <a href="chap27.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pViewportState-04892" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pViewportState-04892"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pViewportState-04892</span><br>
@@ -3847,11 +4258,22 @@ dynamic state enabled, <code>pViewportState</code> <strong class="purple">must</
 a valid <a href="chap27.html#VkPipelineViewportStateCreateInfo">VkPipelineViewportStateCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-rasterizerDiscardEnable-00751</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09026" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09026"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09026</span><br>
 
-If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface state</a>, <code>pMultisampleState</code> <strong class="purple">must</strong> be a
-valid pointer to a valid <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>
-structure</p>
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface state</a>, and the
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled or any
+of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
+<code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>,
+<code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code>, or
+<code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> dynamic states is not
+set, <code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09027" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09027"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pMultisampleState-09027</span><br>
+
+If <code>pMultisampleState</code> is not <code>NULL</code> is <strong class="purple">must</strong> be a valid pointer to
+a valid <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-alphaToCoverageEnable-08891" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-alphaToCoverageEnable-08891"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-alphaToCoverageEnable-08891</span><br>
@@ -3866,20 +4288,41 @@ variable for the alpha <code>Component</code> word in <code>Location</code> 0 at
 <code>Index</code> 0</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06043" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06043"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06043</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-09028" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-09028"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-09028</span><br>
 
 If <code>renderPass</code> is not <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the pipeline is being
 created with <a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment
-shader state</a>, and <code>subpass</code> uses a depth/stencil attachment,
+shader state</a>, and <code>subpass</code> uses a depth/stencil attachment, and
+the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled or,
+any of the <code>VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_COMPARE_OP</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_OP</code>, or
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic states are not set,
 <code>pDepthStencilState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06044" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06044"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06044</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09029" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09029"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09029</span><br>
+
+If <code>pDepthStencilState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer to
+a valid <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-09030" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-09030"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-09030</span><br>
 
 If <code>renderPass</code> is not <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the pipeline is being
 created with <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment
-output interface state</a>, and <code>subpass</code> uses color attachments,
+output interface state</a>, and <code>subpass</code> uses color attachments, and
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled, or any
+of the <code>VK_DYNAMIC_STATE_LOGIC_OP_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_LOGIC_OP_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code>, or
+<code>VK_DYNAMIC_STATE_BLEND_CONSTANTS</code> dynamic states are not set,
 <code>pColorBlendState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap30.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a> structure</p>
 </li>
@@ -4226,9 +4669,20 @@ with a <code>Location</code> decorated <code>Input</code> variable in the <code>
 64-bit component</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-02098" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-02098"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-02098</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-dynamicPrimitiveTopologyUnrestricted-09031" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-dynamicPrimitiveTopologyUnrestricted-09031"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-dynamicPrimitiveTopologyUnrestricted-09031</span><br>
 
-If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-vertex-input">vertex input state</a>, <code>pInputAssemblyState</code> <strong class="purple">must</strong> be a valid pointer
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-vertex-input">vertex input state</a>, and the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code>
+extension is not enabled, or either
+<code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE</code>, or
+<code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY</code> dynamic states are not set, or
+<a href="chap46.html#limits-dynamicPrimitiveTopologyUnrestricted"><code>dynamicPrimitiveTopologyUnrestricted</code></a> is <code>VK_FALSE</code>,
+<code>pInputAssemblyState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pInputAssemblyState-09032" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pInputAssemblyState-09032"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pInputAssemblyState-09032</span><br>
+
+If <code>pInputAssemblyState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer
 to a valid <a href="chap21.html#VkPipelineInputAssemblyStateCreateInfo">VkPipelineInputAssemblyStateCreateInfo</a> structure</p>
 </li>
 <li>
@@ -4362,10 +4816,12 @@ range <span class="eq">[1,256]</span></p>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-03378" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-03378"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-03378</span><br>
 
-If the <a href="chap45.html#features-extendedDynamicState"><code>extendedDynamicState</code></a>
-feature is not enabled, there <strong class="purple">must</strong> be no element of the
-<code>pDynamicStates</code> member of <code>pDynamicState</code> set to
-<code>VK_DYNAMIC_STATE_CULL_MODE</code>, <code>VK_DYNAMIC_STATE_FRONT_FACE</code>,
+If
+the <a href="chap45.html#features-extendedDynamicState"><code>extendedDynamicState</code></a>
+feature is not enabled,
+there <strong class="purple">must</strong> be no element of the <code>pDynamicStates</code> member of
+<code>pDynamicState</code> set to <code>VK_DYNAMIC_STATE_CULL_MODE</code>,
+<code>VK_DYNAMIC_STATE_FRONT_FACE</code>,
 <code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY</code>,
 <code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code>,
 <code>VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT</code>,
@@ -4418,10 +4874,11 @@ If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-ras
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-04868" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-04868"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-04868</span><br>
 
-If the <a href="chap45.html#features-extendedDynamicState2"><code>extendedDynamicState2</code></a>
-feature is not enabled, there <strong class="purple">must</strong> be no element of the
-<code>pDynamicStates</code> member of <code>pDynamicState</code> set to
-<code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE</code>,
+If
+the <a href="chap45.html#features-extendedDynamicState2"><code>extendedDynamicState2</code></a>
+feature is not enabled,
+there <strong class="purple">must</strong> be no element of the <code>pDynamicStates</code> member of
+<code>pDynamicState</code> set to <code>VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE</code>,
 <code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE</code>, or
 <code>VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE</code></p>
 </li>
@@ -4463,6 +4920,26 @@ feature <strong class="purple">must</strong> be enabled</p>
 If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a> and <code>flags</code> includes
 <code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code>, then all stages <strong class="purple">must</strong>
 not specify <code>Xfb</code> execution mode</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648</span><br>
+
+If the pipeline is not created with a
+<a href="chap10.html#pipelines-graphics-subsets-complete">complete set of state</a>,
+or <a href="chap10.html#VkPipelineLibraryCreateInfoKHR">VkPipelineLibraryCreateInfoKHR</a>::<code>libraryCount</code> is not <code>0</code>,
+<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>groupCount</code> and
+<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>pipelineCount</code>
+<strong class="purple">must</strong> be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649</span><br>
+
+If the pipeline is created with a <a href="chap10.html#pipelines-graphics-subsets-complete">complete set of state</a>,
+and <a href="chap10.html#VkPipelineLibraryCreateInfoKHR">VkPipelineLibraryCreateInfoKHR</a>::<code>libraryCount</code> is <code>0</code>,
+and the <code>pNext</code> chain includes an instance of
+<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>,
+<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>groupCount</code> <strong class="purple">must</strong>
+be greater than <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pipelineCreationCacheControl-02878" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pipelineCreationCacheControl-02878"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pipelineCreationCacheControl-02878</span><br>
@@ -4951,34 +5428,77 @@ not <code>VK_FORMAT_UNDEFINED</code>, <code>depthAttachmentFormat</code> <strong
 <code>stencilAttachmentFormat</code></p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06053" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06053"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06053</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-09033" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-09033"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-09033</span><br>
 
 If <code>renderPass</code> is <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the pipeline is being
 created with <a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment
 shader state</a> and <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface state</a>, and either of
 <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>depthAttachmentFormat</code> or
 <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>stencilAttachmentFormat</code> are
-not <code>VK_FORMAT_UNDEFINED</code>, <code>pDepthStencilState</code> <strong class="purple">must</strong> be a valid
-pointer to a valid <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
+not <code>VK_FORMAT_UNDEFINED</code>, and the
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled or any
+of the <code>VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_COMPARE_OP</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_OP</code>, or
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic states are not set,
+<code>pDepthStencilState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06590" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06590"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06590</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09034" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09034"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09034</span><br>
+
+If <code>pDepthStencilState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer to
+a valid <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-09035" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-09035"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-09035</span><br>
 
 If <code>renderPass</code> is <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> and the pipeline is being
 created with <a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment
-shader state</a> but not <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface state</a>, <code>pDepthStencilState</code> <strong class="purple">must</strong> be a
-valid pointer to a valid <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a>
-structure</p>
+shader state</a> but not <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface state</a>, and the
+<code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled, or any
+of the <code>VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_COMPARE_OP</code>,
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE</code>,
+<code>VK_DYNAMIC_STATE_STENCIL_OP</code>, or
+<code>VK_DYNAMIC_STATE_DEPTH_BOUNDS</code> dynamic states are not set,
+<code>pDepthStencilState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06054" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06054"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06054</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09036" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09036"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDepthStencilState-09036</span><br>
+
+If <code>pDepthStencilState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer to
+a valid <a href="chap29.html#VkPipelineDepthStencilStateCreateInfo">VkPipelineDepthStencilStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-09037" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-09037"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-09037</span><br>
 
 If <code>renderPass</code> is <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, the pipeline is being
 created with <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment
 output interface state</a>, and
 <a href="chap10.html#VkPipelineRenderingCreateInfo">VkPipelineRenderingCreateInfo</a>::<code>colorAttachmentCount</code> is not
-equal to <code>0</code>, <code>pColorBlendState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+equal to <code>0</code>, and the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension
+is not enabled, or any of the
+<code>VK_DYNAMIC_STATE_LOGIC_OP_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_LOGIC_OP_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_ENABLE_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT</code>,
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code>, or
+<code>VK_DYNAMIC_STATE_BLEND_CONSTANTS</code> dynamic states are not set,
+<code>pColorBlendState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap30.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pColorBlendState-09038" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pColorBlendState-09038"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pColorBlendState-09038</span><br>
+
+If <code>pColorBlendState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer to a
+valid <a href="chap30.html#VkPipelineColorBlendStateCreateInfo">VkPipelineColorBlendStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06055" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06055"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06055</span><br>
@@ -5221,6 +5741,54 @@ another element includes
 <code>VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT</code>, the value of
 <a href="chap8.html#VkMultiviewPerViewAttributesInfoNVX">VkMultiviewPerViewAttributesInfoNVX</a>::<code>perViewAttributesPositionXOnly</code>
 specified in both libraries <strong class="purple">must</strong> be equal</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-06600" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-06600"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-06600</span><br>
+
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a> or
+<a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment shader state</a>,
+<code>pStages</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>stageCount</code>
+valid <a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09039" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09039"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09039</span><br>
+
+If the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not enabled,
+or any of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
+<code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>,
+<code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code>, or
+<code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> dynamic states are not
+set then <code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+<a href="chap28.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09040" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09040"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09040</span><br>
+
+If <code>pRasterizationState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer
+to a valid <a href="chap28.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-layout-06602" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-layout-06602"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-layout-06602</span><br>
+
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment shader state</a> or
+<a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader
+state</a>, <code>layout</code> <strong class="purple">must</strong> be a valid <a href="chap14.html#VkPipelineLayout">VkPipelineLayout</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-renderPass-06603" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-renderPass-06603"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-renderPass-06603</span><br>
+
+If <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization
+shader state</a>, <a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment
+shader state</a>, or <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output state</a>, and <code>renderPass</code> is not
+<a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>renderPass</code> <strong class="purple">must</strong> be a valid
+<a href="chap8.html#VkRenderPass">VkRenderPass</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-stageCount-06604" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-stageCount-06604"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-stageCount-06604</span><br>
+
+If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a> or
+<a href="chap10.html#pipelines-graphics-subsets-fragment-shader">fragment shader state</a>,
+<code>stageCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-graphicsPipelineLibrary-06606" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-graphicsPipelineLibrary-06606"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-graphicsPipelineLibrary-06606</span><br>
@@ -5700,12 +6268,23 @@ If <a href="chap10.html#VkGraphicsPipelineLibraryCreateInfoEXT">VkGraphicsPipeli
 valid <a href="chap10.html#VkPipelineShaderStageCreateInfo">VkPipelineShaderStageCreateInfo</a> structures</p>
 </li>
 <li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-flags-06641" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-flags-06641"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-flags-06641</span><br>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-flags-09041" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-flags-09041"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-flags-09041</span><br>
 
 If <a href="chap10.html#VkGraphicsPipelineLibraryCreateInfoEXT">VkGraphicsPipelineLibraryCreateInfoEXT</a>::<code>flags</code> includes
 <code>VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT</code>,
-<code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
+and the <code><a href="chap54.html#VK_EXT_extended_dynamic_state3">VK_EXT_extended_dynamic_state3</a></code> extension is not
+enabled, or any of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
+<code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>,
+<code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code>, or
+<code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> dynamic states are not
+set, <code>pRasterizationState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap28.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09042" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09042"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pRasterizationState-09042</span><br>
+
+If <code>pRasterizationState</code> is not <code>NULL</code> it <strong class="purple">must</strong> be a valid pointer
+to a valid <a href="chap28.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a> structure</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-flags-06642" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-flags-06642"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-flags-06642</span><br>
@@ -5761,26 +6340,6 @@ and any library was created with
 <code>VK_PIPELINE_CREATE_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR</code>,
 <code>flags</code> <strong class="purple">must</strong> include
 <code>VK_PIPELINE_CREATE_CAPTURE_INTERNAL_REPRESENTATIONS_BIT_KHR</code></p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-libraryCount-06648</span><br>
-
-If the pipeline is not created with a
-<a href="chap10.html#pipelines-graphics-subsets-complete">complete set of state</a>, or
-<a href="chap10.html#VkPipelineLibraryCreateInfoKHR">VkPipelineLibraryCreateInfoKHR</a>::<code>libraryCount</code> is not <code>0</code>,
-<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>groupCount</code> and
-<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>pipelineCount</code>
-<strong class="purple">must</strong> be <code>0</code></p>
-</li>
-<li>
-<p><a id="VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-libraryCount-06649</span><br>
-
-If the pipeline is created with a <a href="chap10.html#pipelines-graphics-subsets-complete">complete set of state</a>,
-<a href="chap10.html#VkPipelineLibraryCreateInfoKHR">VkPipelineLibraryCreateInfoKHR</a>::<code>libraryCount</code> is <code>0</code>, and the
-<code>pNext</code> chain includes an instance of
-<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>,
-<a href="chap10.html#VkGraphicsPipelineShaderGroupsCreateInfoNV">VkGraphicsPipelineShaderGroupsCreateInfoNV</a>::<code>groupCount</code> <strong class="purple">must</strong>
-be greater than <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-None-07826" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-None-07826"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-None-07826</span><br>
@@ -6304,6 +6863,19 @@ If <a href="chap10.html#VkGraphicsPipelineLibraryCreateInfoEXT">VkGraphicsPipeli
 state</a> is not specified, the pipeline <strong class="purple">must</strong> define
 <a href="chap10.html#pipelines-graphics-subsets-fragment-output">fragment output interface
 state</a></p>
+</li>
+<li>
+<p><a id="VUID-VkGraphicsPipelineCreateInfo-None-09043" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-None-09043"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-None-09043</span><br>
+
+If
+<code>pDynamicState-&gt;pDynamicStates</code> does not include
+<code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code>, and
+the format of any color attachment is
+<code>VK_FORMAT_E5B9G9R9_UFLOAT_PACK32</code>, the <code>colorWriteMask</code> member
+of the corresponding element of <code>pColorBlendState-&gt;pAttachments</code>
+<strong class="purple">must</strong> either include all of <code>VK_COLOR_COMPONENT_R_BIT</code>,
+<code>VK_COLOR_COMPONENT_G_BIT</code>, and <code>VK_COLOR_COMPONENT_B_BIT</code>, or
+none of them</p>
 </li>
 </ul>
 </div>
@@ -11901,19 +12473,19 @@ x, y &amp; z elements of the WorkgroupSize vector.</p>
 <pre class="rouge highlight"><code data-lang="c++"><span class="k">const</span> <span class="n">VkSpecializationMapEntry</span> <span class="n">entries</span><span class="p">[]</span> <span class="o">=</span>
 <span class="p">{</span>
     <span class="p">{</span>
-        <span class="mi">13</span><span class="p">,</span>                             <span class="c1">// constantID</span>
-        <span class="mi">0</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>           <span class="c1">// offset</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>                <span class="c1">// size</span>
+        <span class="p">.</span><span class="n">constantID</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>
+        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="mi">42</span><span class="p">,</span>                             <span class="c1">// constantID</span>
-        <span class="mi">1</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>           <span class="c1">// offset</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>                <span class="c1">// size</span>
+        <span class="p">.</span><span class="n">constantID</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>
+        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="mi">3</span><span class="p">,</span>                              <span class="c1">// constantID</span>
-        <span class="mi">2</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>           <span class="c1">// offset</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>                <span class="c1">// size</span>
+        <span class="p">.</span><span class="n">constantID</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>
+        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">};</span>
 
@@ -11921,10 +12493,10 @@ x, y &amp; z elements of the WorkgroupSize vector.</p>
 
 <span class="k">const</span> <span class="n">VkSpecializationInfo</span> <span class="n">info</span> <span class="o">=</span>
 <span class="p">{</span>
-    <span class="mi">3</span><span class="p">,</span>                                  <span class="c1">// mapEntryCount</span>
-    <span class="n">entries</span><span class="p">,</span>                            <span class="c1">// pMapEntries</span>
-    <span class="mi">3</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>               <span class="c1">// dataSize</span>
-    <span class="n">data</span><span class="p">,</span>                               <span class="c1">// pData</span>
+    <span class="p">.</span><span class="n">mapEntryCount</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">pMapEntries</span>  <span class="o">=</span> <span class="n">entries</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">dataSize</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">),</span>
+    <span class="p">.</span><span class="n">pData</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span>
 <span class="p">};</span></code></pre>
 </div>
 </div>
@@ -11968,14 +12540,14 @@ integer and the second is a 32-bit floating-point value.</p>
 <span class="k">const</span> <span class="n">VkSpecializationMapEntry</span> <span class="n">entries</span><span class="p">[]</span> <span class="o">=</span>
 <span class="p">{</span>
     <span class="p">{</span>
-        <span class="mi">0</span><span class="p">,</span>                                    <span class="c1">// constantID</span>
-        <span class="n">offsetof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="p">,</span> <span class="n">data0</span><span class="p">),</span>  <span class="c1">// offset</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="o">::</span><span class="n">data0</span><span class="p">)</span>     <span class="c1">// size</span>
+        <span class="p">.</span><span class="n">constantID</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offsetof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="p">,</span> <span class="n">data0</span><span class="p">),</span>
+        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="o">::</span><span class="n">data0</span><span class="p">)</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="mi">12</span><span class="p">,</span>                                   <span class="c1">// constantID</span>
-        <span class="n">offsetof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="p">,</span> <span class="n">data1</span><span class="p">),</span>  <span class="c1">// offset</span>
-        <span class="k">sizeof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="o">::</span><span class="n">data1</span><span class="p">)</span>     <span class="c1">// size</span>
+        <span class="p">.</span><span class="n">constantID</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offsetof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="p">,</span> <span class="n">data1</span><span class="p">),</span>
+        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SpecializationData</span><span class="o">::</span><span class="n">data1</span><span class="p">)</span>
     <span class="p">}</span>
 <span class="p">};</span>
 
@@ -11985,10 +12557,10 @@ integer and the second is a 32-bit floating-point value.</p>
 
 <span class="k">const</span> <span class="n">VkSpecializationInfo</span> <span class="n">info</span> <span class="o">=</span>
 <span class="p">{</span>
-    <span class="mi">2</span><span class="p">,</span>                                  <span class="c1">// mapEntryCount</span>
-    <span class="n">entries</span><span class="p">,</span>                            <span class="c1">// pMapEntries</span>
-    <span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>                       <span class="c1">// dataSize</span>
-    <span class="o">&amp;</span><span class="n">data</span><span class="p">,</span>                              <span class="c1">// pData</span>
+    <span class="p">.</span><span class="n">mapEntryCount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">pMapEntries</span> <span class="o">=</span> <span class="n">entries</span><span class="p">,</span>
+    <span class="p">.</span><span class="n">dataSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+    <span class="p">.</span><span class="n">pdata</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">,</span>
 <span class="p">};</span></code></pre>
 </div>
 </div>
@@ -14475,7 +15047,7 @@ or more <a href="chap10.html#VkPipelineCreationFeedbackFlagBits">VkPipelineCreat
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.257<br>
+Version 1.2.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

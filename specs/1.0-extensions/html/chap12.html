@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.257,</span>
-<span id="revdate">2023-07-07 12:44:56Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.0.258,</span>
+<span id="revdate">2023-07-21 10:11:34Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -675,6 +675,11 @@
 Resources are views of memory with associated formatting and dimensionality.
 Buffers provide access to raw arrays of bytes, whereas images <strong class="purple">can</strong> be
 multidimensional and <strong class="purple">may</strong> have associated metadata.</p>
+</div>
+<div class="paragraph">
+<p>Other resource types, such as <a href="chap12.html#resources-acceleration-structures">acceleration structures</a>
+and <a href="chap12.html#resources-micromaps">micromaps</a>
+use buffers as the backing store for opaque data structures.</p>
 </div>
 <div class="sect2">
 <h3 id="resources-buffers"><a class="anchor" href="chap12.html#resources-buffers"></a>12.1. Buffers</h3>
@@ -2662,6 +2667,14 @@ listed above.</p>
 This failure <strong class="purple">may</strong> occur even when all image creation parameters satisfy
 their valid usage requirements.</p>
 </div>
+<div class="paragraph">
+<p>If the implementation reports <code>VK_TRUE</code> in
+<a href="chap46.html#VkPhysicalDeviceHostImageCopyPropertiesEXT">VkPhysicalDeviceHostImageCopyPropertiesEXT</a>::<code>identicalMemoryTypeRequirements</code>,
+usage of <code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> <strong class="purple">must</strong> not affect the
+memory type requirements of the image as described in
+<a href="chap33.html#sparsememory-memory-requirements">Sparse Resource Memory Requirements</a> and
+<a href="chap12.html#resources-association">Resource Memory Association</a>.</p>
+</div>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -3952,6 +3965,14 @@ If the <code>pNext</code> chain includes a <a href="chap11.html#VkImportMetalTex
 structure and the image has a multi-planar format with only two planes,
 then <a href="chap11.html#VkImportMetalTextureInfoEXT">VkImportMetalTextureInfoEXT</a>::<code>plane</code> <strong class="purple">must</strong> not be
 <code>VK_IMAGE_ASPECT_PLANE_2_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-imageCreateFormatFeatures-09048" href="chap12.html#VUID-VkImageCreateInfo-imageCreateFormatFeatures-09048"></a> <span class="vuid">VUID-VkImageCreateInfo-imageCreateFormatFeatures-09048</span><br>
+
+If <code>imageCreateFormatFeatures</code> (as defined in
+<a href="chap12.html#resources-image-creation-limits">Image Creation Limits</a>) does not
+contain <code>VK_FORMAT_FEATURE_2_HOST_IMAGE_TRANSFER_BIT_EXT</code>, then
+<code>usage</code> <strong class="purple">must</strong> not contain <code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -5400,6 +5421,8 @@ compression rates that apply to the specified aspect of the image.</p>
     <span class="n">VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000200</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_fragment_shading_rate</span>
     <span class="n">VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x00000100</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_host_image_copy</span>
+    <span class="n">VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00400000</span><span class="p">,</span>
 <span class="cp">#ifdef VK_ENABLE_BETA_EXTENSIONS
 </span>  <span class="c1">// Provided by VK_KHR_video_encode_queue</span>
     <span class="n">VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x00002000</span><span class="p">,</span>
@@ -5528,6 +5551,10 @@ image <strong class="purple">can</strong> be transitioned to the
 used as a color or depth/stencil attachment in a <code>VkFramebuffer</code>
 and/or as a read-only input resource in a shader (sampled image,
 combined image sampler or input attachment) in the same render pass.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> specifies that the image <strong class="purple">can</strong>
+be used with host copy commands and host layout transitions.</p>
 </li>
 </ul>
 </div>
@@ -6289,7 +6316,7 @@ implementation-dependent meaning.</p>
 </div>
 <div id="vkGetImageSubresourceLayout2EXT" class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy, VK_EXT_image_compression_control</span>
 <span class="kt">void</span> <span class="nf">vkGetImageSubresourceLayout2EXT</span><span class="p">(</span>
     <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
     <span class="n">VkImage</span>                                     <span class="n">image</span><span class="p">,</span>
@@ -6470,7 +6497,7 @@ associated with the image’s <code>format</code> and
 </div>
 <div id="VkImageSubresource2EXT" class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy, VK_EXT_image_compression_control</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkImageSubresource2EXT</span> <span class="p">{</span>
     <span class="n">VkStructureType</span>       <span class="n">sType</span><span class="p">;</span>
     <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
@@ -6523,7 +6550,7 @@ structure.</p>
 </div>
 <div id="VkSubresourceLayout2EXT" class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_image_compression_control</span>
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy, VK_EXT_image_compression_control</span>
 <span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSubresourceLayout2EXT</span> <span class="p">{</span>
     <span class="n">VkStructureType</span>        <span class="n">sType</span><span class="p">;</span>
     <span class="kt">void</span><span class="o">*</span>                  <span class="n">pNext</span><span class="p">;</span>
@@ -6556,11 +6583,63 @@ structure.</p>
 </li>
 <li>
 <p><a id="VUID-VkSubresourceLayout2EXT-pNext-pNext" href="chap12.html#VUID-VkSubresourceLayout2EXT-pNext-pNext"></a> <span class="vuid">VUID-VkSubresourceLayout2EXT-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code> or a pointer to a valid instance of <a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap12.html#VkImageCompressionPropertiesEXT">VkImageCompressionPropertiesEXT</a> or <a href="chap12.html#VkSubresourceHostMemcpySizeEXT">VkSubresourceHostMemcpySizeEXT</a></p>
 </li>
 <li>
 <p><a id="VUID-VkSubresourceLayout2EXT-sType-unique" href="chap12.html#VUID-VkSubresourceLayout2EXT-sType-unique"></a> <span class="vuid">VUID-VkSubresourceLayout2EXT-sType-unique</span><br>
  The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the memory size needed to copy to or from an image using
+<a href="chap20.html#vkCopyMemoryToImageEXT">vkCopyMemoryToImageEXT</a> or <a href="chap20.html#vkCopyImageToMemoryEXT">vkCopyImageToMemoryEXT</a> when the
+<code>VK_HOST_IMAGE_COPY_MEMCPY_EXT</code> flag is specified, add a
+<a href="chap12.html#VkSubresourceHostMemcpySizeEXT">VkSubresourceHostMemcpySizeEXT</a> structure to the <code>pNext</code> chain of
+the <a href="chap12.html#VkSubresourceLayout2EXT">VkSubresourceLayout2EXT</a> structure in a call to
+<a href="chap12.html#vkGetImageSubresourceLayout2EXT">vkGetImageSubresourceLayout2EXT</a>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkSubresourceHostMemcpySizeEXT</code> structure is defined as:</p>
+</div>
+<div id="VkSubresourceHostMemcpySizeEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSubresourceHostMemcpySizeEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkDeviceSize</span>       <span class="n">size</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkSubresourceHostMemcpySizeEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>size</code> is the size in bytes of the image subresource.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSubresourceHostMemcpySizeEXT-sType-sType" href="chap12.html#VUID-VkSubresourceHostMemcpySizeEXT-sType-sType"></a> <span class="vuid">VUID-VkSubresourceHostMemcpySizeEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -10307,9 +10386,12 @@ acceleration structure object is returned.</p>
 <p>Similarly to other objects in Vulkan, the acceleration structure creation
 merely creates an object with a specific “shape” as specified by the
 information in <a href="chap12.html#VkAccelerationStructureInfoNV">VkAccelerationStructureInfoNV</a> and <code>compactedSize</code>
-in <code>pCreateInfo</code>.
-Populating the data in the object after allocating and binding memory is
-done with <a href="chap37.html#vkCmdBuildAccelerationStructureNV">vkCmdBuildAccelerationStructureNV</a> and
+in <code>pCreateInfo</code>.</p>
+</div>
+<div class="paragraph">
+<p>Once memory has been bound to the acceleration structure using
+<a href="chap12.html#vkBindAccelerationStructureMemoryNV">vkBindAccelerationStructureMemoryNV</a>, that memory is populated by calls
+to <a href="chap37.html#vkCmdBuildAccelerationStructureNV">vkCmdBuildAccelerationStructureNV</a> and
 <a href="chap37.html#vkCmdCopyAccelerationStructureNV">vkCmdCopyAccelerationStructureNV</a>.</p>
 </div>
 <div class="paragraph">
@@ -10657,8 +10739,10 @@ structure is determined by the parameters of
 <a href="chap12.html#VkAccelerationStructureCreateInfoKHR">VkAccelerationStructureCreateInfoKHR</a>.</p>
 </div>
 <div class="paragraph">
-<p>Populating the data in the object after allocating and binding memory is
-done with commands such as <a href="chap37.html#vkCmdBuildAccelerationStructuresKHR">vkCmdBuildAccelerationStructuresKHR</a>,
+<p>The acceleration structure data is stored in the object referred to by
+<code>VkAccelerationStructureCreateInfoKHR</code>::<code>buffer</code>.
+Once memory has been bound to that buffer, it is populated by commands such
+as <a href="chap37.html#vkCmdBuildAccelerationStructuresKHR">vkCmdBuildAccelerationStructuresKHR</a>,
 <a href="chap37.html#vkBuildAccelerationStructuresKHR">vkBuildAccelerationStructuresKHR</a>,
 <a href="chap37.html#vkCmdCopyAccelerationStructureKHR">vkCmdCopyAccelerationStructureKHR</a>, and
 <a href="chap37.html#vkCopyAccelerationStructureKHR">vkCopyAccelerationStructureKHR</a>.</p>
@@ -13169,10 +13253,11 @@ The type and quantity of geometry that can be built into a micromap is
 determined by the parameters of <a href="chap12.html#VkMicromapCreateInfoEXT">VkMicromapCreateInfoEXT</a>.</p>
 </div>
 <div class="paragraph">
-<p>Populating the data in the object after allocating and binding memory is
-done with commands such as <a href="chap38.html#vkCmdBuildMicromapsEXT">vkCmdBuildMicromapsEXT</a>,
-<a href="chap38.html#vkBuildMicromapsEXT">vkBuildMicromapsEXT</a>, <a href="chap38.html#vkCmdCopyMicromapEXT">vkCmdCopyMicromapEXT</a>, and
-<a href="chap38.html#vkCopyMicromapEXT">vkCopyMicromapEXT</a>.</p>
+<p>The micromap data is stored in the object referred to by
+<code>VkMicromapCreateInfoEXT</code>::<code>buffer</code>.
+Once memory has been bound to that buffer, it is populated by commands such
+as <a href="chap38.html#vkCmdBuildMicromapsEXT">vkCmdBuildMicromapsEXT</a>, <a href="chap38.html#vkBuildMicromapsEXT">vkBuildMicromapsEXT</a>,
+<a href="chap38.html#vkCmdCopyMicromapEXT">vkCmdCopyMicromapEXT</a>, and <a href="chap38.html#vkCopyMicromapEXT">vkCopyMicromapEXT</a>.</p>
 </div>
 <div class="paragraph">
 <p>The input buffers passed to micromap build commands will be referenced by
@@ -14237,6 +14322,10 @@ combination of values for the <code>tiling</code> member, the
 <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code> bit of the <code>flags</code> member,
 the <code>VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT</code> bit of the
 <code>flags</code> member,
+the <code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> bit of the <code>usage</code>
+member if the
+<a href="chap46.html#VkPhysicalDeviceHostImageCopyPropertiesEXT">VkPhysicalDeviceHostImageCopyPropertiesEXT</a>::<code>identicalMemoryTypeRequirements</code>
+property is <code>VK_FALSE</code>,
 <code>handleTypes</code> member of <a href="chap12.html#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>,
 and the <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> of the <code>usage</code>
 member in the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> structure passed to
@@ -14250,6 +14339,10 @@ member, the <code>VK_IMAGE_CREATE_SPARSE_BINDING_BIT</code> bit of the
 <code>flags</code> member,
 the <code>VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT</code> bit of the
 <code>flags</code> member,
+the <code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> bit of the <code>usage</code>
+member if the
+<a href="chap46.html#VkPhysicalDeviceHostImageCopyPropertiesEXT">VkPhysicalDeviceHostImageCopyPropertiesEXT</a>::<code>identicalMemoryTypeRequirements</code>
+property is <code>VK_FALSE</code>,
 <code>handleTypes</code> member of <a href="chap12.html#VkExternalMemoryImageCreateInfo">VkExternalMemoryImageCreateInfo</a>,
 and the <code>VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT</code> of the <code>usage</code>
 member in the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> structure passed to
@@ -19112,7 +19205,7 @@ respectively, <strong class="purple">may</strong> outlive <code>collection</code
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.257<br>
+Version 1.0.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

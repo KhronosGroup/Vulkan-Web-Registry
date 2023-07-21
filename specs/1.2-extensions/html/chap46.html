@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.257,</span>
-<span id="revdate">2023-07-07 12:45:14Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.2.258,</span>
+<span id="revdate">2023-07-21 10:11:36Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1736,6 +1736,8 @@ locations.</p>
 alignment in bytes for
 <a href="chap20.html#vkCmdCopyBufferToImage2KHR">vkCmdCopyBufferToImage2KHR</a>, <a href="chap20.html#vkCmdCopyBufferToImage">vkCmdCopyBufferToImage</a>,
 <a href="chap20.html#vkCmdCopyImageToBuffer2KHR">vkCmdCopyImageToBuffer2KHR</a>, and <a href="chap20.html#vkCmdCopyImageToBuffer">vkCmdCopyImageToBuffer</a>.
+This value is also the optimal host memory offset alignment in bytes for
+<a href="chap20.html#vkCopyMemoryToImageEXT">vkCopyMemoryToImageEXT</a> and <a href="chap20.html#vkCopyImageToMemoryEXT">vkCopyImageToMemoryEXT</a>.
 The per texel alignment requirements are enforced, but applications
 <strong class="purple">should</strong> use the optimal alignment for optimal performance and power use.
 The value <strong class="purple">must</strong> be a power of two.</p>
@@ -1746,6 +1748,8 @@ The value <strong class="purple">must</strong> be a power of two.</p>
 alignment in bytes for
 <a href="chap20.html#vkCmdCopyBufferToImage2KHR">vkCmdCopyBufferToImage2KHR</a>, <a href="chap20.html#vkCmdCopyBufferToImage">vkCmdCopyBufferToImage</a>,
 <a href="chap20.html#vkCmdCopyImageToBuffer2KHR">vkCmdCopyImageToBuffer2KHR</a>, and <a href="chap20.html#vkCmdCopyImageToBuffer">vkCmdCopyImageToBuffer</a>.
+This value is also the optimal host memory row pitch alignment in bytes
+for <a href="chap20.html#vkCopyMemoryToImageEXT">vkCopyMemoryToImageEXT</a> and <a href="chap20.html#vkCopyImageToMemoryEXT">vkCopyImageToMemoryEXT</a>.
 Row pitch is the number of bytes between texels with the same X
 coordinate in adjacent rows (Y coordinates differ by one).
 The per texel alignment requirements are enforced, but applications
@@ -6869,6 +6873,134 @@ corresponding implementation-dependent property.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>The <code>VkPhysicalDeviceHostImageCopyPropertiesEXT</code> structure is defined
+as:</p>
+</div>
+<div id="VkPhysicalDeviceHostImageCopyPropertiesEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceHostImageCopyPropertiesEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>           <span class="n">copySrcLayoutCount</span><span class="p">;</span>
+    <span class="n">VkImageLayout</span><span class="o">*</span>     <span class="n">pCopySrcLayouts</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>           <span class="n">copyDstLayoutCount</span><span class="p">;</span>
+    <span class="n">VkImageLayout</span><span class="o">*</span>     <span class="n">pCopyDstLayouts</span><span class="p">;</span>
+    <span class="kt">uint8_t</span>            <span class="n">optimalTilingLayoutUUID</span><span class="p">[</span><span class="n">VK_UUID_SIZE</span><span class="p">];</span>
+    <span class="n">VkBool32</span>           <span class="n">identicalMemoryTypeRequirements</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceHostImageCopyPropertiesEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>copySrcLayoutCount</code> is an integer related to the number of image
+layouts for host copies from images available or queried, as described
+below.</p>
+</li>
+<li>
+<p><code>pCopySrcLayouts</code> is a pointer to an array of <a href="chap12.html#VkImageLayout">VkImageLayout</a> in
+which supported image layouts for use with host copy operations from
+images are returned.</p>
+</li>
+<li>
+<p><code>copyDstLayoutCount</code> is an integer related to the number of image
+layouts for host copies to images available or queried, as described
+below.</p>
+</li>
+<li>
+<p><code>pCopyDstLayouts</code> is a pointer to an array of <a href="chap12.html#VkImageLayout">VkImageLayout</a> in
+which supported image layouts for use with host copy operations to
+images are returned.</p>
+</li>
+<li>
+<p><code>optimalTilingLayoutUUID</code> is an array of <code>VK_UUID_SIZE</code>
+<code>uint8_t</code> values representing a universally unique identifier for the
+implementation’s swizzling layout of images created with
+<code>VK_IMAGE_TILING_OPTIMAL</code>.</p>
+</li>
+<li>
+<p><code>identicalMemoryTypeRequirements</code> indicates that specifying the
+<code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> flag in
+<a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>usage</code> does not affect the memory type
+requirements of the image.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceHostImageCopyPropertiesEXT</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap5.html#VkPhysicalDeviceProperties2">VkPhysicalDeviceProperties2</a> structure passed to
+<a href="chap5.html#vkGetPhysicalDeviceProperties2">vkGetPhysicalDeviceProperties2</a>, it is filled in with each
+corresponding implementation-dependent property.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pCopyDstLayouts</code> is <code>NULL</code>, then the number of image layouts that
+are supported in <a href="chap20.html#VkCopyMemoryToImageInfoEXT">VkCopyMemoryToImageInfoEXT</a>::<code>dstImageLayout</code> and
+<a href="chap20.html#VkCopyImageToImageInfoEXT">VkCopyImageToImageInfoEXT</a>::<code>dstImageLayout</code> is returned in
+<code>copyDstLayoutCount</code>.
+Otherwise, <code>copyDstLayoutCount</code> <strong class="purple">must</strong> be set by the user to the number
+of elements in the <code>pCopyDstLayouts</code> array, and on return the variable
+is overwritten with the number of values actually written to
+<code>pCopyDstLayouts</code>.
+If the value of <code>copyDstLayoutCount</code> is less than the number of image
+layouts that are supported, at most <code>copyDstLayoutCount</code> values will be
+written to <code>pCopyDstLayouts</code>.
+The implementation <strong class="purple">must</strong> include the <code>VK_IMAGE_LAYOUT_GENERAL</code> image
+layout in <code>pCopyDstLayouts</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>pCopySrcLayouts</code> is <code>NULL</code>, then the number of image layouts that
+are supported in <a href="chap20.html#VkCopyImageToMemoryInfoEXT">VkCopyImageToMemoryInfoEXT</a>::<code>srcImageLayout</code> and
+<a href="chap20.html#VkCopyImageToImageInfoEXT">VkCopyImageToImageInfoEXT</a>::<code>srcImageLayout</code> is returned in
+<code>copySrcLayoutCount</code>.
+Otherwise, <code>copySrcLayoutCount</code> <strong class="purple">must</strong> be set by the user to the number
+of elements in the <code>pCopySrcLayouts</code> array, and on return the variable
+is overwritten with the number of values actually written to
+<code>pCopySrcLayouts</code>.
+If the value of <code>copySrcLayoutCount</code> is less than the number of image
+layouts that are supported, at most <code>copySrcLayoutCount</code> values will be
+written to <code>pCopySrcLayouts</code>.
+The implementation <strong class="purple">must</strong> include the <code>VK_IMAGE_LAYOUT_GENERAL</code> image
+layout in <code>pCopySrcLayouts</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>optimalTilingLayoutUUID</code> value can be used to ensure compatible
+data layouts when using the <code>VK_HOST_IMAGE_COPY_MEMCPY_EXT</code> flag in
+<a href="chap20.html#vkCopyMemoryToImageEXT">vkCopyMemoryToImageEXT</a> and <a href="chap20.html#vkCopyImageToMemoryEXT">vkCopyImageToMemoryEXT</a>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-sType-sType" href="chap46.html#VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopySrcLayouts-parameter" href="chap46.html#VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopySrcLayouts-parameter"></a> <span class="vuid">VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopySrcLayouts-parameter</span><br>
+ If <code>copySrcLayoutCount</code> is not <code>0</code>, and <code>pCopySrcLayouts</code> is not <code>NULL</code>, <code>pCopySrcLayouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>copySrcLayoutCount</code> <a href="chap12.html#VkImageLayout">VkImageLayout</a> values</p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopyDstLayouts-parameter" href="chap46.html#VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopyDstLayouts-parameter"></a> <span class="vuid">VUID-VkPhysicalDeviceHostImageCopyPropertiesEXT-pCopyDstLayouts-parameter</span><br>
+ If <code>copyDstLayoutCount</code> is not <code>0</code>, and <code>pCopyDstLayouts</code> is not <code>NULL</code>, <code>pCopyDstLayouts</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>copyDstLayoutCount</code> <a href="chap12.html#VkImageLayout">VkImageLayout</a> values</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>The <code>VkPhysicalDeviceSubpassShadingPropertiesHUAWEI</code> structure is
 defined as:</p>
 </div>
@@ -11591,7 +11723,7 @@ respectively, otherwise both members <strong class="purple">must</strong> be <co
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.257<br>
+Version 1.2.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

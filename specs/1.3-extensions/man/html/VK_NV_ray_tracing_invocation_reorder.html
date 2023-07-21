@@ -978,6 +978,179 @@ contain an integer for hint bits to use to add more locality.</p>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_hlsl_mapping"><a class="anchor" href="#_hlsl_mapping"></a>HLSL Mapping</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>HLSL does not provide this functionality natively yet.</p>
+</div>
+<div class="paragraph">
+<p>However, it is possible to use this functionality via
+<a href="https://github.com/microsoft/DirectXShaderCompiler/wiki/GL_EXT_spirv_intrinsics-for-SPIR-V-code-gen">SPIR-V
+Intrinsics</a>.</p>
+</div>
+<div class="paragraph">
+<p>The codes for shader invocation reorder are obtained from
+<a href="https://htmlpreview.github.io/?https://github.com/KhronosGroup/SPIRV-Registry/blob/master/extensions/NV/SPV_NV_shader_invocation_reorder.html">this
+page</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">#define ShaderInvocationReorderNV 5383
+#define HitObjectAttributeNV 5385
+
+#define OpHitObjectRecordHitMotionNV 5249
+#define OpHitObjectRecordHitWithIndexMotionNV 5250
+#define OpHitObjectRecordMissMotionNV 5251
+#define OpHitObjectGetWorldToObjectNV 5252
+#define OpHitObjectGetObjectToWorldNV 5253
+#define OpHitObjectGetObjectRayDirectionNV 5254
+#define OpHitObjectGetObjectRayOriginNV 5255
+#define OpHitObjectTraceRayMotionNV 5256
+#define OpHitObjectGetShaderRecordBufferHandleNV 5257
+#define OpHitObjectGetShaderBindingTableRecordIndexNV 5258
+#define OpHitObjectRecordEmptyNV 5259
+#define OpHitObjectTraceRayNV 5260
+#define OpHitObjectRecordHitNV 5261
+#define OpHitObjectRecordHitWithIndexNV 5262
+#define OpHitObjectRecordMissNV 5263
+#define OpHitObjectExecuteShaderNV 5264
+#define OpHitObjectGetCurrentTimeNV 5265
+#define OpHitObjectGetAttributesNV 5266
+#define OpHitObjectGetHitKindNV 5267
+#define OpHitObjectGetPrimitiveIndexNV 5268
+#define OpHitObjectGetGeometryIndexNV 5269
+#define OpHitObjectGetInstanceIdNV 5270
+#define OpHitObjectGetInstanceCustomIndexNV 5271
+#define OpHitObjectGetWorldRayDirectionNV 5272
+#define OpHitObjectGetWorldRayOriginNV 5273
+#define OpHitObjectGetRayTMaxNV 5274
+#define OpHitObjectGetRayTMinNV 5275
+#define OpHitObjectIsEmptyNV 5276
+#define OpHitObjectIsHitNV 5277
+#define OpHitObjectIsMissNV 5278
+#define OpReorderThreadWithHitObjectNV 5279
+#define OpReorderThreadWithHintNV 5280
+#define OpTypeHitObjectNV 5281</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The capability and extension need to be added:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">[[vk::ext_capability(ShaderInvocationReorderNV)]]
+[[vk::ext_extension("SPV_NV_shader_invocation_reorder")]]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The creation of the <code>HitObject</code> type can be done like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">[[vk::ext_type_def(HitObjectAttributeNV, OpTypeHitObjectNV)]]
+void createHitObjectNV();
+#define HitObjectNV vk::ext_type&lt;HitObjectAttributeNV&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The payload:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>must be global</p>
+</li>
+<li>
+<p>needs the <code>RayPayloadKHR</code> attribute as an extra storage class</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">struct [raypayload] HitPayload
+{
+  float hitT : write(closesthit, miss) : read(caller);
+  int instanceIndex : write(closesthit) : read(caller);
+  float3 pos : write(closesthit) : read(caller);
+  float3 nrm : write(closesthit) : read(caller);
+};
+
+#define RayPayloadKHR 5338
+[[vk::ext_storage_class(RayPayloadKHR)]] static HitPayload payload;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is the declaration of a few invocation reordering functions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">[[vk::ext_instruction(OpHitObjectRecordEmptyNV)]]
+void hitObjectRecordEmptyNV([[vk::ext_reference]] HitObjectNV hitObject);
+
+[[vk::ext_instruction(OpHitObjectTraceRayNV)]]
+void hitObjectTraceRayNV(
+    [[vk::ext_reference]] HitObjectNV hitObject,
+    RaytracingAccelerationStructure as,
+    uint RayFlags,
+    uint CullMask,
+    uint SBTOffset,
+    uint SBTStride,
+    uint MissIndex,
+    float3 RayOrigin,
+    float RayTmin,
+    float3 RayDirection,
+    float RayTMax,
+    [[vk::ext_reference]] [[vk::ext_storage_class(RayPayloadKHR)]] HitPayload payload
+  );
+
+[[vk::ext_instruction(OpReorderThreadWithHintNV)]]
+void reorderThreadWithHintNV(int Hint, int Bits);
+
+[[vk::ext_instruction(OpReorderThreadWithHitObjectNV)]]
+void reorderThreadWithHitObjectNV([[vk::ext_reference]] HitObjectNV hitObject);
+
+[[vk::ext_instruction(OpHitObjectExecuteShaderNV)]]
+void hitObjectExecuteShaderNV([[vk::ext_reference]] HitObjectNV hitObject, [[vk::ext_reference]] [[vk::ext_storage_class(RayPayloadKHR)]] HitPayload payload);
+
+[[vk::ext_instruction(OpHitObjectIsHitNV)]]
+bool hitObjectIsHitNV([[vk::ext_reference]] HitObjectNV hitObject);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Using the function in the code, can be done like this</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c" data-lang="c">  if (USE_SER == 1)
+  {
+    createHitObjectNV();
+    HitObjectNV hObj; //  hitObjectNV hObj;
+    hitObjectRecordEmptyNV(hObj); //Initialize to an empty hit object
+    hitObjectTraceRayNV(hObj, topLevelAS, rayFlags, 0xFF, 0, 0, 0, r.Origin, 0.0, r.Direction, INFINITE, payload);
+    reorderThreadWithHitObjectNV(hObj);
+    hitObjectExecuteShaderNV(hObj, payload);
+  }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>createHitObjectNV() needs to be call at least once.
+This can be also done in the main entry of the shader.</p>
+</li>
+<li>
+<p>Function with a payload parameter, needs to have the payload struct
+defined before.
+There are no templated declaration of the function.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_version_history"><a class="anchor" href="#_version_history"></a>Version History</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -1030,8 +1203,8 @@ Fixes and changes should be made to the generator scripts, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.257<br>
-Last updated 2023-07-07 05:31:11 -0700
+Version 1.3.258<br>
+Last updated 2023-07-21 02:57:58 -0700
 </div>
 </div>
 

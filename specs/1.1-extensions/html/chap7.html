@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.257,</span>
-<span id="revdate">2023-07-07 12:44:59Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.1.258,</span>
+<span id="revdate">2023-07-21 10:11:33Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -969,6 +969,31 @@ If the old layout matches the current layout of the image subresource range,
 the transition preserves the contents of that range.
 If the old layout is <code>VK_IMAGE_LAYOUT_UNDEFINED</code>, the contents of that
 range <strong class="purple">may</strong> be discarded.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Image layout transitions with <code>VK_IMAGE_LAYOUT_UNDEFINED</code> allow the
+implementation to discard the image subresource range, which can provide
+performance or power benefits.
+Tile-based architectures may be able to avoid flushing tile data to memory,
+and immediate style renderers may be able to achieve fast metadata clears to
+reinitialize frame buffer compression state, or similar.</p>
+</div>
+<div class="paragraph">
+<p>If the contents of an attachment are not needed after a render pass
+completes, then applications <strong class="purple">should</strong> use
+<code>VK_ATTACHMENT_STORE_OP_DONT_CARE</code>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="paragraph">
 <p>As image layout transitions <strong class="purple">may</strong> perform read and write accesses on the
@@ -15857,32 +15882,70 @@ If <code>buffer</code> is non-sparse then it <strong class="purple">must</strong
 contiguously to a single <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
-<p><a id="VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087</span><br>
-
-If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
-at least one <strong class="purple">must</strong> not be a special queue family reserved for external
-memory ownership transfers, as described in
-<a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferMemoryBarrier2-buffer-04088" href="chap7.html#VUID-VkBufferMemoryBarrier2-buffer-04088"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-buffer-04088</span><br>
-
-If <code>buffer</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, and one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is one of the
-special queue family values reserved for external memory transfers, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferMemoryBarrier2-buffer-04089" href="chap7.html#VUID-VkBufferMemoryBarrier2-buffer-04089"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-buffer-04089</span><br>
+<p><a id="VUID-VkBufferMemoryBarrier2-buffer-09095" href="chap7.html#VUID-VkBufferMemoryBarrier2-buffer-09095"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-buffer-09095</span><br>
 
 If <code>buffer</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
-the special queue family values reserved for external memory transfers,
-as described in <a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-buffer-09096" href="chap7.html#VUID-VkBufferMemoryBarrier2-buffer-09096"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-buffer-09096</span><br>
+
+If <code>buffer</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-04087</span><br>
+
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one of <code>srcQueueFamilyIndex</code> or <code>dstQueueFamilyIndex</code>
+<strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code>
+or <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-None-09097" href="chap7.html#VUID-VkBufferMemoryBarrier2-None-09097"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-None-09097</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-None-09098" href="chap7.html#VUID-VkBufferMemoryBarrier2-None-09098"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-None-09098</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-09099" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-09099"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcQueueFamilyIndex-09099</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier2-dstQueueFamilyIndex-09100" href="chap7.html#VUID-VkBufferMemoryBarrier2-dstQueueFamilyIndex-09100"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-dstQueueFamilyIndex-09100</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkBufferMemoryBarrier2-srcStageMask-03851" href="chap7.html#VUID-VkBufferMemoryBarrier2-srcStageMask-03851"></a> <span class="vuid">VUID-VkBufferMemoryBarrier2-srcStageMask-03851</span><br>
@@ -16081,41 +16144,103 @@ If <code>buffer</code> is non-sparse then it <strong class="purple">must</strong
 contiguously to a single <code>VkDeviceMemory</code> object</p>
 </li>
 <li>
-<p><a id="VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087" href="chap7.html#VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087</span><br>
-
-If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
-at least one <strong class="purple">must</strong> not be a special queue family reserved for external
-memory ownership transfers, as described in
-<a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferMemoryBarrier-buffer-04088" href="chap7.html#VUID-VkBufferMemoryBarrier-buffer-04088"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-buffer-04088</span><br>
-
-If <code>buffer</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, and one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is one of the
-special queue family values reserved for external memory transfers, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkBufferMemoryBarrier-buffer-04089" href="chap7.html#VUID-VkBufferMemoryBarrier-buffer-04089"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-buffer-04089</span><br>
+<p><a id="VUID-VkBufferMemoryBarrier-buffer-09095" href="chap7.html#VUID-VkBufferMemoryBarrier-buffer-09095"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-buffer-09095</span><br>
 
 If <code>buffer</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
-the special queue family values reserved for external memory transfers,
-as described in <a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
 </li>
 <li>
-<p><a id="VUID-VkBufferMemoryBarrier-synchronization2-03853" href="chap7.html#VUID-VkBufferMemoryBarrier-synchronization2-03853"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-synchronization2-03853</span><br>
+<p><a id="VUID-VkBufferMemoryBarrier-buffer-09096" href="chap7.html#VUID-VkBufferMemoryBarrier-buffer-09096"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-buffer-09096</span><br>
 
-If the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is
-not enabled, and <code>buffer</code> was created with a sharing mode of
+If <code>buffer</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087" href="chap7.html#VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-04087</span><br>
+
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one of <code>srcQueueFamilyIndex</code> or <code>dstQueueFamilyIndex</code>
+<strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code>
+or <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-None-09097" href="chap7.html#VUID-VkBufferMemoryBarrier-None-09097"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-None-09097</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-None-09098" href="chap7.html#VUID-VkBufferMemoryBarrier-None-09098"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-None-09098</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-09099" href="chap7.html#VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-09099"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-srcQueueFamilyIndex-09099</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-dstQueueFamilyIndex-09100" href="chap7.html#VUID-VkBufferMemoryBarrier-dstQueueFamilyIndex-09100"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-dstQueueFamilyIndex-09100</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-None-09049" href="chap7.html#VUID-VkBufferMemoryBarrier-None-09049"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-None-09049</span><br>
+
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>buffer</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
 <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
 <code>VK_QUEUE_FAMILY_IGNORED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-None-09050" href="chap7.html#VUID-VkBufferMemoryBarrier-None-09050"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-None-09050</span><br>
+
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>buffer</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code>
+or <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBufferMemoryBarrier-None-09051" href="chap7.html#VUID-VkBufferMemoryBarrier-None-09051"></a> <span class="vuid">VUID-VkBufferMemoryBarrier-None-09051</span><br>
+
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>buffer</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code>
+or <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
 </li>
 </ul>
 </div>
@@ -17429,32 +17554,70 @@ and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> set</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070" href="chap7.html#VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070</span><br>
-
-If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
-at least one <strong class="purple">must</strong> not be a special queue family reserved for external
-memory ownership transfers, as described in
-<a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier2-image-04071" href="chap7.html#VUID-VkImageMemoryBarrier2-image-04071"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-image-04071</span><br>
-
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, and one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is one of the
-special queue family values reserved for external memory transfers, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier2-image-04072" href="chap7.html#VUID-VkImageMemoryBarrier2-image-04072"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-image-04072</span><br>
+<p><a id="VUID-VkImageMemoryBarrier2-image-09117" href="chap7.html#VUID-VkImageMemoryBarrier2-image-09117"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-image-09117</span><br>
 
 If <code>image</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
-the special queue family values reserved for external memory transfers,
-as described in <a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-image-09118" href="chap7.html#VUID-VkImageMemoryBarrier2-image-09118"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-image-09118</span><br>
+
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070" href="chap7.html#VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-04070</span><br>
+
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one of <code>srcQueueFamilyIndex</code> or <code>dstQueueFamilyIndex</code>
+<strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code>
+or <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-None-09119" href="chap7.html#VUID-VkImageMemoryBarrier2-None-09119"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-None-09119</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-None-09120" href="chap7.html#VUID-VkImageMemoryBarrier2-None-09120"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-None-09120</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-09121" href="chap7.html#VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-09121"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-09121</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier2-dstQueueFamilyIndex-09122" href="chap7.html#VUID-VkImageMemoryBarrier2-dstQueueFamilyIndex-09122"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-dstQueueFamilyIndex-09122</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-07120" href="chap7.html#VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-07120"></a> <span class="vuid">VUID-VkImageMemoryBarrier2-srcQueueFamilyIndex-07120</span><br>
@@ -18017,32 +18180,70 @@ and <code>oldLayout</code> or <code>newLayout</code> is
 <code>VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</code> set</p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070" href="chap7.html#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070"></a> <span class="vuid">VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070</span><br>
-
-If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
-at least one <strong class="purple">must</strong> not be a special queue family reserved for external
-memory ownership transfers, as described in
-<a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-04071" href="chap7.html#VUID-VkImageMemoryBarrier-image-04071"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-04071</span><br>
-
-If <code>image</code> was created with a sharing mode of
-<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, and one of
-<code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> is one of the
-special queue family values reserved for external memory transfers, the
-other <strong class="purple">must</strong> be <code>VK_QUEUE_FAMILY_IGNORED</code></p>
-</li>
-<li>
-<p><a id="VUID-VkImageMemoryBarrier-image-04072" href="chap7.html#VUID-VkImageMemoryBarrier-image-04072"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-04072</span><br>
+<p><a id="VUID-VkImageMemoryBarrier-image-09117" href="chap7.html#VUID-VkImageMemoryBarrier-image-09117"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-09117</span><br>
 
 If <code>image</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> and
-<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> both be valid queue families, or one of
-the special queue family values reserved for external memory transfers,
-as described in <a href="chap7.html#synchronization-queue-transfers">Queue Family Ownership Transfer</a></p>
+<code>dstQueueFamilyIndex</code> are not equal, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-image-09118" href="chap7.html#VUID-VkImageMemoryBarrier-image-09118"></a> <span class="vuid">VUID-VkImageMemoryBarrier-image-09118</span><br>
+
+If <code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_EXCLUSIVE</code>, and <code>srcQueueFamilyIndex</code> and
+<code>dstQueueFamilyIndex</code> are not equal, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong>
+be
+<code>VK_QUEUE_FAMILY_EXTERNAL</code>,
+<code>VK_QUEUE_FAMILY_FOREIGN_EXT</code>,
+or
+a valid queue family</p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070" href="chap7.html#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070"></a> <span class="vuid">VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-04070</span><br>
+
+If <code>srcQueueFamilyIndex</code> is not equal to <code>dstQueueFamilyIndex</code>,
+at least one of <code>srcQueueFamilyIndex</code> or <code>dstQueueFamilyIndex</code>
+<strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code>
+or <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-None-09119" href="chap7.html#VUID-VkImageMemoryBarrier-None-09119"></a> <span class="vuid">VUID-VkImageMemoryBarrier-None-09119</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-None-09120" href="chap7.html#VUID-VkImageMemoryBarrier-None-09120"></a> <span class="vuid">VUID-VkImageMemoryBarrier-None-09120</span><br>
+
+    
+If
+    the <a href="chap54.html#VK_KHR_external_memory">VK_KHR_external_memory</a> extension is not enabled,
+and
+    the value of <a href="chap4.html#VkApplicationInfo">VkApplicationInfo</a>::<code>apiVersion</code> used to create
+    the <a href="chap4.html#VkInstance">VkInstance</a> is not greater than or equal to Version 1.1,
+    <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-09121" href="chap7.html#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-09121"></a> <span class="vuid">VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-09121</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-dstQueueFamilyIndex-09122" href="chap7.html#VUID-VkImageMemoryBarrier-dstQueueFamilyIndex-09122"></a> <span class="vuid">VUID-VkImageMemoryBarrier-dstQueueFamilyIndex-09122</span><br>
+
+If the <a href="chap54.html#VK_EXT_queue_family_foreign">VK_EXT_queue_family_foreign</a> extension is not enabled
+<code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> not be <code>VK_QUEUE_FAMILY_FOREIGN_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-07120" href="chap7.html#VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-07120"></a> <span class="vuid">VUID-VkImageMemoryBarrier-srcQueueFamilyIndex-07120</span><br>
@@ -18225,13 +18426,37 @@ If the <code>aspectMask</code> member of <code>subresourceRange</code> includes
 <code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageMemoryBarrier-synchronization2-03857" href="chap7.html#VUID-VkImageMemoryBarrier-synchronization2-03857"></a> <span class="vuid">VUID-VkImageMemoryBarrier-synchronization2-03857</span><br>
+<p><a id="VUID-VkImageMemoryBarrier-None-09052" href="chap7.html#VUID-VkImageMemoryBarrier-None-09052"></a> <span class="vuid">VUID-VkImageMemoryBarrier-None-09052</span><br>
 
-If the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is
-not enabled, and <code>image</code> was created with a sharing mode of
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>image</code> was created with a sharing mode of
 <code>VK_SHARING_MODE_CONCURRENT</code>, at least one of
 <code>srcQueueFamilyIndex</code> and <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
 <code>VK_QUEUE_FAMILY_IGNORED</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-None-09053" href="chap7.html#VUID-VkImageMemoryBarrier-None-09053"></a> <span class="vuid">VUID-VkImageMemoryBarrier-None-09053</span><br>
+
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>srcQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code>
+or <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageMemoryBarrier-None-09054" href="chap7.html#VUID-VkImageMemoryBarrier-None-09054"></a> <span class="vuid">VUID-VkImageMemoryBarrier-None-09054</span><br>
+
+If
+the <a href="chap45.html#features-synchronization2"><code>synchronization2</code></a> feature is not
+enabled, and
+<code>image</code> was created with a sharing mode of
+<code>VK_SHARING_MODE_CONCURRENT</code>, <code>dstQueueFamilyIndex</code> <strong class="purple">must</strong> be
+<code>VK_QUEUE_FAMILY_IGNORED</code>
+or <code>VK_QUEUE_FAMILY_EXTERNAL</code></p>
 </li>
 </ul>
 </div>
@@ -18268,6 +18493,327 @@ not enabled, and <code>image</code> was created with a sharing mode of
 </li>
 <li>
 <p><a id="VUID-VkImageMemoryBarrier-subresourceRange-parameter" href="chap7.html#VUID-VkImageMemoryBarrier-subresourceRange-parameter"></a> <span class="vuid">VUID-VkImageMemoryBarrier-subresourceRange-parameter</span><br>
+ <code>subresourceRange</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImageSubresourceRange">VkImageSubresourceRange</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>To facilitate usage of images whose memory is initialized on the host,
+Vulkan allows image layout transitions to be performed by the host as well,
+albeit supporting limited layouts.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To perform an image layout transition on the host, call:</p>
+</div>
+<div id="vkTransitionImageLayoutEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy</span>
+<span class="n">VkResult</span> <span class="nf">vkTransitionImageLayoutEXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="kt">uint32_t</span>                                    <span class="n">transitionCount</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkHostImageLayoutTransitionInfoEXT</span><span class="o">*</span>   <span class="n">pTransitions</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the device which owns <code>pTransitions</code>[i].<code>image</code>.</p>
+</li>
+<li>
+<p><code>transitionCount</code> is the number of image layout transitions to
+perform.</p>
+</li>
+<li>
+<p><code>pTransitions</code> is a pointer to an array of
+<a href="chap7.html#VkHostImageLayoutTransitionInfoEXT">VkHostImageLayoutTransitionInfoEXT</a> structures specifying the image
+and <a href="chap12.html#resources-image-views">subresource ranges</a> within them to
+transition.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkTransitionImageLayoutEXT-device-parameter" href="chap7.html#VUID-vkTransitionImageLayoutEXT-device-parameter"></a> <span class="vuid">VUID-vkTransitionImageLayoutEXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkTransitionImageLayoutEXT-pTransitions-parameter" href="chap7.html#VUID-vkTransitionImageLayoutEXT-pTransitions-parameter"></a> <span class="vuid">VUID-vkTransitionImageLayoutEXT-pTransitions-parameter</span><br>
+ <code>pTransitions</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>transitionCount</code> valid <a href="chap7.html#VkHostImageLayoutTransitionInfoEXT">VkHostImageLayoutTransitionInfoEXT</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-vkTransitionImageLayoutEXT-transitionCount-arraylength" href="chap7.html#VUID-vkTransitionImageLayoutEXT-transitionCount-arraylength"></a> <span class="vuid">VUID-vkTransitionImageLayoutEXT-transitionCount-arraylength</span><br>
+ <code>transitionCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_MEMORY_MAP_FAILED</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkHostImageLayoutTransitionInfoEXT</code> structure is defined as:</p>
+</div>
+<div id="VkHostImageLayoutTransitionInfoEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_host_image_copy</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkHostImageLayoutTransitionInfoEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>            <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>                <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkImage</span>                    <span class="n">image</span><span class="p">;</span>
+    <span class="n">VkImageLayout</span>              <span class="n">oldLayout</span><span class="p">;</span>
+    <span class="n">VkImageLayout</span>              <span class="n">newLayout</span><span class="p">;</span>
+    <span class="n">VkImageSubresourceRange</span>    <span class="n">subresourceRange</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkHostImageLayoutTransitionInfoEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>image</code> is a handle to the image affected by this layout transition.</p>
+</li>
+<li>
+<p><code>oldLayout</code> is the old layout in an
+<a href="chap7.html#synchronization-image-layout-transitions">image layout transition</a>.</p>
+</li>
+<li>
+<p><code>newLayout</code> is the new layout in an
+<a href="chap7.html#synchronization-image-layout-transitions">image layout transition</a>.</p>
+</li>
+<li>
+<p><code>subresourceRange</code> describes the <a href="chap12.html#resources-image-views">image
+subresource range</a> within <code>image</code> that is affected by this layout
+transition.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkTransitionImageLayoutEXT</code> does not check whether the device memory
+associated with an image is currently in use before performing the layout
+transition.
+The application <strong class="purple">must</strong> guarantee that any previously submitted command that
+reads from or writes to this subresource has completed before the host
+performs the layout transition.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Image layout transitions performed on the host do not require queue family
+ownership transfers as the physical layout of the image will not vary
+between queue families for the layouts supported by this function.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-09055" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-09055"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-09055</span><br>
+
+<code>image</code> <strong class="purple">must</strong> have been created with
+<code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code></p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01486" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01486"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01486</span><br>
+
+<code>subresourceRange.baseMipLevel</code> <strong class="purple">must</strong> be less than the
+<code>mipLevels</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01724" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01724"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01724</span><br>
+
+If <code>subresourceRange.levelCount</code> is not
+<code>VK_REMAINING_MIP_LEVELS</code>, <span class="eq"><code>subresourceRange.baseMipLevel</code>
++  <code>subresourceRange.levelCount</code></span> <strong class="purple">must</strong> be less than or equal to
+the <code>mipLevels</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when
+<code>image</code> was created</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01488" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01488"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01488</span><br>
+
+<code>subresourceRange.baseArrayLayer</code> <strong class="purple">must</strong> be less than the
+<code>arrayLayers</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01725" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01725"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-01725</span><br>
+
+If <code>subresourceRange.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>,
+<span class="eq"><code>subresourceRange.baseArrayLayer</code> + 
+<code>subresourceRange.layerCount</code></span> <strong class="purple">must</strong> be less than or equal to the
+<code>arrayLayers</code> specified in <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>image</code>
+was created</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-01932" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-01932"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-01932</span><br>
+
+If <code>image</code> is non-sparse then it <strong class="purple">must</strong> be bound completely and
+contiguously to a single <code>VkDeviceMemory</code> object</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-01671" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-01671"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-01671</span><br>
+
+If <code>image</code> has a single-plane color format or is not <em>disjoint</em>,
+then the <code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> be
+<code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-01672" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-01672"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-01672</span><br>
+
+If <code>image</code> has a multi-planar format and the image is <em>disjoint</em>,
+then the <code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include
+at least one <a href="chap47.html#formats-planes-image-aspect">multi-planar aspect mask</a> or
+<code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-03319" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-03319"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-03319</span><br>
+
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="chap45.html#features-separateDepthStencilLayouts"><code>separateDepthStencilLayouts</code></a> feature is enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include either
+or both <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-03320" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-03320"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-03320</span><br>
+
+If <code>image</code> has a depth/stencil format with both depth and stencil
+and the <a href="chap45.html#features-separateDepthStencilLayouts"><code>separateDepthStencilLayouts</code></a> feature is not enabled, then the
+<code>aspectMask</code> member of <code>subresourceRange</code> <strong class="purple">must</strong> include both
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code> and <code>VK_IMAGE_ASPECT_STENCIL_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08702" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08702"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08702</span><br>
+
+If the <code>aspectMask</code> member of <code>subresourceRange</code> includes
+<code>VK_IMAGE_ASPECT_DEPTH_BIT</code>, <code>oldLayout</code> and <code>newLayout</code>
+<strong class="purple">must</strong> not be one of <code>VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08703" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08703"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-aspectMask-08703</span><br>
+
+If the <code>aspectMask</code> member of <code>subresourceRange</code> includes
+<code>VK_IMAGE_ASPECT_STENCIL_BIT</code>, <code>oldLayout</code> and <code>newLayout</code>
+<strong class="purple">must</strong> not be one of <code>VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL</code> or
+<code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-09056" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-09056"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-09056</span><br>
+
+<code>oldLayout</code> <strong class="purple">must</strong> be either <code>VK_IMAGE_LAYOUT_UNDEFINED</code>,
+<code>VK_IMAGE_LAYOUT_PREINITIALIZED</code>, or one of the layouts in
+<a href="chap46.html#VkPhysicalDeviceHostImageCopyPropertiesEXT">VkPhysicalDeviceHostImageCopyPropertiesEXT</a>::<code>pCopySrcLayouts</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-09057" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-09057"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-09057</span><br>
+
+<code>newLayout</code> <strong class="purple">must</strong> be one of the layouts in
+<a href="chap46.html#VkPhysicalDeviceHostImageCopyPropertiesEXT">VkPhysicalDeviceHostImageCopyPropertiesEXT</a>::<code>pCopyDstLayouts</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-sType-sType" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-sType-sType"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-pNext-pNext" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-pNext-pNext"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-image-parameter" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-image-parameter"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-image-parameter</span><br>
+ <code>image</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImage">VkImage</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-parameter" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-parameter"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-oldLayout-parameter</span><br>
+ <code>oldLayout</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImageLayout">VkImageLayout</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-parameter" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-parameter"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-newLayout-parameter</span><br>
+ <code>newLayout</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImageLayout">VkImageLayout</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-parameter" href="chap7.html#VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-parameter"></a> <span class="vuid">VUID-VkHostImageLayoutTransitionInfoEXT-subresourceRange-parameter</span><br>
  <code>subresourceRange</code> <strong class="purple">must</strong> be a valid <a href="chap12.html#VkImageSubresourceRange">VkImageSubresourceRange</a> structure</p>
 </li>
 </ul>
@@ -19255,7 +19801,7 @@ this example:</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.257<br>
+Version 1.1.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>

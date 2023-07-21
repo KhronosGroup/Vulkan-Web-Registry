@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.257 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.1.258 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.257 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.258 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.257,</span>
-<span id="revdate">2023-07-07 12:44:59Z</span>
-<br><span id="revremark">from git branch: github-main commit: 2b7d9c9f65cde43580573a677490c3c7d099c09f</span>
+<span id="revnumber">version 1.1.258,</span>
+<span id="revdate">2023-07-21 10:11:33Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2c1e07a72b43f53cc7866c55ae32afe97d933621</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -685,11 +685,16 @@ which should be generated.</p>
 </li>
 <li>
 <p>Optionally make use of <a href="chap10.html#graphics-shadergroups">device-bindable Shader
-Groups</a>.</p>
+Groups</a> for graphics pipelines.</p>
 </li>
 <li>
 <p>Retrieve device addresses by <a href="chap14.html#vkGetBufferDeviceAddressEXT">vkGetBufferDeviceAddressEXT</a> for
 setting buffers on the device.</p>
+</li>
+<li>
+<p>Retrieve device addresses of compute pipelines by
+<a href="chap32.html#vkGetPipelineIndirectDeviceAddressNV">vkGetPipelineIndirectDeviceAddressNV</a> to be able to bind it in
+device generated rendering.</p>
 </li>
 <li>
 <p>Fill one or more <code>VkBuffer</code> with the appropriate content that gets
@@ -963,7 +968,8 @@ This enables direct compatibility with D3D12 command signature layouts.</p>
 <p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-02930" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-02930"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-02930</span><br>
 
 The <code>pipelineBindPoint</code> <strong class="purple">must</strong> be
-<code>VK_PIPELINE_BIND_POINT_GRAPHICS</code></p>
+<code>VK_PIPELINE_BIND_POINT_GRAPHICS</code>
+or <code>VK_PIPELINE_BIND_POINT_COMPUTE</code></p>
 </li>
 <li>
 <p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-tokenCount-02931" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-tokenCount-02931"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-tokenCount-02931</span><br>
@@ -993,7 +999,9 @@ All state tokens in <code>pTokens</code> <strong class="purple">must</strong> oc
 tokens (<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV</code>,
 <code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV</code>,
 <code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV</code>,
-<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV</code>)</p>
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV</code>
+, <code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV</code>
+)</p>
 </li>
 <li>
 <p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-pTokens-02935" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-pTokens-02935"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-pTokens-02935</span><br>
@@ -1014,6 +1022,31 @@ each element of <code>pStreamStrides</code> <strong class="purple">must</strong>
 than or equal to
 <code>VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV</code>::<code>maxIndirectCommandsStreamStride</code>.
 Furthermore the alignment of each token input <strong class="purple">must</strong> be ensured</p>
+</li>
+<li>
+<p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09088" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09088"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09088</span><br>
+
+If <code>pipelineBindPoint</code> is <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> then
+the <a href="chap45.html#features-deviceGeneratedCompute"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedCompute</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09089" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09089"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09089</span><br>
+
+If <code>pipelineBindPoint</code> is <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> then
+the state tokens in <code>pTokens</code> <strong class="purple">must</strong> only include
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV</code>,
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code>, or
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09090" href="chap32.html#VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09090"></a> <span class="vuid">VUID-VkIndirectCommandsLayoutCreateInfoNV-pipelineBindPoint-09090</span><br>
+
+If <code>pipelineBindPoint</code> is <code>VK_PIPELINE_BIND_POINT_COMPUTE</code> and
+<code>pTokens</code> includes
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code>, then the
+<a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
 </li>
 </ul>
 </div>
@@ -1098,7 +1131,10 @@ encoding the index is provided.</p>
 <p><code>VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV</code>
 specifies that the processing of sequences <strong class="purple">can</strong> happen at an
 implementation-dependent order, which is not: guaranteed to be coherent
-using the same input data.</p>
+using the same input data.
+This flag is ignored when the <code>pipelineBindPoint</code> is
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code> as it is implied that the dispatch
+sequence is always unordered.</p>
 </li>
 </ul>
 </div>
@@ -1311,6 +1347,9 @@ commands such as:</p>
 <li>
 <p><a href="chap21.html#VkDrawMeshTasksIndirectCommandEXT">VkDrawMeshTasksIndirectCommandEXT</a></p>
 </li>
+<li>
+<p><a href="chap31.html#VkDispatchIndirectCommand">VkDispatchIndirectCommand</a></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1334,8 +1373,8 @@ data for the <code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV</code> token.
 <div class="ulist">
 <ul>
 <li>
-<p><code>index</code> specifies which shader group of the current bound graphics
-pipeline is used.</p>
+<p><code>groupIndex</code> specifies which shader group of the current bound
+graphics pipeline is used.</p>
 </li>
 </ul>
 </div>
@@ -1573,6 +1612,63 @@ more <a href="chap32.html#VkIndirectStateFlagBitsNV">VkIndirectStateFlagBitsNV</
 </div>
 </div>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkBindPipelineIndirectCommandNV</code> structure specifies the input data
+for the <code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code> token.</p>
+</div>
+<div id="VkBindPipelineIndirectCommandNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkBindPipelineIndirectCommandNV</span> <span class="p">{</span>
+    <span class="n">VkDeviceAddress</span>    <span class="n">pipelineAddress</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkBindPipelineIndirectCommandNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>pipelineAddress</code> specifies the pipeline address of the compute
+pipeline that will be used in device generated rendering.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkBindPipelineIndirectCommandNV-deviceGeneratedComputePipelines-09091" href="chap32.html#VUID-VkBindPipelineIndirectCommandNV-deviceGeneratedComputePipelines-09091"></a> <span class="vuid">VUID-VkBindPipelineIndirectCommandNV-deviceGeneratedComputePipelines-09091</span><br>
+
+The <a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkBindPipelineIndirectCommandNV-None-09092" href="chap32.html#VUID-VkBindPipelineIndirectCommandNV-None-09092"></a> <span class="vuid">VUID-VkBindPipelineIndirectCommandNV-None-09092</span><br>
+
+The referenced pipeline <strong class="purple">must</strong> have been created with
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkBindPipelineIndirectCommandNV-None-09093" href="chap32.html#VUID-VkBindPipelineIndirectCommandNV-None-09093"></a> <span class="vuid">VUID-VkBindPipelineIndirectCommandNV-None-09093</span><br>
+
+The referenced pipeline <strong class="purple">must</strong> have been updated with
+<a href="chap10.html#vkCmdUpdatePipelineIndirectBuffer">vkCmdUpdatePipelineIndirectBuffer</a></p>
+</li>
+<li>
+<p><a id="VUID-VkBindPipelineIndirectCommandNV-None-09094" href="chap32.html#VUID-VkBindPipelineIndirectCommandNV-None-09094"></a> <span class="vuid">VUID-VkBindPipelineIndirectCommandNV-None-09094</span><br>
+
+The referenced pipeline’s address <strong class="purple">must</strong> have been queried with
+<a href="chap32.html#vkGetPipelineIndirectDeviceAddressNV">vkGetPipelineIndirectDeviceAddressNV</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_tokenized_command_processing"><a class="anchor" href="chap32.html#_tokenized_command_processing"></a>32.1.3. Tokenized Command Processing</h4>
@@ -1640,6 +1736,10 @@ command tokens (other elements of the array specify command parameters) are:</p>
     <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
   <span class="c1">// Provided by VK_EXT_mesh_shader with VK_NV_device_generated_commands</span>
     <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV</span> <span class="o">=</span> <span class="mi">1000328000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+    <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</span> <span class="o">=</span> <span class="mi">1000428003</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+    <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV</span> <span class="o">=</span> <span class="mi">1000428004</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkIndirectCommandsTokenTypeNV</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -1691,6 +1791,14 @@ command tokens (other elements of the array specify command parameters) are:</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap21.html#vkCmdDrawMeshTasksIndirectEXT">vkCmdDrawMeshTasksIndirectEXT</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap10.html#vkCmdBindPipeline">vkCmdBindPipeline</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap31.html#vkCmdDispatchIndirect">vkCmdDispatchIndirect</a></p></td>
 </tr>
 </tbody>
 </table>
@@ -1946,14 +2054,14 @@ For valid usage, all restrictions from the regular commands apply.</p>
     <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">input</span> <span class="o">=</span> <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">.</span><span class="n">pointer</span><span class="p">(</span> <span class="n">offset</span> <span class="p">)</span>
 
     <span class="k">switch</span><span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">type</span><span class="p">){</span>
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV</span><span class="p">:</span>
       <span class="n">VkBindShaderGroupIndirectCommandNV</span><span class="o">*</span> <span class="n">bind</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
 
       <span class="n">vkCmdBindPipelineShaderGroupNV</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">indirectCommandsLayout</span><span class="p">.</span><span class="n">pipelineBindPoint</span><span class="p">,</span>
         <span class="n">pipeline</span><span class="p">,</span> <span class="n">bind</span><span class="o">-&gt;</span><span class="n">groupIndex</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_STATE_FLAGS_NV</span><span class="p">:</span>
       <span class="n">VkSetStateFlagsIndirectCommandNV</span><span class="o">*</span> <span class="n">state</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
 
       <span class="k">if</span> <span class="p">(</span><span class="n">token</span><span class="p">.</span><span class="n">indirectStateFlags</span> <span class="o">&amp;</span> <span class="n">VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV</span><span class="p">){</span>
@@ -1965,7 +2073,7 @@ For valid usage, all restrictions from the regular commands apply.</p>
       <span class="p">}</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV</span><span class="p">:</span>
       <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
 
       <span class="n">vkCmdPushConstants</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
@@ -1975,7 +2083,7 @@ For valid usage, all restrictions from the regular commands apply.</p>
         <span class="n">token</span><span class="p">.</span><span class="n">pushconstantSize</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NV</span><span class="p">:</span>
       <span class="n">VkBindIndexBufferIndirectCommandNV</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
 
       <span class="c1">// the indexType may optionally be remapped</span>
@@ -1988,7 +2096,7 @@ For valid usage, all restrictions from the regular commands apply.</p>
         <span class="n">data</span><span class="o">-&gt;</span><span class="n">indexType</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NV</span><span class="p">:</span>
       <span class="n">VkBindVertexBufferIndirectCommandNV</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
 
       <span class="c1">// if token.vertexDynamicStride is VK_TRUE</span>
@@ -2001,27 +2109,37 @@ For valid usage, all restrictions from the regular commands apply.</p>
         <span class="o">&amp;</span><span class="n">deriveOffset</span><span class="p">(</span><span class="n">data</span><span class="o">-&gt;</span><span class="n">bufferAddress</span><span class="p">));</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NV</span><span class="p">:</span>
       <span class="n">vkCmdDrawIndexedIndirect</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NV</span><span class="p">:</span>
       <span class="n">vkCmdDrawIndirect</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
     <span class="c1">// only available if VK_NV_mesh_shader is supported</span>
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_TASKS_NV</span><span class="p">:</span>
       <span class="n">vkCmdDrawMeshTasksIndirectNV</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
 
     <span class="c1">// only available if VK_EXT_mesh_shader is supported</span>
-    <span class="nl">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV:</span>
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_NV</span><span class="p">:</span>
       <span class="n">vkCmdDrawMeshTasksIndirectEXT</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</span><span class="p">:</span>
+      <span class="n">VkBindPipelineIndirectCommandNV</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="n">input</span><span class="p">;</span>
+      <span class="n">VkPipeline</span> <span class="n">computePipeline</span> <span class="o">=</span> <span class="n">deriveFromDeviceAddress</span><span class="p">(</span><span class="n">data</span><span class="o">-&gt;</span><span class="n">pipelineAddress</span><span class="p">);</span>
+      <span class="n">vkCmdBindPipeline</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">VK_PIPELINE_BIND_POINT_COMPUTE</span><span class="p">,</span> <span class="n">computePipeline</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+
+    <span class="k">case</span> <span class="n">VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NV</span><span class="p">:</span>
+      <span class="n">vkCmdDispatchIndirect</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stream</span><span class="p">.</span><span class="n">buffer</span><span class="p">,</span> <span class="n">offset</span><span class="p">);</span>
     <span class="k">break</span><span class="p">;</span>
     <span class="p">}</span>
   <span class="p">}</span>
@@ -2074,6 +2192,14 @@ returned.</p>
 <p><a id="VUID-vkGetGeneratedCommandsMemoryRequirementsNV-deviceGeneratedCommands-02906" href="chap32.html#VUID-vkGetGeneratedCommandsMemoryRequirementsNV-deviceGeneratedCommands-02906"></a> <span class="vuid">VUID-vkGetGeneratedCommandsMemoryRequirementsNV-deviceGeneratedCommands-02906</span><br>
 
 The <a href="chap45.html#features-deviceGeneratedCommands"><code>VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV</code>::<code>deviceGeneratedCommands</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkGetGeneratedCommandsMemoryRequirementsNV-pInfo-09074" href="chap32.html#VUID-vkGetGeneratedCommandsMemoryRequirementsNV-pInfo-09074"></a> <span class="vuid">VUID-vkGetGeneratedCommandsMemoryRequirementsNV-pInfo-09074</span><br>
+
+If <code>pInfo</code>::<code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, then the
+<a href="chap45.html#features-deviceGeneratedCompute"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedCompute</code></a>
 feature <strong class="purple">must</strong> be enabled</p>
 </li>
 </ul>
@@ -2158,6 +2284,31 @@ with.</p>
 <code>maxSequencesCount</code> <strong class="purple">must</strong> be less or equal to
 <a href="chap46.html#VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV">VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV</a>::<code>maxIndirectSequenceCount</code></p>
 </li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09075" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09075"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09075</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_GRAPHICS</code>, then <code>pipeline</code> <strong class="purple">must</strong> be a
+valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09076" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09076"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09076</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, and the
+<code>indirectCommandsLayout</code> was not created with a
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code> token, then the
+<code>pipeline</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09077" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09077"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipelineBindPoint-09077</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, and the
+<code>indirectCommandsLayout</code> contains a
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code> token, then the
+<code>pipeline</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -2181,7 +2332,7 @@ with.</p>
 </li>
 <li>
 <p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipeline-parameter" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipeline-parameter"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-pipeline-parameter</span><br>
- <code>pipeline</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
+ If <code>pipeline</code> is not <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>pipeline</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
 </li>
 <li>
 <p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-indirectCommandsLayout-parameter" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-indirectCommandsLayout-parameter"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-indirectCommandsLayout-parameter</span><br>
@@ -2189,11 +2340,239 @@ with.</p>
 </li>
 <li>
 <p><a id="VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-commonparent" href="chap32.html#VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-commonparent"></a> <span class="vuid">VUID-VkGeneratedCommandsMemoryRequirementsInfoNV-commonparent</span><br>
- Both of <code>indirectCommandsLayout</code>, and <code>pipeline</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap5.html#VkDevice">VkDevice</a></p>
+ Both of <code>indirectCommandsLayout</code>, and <code>pipeline</code> that are valid handles of non-ignored parameters <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="chap5.html#VkDevice">VkDevice</a></p>
 </li>
 </ul>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>To bind a compute pipeline in <a href="chap32.html">Device-Generated
+Commands</a>, an application <strong class="purple">must</strong> query the pipeline’s device address.
+To query a compute pipeline’s 64-bit device address, call:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div id="vkGetPipelineIndirectDeviceAddressNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="n">VkDeviceAddress</span> <span class="nf">vkGetPipelineIndirectDeviceAddressNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkPipelineIndirectDeviceAddressInfoNV</span><span class="o">*</span> <span class="n">pInfo</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device on which the pipeline was created.</p>
+</li>
+<li>
+<p><code>pInfo</code> is a pointer to a
+<a href="chap32.html#VkPipelineIndirectDeviceAddressInfoNV">VkPipelineIndirectDeviceAddressInfoNV</a> structure specifying the
+pipeline to retrieve the address for.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectDeviceAddressNV-deviceGeneratedComputePipelines-09078" href="chap32.html#VUID-vkGetPipelineIndirectDeviceAddressNV-deviceGeneratedComputePipelines-09078"></a> <span class="vuid">VUID-vkGetPipelineIndirectDeviceAddressNV-deviceGeneratedComputePipelines-09078</span><br>
+
+The <a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectDeviceAddressNV-device-parameter" href="chap32.html#VUID-vkGetPipelineIndirectDeviceAddressNV-device-parameter"></a> <span class="vuid">VUID-vkGetPipelineIndirectDeviceAddressNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectDeviceAddressNV-pInfo-parameter" href="chap32.html#VUID-vkGetPipelineIndirectDeviceAddressNV-pInfo-parameter"></a> <span class="vuid">VUID-vkGetPipelineIndirectDeviceAddressNV-pInfo-parameter</span><br>
+ <code>pInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap32.html#VkPipelineIndirectDeviceAddressInfoNV">VkPipelineIndirectDeviceAddressInfoNV</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPipelineIndirectDeviceAddressInfoNV</code> structure is defined as:</p>
+</div>
+<div id="VkPipelineIndirectDeviceAddressInfoNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPipelineIndirectDeviceAddressInfoNV</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>        <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>            <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkPipelineBindPoint</span>    <span class="n">pipelineBindPoint</span><span class="p">;</span>
+    <span class="n">VkPipeline</span>             <span class="n">pipeline</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPipelineIndirectDeviceAddressInfoNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>pipelineBindPoint</code> is a <a href="chap10.html#VkPipelineBindPoint">VkPipelineBindPoint</a> value specifying
+the type of pipeline whose device address is being queried.</p>
+</li>
+<li>
+<p><code>pipeline</code> specifies the pipeline whose device address is being
+queried.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-09079" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-09079"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-09079</span><br>
+
+The provided <code>pipelineBindPoint</code> <strong class="purple">must</strong> be of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09080" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09080"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09080</span><br>
+
+<code>pipeline</code> <strong class="purple">must</strong> have been created with flag
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09081" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09081"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-09081</span><br>
+
+<code>pipeline</code> <strong class="purple">must</strong> have been created with a
+<a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a> structure specifying a valid
+address where its metadata will be saved</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-sType-sType" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-sType-sType"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pNext-pNext" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pNext-pNext"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-parameter" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-parameter"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pipelineBindPoint-parameter</span><br>
+ <code>pipelineBindPoint</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipelineBindPoint">VkPipelineBindPoint</a> value</p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-parameter" href="chap32.html#VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-parameter"></a> <span class="vuid">VUID-VkPipelineIndirectDeviceAddressInfoNV-pipeline-parameter</span><br>
+ <code>pipeline</code> <strong class="purple">must</strong> be a valid <a href="chap10.html#VkPipeline">VkPipeline</a> handle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>To determine the memory requirements for a compute pipeline’s metadata,
+call:</p>
+</div>
+<div id="vkGetPipelineIndirectMemoryRequirementsNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_device_generated_commands_compute</span>
+<span class="kt">void</span> <span class="nf">vkGetPipelineIndirectMemoryRequirementsNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkComputePipelineCreateInfo</span><span class="o">*</span>          <span class="n">pCreateInfo</span><span class="p">,</span>
+    <span class="n">VkMemoryRequirements2</span><span class="o">*</span>                      <span class="n">pMemoryRequirements</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the buffer.</p>
+</li>
+<li>
+<p><code>pCreateInfo</code> is a <a href="chap10.html#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a> structure
+specifying the creation parameters of the compute pipeline whose memory
+requirements are being queried.</p>
+</li>
+<li>
+<p><code>pMemoryRequirements</code> is a pointer to a <a href="chap12.html#VkMemoryRequirements2">VkMemoryRequirements2</a>
+structure in which the requested pipeline’s memory requirements are
+returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pCreateInfo</code>::<code>pNext</code> chain includes a pointer to a
+<a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a> structure, then the contents of
+that structure are ignored.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectMemoryRequirementsNV-deviceGeneratedComputePipelines-09082" href="chap32.html#VUID-vkGetPipelineIndirectMemoryRequirementsNV-deviceGeneratedComputePipelines-09082"></a> <span class="vuid">VUID-vkGetPipelineIndirectMemoryRequirementsNV-deviceGeneratedComputePipelines-09082</span><br>
+
+The <a href="chap45.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
+feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-09083" href="chap32.html#VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-09083"></a> <span class="vuid">VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-09083</span><br>
+
+<code>pCreateInfo</code>::<code>flags</code> <strong class="purple">must</strong> include
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectMemoryRequirementsNV-device-parameter" href="chap32.html#VUID-vkGetPipelineIndirectMemoryRequirementsNV-device-parameter"></a> <span class="vuid">VUID-vkGetPipelineIndirectMemoryRequirementsNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-parameter" href="chap32.html#VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-parameter"></a> <span class="vuid">VUID-vkGetPipelineIndirectMemoryRequirementsNV-pCreateInfo-parameter</span><br>
+ <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap10.html#VkComputePipelineCreateInfo">VkComputePipelineCreateInfo</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPipelineIndirectMemoryRequirementsNV-pMemoryRequirements-parameter" href="chap32.html#VUID-vkGetPipelineIndirectMemoryRequirementsNV-pMemoryRequirements-parameter"></a> <span class="vuid">VUID-vkGetPipelineIndirectMemoryRequirementsNV-pMemoryRequirements-parameter</span><br>
+ <code>pMemoryRequirements</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap12.html#VkMemoryRequirements2">VkMemoryRequirements2</a> structure</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -2230,6 +2609,19 @@ preprocessing step, otherwise not.</p>
 affecting the generation of commands.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VK_INDIRECT_COMMANDS_LAYOUT_USAGE_UNORDERED_SEQUENCES_BIT_NV</code>
+flag was used to create the
+<a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>indirectCommandsLayout</code> then the order
+of execution of individual draws through this command <strong class="purple">may</strong> execute in any
+order, and <strong class="purple">may</strong> not necessarily be in the same order as specified in
+<a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>pStreams</code>.</p>
+</div>
+<div class="paragraph">
+<p>The order of execution of individual dispatches through this command <strong class="purple">may</strong>
+execute in any order and <strong class="purple">may</strong> not necessarily be in the same order as
+specified in <a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>pStreams</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2288,6 +2680,16 @@ If a <a href="chap12.html#VkImageView">VkImageView</a> is sampled with <code>VK_
 result of this command, then the image view’s
 <a href="chap12.html#resources-image-view-format-features">format features</a> <strong class="purple">must</strong> contain
 <code>VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-02693" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-02693"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-02693</span><br>
+
+If
+the <a href="chap54.html#VK_EXT_filter_cubic">VK_EXT_filter_cubic</a> extension is not enabled and
+any <a href="chap12.html#VkImageView">VkImageView</a> is sampled with <code>VK_FILTER_CUBIC_EXT</code> as a
+result of this command, it <strong class="purple">must</strong> not have a <a href="chap12.html#VkImageViewType">VkImageViewType</a> of
+<code>VK_IMAGE_VIEW_TYPE_3D</code>, <code>VK_IMAGE_VIEW_TYPE_CUBE</code>, or
+<code>VK_IMAGE_VIEW_TYPE_CUBE_ARRAY</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-filterCubic-02694" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-filterCubic-02694"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-filterCubic-02694</span><br>
@@ -5163,6 +5565,21 @@ fragment shader declares the <code>EarlyFragmentTests</code> execution mode and
 uses <code>OpStencilAttachmentReadEXT</code>, the <code>writeMask</code> parameter in
 the last call to <a href="chap29.html#vkCmdSetStencilWriteMask">vkCmdSetStencilWriteMask</a> <strong class="purple">must</strong> be <code>0</code></p>
 </li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-09116" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-09116"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-09116</span><br>
+
+    If
+    a shader object is bound to any graphics stage
+or
+    the currently bound graphics pipeline was created with
+    <code>VK_DYNAMIC_STATE_COLOR_WRITE_MASK_EXT</code>,
+    and the format of any color attachment is
+    <code>VK_FORMAT_E5B9G9R9_UFLOAT_PACK32</code>, the corresponding element of the
+    <code>pColorWriteMasks</code> parameter of <a href="chap30.html#vkCmdSetColorWriteMaskEXT">vkCmdSetColorWriteMaskEXT</a>
+    <strong class="purple">must</strong> either include all of <code>VK_COLOR_COMPONENT_R_BIT</code>,
+    <code>VK_COLOR_COMPONENT_G_BIT</code>, and <code>VK_COLOR_COMPONENT_B_BIT</code>, or
+    none of them</p>
+</li>
 </ul>
 </div>
 <div class="ulist">
@@ -5359,9 +5776,9 @@ set</p>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-pipeline-02909" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-pipeline-02909"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-pipeline-02909</span><br>
 
-<code>VkGeneratedCommandsInfoNV</code>::<code>pipeline</code> <strong class="purple">must</strong> match the current
+<a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>pipeline</code> <strong class="purple">must</strong> match the current
 bound pipeline at
-<code>VkGeneratedCommandsInfoNV</code>::<code>pipelineBindPoint</code></p>
+<a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>pipelineBindPoint</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-02910" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-02910"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-02910</span><br>
@@ -5597,6 +6014,38 @@ If the <code>indirectCommandsLayout</code> uses a token of
 
 <code>streamCount</code> <strong class="purple">must</strong> match the <code>indirectCommandsLayout</code>’s
 <code>streamCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09084" href="chap32.html#VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09084"></a> <span class="vuid">VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09084</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, then the <code>pipeline</code> <strong class="purple">must</strong> have
+been created with the flag
+<code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09085" href="chap32.html#VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09085"></a> <span class="vuid">VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09085</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, then the <code>pipeline</code> <strong class="purple">must</strong> have
+been created with a <a href="chap10.html#VkComputePipelineIndirectBufferInfoNV">VkComputePipelineIndirectBufferInfoNV</a>
+structure specifying a valid address where its metadata will be saved</p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09086" href="chap32.html#VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09086"></a> <span class="vuid">VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09086</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, then
+<a href="chap10.html#vkCmdUpdatePipelineIndirectBuffer">vkCmdUpdatePipelineIndirectBuffer</a> <strong class="purple">must</strong> have been called on that
+pipeline to save its metadata to a device address</p>
+</li>
+<li>
+<p><a id="VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09087" href="chap32.html#VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09087"></a> <span class="vuid">VUID-VkGeneratedCommandsInfoNV-pipelineBindPoint-09087</span><br>
+
+If <code>pipelineBindPoint</code> is of type
+<code>VK_PIPELINE_BIND_POINT_COMPUTE</code>, and if
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NV</code> is used, then
+<code>pipeline</code> <strong class="purple">must</strong> be <a href="chap55.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a></p>
 </li>
 <li>
 <p><a id="VUID-VkGeneratedCommandsInfoNV-sequencesCount-02917" href="chap32.html#VUID-VkGeneratedCommandsInfoNV-sequencesCount-02917"></a> <span class="vuid">VUID-VkGeneratedCommandsInfoNV-sequencesCount-02917</span><br>
@@ -5937,6 +6386,21 @@ Compute</p></td>
 </div>
 </div>
 </div>
+<div class="paragraph">
+<p>The bound descriptor sets and push constants that will be used with indirect
+command generation for the compute piplines <strong class="purple">must</strong> already be specified at
+the time of preprocessing commands with
+<a href="chap32.html#vkCmdPreprocessGeneratedCommandsNV">vkCmdPreprocessGeneratedCommandsNV</a>.
+They <strong class="purple">must</strong> not change until the execution of indirect commands is submitted
+with <a href="chap32.html#vkCmdExecuteGeneratedCommandsNV">vkCmdExecuteGeneratedCommandsNV</a>.</p>
+</div>
+<div class="paragraph">
+<p>If push constants for the compute pipeline are also specified in the
+<a href="chap32.html#VkGeneratedCommandsInfoNV">VkGeneratedCommandsInfoNV</a>::<code>indirectCommandsLayout</code> with
+<code>VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NV</code> token, then those
+values override the push constants that were previously pushed for the
+compute pipeline.</p>
+</div>
 </div>
 </div>
 </div></div>
@@ -5952,7 +6416,7 @@ Compute</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.257<br>
+Version 1.1.258<br>
 Last updated 2023-02-26 21:00:39 -0800
 </div>
 </div>
