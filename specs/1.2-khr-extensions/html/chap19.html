@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.259 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.260 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.259 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.260 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.259,</span>
-<span id="revdate">2023-07-22 11:05:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3da7531f2f9d48993ab627c02a866479d5163ba4</span>
+<span id="revnumber">version 1.2.260,</span>
+<span id="revdate">2023-07-28 10:38:47Z</span>
+<br><span id="revremark">from git branch: github-main commit: 12ab5855b1608e4b05b270e0dedecd1b1a5458f8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -331,7 +331,7 @@
 <li><a href="chap25.html#primsrast-polygons">25.9. Polygons</a></li>
 </ul>
 </li>
-<li><a href="chap26.html">26. Fragment Operations</a>
+<li><a href="chap38.html#fragops">26. Fragment Operations</a>
 <ul class="sectlevel2">
 <li><a href="chap26.html#fragops-scissor">26.1. Scissor Test</a></li>
 <li><a href="chap26.html#fragops-samplemask">26.2. Sample Mask Test</a></li>
@@ -1330,7 +1330,11 @@ If one image is <code>VK_IMAGE_TYPE_3D</code> and the other image is
 <code>VK_IMAGE_TYPE_2D</code> with multiple layers, then each slice is copied to or
 from a different layer; <code>depth</code> slices in the 3D image correspond to
 <code>layerCount</code> layers in the 2D image, with an effective <code>depth</code> of
-<code>1</code> used for the 2D image.</p>
+<code>1</code> used for the 2D image.
+If <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> is enabled, all other
+combinations are allowed and function as if 1D images are 2D images with a
+height of 1.
+Otherwise, other combinations of image types are disallowed.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1604,18 +1608,37 @@ If the <a href="chap46.html#VK_KHR_maintenance1">VK_KHR_maintenance1</a> extensi
 <code>extent.depth</code> <strong class="purple">must</strong> be <code>1</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyImage-srcImage-07743" href="chap19.html#VUID-vkCmdCopyImage-srcImage-07743"></a> <span class="vuid">VUID-vkCmdCopyImage-srcImage-07743</span><br>
+<p><a id="VUID-vkCmdCopyImage-maintenance5-08791" href="chap19.html#VUID-vkCmdCopyImage-maintenance5-08791"></a> <span class="vuid">VUID-vkCmdCopyImage-maintenance5-08791</span><br>
 
-If <code>srcImage</code> and <code>dstImage</code> have a different <a href="chap12.html#VkImageType">VkImageType</a>,
+If <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> is not enabled, and
+<code>srcImage</code> and <code>dstImage</code> have a different <a href="chap12.html#VkImageType">VkImageType</a>,
 one <strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_3D</code> and the other <strong class="purple">must</strong> be
 <code>VK_IMAGE_TYPE_2D</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyImage-srcImage-07744" href="chap19.html#VUID-vkCmdCopyImage-srcImage-07744"></a> <span class="vuid">VUID-vkCmdCopyImage-srcImage-07744</span><br>
+<p><a id="VUID-vkCmdCopyImage-maintenance5-08792" href="chap19.html#VUID-vkCmdCopyImage-maintenance5-08792"></a> <span class="vuid">VUID-vkCmdCopyImage-maintenance5-08792</span><br>
+
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdCopyImage-srcImage-08793" href="chap19.html#VUID-vkCmdCopyImage-srcImage-08793"></a> <span class="vuid">VUID-vkCmdCopyImage-srcImage-08793</span><br>
 
 If <code>srcImage</code> and <code>dstImage</code> have the same <a href="chap12.html#VkImageType">VkImageType</a>,
-the <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> in each element of <code>pRegions</code> <strong class="purple">must</strong> match</p>
+and neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdCopyImage-srcImage-08794" href="chap19.html#VUID-vkCmdCopyImage-srcImage-08794"></a> <span class="vuid">VUID-vkCmdCopyImage-srcImage-08794</span><br>
+
+If <code>srcImage</code> and <code>dstImage</code> have the same <a href="chap12.html#VkImageType">VkImageType</a>,
+and one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdCopyImage-srcImage-01790" href="chap19.html#VUID-vkCmdCopyImage-srcImage-01790"></a> <span class="vuid">VUID-vkCmdCopyImage-srcImage-01790</span><br>
@@ -1827,9 +1850,11 @@ The <code>srcSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyImage-srcSubresource-07968" href="chap19.html#VUID-vkCmdCopyImage-srcSubresource-07968"></a> <span class="vuid">VUID-vkCmdCopyImage-srcSubresource-07968</span><br>
+<p><a id="VUID-vkCmdCopyImage-srcSubresource-08790" href="chap19.html#VUID-vkCmdCopyImage-srcSubresource-08790"></a> <span class="vuid">VUID-vkCmdCopyImage-srcSubresource-08790</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
@@ -1853,9 +1878,11 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyImage-dstSubresource-07968" href="chap19.html#VUID-vkCmdCopyImage-dstSubresource-07968"></a> <span class="vuid">VUID-vkCmdCopyImage-dstSubresource-07968</span><br>
+<p><a id="VUID-vkCmdCopyImage-dstSubresource-08790" href="chap19.html#VUID-vkCmdCopyImage-dstSubresource-08790"></a> <span class="vuid">VUID-vkCmdCopyImage-dstSubresource-08790</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -2117,9 +2144,16 @@ not contain either of <code>VK_IMAGE_ASPECT_DEPTH_BIT</code> or
 <code>aspectMask</code> <strong class="purple">must</strong> not contain <code>VK_IMAGE_ASPECT_METADATA_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageSubresourceLayers-layerCount-01700" href="chap19.html#VUID-VkImageSubresourceLayers-layerCount-01700"></a> <span class="vuid">VUID-VkImageSubresourceLayers-layerCount-01700</span><br>
+<p><a id="VUID-VkImageSubresourceLayers-maintenance5-08762" href="chap19.html#VUID-VkImageSubresourceLayers-maintenance5-08762"></a> <span class="vuid">VUID-VkImageSubresourceLayers-maintenance5-08762</span><br>
 
-<code>layerCount</code> <strong class="purple">must</strong> be greater than 0</p>
+If <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> is not enabled,
+<code>layerCount</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageSubresourceLayers-layerCount-08763" href="chap19.html#VUID-VkImageSubresourceLayers-layerCount-08763"></a> <span class="vuid">VUID-VkImageSubresourceLayers-layerCount-08763</span><br>
+
+If <code>layerCount</code> is not <code>VK_REMAINING_ARRAY_LAYERS</code>, it <strong class="purple">must</strong> be
+greater than <code>0</code></p>
 </li>
 </ul>
 </div>
@@ -2599,18 +2633,37 @@ If the <a href="chap46.html#VK_KHR_maintenance1">VK_KHR_maintenance1</a> extensi
 <code>extent.depth</code> <strong class="purple">must</strong> be <code>1</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCopyImageInfo2-srcImage-07743" href="chap19.html#VUID-VkCopyImageInfo2-srcImage-07743"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcImage-07743</span><br>
+<p><a id="VUID-VkCopyImageInfo2-maintenance5-08791" href="chap19.html#VUID-VkCopyImageInfo2-maintenance5-08791"></a> <span class="vuid">VUID-VkCopyImageInfo2-maintenance5-08791</span><br>
 
-If <code>srcImage</code> and <code>dstImage</code> have a different <a href="chap12.html#VkImageType">VkImageType</a>,
+If <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> is not enabled, and
+<code>srcImage</code> and <code>dstImage</code> have a different <a href="chap12.html#VkImageType">VkImageType</a>,
 one <strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_3D</code> and the other <strong class="purple">must</strong> be
 <code>VK_IMAGE_TYPE_2D</code></p>
 </li>
 <li>
-<p><a id="VUID-VkCopyImageInfo2-srcImage-07744" href="chap19.html#VUID-VkCopyImageInfo2-srcImage-07744"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcImage-07744</span><br>
+<p><a id="VUID-VkCopyImageInfo2-maintenance5-08792" href="chap19.html#VUID-VkCopyImageInfo2-maintenance5-08792"></a> <span class="vuid">VUID-VkCopyImageInfo2-maintenance5-08792</span><br>
+
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCopyImageInfo2-srcImage-08793" href="chap19.html#VUID-VkCopyImageInfo2-srcImage-08793"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcImage-08793</span><br>
 
 If <code>srcImage</code> and <code>dstImage</code> have the same <a href="chap12.html#VkImageType">VkImageType</a>,
-the <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> in each element of <code>pRegions</code> <strong class="purple">must</strong> match</p>
+and neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-VkCopyImageInfo2-srcImage-08794" href="chap19.html#VUID-VkCopyImageInfo2-srcImage-08794"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcImage-08794</span><br>
+
+If <code>srcImage</code> and <code>dstImage</code> have the same <a href="chap12.html#VkImageType">VkImageType</a>,
+and one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 <li>
 <p><a id="VUID-VkCopyImageInfo2-srcImage-01790" href="chap19.html#VUID-VkCopyImageInfo2-srcImage-01790"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcImage-01790</span><br>
@@ -2822,9 +2875,11 @@ The <code>srcSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkCopyImageInfo2-srcSubresource-07968" href="chap19.html#VUID-VkCopyImageInfo2-srcSubresource-07968"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcSubresource-07968</span><br>
+<p><a id="VUID-VkCopyImageInfo2-srcSubresource-08790" href="chap19.html#VUID-VkCopyImageInfo2-srcSubresource-08790"></a> <span class="vuid">VUID-VkCopyImageInfo2-srcSubresource-08790</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
@@ -2848,9 +2903,11 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkCopyImageInfo2-dstSubresource-07968" href="chap19.html#VUID-VkCopyImageInfo2-dstSubresource-07968"></a> <span class="vuid">VUID-VkCopyImageInfo2-dstSubresource-07968</span><br>
+<p><a id="VUID-VkCopyImageInfo2-dstSubresource-08790" href="chap19.html#VUID-VkCopyImageInfo2-dstSubresource-08790"></a> <span class="vuid">VUID-VkCopyImageInfo2-dstSubresource-08790</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -3287,9 +3344,11 @@ The <code>imageSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyBufferToImage-imageSubresource-07968" href="chap19.html#VUID-vkCmdCopyBufferToImage-imageSubresource-07968"></a> <span class="vuid">VUID-vkCmdCopyBufferToImage-imageSubresource-07968</span><br>
+<p><a id="VUID-vkCmdCopyBufferToImage-imageSubresource-08790" href="chap19.html#VUID-vkCmdCopyBufferToImage-imageSubresource-08790"></a> <span class="vuid">VUID-vkCmdCopyBufferToImage-imageSubresource-08790</span><br>
 
-The <span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
+If <code>imageSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
 <code>imageSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -3790,9 +3849,11 @@ The <code>imageSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdCopyImageToBuffer-imageSubresource-07968" href="chap19.html#VUID-vkCmdCopyImageToBuffer-imageSubresource-07968"></a> <span class="vuid">VUID-vkCmdCopyImageToBuffer-imageSubresource-07968</span><br>
+<p><a id="VUID-vkCmdCopyImageToBuffer-imageSubresource-08790" href="chap19.html#VUID-vkCmdCopyImageToBuffer-imageSubresource-08790"></a> <span class="vuid">VUID-vkCmdCopyImageToBuffer-imageSubresource-08790</span><br>
 
-The <span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
+If <code>imageSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
 <code>imageSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
@@ -4629,9 +4690,11 @@ The <code>imageSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkCopyBufferToImageInfo2-imageSubresource-07968" href="chap19.html#VUID-VkCopyBufferToImageInfo2-imageSubresource-07968"></a> <span class="vuid">VUID-VkCopyBufferToImageInfo2-imageSubresource-07968</span><br>
+<p><a id="VUID-VkCopyBufferToImageInfo2-imageSubresource-08790" href="chap19.html#VUID-VkCopyBufferToImageInfo2-imageSubresource-08790"></a> <span class="vuid">VUID-VkCopyBufferToImageInfo2-imageSubresource-08790</span><br>
 
-The <span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
+If <code>imageSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
 <code>imageSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -5176,9 +5239,11 @@ The <code>imageSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkCopyImageToBufferInfo2-imageSubresource-07968" href="chap19.html#VUID-VkCopyImageToBufferInfo2-imageSubresource-07968"></a> <span class="vuid">VUID-VkCopyImageToBufferInfo2-imageSubresource-07968</span><br>
+<p><a id="VUID-VkCopyImageToBufferInfo2-imageSubresource-08790" href="chap19.html#VUID-VkCopyImageToBufferInfo2-imageSubresource-08790"></a> <span class="vuid">VUID-VkCopyImageToBufferInfo2-imageSubresource-08790</span><br>
 
-The <span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
+If <code>imageSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>imageSubresource.baseArrayLayer</code> + 
 <code>imageSubresource.layerCount</code></span> of each element of <code>pRegions</code>
 <strong class="purple">must</strong> be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
@@ -5997,17 +6062,21 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBlitImage-srcSubresource-01707" href="chap19.html#VUID-vkCmdBlitImage-srcSubresource-01707"></a> <span class="vuid">VUID-vkCmdBlitImage-srcSubresource-01707</span><br>
+<p><a id="VUID-vkCmdBlitImage-srcSubresource-08788" href="chap19.html#VUID-vkCmdBlitImage-srcSubresource-08788"></a> <span class="vuid">VUID-vkCmdBlitImage-srcSubresource-08788</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdBlitImage-dstSubresource-01708" href="chap19.html#VUID-vkCmdBlitImage-dstSubresource-01708"></a> <span class="vuid">VUID-vkCmdBlitImage-dstSubresource-01708</span><br>
+<p><a id="VUID-vkCmdBlitImage-dstSubresource-08789" href="chap19.html#VUID-vkCmdBlitImage-dstSubresource-08789"></a> <span class="vuid">VUID-vkCmdBlitImage-dstSubresource-08789</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -6279,10 +6348,27 @@ The <code>aspectMask</code> member of <code>srcSubresource</code> and
 <code>dstSubresource</code> <strong class="purple">must</strong> match</p>
 </li>
 <li>
-<p><a id="VUID-VkImageBlit-layerCount-00239" href="chap19.html#VUID-VkImageBlit-layerCount-00239"></a> <span class="vuid">VUID-VkImageBlit-layerCount-00239</span><br>
+<p><a id="VUID-VkImageBlit-maintenance5-08799" href="chap19.html#VUID-VkImageBlit-maintenance5-08799"></a> <span class="vuid">VUID-VkImageBlit-maintenance5-08799</span><br>
 
-The <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> <strong class="purple">must</strong> match</p>
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageBlit-layerCount-08800" href="chap19.html#VUID-VkImageBlit-layerCount-08800"></a> <span class="vuid">VUID-VkImageBlit-layerCount-08800</span><br>
+
+If neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-VkImageBlit-layerCount-08801" href="chap19.html#VUID-VkImageBlit-layerCount-08801"></a> <span class="vuid">VUID-VkImageBlit-layerCount-08801</span><br>
+
+If one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 </ul>
 </div>
@@ -6681,17 +6767,21 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkBlitImageInfo2-srcSubresource-01707" href="chap19.html#VUID-VkBlitImageInfo2-srcSubresource-01707"></a> <span class="vuid">VUID-VkBlitImageInfo2-srcSubresource-01707</span><br>
+<p><a id="VUID-VkBlitImageInfo2-srcSubresource-08788" href="chap19.html#VUID-VkBlitImageInfo2-srcSubresource-08788"></a> <span class="vuid">VUID-VkBlitImageInfo2-srcSubresource-08788</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkBlitImageInfo2-dstSubresource-01708" href="chap19.html#VUID-VkBlitImageInfo2-dstSubresource-01708"></a> <span class="vuid">VUID-VkBlitImageInfo2-dstSubresource-01708</span><br>
+<p><a id="VUID-VkBlitImageInfo2-dstSubresource-08789" href="chap19.html#VUID-VkBlitImageInfo2-dstSubresource-08789"></a> <span class="vuid">VUID-VkBlitImageInfo2-dstSubresource-08789</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -6920,10 +7010,27 @@ The <code>aspectMask</code> member of <code>srcSubresource</code> and
 <code>dstSubresource</code> <strong class="purple">must</strong> match</p>
 </li>
 <li>
-<p><a id="VUID-VkImageBlit2-layerCount-00239" href="chap19.html#VUID-VkImageBlit2-layerCount-00239"></a> <span class="vuid">VUID-VkImageBlit2-layerCount-00239</span><br>
+<p><a id="VUID-VkImageBlit2-maintenance5-08799" href="chap19.html#VUID-VkImageBlit2-maintenance5-08799"></a> <span class="vuid">VUID-VkImageBlit2-maintenance5-08799</span><br>
 
-The <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> <strong class="purple">must</strong> match</p>
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageBlit2-layerCount-08800" href="chap19.html#VUID-VkImageBlit2-layerCount-08800"></a> <span class="vuid">VUID-VkImageBlit2-layerCount-08800</span><br>
+
+If neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-VkImageBlit2-layerCount-08801" href="chap19.html#VUID-VkImageBlit2-layerCount-08801"></a> <span class="vuid">VUID-VkImageBlit2-layerCount-08801</span><br>
+
+If one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 </ul>
 </div>
@@ -7147,17 +7254,21 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdResolveImage-srcSubresource-01711" href="chap19.html#VUID-vkCmdResolveImage-srcSubresource-01711"></a> <span class="vuid">VUID-vkCmdResolveImage-srcSubresource-01711</span><br>
+<p><a id="VUID-vkCmdResolveImage-srcSubresource-08805" href="chap19.html#VUID-vkCmdResolveImage-srcSubresource-08805"></a> <span class="vuid">VUID-vkCmdResolveImage-srcSubresource-08805</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdResolveImage-dstSubresource-01712" href="chap19.html#VUID-vkCmdResolveImage-dstSubresource-01712"></a> <span class="vuid">VUID-vkCmdResolveImage-dstSubresource-01712</span><br>
+<p><a id="VUID-vkCmdResolveImage-dstSubresource-08806" href="chap19.html#VUID-vkCmdResolveImage-dstSubresource-08806"></a> <span class="vuid">VUID-vkCmdResolveImage-dstSubresource-08806</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -7435,10 +7546,27 @@ The <code>aspectMask</code> member of <code>srcSubresource</code> and
 <code>dstSubresource</code> <strong class="purple">must</strong> only contain <code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageResolve-layerCount-00267" href="chap19.html#VUID-VkImageResolve-layerCount-00267"></a> <span class="vuid">VUID-VkImageResolve-layerCount-00267</span><br>
+<p><a id="VUID-VkImageResolve-maintenance5-08802" href="chap19.html#VUID-VkImageResolve-maintenance5-08802"></a> <span class="vuid">VUID-VkImageResolve-maintenance5-08802</span><br>
 
-The <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> <strong class="purple">must</strong> match</p>
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageResolve-layerCount-08803" href="chap19.html#VUID-VkImageResolve-layerCount-08803"></a> <span class="vuid">VUID-VkImageResolve-layerCount-08803</span><br>
+
+If neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-VkImageResolve-layerCount-08804" href="chap19.html#VUID-VkImageResolve-layerCount-08804"></a> <span class="vuid">VUID-VkImageResolve-layerCount-08804</span><br>
+
+If one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 </ul>
 </div>
@@ -7761,17 +7889,21 @@ The <code>dstSubresource.mipLevel</code> member of each element of
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkResolveImageInfo2-srcSubresource-01711" href="chap19.html#VUID-VkResolveImageInfo2-srcSubresource-01711"></a> <span class="vuid">VUID-VkResolveImageInfo2-srcSubresource-01711</span><br>
+<p><a id="VUID-VkResolveImageInfo2-srcSubresource-08805" href="chap19.html#VUID-VkResolveImageInfo2-srcSubresource-08805"></a> <span class="vuid">VUID-VkResolveImageInfo2-srcSubresource-08805</span><br>
 
-The <span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
+If <code>srcSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>srcSubresource.baseArrayLayer</code> + 
 <code>srcSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>srcImage</code> was created</p>
 </li>
 <li>
-<p><a id="VUID-VkResolveImageInfo2-dstSubresource-01712" href="chap19.html#VUID-VkResolveImageInfo2-dstSubresource-01712"></a> <span class="vuid">VUID-VkResolveImageInfo2-dstSubresource-01712</span><br>
+<p><a id="VUID-VkResolveImageInfo2-dstSubresource-08806" href="chap19.html#VUID-VkResolveImageInfo2-dstSubresource-08806"></a> <span class="vuid">VUID-VkResolveImageInfo2-dstSubresource-08806</span><br>
 
-The <span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
+If <code>dstSubresource.layerCount</code> is not
+<code>VK_REMAINING_ARRAY_LAYERS</code>, the
+<span class="eq"><code>dstSubresource.baseArrayLayer</code> + 
 <code>dstSubresource.layerCount</code></span> of each element of <code>pRegions</code> <strong class="purple">must</strong>
 be less than or equal to the <code>arrayLayers</code> specified in
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> when <code>dstImage</code> was created</p>
@@ -8006,10 +8138,27 @@ The <code>aspectMask</code> member of <code>srcSubresource</code> and
 <code>dstSubresource</code> <strong class="purple">must</strong> only contain <code>VK_IMAGE_ASPECT_COLOR_BIT</code></p>
 </li>
 <li>
-<p><a id="VUID-VkImageResolve2-layerCount-00267" href="chap19.html#VUID-VkImageResolve2-layerCount-00267"></a> <span class="vuid">VUID-VkImageResolve2-layerCount-00267</span><br>
+<p><a id="VUID-VkImageResolve2-maintenance5-08802" href="chap19.html#VUID-VkImageResolve2-maintenance5-08802"></a> <span class="vuid">VUID-VkImageResolve2-maintenance5-08802</span><br>
 
-The <code>layerCount</code> member of <code>srcSubresource</code> and
-<code>dstSubresource</code> <strong class="purple">must</strong> match</p>
+If the <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled, the <code>layerCount</code> member of <code>srcSubresource</code> or
+<code>dstSubresource</code> <strong class="purple">must</strong> not be <code>VK_REMAINING_ARRAY_LAYERS</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageResolve2-layerCount-08803" href="chap19.html#VUID-VkImageResolve2-layerCount-08803"></a> <span class="vuid">VUID-VkImageResolve2-layerCount-08803</span><br>
+
+If neither of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> are VK_REMAINING_ARRAY_LAYERS, the <code>layerCount</code>
+members <strong class="purple">must</strong> match</p>
+</li>
+<li>
+<p><a id="VUID-VkImageResolve2-layerCount-08804" href="chap19.html#VUID-VkImageResolve2-layerCount-08804"></a> <span class="vuid">VUID-VkImageResolve2-layerCount-08804</span><br>
+
+If one of the <code>layerCount</code> members of <code>srcSubresource</code> or
+<code>dstSubresource</code> is <code>VK_REMAINING_ARRAY_LAYERS</code>, the other
+member <strong class="purple">must</strong> be either <code>VK_REMAINING_ARRAY_LAYERS</code> or equal to the
+<code>arrayLayers</code> member of the <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> used to create
+the image minus <code>baseArrayLayer</code></p>
 </li>
 </ul>
 </div>
@@ -8057,8 +8206,8 @@ The <code>layerCount</code> member of <code>srcSubresource</code> and
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.259<br>
-Last updated 2023-02-26 21:00:39 -0800
+Version 1.2.260<br>
+Last updated 2023-07-28 03:24:32 -0700
 </div>
 </div>
 

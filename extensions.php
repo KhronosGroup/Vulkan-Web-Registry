@@ -47,6 +47,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance2.html"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance3.html"> VK_KHR_maintenance3 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance4.html"> VK_KHR_maintenance4 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance5.html"> VK_KHR_maintenance5 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_map_memory2.html"> VK_KHR_map_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_multiview.html"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
@@ -247,6 +248,8 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_shader_info.html"> VK_AMD_shader_info </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_shader_trinary_minmax.html"> VK_AMD_shader_trinary_minmax </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_texture_gather_bias_lod.html"> VK_AMD_texture_gather_bias_lod </a> </li>
+    <li> <b>  AMDX Extensions (Advanced Micro Devices, Inc.)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_AMDX_shader_enqueue.html"> VK_AMDX_shader_enqueue </a> </li>
     <li> <b>  ANDROID Extensions (Google LLC)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  ARM Extensions (ARM Limited)  </b> </li>

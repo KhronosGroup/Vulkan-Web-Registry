@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.259 - A Specification (with KHR extensions)</title>
+<title>Vulkan® 1.2.260 - A Specification (with KHR extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.259 - A Specification (with KHR extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.260 - A Specification (with KHR extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.259,</span>
-<span id="revdate">2023-07-22 11:05:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: 3da7531f2f9d48993ab627c02a866479d5163ba4</span>
+<span id="revnumber">version 1.2.260,</span>
+<span id="revdate">2023-07-28 10:38:47Z</span>
+<br><span id="revremark">from git branch: github-main commit: 12ab5855b1608e4b05b270e0dedecd1b1a5458f8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -331,7 +331,7 @@
 <li class="current"><a href="chap25.html#primsrast-polygons">25.9. Polygons</a></li>
 </ul>
 </li>
-<li><a href="chap26.html">26. Fragment Operations</a>
+<li><a href="chap38.html#fragops">26. Fragment Operations</a>
 <ul class="sectlevel2">
 <li><a href="chap26.html#fragops-scissor">26.1. Scissor Test</a></li>
 <li><a href="chap26.html#fragops-samplemask">26.2. Sample Mask Test</a></li>
@@ -598,7 +598,7 @@ segments to appear fatter in one direction than the other.</p>
 <div class="paragraph">
 <p>We assume that fragments are square, since it simplifies antialiasing and
 texturing.
-After rasterization, fragments are processed by <a href="chap26.html">fragment
+After rasterization, fragments are processed by <a href="chap38.html#fragops">fragment
 operations</a>.</p>
 </div>
 <div class="paragraph">
@@ -931,7 +931,7 @@ Pixels outside the framebuffer are never considered covered in the fragment.
 Fragments which would be produced by application of any of the primitive
 rasterization rules described below but which lie outside the framebuffer
 are not produced, nor are they processed by any later stage of the pipeline,
-including any of the <a href="chap26.html">fragment operations</a>.</p>
+including any of the <a href="chap38.html#fragops">fragment operations</a>.</p>
 </div>
 <div class="paragraph">
 <p>Surviving fragments are processed by fragment shaders.
@@ -959,7 +959,7 @@ includes that sample location:</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><a href="chap26.html">Fragment operations</a>, in the order defined</p>
+<p><a href="chap38.html#fragops">Fragment operations</a>, in the order defined</p>
 </li>
 <li>
 <p><a href="chap27.html#framebuffer-blending">Blending</a>, <a href="chap27.html#framebuffer-logicop">logic
@@ -2649,7 +2649,7 @@ variables.</p>
 </tbody></table>
 </div>
 <div class="paragraph">
-<p>If there are fewer fragment invocations than <a href="chap26.html">covered samples</a>,
+<p>If there are fewer fragment invocations than <a href="chap38.html#fragops">covered samples</a>,
 implementations <strong class="purple">may</strong> include those samples in fragment shader invocations in
 any manner as long as covered samples are all shaded at least once, and each
 invocation that is not a <a href="chap9.html#shaders-helper-invocations">helper invocation</a>
@@ -2849,7 +2849,9 @@ active;</p>
 <div class="paragraph">
 <p>and clamped to the implementation-dependent point size range
 <span class="eq">[<code>pointSizeRange</code>[0],<code>pointSizeRange</code>[1]]</span>.
-The value written to <code>PointSize</code> <strong class="purple">must</strong> be greater than zero.</p>
+The value written to <code>PointSize</code> <strong class="purple">must</strong> be greater than zero.
+If <a href="chap37.html#features-maintenance5"><code>maintenance5</code></a> is enabled, and a value is
+not written to <code>PointSize</code>, the point size takes a default value of 1.0.</p>
 </div>
 <div class="paragraph">
 <p>Not all point sizes need be supported, but the size 1.0 <strong class="purple">must</strong> be supported.
@@ -3127,7 +3129,8 @@ the implementation advertises the <code>strictLines</code> limit in
 <a href="chap38.html#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a> as <code>VK_TRUE</code>.</p>
 </div>
 <div class="paragraph">
-<p>When <code>strictLines</code> is <code>VK_FALSE</code>,
+<p>By default, when
+<code>strictLines</code> is <code>VK_FALSE</code>,
 the edges of the lines are generated as a parallelogram surrounding the
 original line.
 The major axis is chosen by noting the axis in which there is the greatest
@@ -3213,6 +3216,22 @@ performed using the rules defined in
 <a href="chap25.html#primsrast-lines-bresenham">Bresenham Line Segment Rasterization</a>.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>If
+<code>VkPhysicalDeviceMaintenance5PropertiesKHR</code>::<code>nonStrictSinglePixelWideLinesUseParallelogram</code>
+is <code>VK_TRUE</code>,
+and <code>strictLines</code> is <code>VK_FALSE</code>, non-strict lines of width 1.0 are
+rasterized as parallelograms, otherwise they are rasterized using
+Bresenham’s algorithm.</p>
+</div>
+<div class="paragraph">
+<p>If
+<code>VkPhysicalDeviceMaintenance5PropertiesKHR</code>::<code>nonStrictWideLinesUseParallelogram</code>
+is <code>VK_TRUE</code>,
+and <code>strictLines</code> is <code>VK_FALSE</code>, non-strict lines of width greater
+than 1.0 are rasterized as parallelograms, otherwise they are rasterized
+using Bresenham’s algorithm.</p>
 </div>
 </div>
 <div class="sect3">
@@ -3762,6 +3781,20 @@ the polygon rasterization rules in this section.</p>
 a polygon’s vertices are shaded and the polygon is clipped and possibly
 culled before these modes are applied.</p>
 </div>
+<div class="paragraph">
+<p>If
+<code>VkPhysicalDeviceMaintenance5PropertiesKHR</code>::<code>polygonModePointSize</code>
+is set to <code>VK_TRUE</code>, the point size of the final rasterization of
+polygons is taken from <code>PointSize</code> when <a href="chap25.html#primsrast-polygonmode">polygon
+mode</a> is <code>VK_POLYGON_MODE_POINT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise, if
+<code>VkPhysicalDeviceMaintenance5PropertiesKHR</code>::<code>polygonModePointSize</code>
+is set to <code>VK_FALSE</code>, the point size of the final rasterization of
+polygons is 1.0 when <a href="chap25.html#primsrast-polygonmode">polygon mode</a> is
+<code>VK_POLYGON_MODE_POINT</code>.</p>
+</div>
 </div>
 </div>
 </div>
@@ -4056,8 +4089,8 @@ Secondary</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.259<br>
-Last updated 2023-02-26 21:00:39 -0800
+Version 1.2.260<br>
+Last updated 2023-07-28 03:24:32 -0700
 </div>
 </div>
 
