@@ -338,8 +338,11 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NVX_image_view_handle.html"> VK_NVX_image_view_handle </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NVX_multiview_per_view_attributes.html"> VK_NVX_multiview_per_view_attributes </a> </li>
     <li> <b>  QCOM Extensions (Qualcomm Technologies, Inc.)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_filter_cubic_clamp.html"> VK_QCOM_filter_cubic_clamp </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_filter_cubic_weights.html"> VK_QCOM_filter_cubic_weights </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_fragment_density_map_offset.html"> VK_QCOM_fragment_density_map_offset </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_image_processing.html"> VK_QCOM_image_processing </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_image_processing2.html"> VK_QCOM_image_processing2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_multiview_per_view_render_areas.html"> VK_QCOM_multiview_per_view_render_areas </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_multiview_per_view_viewports.html"> VK_QCOM_multiview_per_view_viewports </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_render_pass_shader_resolve.html"> VK_QCOM_render_pass_shader_resolve </a> </li>
@@ -347,6 +350,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_render_pass_transform.html"> VK_QCOM_render_pass_transform </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_rotated_copy_commands.html"> VK_QCOM_rotated_copy_commands </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_tile_properties.html"> VK_QCOM_tile_properties </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_QCOM_ycbcr_degamma.html"> VK_QCOM_ycbcr_degamma </a> </li>
     <li> <b>  QNX Extensions (BlackBerry Limited)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QNX_external_memory_screen_buffer.html"> VK_QNX_external_memory_screen_buffer </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_QNX_screen_surface.html"> VK_QNX_screen_surface </a> </li>

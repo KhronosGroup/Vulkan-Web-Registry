@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.261 - A Specification</title>
+<title>Vulkan® 1.3.262 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.261 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.3.262 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.261,</span>
-<span id="revdate">2023-08-04 10:48:07Z</span>
-<br><span id="revremark">from git branch: github-main commit: b9aad705f0d9e5e6734ac2ad671d5d1de57b05e0</span>
+<span id="revnumber">version 1.3.262,</span>
+<span id="revdate">2023-08-25 07:46:32Z</span>
+<br><span id="revremark">from git branch: github-main commit: 6952ad062f031e3fc99b53ef28e009cbeca64583</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1589,14 +1589,14 @@ This is important if writing code like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span> <span class="n">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span> <span class="n">uint</span> <span class="n">dynamicallyUniformValue</span> <span class="o">=</span>
-<span class="n">gl_WorkGroupID</span><span class="p">.</span><span class="n">x</span><span class="p">;</span> <span class="n">vec4</span> <span class="n">value</span> <span class="o">=</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">Textures</span><span class="p">[</span><span class="n">dynamicallyUniformValue</span><span class="p">],</span>
-<span class="n">coord</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span></code></pre>
+<pre class="rouge highlight"><code data-lang="glsl"><span class="k">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span>
+<span class="kt">uint</span> <span class="n">dynamicallyUniformValue</span> <span class="o">=</span> <span class="n">gl_WorkGroupID</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">vec4</span> <span class="n">value</span> <span class="o">=</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">Textures</span><span class="p">[</span><span class="n">dynamicallyUniformValue</span><span class="p">],</span> <span class="n">coord</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+<span class="c1">// subgroupUniformValue is guaranteed to be uniform within the subgroup.</span>
+<span class="c1">// This value also happens to be dynamically uniform.</span>
+<span class="kt">vec4</span> <span class="n">subgroupUniformValue</span> <span class="o">=</span> <span class="n">subgroupBroadcastFirst</span><span class="p">(</span><span class="n">dynamicallyUniformValue</span><span class="p">);</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>vec4 subgroupUniformValue = subgroupBroadcastFirst(dynamicallyUniformValue);
-<sub>~</sub>~</p>
 </div>
 <div class="paragraph">
 <p>In shader stages without defined workgroups, this gets complicated.
@@ -1609,23 +1609,28 @@ are multiple invocation groups, one per <code>DrawIndex</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span>
-<span class="c1">// Assume SubgroupSize = 8, where 3 draws are packed together.</span>
+<pre class="rouge highlight"><code data-lang="glsl"><span class="c1">// Assume SubgroupSize = 8, where 3 draws are packed together.</span>
 <span class="c1">// Two subgroups were generated.</span>
-<span class="n">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span></code></pre>
+<span class="k">uniform</span> <span class="n">texture2D</span> <span class="n">Textures</span><span class="p">[];</span>
+
+<span class="c1">// DrawIndex builtin is dynamically uniform</span>
+<span class="kt">uint</span> <span class="n">dynamicallyUniformValue</span> <span class="o">=</span> <span class="n">gl_DrawID</span><span class="p">;</span>
+<span class="c1">//              | gl_DrawID = 0 | gl_DrawID = 1 | }</span>
+<span class="c1">// Subgroup 0: { 0, 0, 0, 0,      1, 1, 1, 1 }</span>
+<span class="c1">//              | DrawID = 2 | DrawID = 1 | }</span>
+<span class="c1">// Subgroup 1: { 2, 2, 2, 2,      1, 1, 1, 1 }</span>
+
+<span class="kt">uint</span> <span class="n">notActuallyDynamicallyUniformAnymore</span> <span class="o">=</span>
+    <span class="n">subgroupBroadcastFirst</span><span class="p">(</span><span class="n">dynamicallyUniformValue</span><span class="p">);</span>
+<span class="c1">//              | gl_DrawID = 0 | gl_DrawID = 1 | }</span>
+<span class="c1">// Subgroup 0: { 0, 0, 0, 0,      0, 0, 0, 0 }</span>
+<span class="c1">//              | gl_DrawID = 2 | gl_DrawID = 1 | }</span>
+<span class="c1">// Subgroup 1: { 2, 2, 2, 2,      2, 2, 2, 2 }</span>
+
+<span class="c1">// Bug. gl_DrawID = 1's invocation group observes both index 0 and 2.</span>
+<span class="kt">vec4</span> <span class="n">value</span> <span class="o">=</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">Textures</span><span class="p">[</span><span class="n">notActuallyDynamicallyUniformAnymore</span><span class="p">],</span>
+                        <span class="n">coord</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>uint dynamicallyUniformValue = gl_DrawID;</p>
-</div>
-<div class="paragraph">
-<p>uint notActuallyDynamicallyUniformAnymore =
-    subgroupBroadcastFirst(dynamicallyUniformValue);</p>
-</div>
-<div class="paragraph">
-<p>vec4 value = texelFetch(Textures[notActuallyDynamicallyUniformAnymore],
-                        coord, 0);
-<sub>~</sub>~</p>
 </div>
 <div class="paragraph">
 <p>Another problematic scenario is when a shader attempts to help the compiler
@@ -1634,18 +1639,17 @@ performance.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="c"><span class="o">~~~~</span> <span class="n">layout</span><span class="p">(</span><span class="n">location</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">flat</span> <span class="n">in</span> <span class="n">dynamicallyUniformIndex</span><span class="p">;</span>
+<pre class="rouge highlight"><code data-lang="c"><span class="n">layout</span><span class="p">(</span><span class="n">location</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">flat</span> <span class="n">in</span> <span class="n">dynamicallyUniformIndex</span><span class="p">;</span>
 <span class="c1">// Vertex shader might have emitted a value that depends only on gl_DrawID,</span>
 <span class="c1">// making it dynamically uniform.</span>
 <span class="c1">// Give knowledge to compiler that the flat input is dynamically uniform,</span>
-<span class="c1">// as this is not a guarantee otherwise.</span></code></pre>
+<span class="c1">// as this is not a guarantee otherwise.</span>
+
+<span class="n">uint</span> <span class="n">uniformIndex</span> <span class="o">=</span> <span class="n">subgroupBroadcastFirst</span><span class="p">(</span><span class="n">dynamicallyUniformIndex</span><span class="p">);</span>
+<span class="c1">// Hazard: If different draw commands are packed into one subgroup, the uniformIndex is wrong.</span>
+
+<span class="n">DrawData</span> <span class="n">d</span> <span class="o">=</span> <span class="n">UBO</span><span class="p">.</span><span class="n">perDrawData</span><span class="p">[</span><span class="n">uniformIndex</span><span class="p">];</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>uint uniformIndex = subgroupBroadcastFirst(dynamicallyUniformIndex);</p>
-</div>
-<div class="paragraph">
-<p>DrawData d = UBO.perDrawData[uniformIndex]; <sub>~</sub>~</p>
 </div>
 <div class="paragraph">
 <p>For implementations where subgroups are packed across draws, the
@@ -2122,8 +2126,8 @@ quad scope instance become helper invocations.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.261<br>
-Last updated 2023-07-28 03:24:32 -0700
+Version 1.3.262<br>
+Last updated 2023-08-25 00:26:25 -0700
 </div>
 </div>
 
