@@ -297,6 +297,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_coverage_reduction_mode.html"> VK_NV_coverage_reduction_mode </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_dedicated_allocation.html"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_dedicated_allocation_image_aliasing.html"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_descriptor_pool_overallocation.html"> VK_NV_descriptor_pool_overallocation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_diagnostic_checkpoints.html"> VK_NV_device_diagnostic_checkpoints </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_diagnostics_config.html"> VK_NV_device_diagnostics_config </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands.html"> VK_NV_device_generated_commands </a> </li>
