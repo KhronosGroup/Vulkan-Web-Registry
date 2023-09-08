@@ -144,6 +144,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_fragment_density_map.html"> VK_EXT_fragment_density_map </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_fragment_density_map2.html"> VK_EXT_fragment_density_map2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_fragment_shader_interlock.html"> VK_EXT_fragment_shader_interlock </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_frame_boundary.html"> VK_EXT_frame_boundary </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_full_screen_exclusive.html"> VK_EXT_full_screen_exclusive </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_global_priority.html"> VK_EXT_global_priority </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_global_priority_query.html"> VK_EXT_global_priority_query </a> </li>
@@ -282,6 +283,8 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_INTEL_shader_integer_functions2.html"> VK_INTEL_shader_integer_functions2 </a> </li>
     <li> <b>  LUNARG Extensions (LunarG, Inc.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_LUNARG_direct_driver_loading.html"> VK_LUNARG_direct_driver_loading </a> </li>
+    <li> <b>  MSFT Extensions (Microsoft Corporation)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_MSFT_layered_driver.html"> VK_MSFT_layered_driver </a> </li>
     <li> <b>  MVK Extensions (The Brenwill Workshop Ltd.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_MVK_ios_surface.html"> VK_MVK_ios_surface </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_MVK_macos_surface.html"> VK_MVK_macos_surface </a> </li>
