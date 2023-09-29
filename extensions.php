@@ -252,6 +252,7 @@
     <li> <b>  AMDX Extensions (Advanced Micro Devices, Inc.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMDX_shader_enqueue.html"> VK_AMDX_shader_enqueue </a> </li>
     <li> <b>  ANDROID Extensions (Google LLC)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_ANDROID_external_format_resolve.html"> VK_ANDROID_external_format_resolve </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  ARM Extensions (ARM Limited)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_rasterization_order_attachment_access.html"> VK_ARM_rasterization_order_attachment_access </a> </li>
@@ -320,6 +321,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_inherited_viewport_scissor.html"> VK_NV_inherited_viewport_scissor </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_linear_color_attachment.html"> VK_NV_linear_color_attachment </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_low_latency.html"> VK_NV_low_latency </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_low_latency2.html"> VK_NV_low_latency2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_memory_decompression.html"> VK_NV_memory_decompression </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
