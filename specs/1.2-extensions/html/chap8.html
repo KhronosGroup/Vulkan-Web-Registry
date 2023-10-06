@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.266 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.267 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.266 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.267 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.266,</span>
-<span id="revdate">2023-09-29 09:10:39Z</span>
-<br><span id="revremark">from git branch: github-main commit: e5dbdd580cf0696db8ed0aeb0736e0f512d9bbe1</span>
+<span id="revnumber">version 1.2.267,</span>
+<span id="revdate">2023-10-06 12:52:18Z</span>
+<br><span id="revremark">from git branch: github-main commit: 66b95bd350a014c7a4dcdcd309206b571750deb3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -112,7 +112,8 @@
 <li><a href="chap6.html#commandbuffers-submission">6.5. Command Buffer Submission</a></li>
 <li><a href="chap6.html#commandbuffers-submission-progress">6.6. Queue Forward Progress</a></li>
 <li><a href="chap6.html#commandbuffers-secondary">6.7. Secondary Command Buffer Execution</a></li>
-<li><a href="chap6.html#commandbuffers-devicemask">6.8. Command Buffer Device Mask</a></li>
+<li><a href="chap6.html#commandbuffers-nested">6.8. Nested Command Buffers</a></li>
+<li><a href="chap6.html#commandbuffers-devicemask">6.9. Command Buffer Device Mask</a></li>
 </ul>
 </li>
 <li><a href="chap7.html">7. Synchronization and Cache Control</a>
@@ -743,6 +744,8 @@ be enabled</p>
 <p><a id="VUID-vkCmdBeginRendering-commandBuffer-06068" href="chap8.html#VUID-vkCmdBeginRendering-commandBuffer-06068"></a> <span class="vuid">VUID-vkCmdBeginRendering-commandBuffer-06068</span><br>
 
 If <code>commandBuffer</code> is a secondary command buffer,
+and the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a>
+feature is not enabled,
 <code>pRenderingInfo-&gt;flags</code> <strong class="purple">must</strong> not include
 <code>VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT</code></p>
 </li>
@@ -1542,6 +1545,11 @@ memory locations that are bound to any other valid attachments specified
 by this structure</p>
 </li>
 <li>
+<p>If <code>flags</code> includes <code>VK_RENDERING_CONTENTS_INLINE_BIT_EXT</code> then
+the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
 <p><a id="VUID-VkRenderingInfo-pDepthAttachment-09318" href="chap8.html#VUID-VkRenderingInfo-pDepthAttachment-09318"></a> <span class="vuid">VUID-VkRenderingInfo-pDepthAttachment-09318</span><br>
 
 <code>pDepthAttachment-&gt;resolveMode</code> <strong class="purple">must</strong> not be
@@ -1631,6 +1639,8 @@ additional properties of the render pass are:</p>
     <span class="n">VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT</span> <span class="o">=</span> <span class="mh">0x00000001</span><span class="p">,</span>
     <span class="n">VK_RENDERING_SUSPENDING_BIT</span> <span class="o">=</span> <span class="mh">0x00000002</span><span class="p">,</span>
     <span class="n">VK_RENDERING_RESUMING_BIT</span> <span class="o">=</span> <span class="mh">0x00000004</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_nested_command_buffer</span>
+    <span class="n">VK_RENDERING_CONTENTS_INLINE_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000010</span><span class="p">,</span>
   <span class="c1">// Provided by VK_VERSION_1_3 with VK_EXT_legacy_dithering, VK_KHR_dynamic_rendering with VK_EXT_legacy_dithering</span>
     <span class="n">VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT</span> <span class="o">=</span> <span class="mh">0x00000008</span><span class="p">,</span>
     <span class="n">VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR</span> <span class="o">=</span> <span class="n">VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT</span><span class="p">,</span>
@@ -1653,7 +1663,10 @@ additional properties of the render pass are:</p>
 <li>
 <p><code>VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT</code> specifies that
 draw calls for the render pass instance will be recorded in secondary
-command buffers.</p>
+command buffers.
+If the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a>
+feature is enabled, the draw calls <strong class="purple">can</strong> come from both inline and
+<a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a>.</p>
 </li>
 <li>
 <p><code>VK_RENDERING_RESUMING_BIT</code> specifies that the render pass instance
@@ -1667,6 +1680,15 @@ instance will be suspended.</p>
 <p><code>VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT</code> specifies that
 <a href="chap15.html#interfaces-legacy-dithering">Legacy Dithering</a> is enabled for the
 render pass instance.</p>
+</li>
+<li>
+<p><code>VK_RENDERING_CONTENTS_INLINE_BIT_EXT</code> specifies that draw calls for
+the render pass instance <strong class="purple">can</strong> be recorded inline within the current
+command buffer.
+When the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a>
+feature is enabled this <strong class="purple">can</strong> be combined with the
+<code>VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT</code> bit to allow
+draw calls to be recorded both inline and in secondary command buffers.</p>
 </li>
 </ul>
 </div>
@@ -6896,10 +6918,11 @@ only includes a stencil component, <code>finalLayout</code> <strong class="purpl
 <code>VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL</code></p>
 </li>
 <li>
-<p><a id="VUID-VkAttachmentDescription2-externalFormatResolve-09333" href="chap8.html#VUID-VkAttachmentDescription2-externalFormatResolve-09333"></a> <span class="vuid">VUID-VkAttachmentDescription2-externalFormatResolve-09333</span><br>
+<p><a id="VUID-VkAttachmentDescription2-format-09332" href="chap8.html#VUID-VkAttachmentDescription2-format-09332"></a> <span class="vuid">VUID-VkAttachmentDescription2-format-09332</span><br>
 
 If <a href="chap47.html#features-externalFormatResolve"><code>externalFormatResolve</code></a> is not
-enabled, <code>format</code> <strong class="purple">must</strong> not be <code>VK_FORMAT_UNDEFINED</code></p>
+enabled,
+<code>format</code> <strong class="purple">must</strong> not be <code>VK_FORMAT_UNDEFINED</code></p>
 </li>
 <li>
 <p><a id="VUID-VkAttachmentDescription2-format-09334" href="chap8.html#VUID-VkAttachmentDescription2-format-09334"></a> <span class="vuid">VUID-VkAttachmentDescription2-format-09334</span><br>
@@ -7697,8 +7720,8 @@ enabled, <code>pResolveAttachments</code> is not <code>NULL</code>, and any elem
 <code>pResolveAttachments</code> is not <code>VK_ATTACHMENT_UNUSED</code> and has a
 format of <code>VK_FORMAT_UNDEFINED</code>, elements of <code>pInputAttachments</code>
 referencing either a color attachment or resolve attachment used in this
-subpass <strong class="purple">must</strong> not include <code>VK_IMAGE_ASPECT_PLANE<em>_i_</em>BIT_EXT</code> for
-any index <em>i</em> in its <code>aspectMask</code></p>
+subpass <strong class="purple">must</strong> not include <code>VK_IMAGE_ASPECT_PLANE<em>_i_</em>BIT</code> for any
+index <em>i</em> in its <code>aspectMask</code></p>
 </li>
 </ul>
 </div>
@@ -9756,30 +9779,32 @@ count specified in
 <a href="chap8.html#VkMultisampledRenderToSingleSampledInfoEXT">VkMultisampledRenderToSingleSampledInfoEXT</a>::<code>rasterizationSamples</code></p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-flags-09351" href="chap8.html#VUID-VkFramebufferCreateInfo-flags-09351"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-09351</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-nullColorAttachmentWithExternalFormatResolve-09349" href="chap8.html#VUID-VkFramebufferCreateInfo-nullColorAttachmentWithExternalFormatResolve-09349"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-nullColorAttachmentWithExternalFormatResolve-09349</span><br>
 
-If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code> and the
-<a href="chap48.html#limits-nullColorAttachmentWithExternalFormatResolve"><code>nullColorAttachmentWithExternalFormatResolve</code></a> is <code>VK_FALSE</code>,
+If the <a href="chap48.html#limits-nullColorAttachmentWithExternalFormatResolve"><code>nullColorAttachmentWithExternalFormatResolve</code></a> is <code>VK_FALSE</code>,
+and <code>flags</code> does not include
+<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>,
 the format of the color attachment for each subpass in <code>renderPass</code>
 that includes an external format image as a resolve attachment <strong class="purple">must</strong>
 have a format equal to the value of
 <a href="chap11.html#VkAndroidHardwareBufferFormatResolvePropertiesANDROID">VkAndroidHardwareBufferFormatResolvePropertiesANDROID</a>::<code>colorAttachmentFormat</code>
 as returned by a call to
 <a href="chap11.html#vkGetAndroidHardwareBufferPropertiesANDROID">vkGetAndroidHardwareBufferPropertiesANDROID</a> for the Android
-hardware buffer that was used to create the image view used as its
+hardware buffer that was used to create the image view use as its
 resolve attachment</p>
 </li>
 <li>
-<p><a id="VUID-VkFramebufferCreateInfo-flags-09352" href="chap8.html#VUID-VkFramebufferCreateInfo-flags-09352"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-flags-09352</span><br>
+<p><a id="VUID-VkFramebufferCreateInfo-pAttachments-09350" href="chap8.html#VUID-VkFramebufferCreateInfo-pAttachments-09350"></a> <span class="vuid">VUID-VkFramebufferCreateInfo-pAttachments-09350</span><br>
 
-If <code>flags</code> does not include
-<code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>, each element of
-<code>pAttachments</code> with a format of <code>VK_FORMAT_UNDEFINED</code> <strong class="purple">must</strong> have
-been created with a <a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>::<code>externalFormat</code>
-value identical to that provided in the
-<a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>::<code>externalFormat</code> specified by the
-corresponding <a href="chap8.html#VkAttachmentDescription2">VkAttachmentDescription2</a> in <code>renderPass</code></p>
+If
+<code>flags</code> does not include <code>VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT</code>,
+then if
+an element of <code>pAttachments</code> has a format of
+<code>VK_FORMAT_UNDEFINED</code>, it <strong class="purple">must</strong> have been created with a
+<a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>::<code>externalFormat</code> value identical to
+that provided in the <a href="chap12.html#VkExternalFormatANDROID">VkExternalFormatANDROID</a>::<code>externalFormat</code>
+specified by the corresponding <a href="chap8.html#VkAttachmentDescription2">VkAttachmentDescription2</a> in
+<code>renderPass</code></p>
 </li>
 </ul>
 </div>
@@ -12074,6 +12099,21 @@ commands in the next subpass will be provided.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>contents</code> is
+<code>VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT</code>, then
+<a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a> <strong class="purple">must</strong> be
+enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Valid Usage (Implicit)</div>
 <div class="ulist">
 <ul>
@@ -12107,6 +12147,8 @@ how the commands in the first subpass will be provided, are:</p>
 <span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkSubpassContents</span> <span class="p">{</span>
     <span class="n">VK_SUBPASS_CONTENTS_INLINE</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_EXT_nested_command_buffer</span>
+    <span class="n">VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT</span> <span class="o">=</span> <span class="mi">1000451000</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkSubpassContents</span><span class="p">;</span></code></pre>
 </div>
 </div>
@@ -12123,6 +12165,12 @@ contents are recorded in secondary command buffers that will be called
 from the primary command buffer, and <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> is the
 only valid command in the command buffer until <a href="chap8.html#vkCmdNextSubpass">vkCmdNextSubpass</a> or
 <a href="chap8.html#vkCmdEndRenderPass">vkCmdEndRenderPass</a>.</p>
+</li>
+<li>
+<p><code>VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT</code>
+specifies that the contents of the subpass <strong class="purple">can</strong> be recorded both inline
+and in secondary command buffers executed from this command buffer with
+<a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a>.</p>
 </li>
 </ul>
 </div>
@@ -13942,8 +13990,8 @@ interlock</a> execution modes.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.266<br>
-Last updated 2023-09-29 01:54:35 -0700
+Version 1.2.267<br>
+Last updated 2023-10-06 04:48:26 -0700
 </div>
 </div>
 

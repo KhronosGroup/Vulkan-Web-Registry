@@ -858,6 +858,11 @@ into any other primary command buffer which is currently in the
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#commandbuffers-lifecycle" target="_blank" rel="noopener">executable or recording state</a>, that primary
 command buffer becomes <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#commandbuffers-lifecycle" target="_blank" rel="noopener">invalid</a>.</p>
 </div>
+<div class="paragraph">
+<p>If the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-nestedCommandBuffer" target="_blank" rel="noopener"><code>nestedCommandBuffer</code></a> feature
+is enabled it is valid usage for <code>vkCmdExecuteCommands</code> to also be
+recorded to a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#glossary" target="_blank" rel="noopener">secondary command buffer</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -922,10 +927,11 @@ instance, and any element of <code>pCommandBuffers</code> was recorded with
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-contents-06018" href="#VUID-vkCmdExecuteCommands-contents-06018"></a> <span class="vuid">VUID-vkCmdExecuteCommands-contents-06018</span><br>
 
-If <code>vkCmdExecuteCommands</code> is being called within a render pass
-instance begun with <a href="vkCmdBeginRenderPass.html">vkCmdBeginRenderPass</a>, its <code>contents</code>
-parameter <strong class="purple">must</strong> have been set to
-<code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code></p>
+    If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance begun with <a href="vkCmdBeginRenderPass.html">vkCmdBeginRenderPass</a>, its <code>contents</code>
+    parameter <strong class="purple">must</strong> have been set to
+    <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code>
+, or <code>VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-06019" href="#VUID-vkCmdExecuteCommands-pCommandBuffers-06019"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-06019</span><br>
@@ -1378,6 +1384,30 @@ include a <a href="VkAttachmentSampleCountInfoAMD.html">VkAttachmentSampleCountI
 <a href="VkCommandBufferInheritanceRenderingInfo.html">VkCommandBufferInheritanceRenderingInfo</a>::<code>rasterizationSamples</code>
 <strong class="purple">must</strong> be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
 </li>
+<li>
+<p><code>commandBuffer</code> <strong class="purple">must</strong> not be a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#glossary" target="_blank" rel="noopener">secondary command
+buffer</a>
+unless the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-nestedCommandBuffer" target="_blank" rel="noopener"><code>nestedCommandBuffer</code></a>
+feature is enabled</p>
+</li>
+<li>
+<p>If the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-nestedCommandBuffer" target="_blank" rel="noopener"><code>nestedCommandBuffer</code></a>
+feature is enabled, the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#glossary" target="_blank" rel="noopener">command buffer nesting level</a> of
+each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be less than
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-maxCommandBufferNestingLevel" target="_blank" rel="noopener"><code>maxCommandBufferNestingLevel</code></a></p>
+</li>
+<li>
+<p>If the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-nestedCommandBufferRendering" target="_blank" rel="noopener"><code>nestedCommandBufferRendering</code></a> feature is not enabled, and
+<code>commandBuffer</code> is a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#glossary" target="_blank" rel="noopener">secondary command buffer</a>,
+<code>commandBuffer</code> <strong class="purple">must</strong> not have been recorded with
+<code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
+</li>
+<li>
+<p>If the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#features-nestedCommandBufferSimultaneousUse" target="_blank" rel="noopener"><code>nestedCommandBufferSimultaneousUse</code></a> feature is not enabled, and
+<code>commandBuffer</code> is a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#glossary" target="_blank" rel="noopener">secondary command buffer</a>, each
+element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not have been recorded with
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -1406,10 +1436,6 @@ include a <a href="VkAttachmentSampleCountInfoAMD.html">VkAttachmentSampleCountI
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-videocoding" href="#VUID-vkCmdExecuteCommands-videocoding"></a> <span class="vuid">VUID-vkCmdExecuteCommands-videocoding</span><br>
  This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteCommands-bufferlevel" href="#VUID-vkCmdExecuteCommands-bufferlevel"></a> <span class="vuid">VUID-vkCmdExecuteCommands-bufferlevel</span><br>
- <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-commandBufferCount-arraylength" href="#VUID-vkCmdExecuteCommands-commandBufferCount-arraylength"></a> <span class="vuid">VUID-vkCmdExecuteCommands-commandBufferCount-arraylength</span><br>
@@ -1460,7 +1486,8 @@ include a <a href="VkAttachmentSampleCountInfoAMD.html">VkAttachmentSampleCountI
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
@@ -1508,8 +1535,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.266<br>
-Last updated 2023-09-29 01:55:57 -0700
+Version 1.3.267<br>
+Last updated 2023-10-06 05:35:46 -0700
 </div>
 </div>
 

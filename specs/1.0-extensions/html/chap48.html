@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.266 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.267 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.266 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.267 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.266,</span>
-<span id="revdate">2023-09-29 09:10:17Z</span>
-<br><span id="revremark">from git branch: github-main commit: e5dbdd580cf0696db8ed0aeb0736e0f512d9bbe1</span>
+<span id="revnumber">version 1.0.267,</span>
+<span id="revdate">2023-10-06 12:52:14Z</span>
+<br><span id="revremark">from git branch: github-main commit: 66b95bd350a014c7a4dcdcd309206b571750deb3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -112,7 +112,8 @@
 <li><a href="chap6.html#commandbuffers-submission">6.5. Command Buffer Submission</a></li>
 <li><a href="chap6.html#commandbuffers-submission-progress">6.6. Queue Forward Progress</a></li>
 <li><a href="chap6.html#commandbuffers-secondary">6.7. Secondary Command Buffer Execution</a></li>
-<li><a href="chap6.html#commandbuffers-devicemask">6.8. Command Buffer Device Mask</a></li>
+<li><a href="chap6.html#commandbuffers-nested">6.8. Nested Command Buffers</a></li>
+<li><a href="chap6.html#commandbuffers-devicemask">6.9. Command Buffer Device Mask</a></li>
 </ul>
 </li>
 <li><a href="chap7.html">7. Synchronization and Cache Control</a>
@@ -932,7 +933,14 @@ more details.</p>
 total amount of address space available, in bytes, for sparse memory
 resources.
 This is an upper bound on the sum of the sizes of all sparse resources,
-regardless of whether any memory is bound to them.</p>
+regardless of whether any memory is bound to them.
+If the <a href="chap47.html#features-extendedSparseAddressSpace"><code>extendedSparseAddressSpace</code></a> feature is enabled, then the
+difference between <a href="chap48.html#limits-extendedSparseAddressSpaceSize"><code>extendedSparseAddressSpaceSize</code></a> and <code>sparseAddressSpaceSize</code>
+can also be used, by <code>VkImage</code> created with the <code>usage</code> member
+of <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a> only containing bits in
+<a href="chap48.html#limits-extendedSparseImageUsageFlags"><code>extendedSparseImageUsageFlags</code></a> and <code>VkBuffer</code> created with
+the <code>usage</code> member of <a href="chap12.html#VkBufferCreateInfo">VkBufferCreateInfo</a> only containing bits
+in <a href="chap48.html#limits-extendedSparseBufferUsageFlags"><code>extendedSparseBufferUsageFlags</code></a>.</p>
 </li>
 <li>
 <p><a id="limits-maxBoundDescriptorSets"></a> <code>maxBoundDescriptorSets</code> is the
@@ -6843,6 +6851,59 @@ corresponding implementation-dependent property.</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>The <code>VkPhysicalDeviceNestedCommandBufferPropertiesEXT</code> structure is
+defined as:</p>
+</div>
+<div id="VkPhysicalDeviceNestedCommandBufferPropertiesEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_nested_command_buffer</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceNestedCommandBufferPropertiesEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="kt">uint32_t</span>           <span class="n">maxCommandBufferNestingLevel</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceNestedCommandBufferPropertiesEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The members of the <code>VkPhysicalDeviceNestedCommandBufferPropertiesEXT</code>
+structure describe the following features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="limits-maxCommandBufferNestingLevel"></a>
+<code>maxCommandBufferNestingLevel</code> indicates the maximum nesting level
+of calls to <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> from <a href="chap59.html#glossary">Secondary
+Command Buffers</a>.
+A <code>maxCommandBufferNestingLevel</code> of <code>UINT32_MAX</code> means there is
+no limit to the nesting level.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceNestedCommandBufferPropertiesEXT</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap5.html#VkPhysicalDeviceProperties2">VkPhysicalDeviceProperties2</a> structure passed to
+<a href="chap5.html#vkGetPhysicalDeviceProperties2KHR">vkGetPhysicalDeviceProperties2KHR</a>, it is filled in with each
+corresponding implementation-dependent property.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceNestedCommandBufferPropertiesEXT-sType-sType" href="chap48.html#VUID-VkPhysicalDeviceNestedCommandBufferPropertiesEXT-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceNestedCommandBufferPropertiesEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_NESTED_COMMAND_BUFFER_PROPERTIES_EXT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>The <code>VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT</code> structure is
 defined as:</p>
 </div>
@@ -7841,6 +7902,79 @@ corresponding implementation-dependent property.</p>
 <li>
 <p><a id="VUID-VkPhysicalDeviceShaderEnqueuePropertiesAMDX-sType-sType" href="chap48.html#VUID-VkPhysicalDeviceShaderEnqueuePropertiesAMDX-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceShaderEnqueuePropertiesAMDX-sType-sType</span><br>
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ENQUEUE_PROPERTIES_AMDX</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV</code> structure
+is defined as:</p>
+</div>
+<div id="VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_extended_sparse_address_space</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>       <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkDeviceSize</span>          <span class="n">extendedSparseAddressSpaceSize</span><span class="p">;</span>
+    <span class="n">VkImageUsageFlags</span>     <span class="n">extendedSparseImageUsageFlags</span><span class="p">;</span>
+    <span class="n">VkBufferUsageFlags</span>    <span class="n">extendedSparseBufferUsageFlags</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><a id="limits-extendedSparseAddressSpaceSize"></a>
+<code>extendedSparseAddressSpaceSize</code> is the total amount of address
+space available, in bytes, for sparse memory resources of all usages if
+the <a href="chap47.html#features-extendedSparseAddressSpace"><code>extendedSparseAddressSpace</code></a> feature is enabled.
+This <strong class="purple">must</strong> be greater than or equal to
+<code>VkPhysicalDeviceLimits</code>::<code>sparseAddressSpaceSize</code>, and the
+difference in space <strong class="purple">must</strong> only be used with usages allowed below.
+This is an upper bound on the sum of the sizes of all sparse resources,
+regardless of whether any memory is bound to them.</p>
+</li>
+<li>
+<p><a id="limits-extendedSparseImageUsageFlags"></a>
+<code>extendedSparseImageUsageFlags</code> is a bitmask of
+<a href="chap12.html#VkImageUsageFlagBits">VkImageUsageFlagBits</a> of usages which <strong class="purple">may</strong> allow an implementation
+to use the full <code>extendedSparseAddressSpaceSize</code> space.</p>
+</li>
+<li>
+<p><a id="limits-extendedSparseBufferUsageFlags"></a>
+<code>extendedSparseBufferUsageFlags</code> is a bitmask of
+<a href="chap12.html#VkBufferUsageFlagBits">VkBufferUsageFlagBits</a> of usages which <strong class="purple">may</strong> allow an implementation
+to use the full <code>extendedSparseAddressSpaceSize</code> space.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap5.html#VkPhysicalDeviceProperties2">VkPhysicalDeviceProperties2</a> structure passed to
+<a href="chap5.html#vkGetPhysicalDeviceProperties2KHR">vkGetPhysicalDeviceProperties2KHR</a>, it is filled in with each
+corresponding implementation-dependent property.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV-sType-sType" href="chap48.html#VUID-VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV</code></p>
 </li>
 </ul>
 </div>
@@ -9439,6 +9573,11 @@ whether or not the feature is enabled.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint32_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>executionGraphDispatchAddressAlignment</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="chap47.html#features-shaderEnqueue"><code>shaderEnqueue</code></a></code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="chap3.html#VkDeviceSize">VkDeviceSize</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>extendedSparseAddressSpaceSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sparseBinding</code>, <code><a href="chap47.html#features-extendedSparseAddressSpace"><code>extendedSparseAddressSpace</code></a></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -11320,6 +11459,12 @@ whether or not the feature is enabled.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxCommandBufferNestingLevel</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>graphicsPipelineLibraryFastLinking</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -11438,6 +11583,12 @@ whether or not the feature is enabled.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>extendedSparseAddressSpaceSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sparseAddressSpaceSize</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
 </tr>
 </tbody>
 </table>
@@ -11671,8 +11822,8 @@ respectively, otherwise both members <strong class="purple">must</strong> be <co
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.266<br>
-Last updated 2023-09-29 01:54:35 -0700
+Version 1.0.267<br>
+Last updated 2023-10-06 04:48:26 -0700
 </div>
 </div>
 

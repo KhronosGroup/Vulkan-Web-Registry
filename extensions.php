@@ -173,6 +173,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_multi_draw.html"> VK_EXT_multi_draw </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_multisampled_render_to_single_sampled.html"> VK_EXT_multisampled_render_to_single_sampled </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_mutable_descriptor_type.html"> VK_EXT_mutable_descriptor_type </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_nested_command_buffer.html"> VK_EXT_nested_command_buffer </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_non_seamless_cube_map.html"> VK_EXT_non_seamless_cube_map </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_opacity_micromap.html"> VK_EXT_opacity_micromap </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_pageable_device_local_memory.html"> VK_EXT_pageable_device_local_memory </a> </li>
@@ -307,6 +308,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands.html"> VK_NV_device_generated_commands </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands_compute.html"> VK_NV_device_generated_commands_compute </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_displacement_micromap.html"> VK_NV_displacement_micromap </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_extended_sparse_address_space.html"> VK_NV_extended_sparse_address_space </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory.html"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory_capabilities.html"> VK_NV_external_memory_capabilities </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory_rdma.html"> VK_NV_external_memory_rdma </a> </li>

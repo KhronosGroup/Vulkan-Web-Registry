@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.266 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.0.267 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.266 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.267 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.266,</span>
-<span id="revdate">2023-09-29 09:10:17Z</span>
-<br><span id="revremark">from git branch: github-main commit: e5dbdd580cf0696db8ed0aeb0736e0f512d9bbe1</span>
+<span id="revnumber">version 1.0.267,</span>
+<span id="revdate">2023-10-06 12:52:14Z</span>
+<br><span id="revremark">from git branch: github-main commit: 66b95bd350a014c7a4dcdcd309206b571750deb3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -112,7 +112,8 @@
 <li class="current"><a href="chap6.html#commandbuffers-submission">6.5. Command Buffer Submission</a></li>
 <li class="current"><a href="chap6.html#commandbuffers-submission-progress">6.6. Queue Forward Progress</a></li>
 <li class="current"><a href="chap6.html#commandbuffers-secondary">6.7. Secondary Command Buffer Execution</a></li>
-<li class="current"><a href="chap6.html#commandbuffers-devicemask">6.8. Command Buffer Device Mask</a></li>
+<li class="current"><a href="chap6.html#commandbuffers-nested">6.8. Nested Command Buffers</a></li>
+<li class="current"><a href="chap6.html#commandbuffers-devicemask">6.9. Command Buffer Device Mask</a></li>
 </ul>
 </li>
 <li><a href="chap7.html">7. Synchronization and Cache Control</a>
@@ -2403,8 +2404,9 @@ If this is a primary command buffer, then this bit is ignored.</p>
 </li>
 <li>
 <p><code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code> specifies that a
-command buffer <strong class="purple">can</strong> be resubmitted to a queue while it is in the
-<em>pending state</em>, and recorded into multiple primary command buffers.</p>
+command buffer <strong class="purple">can</strong> be resubmitted to any queue of the same queue family
+while it is in the <em>pending state</em>, and recorded into multiple primary
+command buffers.</p>
 </li>
 </ul>
 </div>
@@ -5812,6 +5814,11 @@ into any other primary command buffer which is currently in the
 <a href="chap6.html#commandbuffers-lifecycle">executable or recording state</a>, that primary
 command buffer becomes <a href="chap6.html#commandbuffers-lifecycle">invalid</a>.</p>
 </div>
+<div class="paragraph">
+<p>If the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a> feature
+is enabled it is valid usage for <code>vkCmdExecuteCommands</code> to also be
+recorded to a <a href="chap59.html#glossary">secondary command buffer</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -5876,10 +5883,11 @@ instance, and any element of <code>pCommandBuffers</code> was recorded with
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-contents-06018" href="chap6.html#VUID-vkCmdExecuteCommands-contents-06018"></a> <span class="vuid">VUID-vkCmdExecuteCommands-contents-06018</span><br>
 
-If <code>vkCmdExecuteCommands</code> is being called within a render pass
-instance begun with <a href="chap8.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a>, its <code>contents</code>
-parameter <strong class="purple">must</strong> have been set to
-<code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code></p>
+    If <code>vkCmdExecuteCommands</code> is being called within a render pass
+    instance begun with <a href="chap8.html#vkCmdBeginRenderPass">vkCmdBeginRenderPass</a>, its <code>contents</code>
+    parameter <strong class="purple">must</strong> have been set to
+    <code>VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS</code>
+, or <code>VK_SUBPASS_CONTENTS_INLINE_AND_SECONDARY_COMMAND_BUFFERS_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-pCommandBuffers-06019" href="chap6.html#VUID-vkCmdExecuteCommands-pCommandBuffers-06019"></a> <span class="vuid">VUID-vkCmdExecuteCommands-pCommandBuffers-06019</span><br>
@@ -6316,6 +6324,30 @@ include a <a href="chap6.html#VkAttachmentSampleCountInfoAMD">VkAttachmentSample
 <a href="chap6.html#VkCommandBufferInheritanceRenderingInfo">VkCommandBufferInheritanceRenderingInfo</a>::<code>rasterizationSamples</code>
 <strong class="purple">must</strong> be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
 </li>
+<li>
+<p><code>commandBuffer</code> <strong class="purple">must</strong> not be a <a href="chap59.html#glossary">secondary command
+buffer</a>
+unless the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a>
+feature is enabled</p>
+</li>
+<li>
+<p>If the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a>
+feature is enabled, the <a href="chap59.html#glossary">command buffer nesting level</a> of
+each element of <code>pCommandBuffers</code> <strong class="purple">must</strong> be less than
+<a href="chap48.html#limits-maxCommandBufferNestingLevel"><code>maxCommandBufferNestingLevel</code></a></p>
+</li>
+<li>
+<p>If the <a href="chap47.html#features-nestedCommandBufferRendering"><code>nestedCommandBufferRendering</code></a> feature is not enabled, and
+<code>commandBuffer</code> is a <a href="chap59.html#glossary">secondary command buffer</a>,
+<code>commandBuffer</code> <strong class="purple">must</strong> not have been recorded with
+<code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code></p>
+</li>
+<li>
+<p>If the <a href="chap47.html#features-nestedCommandBufferSimultaneousUse"><code>nestedCommandBufferSimultaneousUse</code></a> feature is not enabled, and
+<code>commandBuffer</code> is a <a href="chap59.html#glossary">secondary command buffer</a>, each
+element of <code>pCommandBuffers</code> <strong class="purple">must</strong> not have been recorded with
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code></p>
+</li>
 </ul>
 </div>
 </div>
@@ -6344,10 +6376,6 @@ include a <a href="chap6.html#VkAttachmentSampleCountInfoAMD">VkAttachmentSample
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-videocoding" href="chap6.html#VUID-vkCmdExecuteCommands-videocoding"></a> <span class="vuid">VUID-vkCmdExecuteCommands-videocoding</span><br>
  This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteCommands-bufferlevel" href="chap6.html#VUID-vkCmdExecuteCommands-bufferlevel"></a> <span class="vuid">VUID-vkCmdExecuteCommands-bufferlevel</span><br>
- <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteCommands-commandBufferCount-arraylength" href="chap6.html#VUID-vkCmdExecuteCommands-commandBufferCount-arraylength"></a> <span class="vuid">VUID-vkCmdExecuteCommands-commandBufferCount-arraylength</span><br>
@@ -6398,7 +6426,8 @@ include a <a href="chap6.html#VkAttachmentSampleCountInfoAMD">VkAttachmentSample
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Transfer<br>
@@ -6414,7 +6443,62 @@ Compute</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="commandbuffers-devicemask"><a class="anchor" href="chap6.html#commandbuffers-devicemask"></a>6.8. Command Buffer Device Mask</h3>
+<h3 id="commandbuffers-nested"><a class="anchor" href="chap6.html#commandbuffers-nested"></a>6.8. Nested Command Buffers</h3>
+<div class="paragraph">
+<p>In addition to secondary command buffer execution from primary command
+buffers, an implementation <strong class="purple">may</strong> support <a href="chap59.html#glossary">nested command
+buffers</a>, which enable secondary command buffers to be executed from other
+secondary command buffers.
+If the <a href="chap47.html#features-nestedCommandBuffer"><code>nestedCommandBuffer</code></a> feature
+is enabled, the implementation supports <a href="chap59.html#glossary">nested command
+buffers</a>.</p>
+</div>
+<div class="paragraph">
+<p>Nested command buffer execution works the same as primary-to-secondary
+execution, except that it is subject to some additional
+implementation-defined limits.</p>
+</div>
+<div class="paragraph">
+<p>Each secondary command buffer has a <a href="chap59.html#glossary">command buffer nesting
+level</a>, which is determined at <a href="chap6.html#vkEndCommandBuffer">vkEndCommandBuffer</a> time and evaluated
+at <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> time.
+A secondary command buffer that executes no other secondary command buffers
+has a <a href="chap59.html#glossary">command buffer nesting level</a> of zero.
+Otherwise, the <a href="chap59.html#glossary">command buffer nesting level</a> of a secondary
+command buffer is equal to the maximum nesting level of all secondary
+command buffers executed by that command buffer plus one.
+Some implementations <strong class="purple">may</strong> have a limit on the maximum nesting level of
+secondary command buffers that <strong class="purple">can</strong> be recorded.
+This limit is advertised in <a href="chap48.html#limits-maxCommandBufferNestingLevel"><code>maxCommandBufferNestingLevel</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>If the <a href="chap47.html#features-nestedCommandBufferRendering"><code>nestedCommandBufferRendering</code></a> feature is enabled, the implementation
+supports calling <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> inside secondary command buffers
+recorded with <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>.
+If the <a href="chap47.html#features-nestedCommandBufferSimultaneousUse"><code>nestedCommandBufferSimultaneousUse</code></a> feature is enabled, the
+implementation supports calling <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> with secondary
+command buffers recorded with
+<code>VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Whenever <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> is recorded inside a secondary command
+buffer recorded with <code>VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT</code>,
+each member of <code>pCommandBuffers</code> <strong class="purple">must</strong> have been recorded with a
+<a href="chap6.html#VkCommandBufferBeginInfo">VkCommandBufferBeginInfo</a> with <a href="chap6.html#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a>
+compatible with the <a href="chap6.html#VkCommandBufferInheritanceInfo">VkCommandBufferInheritanceInfo</a> of the command
+buffer into which the <a href="chap6.html#vkCmdExecuteCommands">vkCmdExecuteCommands</a> call is being recorded.
+The <a href="chap6.html#VkCommandBufferInheritanceRenderingInfo">VkCommandBufferInheritanceRenderingInfo</a> structures are compatible
+when the <code>VkCommandBufferInheritanceRenderingInfo</code>::<code>renderpass</code> are
+<a href="chap8.html#renderpass-compatibility">compatible</a>, or if they are
+<a href="chap57.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a> then the <a href="chap6.html#VkCommandBufferInheritanceRenderingInfo">VkCommandBufferInheritanceRenderingInfo</a>
+members match, and all other members of
+<code>VkCommandBufferInheritanceRenderingInfo</code> match.
+This requirement applies recursively, down to the most nested command buffer
+and up to the command buffer where the render pass was originally begun.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="commandbuffers-devicemask"><a class="anchor" href="chap6.html#commandbuffers-devicemask"></a>6.9. Command Buffer Device Mask</h3>
 <div class="paragraph">
 <p>Each command buffer has a piece of state storing the current device mask of
 the command buffer.
@@ -6683,8 +6767,8 @@ Transfer</p></td>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.266<br>
-Last updated 2023-09-29 01:54:35 -0700
+Version 1.0.267<br>
+Last updated 2023-10-06 04:48:26 -0700
 </div>
 </div>
 
