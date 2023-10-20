@@ -257,6 +257,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  ARM Extensions (ARM Limited)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_rasterization_order_attachment_access.html"> VK_ARM_rasterization_order_attachment_access </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_ARM_scheduling_controls.html"> VK_ARM_scheduling_controls </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_shader_core_builtins.html"> VK_ARM_shader_core_builtins </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_shader_core_properties.html"> VK_ARM_shader_core_properties </a> </li>
     <li> <b>  FUCHSIA Extensions (Google LLC)  </b> </li>
@@ -300,6 +301,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_copy_memory_indirect.html"> VK_NV_copy_memory_indirect </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_corner_sampled_image.html"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_coverage_reduction_mode.html"> VK_NV_coverage_reduction_mode </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_cuda_kernel_launch.html"> VK_NV_cuda_kernel_launch </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_dedicated_allocation.html"> VK_NV_dedicated_allocation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_dedicated_allocation_image_aliasing.html"> VK_NV_dedicated_allocation_image_aliasing </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_descriptor_pool_overallocation.html"> VK_NV_descriptor_pool_overallocation </a> </li>

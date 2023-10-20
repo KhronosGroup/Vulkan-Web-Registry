@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.268 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.3.269 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.268 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.269 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.268,</span>
-<span id="revdate">2023-10-13 09:30:15Z</span>
-<br><span id="revremark">from git branch: github-main commit: bb6783481f96d778772ea9607e2991c27e2bbe96</span>
+<span id="revnumber">version 1.3.269,</span>
+<span id="revdate">2023-10-20 10:25:47Z</span>
+<br><span id="revremark">from git branch: github-main commit: 463f8c616f49fb83ae4736de0d84b0048a7c76e2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -178,6 +178,7 @@
 <li><a href="chap9.html#shaders-helper-invocations">9.29. Helper Invocations</a></li>
 <li><a href="chap9.html#_cooperative_matrices">9.30. Cooperative Matrices</a></li>
 <li><a href="chap9.html#shaders-validation-cache">9.31. Validation Cache</a></li>
+<li><a href="chap9.html#cuda-modules">9.32. CUDA Modules</a></li>
 </ul>
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
@@ -422,7 +423,11 @@
 <li><a href="chap30.html#framebuffer-queries">30.5. Framebuffer Query Instructions</a></li>
 </ul>
 </li>
-<li><a href="chap31.html">31. Dispatching Commands</a></li>
+<li><a href="chap31.html">31. Dispatching Commands</a>
+<ul class="sectlevel2">
+<li><a href="chap31.html#cudadispatch">31.1. Dispatch Command for CUDA PTX Kernels</a></li>
+</ul>
+</li>
 <li class="current"><a href="chap32.html">32. Device-Generated Commands</a>
 <ul class="sectlevel2">
 <li class="current"><a href="chap32.html#indirectmdslayout">32.1. Indirect Commands Layout</a></li>
@@ -2746,16 +2751,10 @@ returned by <a href="chap50.html#vkGetPhysicalDeviceImageFormatProperties2">vkGe
 
 If the <a href="chap47.html#features-filter-cubic-range-clamp"><code>cubicRangeClamp</code></a>
 feature is not enabled, then any <a href="chap12.html#VkImageView">VkImageView</a> being sampled with
-<code>VK_FILTER_CUBIC_EXT</code> as a result of this command</p>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><strong class="purple">must</strong> not have a <a href="chap13.html#VkSamplerReductionModeCreateInfo">VkSamplerReductionModeCreateInfo</a></dt>
-<dd>
-<p><code>reductionMode</code> equal to
+<code>VK_FILTER_CUBIC_EXT</code> as a result of this command
+<strong class="purple">must</strong> not have a
+<a href="chap13.html#VkSamplerReductionModeCreateInfo">VkSamplerReductionModeCreateInfo</a>::<code>reductionMode</code> equal to
 <code>VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_RANGECLAMP_QCOM</code></p>
-</dd>
-</dl>
-</div>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-reductionMode-09213" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-reductionMode-09213"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-reductionMode-09213</span><br>
@@ -3448,28 +3447,34 @@ buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08617" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08617"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08617</span><br>
 
 If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command buffer set
-<code>polygonMode</code> to <code>VK_POLYGON_MODE_LINE</code>, <a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a>
-<strong class="purple">must</strong> have been called in the current command buffer prior to this
-drawing command</p>
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command
+buffer set <code>polygonMode</code> to <code>VK_POLYGON_MODE_LINE</code>,
+<a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a> <strong class="purple">must</strong> have been called in the current command
+buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08618" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08618"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08618</span><br>
 
-If a shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
-stage, and the most recent call to <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> in
-the current command buffer set <code>primitiveTopology</code> to any line
-topology, <a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a> <strong class="purple">must</strong> have been called in the current
-command buffer prior to this drawing command</p>
+If a shader object is bound to any graphics stage, and the most recent
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> in the current command
+buffer set <code>primitiveTopology</code> to any line topology,
+<a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a> <strong class="purple">must</strong> have been called in the current command
+buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08619" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08619"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08619</span><br>
 
 If a shader object that outputs line primitives is bound to the
 <code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
-<code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, <a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a> <strong class="purple">must</strong>
-have been called in the current command buffer prior to this drawing
-command</p>
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, and the most recent call to
+<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
+<code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, <a href="chap28.html#vkCmdSetLineWidth">vkCmdSetLineWidth</a>
+<strong class="purple">must</strong> have been called in the current command buffer prior to this
+drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07834" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07834"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07834</span><br>
@@ -3554,8 +3559,10 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08623" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08623"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08623</span><br>
 
 If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command buffer
-set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command
+buffer set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
 <a href="chap29.html#vkCmdSetStencilCompareMask">vkCmdSetStencilCompareMask</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -3572,8 +3579,10 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08624" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08624"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08624</span><br>
 
 If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command buffer
-set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command
+buffer set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
 <a href="chap29.html#vkCmdSetStencilWriteMask">vkCmdSetStencilWriteMask</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -3590,8 +3599,10 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08625" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08625"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08625</span><br>
 
 If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command buffer
-set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap29.html#vkCmdSetStencilTestEnable">vkCmdSetStencilTestEnable</a> in the current command
+buffer set <code>stencilTestEnable</code> to <code>VK_TRUE</code>,
 <a href="chap29.html#vkCmdSetStencilReference">vkCmdSetStencilReference</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -3623,10 +3634,10 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08626" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08626"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08626</span><br>
 
 If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap28.html#vkCmdSetSampleLocationsEnableEXT">vkCmdSetSampleLocationsEnableEXT</a> in the current command
-buffer set <code>sampleLocationsEnable</code> to <code>VK_TRUE</code>, and the most
-recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current
-command buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
+call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
+buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
+recent call to <a href="chap28.html#vkCmdSetSampleLocationsEnableEXT">vkCmdSetSampleLocationsEnableEXT</a> in the current
+command buffer set <code>sampleLocationsEnable</code> to <code>VK_TRUE</code>, then
 <a href="chap28.html#vkCmdSetSampleLocationsEXT">vkCmdSetSampleLocationsEXT</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -3853,17 +3864,21 @@ the <code>viewportCount</code> parameter in the last call to
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-09232" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-09232"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-09232</span><br>
 
-If a shader object is bound to any graphics stage, and the
-<code><a href="chap56.html#VK_NV_clip_space_w_scaling">VK_NV_clip_space_w_scaling</a></code> extension is enabled on the device,
-then <a href="chap27.html#vkCmdSetViewportWScalingNV">vkCmdSetViewportWScalingNV</a> must have been called in the
-current command buffer prior to this drawing command</p>
+If the <code><a href="chap56.html#VK_NV_clip_space_w_scaling">VK_NV_clip_space_w_scaling</a></code> extension is enabled, and a
+shader object is bound to any graphics stage, and the most recent call
+to <a href="chap27.html#vkCmdSetViewportWScalingEnableNV">vkCmdSetViewportWScalingEnableNV</a> in the current command buffer
+set <code>viewportWScalingEnable</code> to <code>VK_TRUE</code>, then
+<a href="chap27.html#vkCmdSetViewportWScalingNV">vkCmdSetViewportWScalingNV</a> <strong class="purple">must</strong> have been called in the current
+command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08636" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08636"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08636</span><br>
 
-If a shader object is bound to any graphics stage, and the
-<code><a href="chap56.html#VK_NV_clip_space_w_scaling">VK_NV_clip_space_w_scaling</a></code> extension is enabled on the device,
-then the <code>viewportCount</code> parameter in the last call to
+If the <code><a href="chap56.html#VK_NV_clip_space_w_scaling">VK_NV_clip_space_w_scaling</a></code> extension is enabled, and a
+shader object is bound to any graphics stage, and the most recent call
+to <a href="chap27.html#vkCmdSetViewportWScalingEnableNV">vkCmdSetViewportWScalingEnableNV</a> in the current command buffer
+set <code>viewportWScalingEnable</code> to <code>VK_TRUE</code>, then the
+<code>viewportCount</code> parameter in the last call to
 <a href="chap27.html#vkCmdSetViewportWScalingNV">vkCmdSetViewportWScalingNV</a> <strong class="purple">must</strong> be greater than or equal to the
 <code>viewportCount</code> parameter in the last call to
 <a href="chap27.html#vkCmdSetViewportWithCount">vkCmdSetViewportWithCount</a></p>
@@ -3895,31 +3910,35 @@ equal to the <code>viewportCount</code> parameter in the last call to
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09233" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09233"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09233</span><br>
 
 If the <a href="chap47.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is
-enabled, and the most recent call to
-<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
-rasterizerDiscardEnable to <code>VK_FALSE</code>, then
-<a href="chap28.html#vkCmdSetCoarseSampleOrderNV">vkCmdSetCoarseSampleOrderNV</a> must have been called in the current
+enabled, and a shader object is bound to any graphics stage, and the
+most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current
+command buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
+<a href="chap28.html#vkCmdSetCoarseSampleOrderNV">vkCmdSetCoarseSampleOrderNV</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09234" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09234"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-shadingRateImage-09234</span><br>
 
-If a shader object is bound to any graphics stage, and the
-<a href="chap47.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is enabled
-on the device, and the most recent call to
-<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
-rasterizerDiscardEnable to <code>VK_FALSE</code>, and the most recent call to
-<a href="chap28.html#vkCmdSetShadingRateImageEnableNV">vkCmdSetShadingRateImageEnableNV</a> in the current command buffer set
-shadingRateImageEnable to <code>VK_TRUE</code>, then
-<a href="chap28.html#vkCmdSetViewportShadingRatePaletteNV">vkCmdSetViewportShadingRatePaletteNV</a> must have been called in the
-current command buffer prior to this drawing command</p>
+If the <a href="chap47.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is
+enabled, and a shader object is bound to any graphics stage, and the
+most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current
+command buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and
+the most recent call to <a href="chap28.html#vkCmdSetShadingRateImageEnableNV">vkCmdSetShadingRateImageEnableNV</a> in the
+current command buffer set <code>shadingRateImageEnable</code> to
+<code>VK_TRUE</code>, then <a href="chap28.html#vkCmdSetViewportShadingRatePaletteNV">vkCmdSetViewportShadingRatePaletteNV</a> <strong class="purple">must</strong>
+have been called in the current command buffer prior to this drawing
+command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08637" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08637"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08637</span><br>
 
-If a shader object is bound to any graphics stage, and the
-<a href="chap47.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is enabled
-on the device, then the <code>viewportCount</code> parameter in the last call
+If the <a href="chap47.html#features-shadingRateImage"><code>shadingRateImage</code></a> feature is
+enabled, and a shader object is bound to any graphics stage, and the
+most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current
+command buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and
+the most recent call to <a href="chap28.html#vkCmdSetShadingRateImageEnableNV">vkCmdSetShadingRateImageEnableNV</a> in the
+current command buffer set <code>shadingRateImageEnable</code> to
+<code>VK_TRUE</code>, then the <code>viewportCount</code> parameter in the last call
 to <a href="chap28.html#vkCmdSetViewportShadingRatePaletteNV">vkCmdSetViewportShadingRatePaletteNV</a> <strong class="purple">must</strong> be greater than or
 equal to the <code>viewportCount</code> parameter in the last call to
 <a href="chap27.html#vkCmdSetViewportWithCount">vkCmdSetViewportWithCount</a></p>
@@ -3967,18 +3986,19 @@ command buffer prior to this drawing command</p>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-exclusiveScissor-09235" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-exclusiveScissor-09235"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-exclusiveScissor-09235</span><br>
 
-If a shader object is bound to any graphics stage, and the
-<a href="chap47.html#features-exclusiveScissor"><code>exclusiveScissor</code></a> feature is
-enabled, then <a href="chap29.html#vkCmdSetExclusiveScissorEnableNV">vkCmdSetExclusiveScissorEnableNV</a> must have been
-called in the current command buffer prior to this drawing command</p>
+If the <a href="chap47.html#features-exclusiveScissor"><code>exclusiveScissor</code></a> feature is
+enabled, and a shader object is bound to any graphics stage, then
+<a href="chap29.html#vkCmdSetExclusiveScissorEnableNV">vkCmdSetExclusiveScissorEnableNV</a> <strong class="purple">must</strong> have been called in the
+current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08638" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08638"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08638</span><br>
 
-If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap29.html#vkCmdSetExclusiveScissorEnableNV">vkCmdSetExclusiveScissorEnableNV</a> in the current command
-buffer set any element of <code>pExclusiveScissorEnables</code> to
-<code>VK_TRUE</code>, then <a href="chap29.html#vkCmdSetExclusiveScissorNV">vkCmdSetExclusiveScissorNV</a> <strong class="purple">must</strong> have been
+If the <a href="chap47.html#features-exclusiveScissor"><code>exclusiveScissor</code></a> feature is
+enabled, and a shader object is bound to any graphics stage, and the
+most recent call to <a href="chap29.html#vkCmdSetExclusiveScissorEnableNV">vkCmdSetExclusiveScissorEnableNV</a> in the
+current command buffer set any element of <code>pExclusiveScissorEnables</code>
+to <code>VK_TRUE</code>, then <a href="chap29.html#vkCmdSetExclusiveScissorNV">vkCmdSetExclusiveScissorNV</a> <strong class="purple">must</strong> have been
 called in the current command buffer prior to this drawing command</p>
 </li>
 <li>
@@ -4026,13 +4046,13 @@ valid <a href="chap30.html#VkLogicOp">VkLogicOp</a> value</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08641" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08641"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08641</span><br>
 
 If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
-stage, and the <a href="chap47.html#features-logicOp"><code>logicOp</code></a> feature is enabled on
-the device, and the most recent call to
-<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
-<code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
-<a href="chap30.html#vkCmdSetLogicOpEXT">vkCmdSetLogicOpEXT</a> <strong class="purple">must</strong> have been called in the current command
-buffer prior to this drawing command and the <code>logicOp</code> <strong class="purple">must</strong> be a
-valid <a href="chap30.html#VkLogicOp">VkLogicOp</a> value</p>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the most recent call to
+<a href="chap30.html#vkCmdSetLogicOpEnableEXT">vkCmdSetLogicOpEnableEXT</a> set <code>logicOpEnable</code> to <code>VK_TRUE</code>,
+then <a href="chap30.html#vkCmdSetLogicOpEXT">vkCmdSetLogicOpEXT</a> <strong class="purple">must</strong> have been called in the current
+command buffer prior to this drawing command and the <code>logicOp</code> <strong class="purple">must</strong>
+be a valid <a href="chap30.html#VkLogicOp">VkLogicOp</a> value</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-primitiveFragmentShadingRateWithMultipleViewports-04552" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-primitiveFragmentShadingRateWithMultipleViewports-04552"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-primitiveFragmentShadingRateWithMultipleViewports-04552</span><br>
@@ -4072,12 +4092,13 @@ contain <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code>, then the
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08643" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08643"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08643</span><br>
 
-If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
-buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then for
-each color attachment in the render pass, if the corresponding image
-view’s <a href="chap12.html#resources-image-view-format-features">format features</a> do not
-contain <code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code>, then the
+If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then for each color attachment in the render pass, if
+the corresponding image view’s
+<a href="chap12.html#resources-image-view-format-features">format features</a> do not contain
+<code>VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT</code>, then the
 corresponding member of <code>pColorBlendEnables</code> in the most recent call
 to <code>vkCmdSetColorBlendEnableEXT</code> in the current command buffer that
 affected that attachment index <strong class="purple">must</strong> have been <code>VK_FALSE</code></p>
@@ -4419,7 +4440,9 @@ called in the current command buffer prior to this drawing command</p>
 If the <code><a href="chap56.html#VK_EXT_discard_rectangles">VK_EXT_discard_rectangles</a></code> extension is enabled, and a
 shader object is bound to any graphics stage, and the most recent call
 to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer
-set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
+set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most recent
+call to <a href="chap29.html#vkCmdSetDiscardRectangleEnableEXT">vkCmdSetDiscardRectangleEnableEXT</a> in the current command
+buffer set <code>discardRectangleEnable</code> to <code>VK_TRUE</code>, then
 <a href="chap29.html#vkCmdSetDiscardRectangleEXT">vkCmdSetDiscardRectangleEXT</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -4902,12 +4925,13 @@ current command buffer prior to this drawing command</p>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08658" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08658"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08658</span><br>
 
-If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
-buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most
-recent call to <a href="chap30.html#vkCmdSetColorBlendEnableEXT">vkCmdSetColorBlendEnableEXT</a> for any attachment set
-that attachment’s value in <code>pColorBlendEnables</code> to <code>VK_TRUE</code>,
-then <a href="chap30.html#vkCmdSetColorBlendEquationEXT">vkCmdSetColorBlendEquationEXT</a> <strong class="purple">must</strong> have been called in the
+If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the most recent call to
+<a href="chap30.html#vkCmdSetColorBlendEnableEXT">vkCmdSetColorBlendEnableEXT</a> for any attachment set that
+attachment’s value in <code>pColorBlendEnables</code> to <code>VK_TRUE</code>, then
+<a href="chap30.html#vkCmdSetColorBlendEquationEXT">vkCmdSetColorBlendEquationEXT</a> <strong class="purple">must</strong> have been called in the
 current command buffer prior to this drawing command</p>
 </li>
 <li>
@@ -5027,6 +5051,17 @@ then <a href="chap30.html#vkCmdSetColorBlendAdvancedEXT">vkCmdSetColorBlendAdvan
 current command buffer prior to this drawing command</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09416" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09416"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09416</span><br>
+
+If the <code><a href="chap56.html#VK_EXT_blend_operation_advanced">VK_EXT_blend_operation_advanced</a></code> extension is enabled,
+and a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then at least one of <a href="chap30.html#vkCmdSetColorBlendEquationEXT">vkCmdSetColorBlendEquationEXT</a>
+and <a href="chap30.html#vkCmdSetColorBlendAdvancedEXT">vkCmdSetColorBlendAdvancedEXT</a> <strong class="purple">must</strong> have been called in the
+current command buffer prior to this drawing command</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07636" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07636"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07636</span><br>
 
 If the bound graphics pipeline state was created with the
@@ -5039,8 +5074,10 @@ current command buffer prior to this drawing command</p>
 
 If the <code><a href="chap56.html#VK_EXT_provoking_vertex">VK_EXT_provoking_vertex</a></code> extension is enabled, and a
 shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code> stage,
-then <a href="chap27.html#vkCmdSetProvokingVertexModeEXT">vkCmdSetProvokingVertexModeEXT</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
+and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the
+current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then <a href="chap27.html#vkCmdSetProvokingVertexModeEXT">vkCmdSetProvokingVertexModeEXT</a> <strong class="purple">must</strong> have
+been called in the current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07637" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07637"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07637</span><br>
@@ -5055,7 +5092,9 @@ the current command buffer prior to this drawing command</p>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
 shader object is bound to any graphics stage, and the most recent call
-to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command buffer set
+to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer
+set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most recent
+call to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command buffer set
 <code>polygonMode</code> to <code>VK_POLYGON_MODE_LINE</code>, then
 <a href="chap28.html#vkCmdSetLineRasterizationModeEXT">vkCmdSetLineRasterizationModeEXT</a> <strong class="purple">must</strong> have been called in the
 current command buffer prior to this drawing command</p>
@@ -5064,7 +5103,10 @@ current command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08667" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08667"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08667</span><br>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
-shader object is bound to the vertex stage, and the most recent call to
+shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code> stage,
+and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the
+current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the most recent call to
 <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> in the current command buffer set
 <code>primitiveTopology</code> to any line topology, then
 <a href="chap28.html#vkCmdSetLineRasterizationModeEXT">vkCmdSetLineRasterizationModeEXT</a> <strong class="purple">must</strong> have been called in the
@@ -5074,8 +5116,11 @@ current command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08668" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08668"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08668</span><br>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
-shader object that outputs line primitives is bound to the tessellation
-evaluation or geometry stage, then
+shader object that outputs line primitives is bound to the
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, and the most recent call to
+<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
+<code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
 <a href="chap28.html#vkCmdSetLineRasterizationModeEXT">vkCmdSetLineRasterizationModeEXT</a> <strong class="purple">must</strong> have been called in the
 current command buffer prior to this drawing command</p>
 </li>
@@ -5092,7 +5137,9 @@ current command buffer prior to this drawing command</p>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
 shader object is bound to any graphics stage, and the most recent call
-to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command buffer set
+to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer
+set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most recent
+call to <a href="chap28.html#vkCmdSetPolygonModeEXT">vkCmdSetPolygonModeEXT</a> in the current command buffer set
 <code>polygonMode</code> to <code>VK_POLYGON_MODE_LINE</code>, then
 <a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
@@ -5101,7 +5148,10 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08670" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08670"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08670</span><br>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
-shader object is bound to the vertex stage, and the most recent call to
+shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code> stage,
+and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the
+current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the most recent call to
 <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> in the current command buffer set
 <code>primitiveTopology</code> to any line topology, then
 <a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a> <strong class="purple">must</strong> have been called in the current
@@ -5111,10 +5161,13 @@ command buffer prior to this drawing command</p>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08671" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08671"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08671</span><br>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
-shader object that outputs line primitives is bound to the tessellation
-evaluation or geometry stage, then <a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a>
-<strong class="purple">must</strong> have been called in the current command buffer prior to this
-drawing command</p>
+shader object that outputs line primitives is bound to the
+<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> or
+<code>VK_SHADER_STAGE_GEOMETRY_BIT</code> stage, and the most recent call to
+<a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer set
+<code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, then
+<a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a> <strong class="purple">must</strong> have been called in the current
+command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07849" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07849"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07849</span><br>
@@ -5129,8 +5182,10 @@ command buffer prior to this drawing command</p>
 
 If the <code><a href="chap56.html#VK_EXT_line_rasterization">VK_EXT_line_rasterization</a></code> extension is enabled, and a
 shader object is bound to any graphics stage, and the most recent call
-to <a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a> in the current command buffer set
-<code>stippledLineEnable</code> to <code>VK_TRUE</code>, then
+to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command buffer
+set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>, and the most recent
+call to <a href="chap28.html#vkCmdSetLineStippleEnableEXT">vkCmdSetLineStippleEnableEXT</a> in the current command buffer
+set <code>stippledLineEnable</code> to <code>VK_TRUE</code>, then
 <a href="chap28.html#vkCmdSetLineStippleEXT">vkCmdSetLineStippleEXT</a> <strong class="purple">must</strong> have been called in the current
 command buffer prior to this drawing command</p>
 </li>
@@ -5213,10 +5268,13 @@ called in the current command buffer prior to this drawing command</p>
 
 If the <code><a href="chap56.html#VK_NV_fragment_coverage_to_color">VK_NV_fragment_coverage_to_color</a></code> extension is enabled,
 and a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
-stage, and the most recent call to <a href="chap29.html#vkCmdSetCoverageToColorEnableNV">vkCmdSetCoverageToColorEnableNV</a>
-in the current command buffer set <code>coverageToColorEnable</code> to
-<code>VK_TRUE</code>, then <a href="chap29.html#vkCmdSetCoverageToColorLocationNV">vkCmdSetCoverageToColorLocationNV</a> <strong class="purple">must</strong> have
-been called in the current command buffer prior to this drawing command</p>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the most recent call to
+<a href="chap29.html#vkCmdSetCoverageToColorEnableNV">vkCmdSetCoverageToColorEnableNV</a> in the current command buffer set
+<code>coverageToColorEnable</code> to <code>VK_TRUE</code>, then
+<a href="chap29.html#vkCmdSetCoverageToColorLocationNV">vkCmdSetCoverageToColorLocationNV</a> <strong class="purple">must</strong> have been called in the
+current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07644" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07644"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07644</span><br>
@@ -5292,7 +5350,7 @@ If the <a href="chap47.html#features-pipelineFragmentShadingRate"><code>pipeline
 object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and the
 most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current
 command buffer set rasterizerDiscardEnable to <code>VK_FALSE</code>, then
-<a href="chap28.html#vkCmdSetFragmentShadingRateKHR">vkCmdSetFragmentShadingRateKHR</a> must have been called in the
+<a href="chap28.html#vkCmdSetFragmentShadingRateKHR">vkCmdSetFragmentShadingRateKHR</a> <strong class="purple">must</strong> have been called in the
 current command buffer prior to this drawing command</p>
 </li>
 <li>
@@ -5421,6 +5479,19 @@ parameters of <code>vkCmdSetColorBlendEnableEXT</code> calls <strong class="purp
 enable for all active color attachments in the current subpass</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09417" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09417"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09417</span><br>
+
+If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then <a href="chap30.html#vkCmdSetColorBlendEnableEXT">vkCmdSetColorBlendEnableEXT</a> <strong class="purple">must</strong> have been
+called in the current command buffer prior to this drawing command, and
+the attachments specified by the <code>firstAttachment</code> and
+<code>attachmentCount</code> parameters of <code>vkCmdSetColorBlendEnableEXT</code>
+calls <strong class="purple">must</strong> specify an enable for all active color attachments in the
+current subpass</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07477" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07477"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07477</span><br>
 
 If the bound graphics pipeline state was created with the
@@ -5428,6 +5499,19 @@ If the bound graphics pipeline state was created with the
 then <a href="chap30.html#vkCmdSetColorBlendEquationEXT">vkCmdSetColorBlendEquationEXT</a> <strong class="purple">must</strong> have been called in the
 current command buffer prior to this drawing command, and the
 attachments specified by the <code>firstAttachment</code> and
+<code>attachmentCount</code> parameters of <code>vkCmdSetColorBlendEquationEXT</code>
+calls <strong class="purple">must</strong> specify the blend equations for all active color attachments
+in the current subpass where blending is enabled</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09418" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09418"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09418</span><br>
+
+If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then <a href="chap30.html#vkCmdSetColorBlendEquationEXT">vkCmdSetColorBlendEquationEXT</a> <strong class="purple">must</strong> have been
+called in the current command buffer prior to this drawing command, and
+the attachments specified by the <code>firstAttachment</code> and
 <code>attachmentCount</code> parameters of <code>vkCmdSetColorBlendEquationEXT</code>
 calls <strong class="purple">must</strong> specify the blend equations for all active color attachments
 in the current subpass where blending is enabled</p>
@@ -5442,6 +5526,19 @@ command buffer prior to this drawing command, and the attachments
 specified by the <code>firstAttachment</code> and <code>attachmentCount</code>
 parameters of <code>vkCmdSetColorWriteMaskEXT</code> calls <strong class="purple">must</strong> specify the
 color write mask for all active color attachments in the current subpass</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09419" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09419"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09419</span><br>
+
+If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then <a href="chap30.html#vkCmdSetColorWriteMaskEXT">vkCmdSetColorWriteMaskEXT</a> <strong class="purple">must</strong> have been
+called in the current command buffer prior to this drawing command, and
+the attachments specified by the <code>firstAttachment</code> and
+<code>attachmentCount</code> parameters of <code>vkCmdSetColorWriteMaskEXT</code>
+calls <strong class="purple">must</strong> specify the color write mask for all active color
+attachments in the current subpass</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07479" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07479"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-firstAttachment-07479</span><br>
@@ -5502,7 +5599,10 @@ the last call to <a href="chap28.html#vkCmdSetSampleLocationsEXT">vkCmdSetSample
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07484" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07484"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07484</span><br>
 
-If the bound graphics pipeline was created with the
+If
+a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, or
+the bound graphics pipeline was created with the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_ENABLE_EXT</code> state enabled, and
 <code>sampleLocationsEnable</code> was <code>VK_TRUE</code> in the last call to
 <a href="chap28.html#vkCmdSetSampleLocationsEnableEXT">vkCmdSetSampleLocationsEnableEXT</a>, and the current subpass has a
@@ -5513,7 +5613,10 @@ bit set</p>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07485" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07485"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07485</span><br>
 
-If the bound graphics pipeline state was created with the
+If
+a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, or
+the bound graphics pipeline state was created with the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT</code> state enabled and the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_ENABLE_EXT</code> state enabled, and if
 <code>sampleLocationsEnable</code> was <code>VK_TRUE</code> in the last call to
@@ -5527,7 +5630,10 @@ returned by <a href="chap48.html#vkGetPhysicalDeviceMultisamplePropertiesEXT">vk
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07486" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07486"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07486</span><br>
 
-If the bound graphics pipeline state was created with the
+If
+a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, or
+the bound graphics pipeline state was created with the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT</code> state enabled and the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_ENABLE_EXT</code> state enabled, and if
 <code>sampleLocationsEnable</code> was <code>VK_TRUE</code> in the last call to
@@ -5541,7 +5647,10 @@ returned by <a href="chap48.html#vkGetPhysicalDeviceMultisamplePropertiesEXT">vk
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07487" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07487"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-sampleLocationsEnable-07487</span><br>
 
-If the bound graphics pipeline state was created with the
+If
+a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, or
+the bound graphics pipeline state was created with the
 <code>VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_ENABLE_EXT</code> state enabled, and if
 <code>sampleLocationsEnable</code> was <code>VK_TRUE</code> in the last call to
 <a href="chap28.html#vkCmdSetSampleLocationsEnableEXT">vkCmdSetSampleLocationsEnableEXT</a>, the fragment shader code <strong class="purple">must</strong>
@@ -5598,9 +5707,12 @@ in the bound graphics pipeline is <code>VK_TRUE</code> or
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-coverageModulationTableEnable-07488" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-coverageModulationTableEnable-07488"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-coverageModulationTableEnable-07488</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_COVERAGE_MODULATION_TABLE_ENABLE_NV</code> state enabled
-and the last call to <a href="chap29.html#vkCmdSetCoverageModulationTableEnableNV">vkCmdSetCoverageModulationTableEnableNV</a> set
+If
+a shader object is bound to any graphics stage or
+the bound graphics pipeline state was created with the
+<code>VK_DYNAMIC_STATE_COVERAGE_MODULATION_TABLE_ENABLE_NV</code> state
+enabled, and the last call to
+<a href="chap29.html#vkCmdSetCoverageModulationTableEnableNV">vkCmdSetCoverageModulationTableEnableNV</a> set
 <code>coverageModulationTableEnable</code> to <code>VK_TRUE</code>, then the
 <code>coverageModulationTableCount</code> parameter in the last call to
 <a href="chap29.html#vkCmdSetCoverageModulationTableNV">vkCmdSetCoverageModulationTableNV</a> <strong class="purple">must</strong> equal the current
@@ -5622,6 +5734,23 @@ same as the sample count of the depth/stencil attachment</p>
 If the bound graphics pipeline state was created with the
 <code>VK_DYNAMIC_STATE_COVERAGE_TO_COLOR_ENABLE_NV</code> state enabled and the
 last call to <a href="chap29.html#vkCmdSetCoverageToColorEnableNV">vkCmdSetCoverageToColorEnableNV</a> set the
+<code>coverageToColorEnable</code> to <code>VK_TRUE</code>, then the current subpass
+<strong class="purple">must</strong> have a color attachment at the location selected by the last call
+to <a href="chap29.html#vkCmdSetCoverageToColorLocationNV">vkCmdSetCoverageToColorLocationNV</a>
+<code>coverageToColorLocation</code>, with a <a href="chap49.html#VkFormat">VkFormat</a> of
+<code>VK_FORMAT_R8_UINT</code>, <code>VK_FORMAT_R8_SINT</code>,
+<code>VK_FORMAT_R16_UINT</code>, <code>VK_FORMAT_R16_SINT</code>,
+<code>VK_FORMAT_R32_UINT</code>, or <code>VK_FORMAT_R32_SINT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09420" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09420"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-09420</span><br>
+
+If the <code><a href="chap56.html#VK_NV_fragment_coverage_to_color">VK_NV_fragment_coverage_to_color</a></code> extension is enabled,
+and a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, and the last call to
+<a href="chap29.html#vkCmdSetCoverageToColorEnableNV">vkCmdSetCoverageToColorEnableNV</a> set the
 <code>coverageToColorEnable</code> to <code>VK_TRUE</code>, then the current subpass
 <strong class="purple">must</strong> have a color attachment at the location selected by the last call
 to <a href="chap29.html#vkCmdSetCoverageToColorLocationNV">vkCmdSetCoverageToColorLocationNV</a>
@@ -5661,6 +5790,16 @@ If the bound graphics pipeline state was created with the
 <code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code> and
 <code>VK_DYNAMIC_STATE_VIEWPORT_SWIZZLE_NV</code> dynamic states enabled then
 the <code>viewportCount</code> parameter in the last call to
+<a href="chap27.html#vkCmdSetViewportSwizzleNV">vkCmdSetViewportSwizzleNV</a> <strong class="purple">must</strong> be greater than or equal to the
+<code>viewportCount</code> parameter in the last call to
+<a href="chap27.html#vkCmdSetViewportWithCount">vkCmdSetViewportWithCount</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-viewportCount-09421" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-viewportCount-09421"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-viewportCount-09421</span><br>
+
+If the <code><a href="chap56.html#VK_NV_viewport_swizzle">VK_NV_viewport_swizzle</a></code> extension is enabled, and a
+shader object is bound to any graphics stage, then the
+<code>viewportCount</code> parameter in the last call to
 <a href="chap27.html#vkCmdSetViewportSwizzleNV">vkCmdSetViewportSwizzleNV</a> <strong class="purple">must</strong> be greater than or equal to the
 <code>viewportCount</code> parameter in the last call to
 <a href="chap27.html#vkCmdSetViewportWithCount">vkCmdSetViewportWithCount</a></p>
@@ -5898,12 +6037,13 @@ shader is bound, it <strong class="purple">must</strong> not declare the <code>D
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08880" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08880"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08880</span><br>
 
-If a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
-stage and the <a href="chap47.html#features-attachmentFeedbackLoopDynamicState">attachmentFeedbackLoopDynamicState</a> feature is enabled on the device,
-and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the
-current command buffer set <code>rasterizerDiscardEnable</code> to
-<code>VK_FALSE</code> <a href="chap8.html#vkCmdSetAttachmentFeedbackLoopEnableEXT">vkCmdSetAttachmentFeedbackLoopEnableEXT</a> <strong class="purple">must</strong> have
-been called in the current command buffer prior to this drawing command</p>
+If the <a href="chap47.html#features-attachmentFeedbackLoopDynamicState">attachmentFeedbackLoopDynamicState</a> feature is enabled on the device,
+and a shader object is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>
+stage, and the most recent call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a>
+in the current command buffer set <code>rasterizerDiscardEnable</code> to
+<code>VK_FALSE</code>, then <a href="chap8.html#vkCmdSetAttachmentFeedbackLoopEnableEXT">vkCmdSetAttachmentFeedbackLoopEnableEXT</a> <strong class="purple">must</strong>
+have been called in the current command buffer prior to this drawing
+command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-pDynamicStates-08715" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-pDynamicStates-08715"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-pDynamicStates-08715</span><br>
@@ -5980,10 +6120,14 @@ described in <a href="chap22.html#fxvertex-input">Vertex Input Description</a></
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-07842" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-07842"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-07842</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY</code> dynamic state enabled then
-<a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> <strong class="purple">must</strong> have been called in the current
-command buffer prior to this drawing command</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY</code> dynamic state enabled
+    then <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> <strong class="purple">must</strong> have been called in the
+    current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-dynamicPrimitiveTopologyUnrestricted-07500" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-dynamicPrimitiveTopologyUnrestricted-07500"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-dynamicPrimitiveTopologyUnrestricted-07500</span><br>
@@ -6017,115 +6161,113 @@ called in the current command buffer prior to this draw command, and the
 be <code>NULL</code></p>
 </li>
 <li>
-<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08881" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08881"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08881</span><br>
-
-If a shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
-stage, then <a href="chap21.html#vkCmdSetPrimitiveTopology">vkCmdSetPrimitiveTopology</a> <strong class="purple">must</strong> have been called in
-the current command buffer prior to this drawing command</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-04914" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-04914"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-04914</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, then
-<a href="chap22.html#vkCmdSetVertexInputEXT">vkCmdSetVertexInputEXT</a> <strong class="purple">must</strong> have been called in the current
-command buffer prior to this draw command</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    then <a href="chap22.html#vkCmdSetVertexInputEXT">vkCmdSetVertexInputEXT</a> <strong class="purple">must</strong> have been called in the current
+    command buffer prior to this draw command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-Input-07939" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-Input-07939"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-Input-07939</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, then all
-variables with the <code>Input</code> storage class decorated with <code>Location</code>
-in the <code>Vertex</code> <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code> <strong class="purple">must</strong> contain a
-location in <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>location</code></p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    then all variables with the <code>Input</code> storage class decorated with
+    <code>Location</code> in the <code>Vertex</code> <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code>
+    <strong class="purple">must</strong> contain a location in
+    <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>location</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-Input-08734" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-Input-08734"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-Input-08734</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, then the
-numeric type associated with all <code>Input</code> variables of the
-corresponding <code>Location</code> in the <code>Vertex</code> <code>Execution</code> <code>Model</code>
-<code>OpEntryPoint</code> <strong class="purple">must</strong> be the same as
-<a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code></p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    then the numeric type associated with all <code>Input</code> variables of the
+    corresponding <code>Location</code> in the <code>Vertex</code> <code>Execution</code> <code>Model</code>
+    <code>OpEntryPoint</code> <strong class="purple">must</strong> be the same as
+    <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-format-08936" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-format-08936"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-format-08936</span><br>
 
-If
-there is a shader object bound to a graphics stage or
-the currently bound graphics pipeline was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, and
-<a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> has a 64-bit
-component, then the scalar width associated with all <code>Input</code>
-variables of the corresponding <code>Location</code> in the <code>Vertex</code>
-<code>Execution</code> <code>Model</code> <code>OpEntryPoint</code> <strong class="purple">must</strong> be 64-bit</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    and <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> has a
+    64-bit component, then the scalar width associated with all <code>Input</code>
+    variables of the corresponding <code>Location</code> in the <code>Vertex</code>
+    <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code> <strong class="purple">must</strong> be 64-bit</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-format-08937" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-format-08937"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-format-08937</span><br>
 
-If
-there is a shader object bound to a graphics stage or
-the currently bound graphics pipeline was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, and the
-scalar width associated with a <code>Location</code> decorated <code>Input</code>
-variable in the <code>Vertex</code> <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code> is
-64-bit, then the corresponding
-<a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> <strong class="purple">must</strong> have a
-64-bit component</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    and the scalar width associated with a <code>Location</code> decorated
+    <code>Input</code> variable in the <code>Vertex</code> <code>Execution</code> <code>Model</code>
+    <code>OpEntryPoint</code> is 64-bit, then the corresponding
+    <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> <strong class="purple">must</strong> have a
+    64-bit component</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-09203" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-09203"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-09203</span><br>
 
-If
-there is a shader object bound to a graphics stage or
-the currently bound graphics pipeline was created with the
-<code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled, and
-<a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> has a 64-bit
-component, then all <code>Input</code> variables at the corresponding
-<code>Location</code> in the <code>Vertex</code> <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code>
-<strong class="purple">must</strong> not use components that are not present in the format</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08882" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08882"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08882</span><br>
-
-If a shader object is bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
-stage, then <a href="chap22.html#vkCmdSetVertexInputEXT">vkCmdSetVertexInputEXT</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_VERTEX_INPUT_EXT</code> dynamic state enabled
+    and <a href="chap22.html#VkVertexInputAttributeDescription2EXT">VkVertexInputAttributeDescription2EXT</a>::<code>format</code> has a
+    64-bit component, then all <code>Input</code> variables at the corresponding
+    <code>Location</code> in the <code>Vertex</code> <code>Execution</code> <code>Model</code> <code>OpEntryPoint</code>
+    <strong class="purple">must</strong> not use components that are not present in the format</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-04875" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-04875"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-04875</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT</code> dynamic state enabled
-then <a href="chap9.html#vkCmdSetPatchControlPointsEXT">vkCmdSetPatchControlPointsEXT</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-08883" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-08883"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-08883</span><br>
-
-If a shader object is bound to the
-<code>VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT</code> stage, then
-<a href="chap9.html#vkCmdSetPatchControlPointsEXT">vkCmdSetPatchControlPointsEXT</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage and the most recent call to <code>vkCmdSetPrimitiveTopology</code> in the
+    current command buffer set <code>primitiveTopology</code> to
+    <code>VK_PRIMITIVE_TOPOLOGY_PATCH_LIST</code>,
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT</code> dynamic state enabled
+    then <a href="chap9.html#vkCmdSetPatchControlPointsEXT">vkCmdSetPatchControlPointsEXT</a> <strong class="purple">must</strong> have been called in the
+    current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-None-04879" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-None-04879"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-None-04879</span><br>
 
-If the bound graphics pipeline state was created with the
-<code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE</code> dynamic state enabled
-then <a href="chap21.html#vkCmdSetPrimitiveRestartEnable">vkCmdSetPrimitiveRestartEnable</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
-</li>
-<li>
-<p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-08884" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-08884"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-rasterizerDiscardEnable-08884</span><br>
-
-If a shader object is bound to any graphics stage, and the most recent
-call to <a href="chap28.html#vkCmdSetRasterizerDiscardEnable">vkCmdSetRasterizerDiscardEnable</a> in the current command
-buffer set <code>rasterizerDiscardEnable</code> to <code>VK_FALSE</code>,
-<a href="chap21.html#vkCmdSetPrimitiveRestartEnable">vkCmdSetPrimitiveRestartEnable</a> <strong class="purple">must</strong> have been called in the
-current command buffer prior to this drawing command</p>
+    If
+    there is a shader object bound to the <code>VK_SHADER_STAGE_VERTEX_BIT</code>
+    stage
+or
+    the bound graphics pipeline state was created with the
+    <code>VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE</code> dynamic state enabled
+    then <a href="chap21.html#vkCmdSetPrimitiveRestartEnable">vkCmdSetPrimitiveRestartEnable</a> <strong class="purple">must</strong> have been called in the
+    current command buffer prior to this drawing command</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdExecuteGeneratedCommandsNV-stage-06481" href="chap32.html#VUID-vkCmdExecuteGeneratedCommandsNV-stage-06481"></a> <span class="vuid">VUID-vkCmdExecuteGeneratedCommandsNV-stage-06481</span><br>
@@ -6803,8 +6945,8 @@ compute pipeline.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.268<br>
-Last updated 2023-10-13 01:43:51 -0700
+Version 1.3.269<br>
+Last updated 2023-10-20 02:48:13 -0700
 </div>
 </div>
 

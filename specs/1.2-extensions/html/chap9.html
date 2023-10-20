@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.268 - A Specification (with all registered Vulkan extensions)</title>
+<title>Vulkan® 1.2.269 - A Specification (with all registered Vulkan extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.268 - A Specification (with all registered Vulkan extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.269 - A Specification (with all registered Vulkan extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.268,</span>
-<span id="revdate">2023-10-13 09:44:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: bb6783481f96d778772ea9607e2991c27e2bbe96</span>
+<span id="revnumber">version 1.2.269,</span>
+<span id="revdate">2023-10-20 10:40:36Z</span>
+<br><span id="revremark">from git branch: github-main commit: 463f8c616f49fb83ae4736de0d84b0048a7c76e2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -178,6 +178,7 @@
 <li class="current"><a href="chap9.html#shaders-helper-invocations">9.29. Helper Invocations</a></li>
 <li class="current"><a href="chap9.html#_cooperative_matrices">9.30. Cooperative Matrices</a></li>
 <li class="current"><a href="chap9.html#shaders-validation-cache">9.31. Validation Cache</a></li>
+<li class="current"><a href="chap9.html#cuda-modules">9.32. CUDA Modules</a></li>
 </ul>
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
@@ -422,7 +423,11 @@
 <li><a href="chap30.html#framebuffer-queries">30.5. Framebuffer Query Instructions</a></li>
 </ul>
 </li>
-<li><a href="chap31.html">31. Dispatching Commands</a></li>
+<li><a href="chap31.html">31. Dispatching Commands</a>
+<ul class="sectlevel2">
+<li><a href="chap31.html#cudadispatch">31.1. Dispatch Command for CUDA PTX Kernels</a></li>
+</ul>
+</li>
 <li><a href="chap32.html">32. Device-Generated Commands</a>
 <ul class="sectlevel2">
 <li><a href="chap32.html#indirectmdslayout">32.1. Indirect Commands Layout</a></li>
@@ -1226,6 +1231,22 @@ If <code>stage</code> is not <code>VK_SHADER_STAGE_FRAGMENT_BIT</code>, <code>fl
 If the <a href="chap47.html#features-fragmentDensityMap"><code>fragmentDensityMap</code></a> feature
 is not enabled, <code>flags</code> <strong class="purple">must</strong> not include
 <code>VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkShaderCreateInfoEXT-flags-09404" href="chap9.html#VUID-VkShaderCreateInfoEXT-flags-09404"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-flags-09404</span><br>
+
+If <code>flags</code> includes
+<code>VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT</code>, the
+<a href="chap47.html#features-subgroupSizeControl"><code>subgroupSizeControl</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkShaderCreateInfoEXT-flags-09405" href="chap9.html#VUID-VkShaderCreateInfoEXT-flags-09405"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-flags-09405</span><br>
+
+If <code>flags</code> includes
+<code>VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT</code>, the
+<a href="chap47.html#features-computeFullSubgroups"><code>computeFullSubgroups</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
 </li>
 <li>
 <p><a id="VUID-VkShaderCreateInfoEXT-flags-08992" href="chap9.html#VUID-VkShaderCreateInfoEXT-flags-08992"></a> <span class="vuid">VUID-VkShaderCreateInfoEXT-flags-08992</span><br>
@@ -2365,10 +2386,7 @@ line primitives is bound to the
 <p><a href="chap28.html#vkCmdSetCullModeEXT">vkCmdSetCullModeEXT</a></p>
 </li>
 <li>
-<p><a href="chap28.html#vkCmdSetFrontFaceEXT">vkCmdSetFrontFaceEXT</a>, if <code>cullMode</code> is not
-<code>VK_CULL_MODE_NONE</code>, or if <code>stencilTestEnable</code> is <code>VK_TRUE</code>,
-or if the fragment shader uses a variable decorated with
-<code>FrontFacing</code></p>
+<p><a href="chap28.html#vkCmdSetFrontFaceEXT">vkCmdSetFrontFaceEXT</a></p>
 </li>
 <li>
 <p><a href="chap29.html#vkCmdSetDepthTestEnableEXT">vkCmdSetDepthTestEnableEXT</a></p>
@@ -2390,9 +2408,8 @@ or if the fragment shader uses a variable decorated with
 <p><a href="chap28.html#vkCmdSetDepthBiasEnableEXT">vkCmdSetDepthBiasEnableEXT</a></p>
 </li>
 <li>
-<p><a href="chap28.html#vkCmdSetDepthBias">vkCmdSetDepthBias</a>
-or <a href="chap28.html#vkCmdSetDepthBias2EXT">vkCmdSetDepthBias2EXT</a>
-    , if <code>depthBiasEnable</code> is <code>VK_TRUE</code></p>
+<p><a href="chap28.html#vkCmdSetDepthBias">vkCmdSetDepthBias</a> or <a href="chap28.html#vkCmdSetDepthBias2EXT">vkCmdSetDepthBias2EXT</a>,
+if <code>depthBiasEnable</code> is <code>VK_TRUE</code></p>
 </li>
 <li>
 <p><a href="chap27.html#vkCmdSetDepthClampEnableEXT">vkCmdSetDepthClampEnableEXT</a>, if the <a href="chap47.html#features-depthClamp">depthClamp</a> feature is enabled on the device</p>
@@ -2596,7 +2613,7 @@ command buffer prior to drawing:</p>
 </div>
 <div class="paragraph">
 <p>If the <a href="chap47.html#features-colorWriteEnable"><code>colorWriteEnable</code></a> feature is
-enabled on the device, a shader is bound to the
+enabled on the device, and a shader is bound to the
 <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and <code>rasterizerDiscardEnable</code>
 is <code>VK_FALSE</code>, the following command <strong class="purple">must</strong> have been called in the
 command buffer prior to drawing:</p>
@@ -2610,7 +2627,7 @@ attachment in the render pass instance active at draw time</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>If the <a href="chap47.html#features-attachmentFeedbackLoopDynamicState">attachmentFeedbackLoopDynamicState</a> feature is enabled on the device, a
+<p>If the <a href="chap47.html#features-attachmentFeedbackLoopDynamicState">attachmentFeedbackLoopDynamicState</a> feature is enabled on the device, and a
 shader is bound to the <code>VK_SHADER_STAGE_FRAGMENT_BIT</code> stage, and
 <code>rasterizerDiscardEnable</code> is <code>VK_FALSE</code>, the following command <strong class="purple">must</strong>
 have been called in the command buffer prior to drawing:</p>
@@ -2618,9 +2635,7 @@ have been called in the command buffer prior to drawing:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="chap8.html#vkCmdSetAttachmentFeedbackLoopEnableEXT">vkCmdSetAttachmentFeedbackLoopEnableEXT</a>, for each image aspect
-corresponding to an attachment type used by the render pass instance
-which <strong class="purple">can</strong> use feedback loops</p>
+<p><a href="chap8.html#vkCmdSetAttachmentFeedbackLoopEnableEXT">vkCmdSetAttachmentFeedbackLoopEnableEXT</a></p>
 </li>
 </ul>
 </div>
@@ -4130,11 +4145,20 @@ used to create the currently active pipeline.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdSetPatchControlPointsEXT-None-08574" href="chap9.html#VUID-vkCmdSetPatchControlPointsEXT-None-08574"></a> <span class="vuid">VUID-vkCmdSetPatchControlPointsEXT-None-08574</span><br>
+<p><a id="VUID-vkCmdSetPatchControlPointsEXT-None-09422" href="chap9.html#VUID-vkCmdSetPatchControlPointsEXT-None-09422"></a> <span class="vuid">VUID-vkCmdSetPatchControlPointsEXT-None-09422</span><br>
 
-Either the <a href="chap47.html#features-extendedDynamicState2PatchControlPoints"><code>extendedDynamicState2PatchControlPoints</code></a> feature or the
-<a href="chap47.html#features-shaderObject"><code>shaderObject</code></a> feature or both <strong class="purple">must</strong> be
+At least one of the following <strong class="purple">must</strong> be true:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The <a href="chap47.html#features-extendedDynamicState2PatchControlPoints"><code>extendedDynamicState2PatchControlPoints</code></a> feature is
 enabled</p>
+</li>
+<li>
+<p>The <a href="chap47.html#features-shaderObject"><code>shaderObject</code></a> feature is enabled</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><a id="VUID-vkCmdSetPatchControlPointsEXT-patchControlPoints-04874" href="chap9.html#VUID-vkCmdSetPatchControlPointsEXT-patchControlPoints-04874"></a> <span class="vuid">VUID-vkCmdSetPatchControlPointsEXT-patchControlPoints-04874</span><br>
@@ -6821,6 +6845,705 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="cuda-modules"><a class="anchor" href="chap9.html#cuda-modules"></a>9.32. CUDA Modules</h3>
+<div class="sect3">
+<h4 id="cuda-modules-creation"><a class="anchor" href="chap9.html#cuda-modules-creation"></a>9.32.1. Creating a CUDA Module</h4>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>CUDA modules <strong class="purple">must</strong> contain some kernel code and <strong class="purple">must</strong> expose at least one
+function entry point.</p>
+</div>
+<div class="paragraph">
+<p>CUDA modules are represented by <code>VkCudaModuleNV</code> handles:</p>
+</div>
+<div id="VkCudaModuleNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="n">VK_DEFINE_NON_DISPATCHABLE_HANDLE</span><span class="p">(</span><span class="n">VkCudaModuleNV</span><span class="p">)</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To create a CUDA module, call:</p>
+</div>
+<div id="vkCreateCudaModuleNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="n">VkResult</span> <span class="nf">vkCreateCudaModuleNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkCudaModuleCreateInfoNV</span><span class="o">*</span>             <span class="n">pCreateInfo</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkAllocationCallbacks</span><span class="o">*</span>                <span class="n">pAllocator</span><span class="p">,</span>
+    <span class="n">VkCudaModuleNV</span><span class="o">*</span>                             <span class="n">pModule</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that creates the shader module.</p>
+</li>
+<li>
+<p><code>pCreateInfo</code> is a pointer to a <a href="chap9.html#VkCudaModuleCreateInfoNV">VkCudaModuleCreateInfoNV</a>
+structure.</p>
+</li>
+<li>
+<p><code>pAllocator</code> controls host memory allocation as described in the
+<a href="chap11.html#memory-allocation">Memory Allocation</a> chapter.</p>
+</li>
+<li>
+<p><code>pModule</code> is a pointer to a <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> handle in which the
+resulting CUDA module object is returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Once a CUDA module has been created, you <strong class="purple">may</strong> create the function entry
+point that <strong class="purple">must</strong> refer to one function in the module.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCreateCudaModuleNV-device-parameter" href="chap9.html#VUID-vkCreateCudaModuleNV-device-parameter"></a> <span class="vuid">VUID-vkCreateCudaModuleNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaModuleNV-pCreateInfo-parameter" href="chap9.html#VUID-vkCreateCudaModuleNV-pCreateInfo-parameter"></a> <span class="vuid">VUID-vkCreateCudaModuleNV-pCreateInfo-parameter</span><br>
+ <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap9.html#VkCudaModuleCreateInfoNV">VkCudaModuleCreateInfoNV</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaModuleNV-pAllocator-parameter" href="chap9.html#VUID-vkCreateCudaModuleNV-pAllocator-parameter"></a> <span class="vuid">VUID-vkCreateCudaModuleNV-pAllocator-parameter</span><br>
+ If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap11.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaModuleNV-pModule-parameter" href="chap9.html#VUID-vkCreateCudaModuleNV-pModule-parameter"></a> <span class="vuid">VUID-vkCreateCudaModuleNV-pModule-parameter</span><br>
+ <code>pModule</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> handle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkCudaModuleCreateInfoNV</code> structure is defined as:</p>
+</div>
+<div id="VkCudaModuleCreateInfoNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkCudaModuleCreateInfoNV</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="kt">size_t</span>             <span class="n">dataSize</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pData</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkCudaModuleCreateInfoNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> <strong class="purple">may</strong> be <code>NULL</code> or <strong class="purple">may</strong> be a pointer to a structure extending
+this structure.</p>
+</li>
+<li>
+<p><code>dataSize</code> is the length of the <code>pData</code> array.</p>
+</li>
+<li>
+<p><code>pData</code> is a pointer to CUDA code</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCudaModuleCreateInfoNV-dataSize-09413" href="chap9.html#VUID-VkCudaModuleCreateInfoNV-dataSize-09413"></a> <span class="vuid">VUID-VkCudaModuleCreateInfoNV-dataSize-09413</span><br>
+
+<code>dataSize</code> <strong class="purple">must</strong> be the total size in bytes of the PTX files or
+binary cache passed to <code>pData</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCudaModuleCreateInfoNV-sType-sType" href="chap9.html#VUID-VkCudaModuleCreateInfoNV-sType-sType"></a> <span class="vuid">VUID-VkCudaModuleCreateInfoNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCudaModuleCreateInfoNV-pNext-pNext" href="chap9.html#VUID-VkCudaModuleCreateInfoNV-pNext-pNext"></a> <span class="vuid">VUID-VkCudaModuleCreateInfoNV-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCudaModuleCreateInfoNV-pData-parameter" href="chap9.html#VUID-VkCudaModuleCreateInfoNV-pData-parameter"></a> <span class="vuid">VUID-VkCudaModuleCreateInfoNV-pData-parameter</span><br>
+ <code>pData</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>dataSize</code> bytes</p>
+</li>
+<li>
+<p><a id="VUID-VkCudaModuleCreateInfoNV-dataSize-arraylength" href="chap9.html#VUID-VkCudaModuleCreateInfoNV-dataSize-arraylength"></a> <span class="vuid">VUID-VkCudaModuleCreateInfoNV-dataSize-arraylength</span><br>
+ <code>dataSize</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cuda-function-creation"><a class="anchor" href="chap9.html#cuda-function-creation"></a>9.32.2. Creating a CUDA Function Handle</h4>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>CUDA functions are represented by <code>VkCudaFunctionNV</code> handles.
+Handles to <code><em>global</em></code> functions <strong class="purple">may</strong> then be used to issue a kernel launch
+(i.e. dispatch) from a commandbuffer.
+See <a href="chap31.html#cudadispatch">Dispatching Command for CUDA PTX kernel</a>.</p>
+</div>
+<div id="VkCudaFunctionNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="n">VK_DEFINE_NON_DISPATCHABLE_HANDLE</span><span class="p">(</span><span class="n">VkCudaFunctionNV</span><span class="p">)</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To create a CUDA function, call:</p>
+</div>
+<div id="vkCreateCudaFunctionNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="n">VkResult</span> <span class="nf">vkCreateCudaFunctionNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkCudaFunctionCreateInfoNV</span><span class="o">*</span>           <span class="n">pCreateInfo</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkAllocationCallbacks</span><span class="o">*</span>                <span class="n">pAllocator</span><span class="p">,</span>
+    <span class="n">VkCudaFunctionNV</span><span class="o">*</span>                           <span class="n">pFunction</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that creates the shader module.</p>
+</li>
+<li>
+<p><code>pCreateInfo</code> is a pointer to a <a href="chap9.html#VkCudaFunctionCreateInfoNV">VkCudaFunctionCreateInfoNV</a>
+structure.</p>
+</li>
+<li>
+<p><code>pAllocator</code> controls host memory allocation as described in the
+<a href="chap11.html#memory-allocation">Memory Allocation</a> chapter.</p>
+</li>
+<li>
+<p><code>pFunction</code> is a pointer to a <a href="chap9.html#VkCudaFunctionNV">VkCudaFunctionNV</a> handle in which
+the resulting CUDA function object is returned.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCreateCudaFunctionNV-device-parameter" href="chap9.html#VUID-vkCreateCudaFunctionNV-device-parameter"></a> <span class="vuid">VUID-vkCreateCudaFunctionNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaFunctionNV-pCreateInfo-parameter" href="chap9.html#VUID-vkCreateCudaFunctionNV-pCreateInfo-parameter"></a> <span class="vuid">VUID-vkCreateCudaFunctionNV-pCreateInfo-parameter</span><br>
+ <code>pCreateInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap9.html#VkCudaFunctionCreateInfoNV">VkCudaFunctionCreateInfoNV</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaFunctionNV-pAllocator-parameter" href="chap9.html#VUID-vkCreateCudaFunctionNV-pAllocator-parameter"></a> <span class="vuid">VUID-vkCreateCudaFunctionNV-pAllocator-parameter</span><br>
+ If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap11.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCreateCudaFunctionNV-pFunction-parameter" href="chap9.html#VUID-vkCreateCudaFunctionNV-pFunction-parameter"></a> <span class="vuid">VUID-vkCreateCudaFunctionNV-pFunction-parameter</span><br>
+ <code>pFunction</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap9.html#VkCudaFunctionNV">VkCudaFunctionNV</a> handle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkCudaFunctionCreateInfoNV</code> structure is defined as:</p>
+</div>
+<div id="VkCudaFunctionCreateInfoNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkCudaFunctionCreateInfoNV</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkCudaModuleNV</span>     <span class="n">module</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span>        <span class="n">pName</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkCudaFunctionCreateInfoNV</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> <strong class="purple">may</strong> be <code>NULL</code> or <strong class="purple">may</strong> be a pointer to a structure extending
+this structure.</p>
+</li>
+<li>
+<p><code>module</code> <strong class="purple">must</strong> be the CUDA <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> module in which the
+function resides.</p>
+</li>
+<li>
+<p><code>pName</code> is a null-terminated UTF-8 string containing the name of the
+shader entry point for this stage.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCudaFunctionCreateInfoNV-sType-sType" href="chap9.html#VUID-VkCudaFunctionCreateInfoNV-sType-sType"></a> <span class="vuid">VUID-VkCudaFunctionCreateInfoNV-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCudaFunctionCreateInfoNV-pNext-pNext" href="chap9.html#VUID-VkCudaFunctionCreateInfoNV-pNext-pNext"></a> <span class="vuid">VUID-VkCudaFunctionCreateInfoNV-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCudaFunctionCreateInfoNV-module-parameter" href="chap9.html#VUID-VkCudaFunctionCreateInfoNV-module-parameter"></a> <span class="vuid">VUID-VkCudaFunctionCreateInfoNV-module-parameter</span><br>
+ <code>module</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-VkCudaFunctionCreateInfoNV-pName-parameter" href="chap9.html#VUID-VkCudaFunctionCreateInfoNV-pName-parameter"></a> <span class="vuid">VUID-VkCudaFunctionCreateInfoNV-pName-parameter</span><br>
+ <code>pName</code> <strong class="purple">must</strong> be a null-terminated UTF-8 string</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cuda-function-destruction"><a class="anchor" href="chap9.html#cuda-function-destruction"></a>9.32.3. Destroying a CUDA Function</h4>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To destroy a CUDA function handle, call:</p>
+</div>
+<div id="vkDestroyCudaFunctionNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="kt">void</span> <span class="nf">vkDestroyCudaFunctionNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkCudaFunctionNV</span>                            <span class="n">function</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkAllocationCallbacks</span><span class="o">*</span>                <span class="n">pAllocator</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that destroys the Function.</p>
+</li>
+<li>
+<p><code>function</code> is the handle of the CUDA function to destroy.</p>
+</li>
+<li>
+<p><code>pAllocator</code> controls host memory allocation as described in the
+<a href="chap11.html#memory-allocation">Memory Allocation</a> chapter.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkDestroyCudaFunctionNV-device-parameter" href="chap9.html#VUID-vkDestroyCudaFunctionNV-device-parameter"></a> <span class="vuid">VUID-vkDestroyCudaFunctionNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaFunctionNV-function-parameter" href="chap9.html#VUID-vkDestroyCudaFunctionNV-function-parameter"></a> <span class="vuid">VUID-vkDestroyCudaFunctionNV-function-parameter</span><br>
+ <code>function</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkCudaFunctionNV">VkCudaFunctionNV</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaFunctionNV-pAllocator-parameter" href="chap9.html#VUID-vkDestroyCudaFunctionNV-pAllocator-parameter"></a> <span class="vuid">VUID-vkDestroyCudaFunctionNV-pAllocator-parameter</span><br>
+ If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap11.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaFunctionNV-function-parent" href="chap9.html#VUID-vkDestroyCudaFunctionNV-function-parent"></a> <span class="vuid">VUID-vkDestroyCudaFunctionNV-function-parent</span><br>
+ <code>function</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cuda-modules-destruction"><a class="anchor" href="chap9.html#cuda-modules-destruction"></a>9.32.4. Destroying a CUDA Module</h4>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To destroy a CUDA shader module, call:</p>
+</div>
+<div id="vkDestroyCudaModuleNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="kt">void</span> <span class="nf">vkDestroyCudaModuleNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkCudaModuleNV</span>                              <span class="n">module</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkAllocationCallbacks</span><span class="o">*</span>                <span class="n">pAllocator</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that destroys the shader module.</p>
+</li>
+<li>
+<p><code>module</code> is the handle of the CUDA module to destroy.</p>
+</li>
+<li>
+<p><code>pAllocator</code> controls host memory allocation as described in the
+<a href="chap11.html#memory-allocation">Memory Allocation</a> chapter.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkDestroyCudaModuleNV-device-parameter" href="chap9.html#VUID-vkDestroyCudaModuleNV-device-parameter"></a> <span class="vuid">VUID-vkDestroyCudaModuleNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaModuleNV-module-parameter" href="chap9.html#VUID-vkDestroyCudaModuleNV-module-parameter"></a> <span class="vuid">VUID-vkDestroyCudaModuleNV-module-parameter</span><br>
+ <code>module</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaModuleNV-pAllocator-parameter" href="chap9.html#VUID-vkDestroyCudaModuleNV-pAllocator-parameter"></a> <span class="vuid">VUID-vkDestroyCudaModuleNV-pAllocator-parameter</span><br>
+ If <code>pAllocator</code> is not <code>NULL</code>, <code>pAllocator</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap11.html#VkAllocationCallbacks">VkAllocationCallbacks</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkDestroyCudaModuleNV-module-parent" href="chap9.html#VUID-vkDestroyCudaModuleNV-module-parent"></a> <span class="vuid">VUID-vkDestroyCudaModuleNV-module-parent</span><br>
+ <code>module</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cuda-modules-getcache"><a class="anchor" href="chap9.html#cuda-modules-getcache"></a>9.32.5. Reading back CUDA Module Cache</h4>
+<div class="paragraph">
+<p>After uploading the PTX kernel code, the module compiles the code to
+generate a binary cache with all the necessary information for the device to
+execute it.
+It is possible to read back this cache for later use, such as accelerating
+the initialization of further executions.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To get the CUDA module cache call:</p>
+</div>
+<div id="vkGetCudaModuleCacheNV" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NV_cuda_kernel_launch</span>
+<span class="n">VkResult</span> <span class="nf">vkGetCudaModuleCacheNV</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkCudaModuleNV</span>                              <span class="n">module</span><span class="p">,</span>
+    <span class="kt">size_t</span><span class="o">*</span>                                     <span class="n">pCacheSize</span><span class="p">,</span>
+    <span class="kt">void</span><span class="o">*</span>                                       <span class="n">pCacheData</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that destroys the Function.</p>
+</li>
+<li>
+<p><code>module</code> is the CUDA module.</p>
+</li>
+<li>
+<p><code>pCacheSize</code> is a pointer containing the amount of bytes to be
+copied in <code>pCacheData</code></p>
+</li>
+<li>
+<p><code>pCacheData</code> is a pointer to a buffer in which to copy the binary
+cache</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-pCacheSize-09414" href="chap9.html#VUID-vkGetCudaModuleCacheNV-pCacheSize-09414"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-pCacheSize-09414</span><br>
+
+<code>pCacheSize</code> <strong class="purple">must</strong> be a pointer containing the amount of bytes to be
+copied in <code>pCacheData</code>.
+If <code>pCacheData</code> is NULL, the function will return in this pointer
+the total amount of bytes required to later perform the copy into
+<code>pCacheData</code>.</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-pCacheData-09415" href="chap9.html#VUID-vkGetCudaModuleCacheNV-pCacheData-09415"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-pCacheData-09415</span><br>
+
+<code>pCacheData</code> <strong class="purple">may</strong> be a pointer to a buffer in which the binary cache
+will be copied.
+The amount of bytes copied is defined by the value in <code>pCacheSize</code>.
+This pointer <strong class="purple">may</strong> be NULL.
+In this case, the function will write the total amount of required data
+in <code>pCacheSize</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-device-parameter" href="chap9.html#VUID-vkGetCudaModuleCacheNV-device-parameter"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-module-parameter" href="chap9.html#VUID-vkGetCudaModuleCacheNV-module-parameter"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-module-parameter</span><br>
+ <code>module</code> <strong class="purple">must</strong> be a valid <a href="chap9.html#VkCudaModuleNV">VkCudaModuleNV</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-pCacheSize-parameter" href="chap9.html#VUID-vkGetCudaModuleCacheNV-pCacheSize-parameter"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-pCacheSize-parameter</span><br>
+ <code>pCacheSize</code> <strong class="purple">must</strong> be a valid pointer to a <code>size_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-pCacheData-parameter" href="chap9.html#VUID-vkGetCudaModuleCacheNV-pCacheData-parameter"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-pCacheData-parameter</span><br>
+ If the value referenced by <code>pCacheSize</code> is not <code>0</code>, and <code>pCacheData</code> is not <code>NULL</code>, <code>pCacheData</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pCacheSize</code> bytes</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCudaModuleCacheNV-module-parent" href="chap9.html#VUID-vkGetCudaModuleCacheNV-module-parent"></a> <span class="vuid">VUID-vkGetCudaModuleCacheNV-module-parent</span><br>
+ <code>module</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>A typical use of vkGetCudaModuleCacheNV happens in two steps:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>First call it without with <code>pCacheData</code> set to NULL and with a valid
+pointer <code>pCacheSize</code>.</p>
+</li>
+<li>
+<p>Another call with a valid <code>pCacheData</code> pointing to the expected size
+returned by <code>pCacheSize</code>, and <code>pCacheSize</code> containing the amount
+in bytes to copy.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The returned cache <strong class="purple">may</strong> then be used later for further initialization of the
+CUDA module, by sending this cache <em>instead</em> of the PTX code, when using
+<a href="chap9.html#vkCreateCudaModuleNV">vkCreateCudaModuleNV</a>.</p>
+</div>
+<div class="paragraph">
+<p>Using the binary cache instead of the original PTX code <strong class="purple">should</strong>
+significantly speed up initialization of the CUDA module, given that the
+whole compilation and validation will not be necessary.</p>
+</div>
+<div class="paragraph">
+<p>As with <a href="chap10.html#VkPipelineCache">VkPipelineCache</a>, the binary cache depends on the specific
+implementation.
+Therefore the application <strong class="purple">must</strong> assume the cache upload might fail in many
+circumstances and thus <strong class="purple">may</strong> have to get ready for falling back to the
+original PTX code if necessary.
+Most often, the cache <strong class="purple">may</strong> succeed if the same device driver and
+architecture is used between the cache generation from PTX and the use of
+this cache.
+But most of the time, in the event of a new driver version or a if using a
+different device architecture, this cache <strong class="purple">may</strong> become invalid.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cuda-modules-limitations"><a class="anchor" href="chap9.html#cuda-modules-limitations"></a>9.32.6. Limitations</h4>
+<div class="paragraph">
+<p>CUDA and Vulkan do not use the device in the same configuration, therefore,
+few limitations must be taken into account:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It is not possible to read or write global parameters from Vulkan.
+The only way to share resources or send values to the PTX kernel is to
+pass them as arguments of the function.
+See <a href="chap31.html#cudadispatch_sharing_resources">Resources sharing between CUDA
+Kernel and Vulkan</a> for more details.</p>
+</li>
+<li>
+<p>No calls to functions external to the module PTX are supported</p>
+</li>
+<li>
+<p>Vulkan disables some shader/kernel exceptions, which could break CUDA
+kernels relying on exceptions</p>
+</li>
+<li>
+<p>CUDA kernels submitted to Vulkan are limited to the amount of shared
+memory you can query from physical capabilities.
+It may be less than what CUDA can offer</p>
+</li>
+<li>
+<p>CUDA instruction-level preemption (CILP) does not work</p>
+</li>
+<li>
+<p>CUDA Unified Memory will not work in this extension.</p>
+</li>
+<li>
+<p>CUDA Dynamic parallelism is not supported</p>
+</li>
+<li>
+<p>DispatchIndirect not available</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 </div></div>
 
@@ -6835,8 +7558,8 @@ If no <code>VkAllocationCallbacks</code> were provided when
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.268<br>
-Last updated 2023-10-13 01:43:51 -0700
+Version 1.2.269<br>
+Last updated 2023-10-20 02:48:13 -0700
 </div>
 </div>
 
