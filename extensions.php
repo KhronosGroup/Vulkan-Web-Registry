@@ -281,6 +281,7 @@
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_IMG_filter_cubic.html"> VK_IMG_filter_cubic </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_IMG_format_pvrtc.html"> VK_IMG_format_pvrtc </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_IMG_relaxed_line_rasterization.html"> VK_IMG_relaxed_line_rasterization </a> </li>
     <li> <b>  INTEL Extensions (Intel Corporation)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_INTEL_performance_query.html"> VK_INTEL_performance_query </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_INTEL_shader_integer_functions2.html"> VK_INTEL_shader_integer_functions2 </a> </li>
