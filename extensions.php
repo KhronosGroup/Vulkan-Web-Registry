@@ -162,6 +162,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_image_view_min_lod.html"> VK_EXT_image_view_min_lod </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_index_type_uint8.html"> VK_EXT_index_type_uint8 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_inline_uniform_block.html"> VK_EXT_inline_uniform_block </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_layer_settings.html"> VK_EXT_layer_settings </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_legacy_dithering.html"> VK_EXT_legacy_dithering </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
@@ -257,6 +258,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_ANDROID_external_memory_android_hardware_buffer.html"> VK_ANDROID_external_memory_android_hardware_buffer </a> </li>
     <li> <b>  ARM Extensions (ARM Limited)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_rasterization_order_attachment_access.html"> VK_ARM_rasterization_order_attachment_access </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_ARM_render_pass_striped.html"> VK_ARM_render_pass_striped </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_scheduling_controls.html"> VK_ARM_scheduling_controls </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_shader_core_builtins.html"> VK_ARM_shader_core_builtins </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_ARM_shader_core_properties.html"> VK_ARM_shader_core_properties </a> </li>

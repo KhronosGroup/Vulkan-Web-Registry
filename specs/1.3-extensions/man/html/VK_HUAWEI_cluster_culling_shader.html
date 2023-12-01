@@ -818,7 +818,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h2 id="_revision"><a class="anchor" href="#_revision"></a>Revision</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>2</p>
+<p>3</p>
 </div>
 </div>
 </div>
@@ -873,7 +873,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <dl>
 <dt class="hdlist1"><strong>Last Modified Date</strong></dt>
 <dd>
-<p>2022-11-17</p>
+<p>2023-08-16</p>
 </dd>
 <dt class="hdlist1"><strong>Interactions and External Dependencies</strong></dt>
 <dd>
@@ -943,7 +943,7 @@ directly emit visible clusters to the following graphics pipeline.</p>
 </div>
 <div class="paragraph">
 <p>A set of new built-in output variables are used to express a visible
-cluster.
+cluster, including per-cluster shading rate.
 In addition, a new built-in function is used to emit these variables from
 CCS to the IA stage.
 The IA stage can use these variables to fetches vertices of a visible
@@ -978,6 +978,16 @@ This makes CCS more suitable for mobile GPUs.</p>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
+<li>
+<p>Extending <a href="VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI</a>:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI</a></p>
+</li>
+</ul>
+</div>
+</li>
 <li>
 <p>Extending <a href="VkPhysicalDeviceFeatures2.html">VkPhysicalDeviceFeatures2</a>, <a href="VkDeviceCreateInfo.html">VkDeviceCreateInfo</a>:</p>
 <div class="ulist">
@@ -1053,6 +1063,9 @@ This makes CCS more suitable for mobile GPUs.</p>
 <li>
 <p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI</code></p>
 </li>
+<li>
+<p><code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_VRS_FEATURES_HUAWEI</code></p>
+</li>
 </ul>
 </div>
 </li>
@@ -1088,6 +1101,9 @@ This makes CCS more suitable for mobile GPUs.</p>
 </li>
 <li>
 <p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#interfaces-builtin-variables-clusteridhuawei" target="_blank" rel="noopener">ClusterIDHUAWEI</a></p>
+</li>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#interfaces-builtin-variables-clustershadingratehuawei" target="_blank" rel="noopener">ClusterShadingRateHUAWEI</a></p>
 </li>
 </ul>
 </div>
@@ -1126,31 +1142,13 @@ This makes CCS more suitable for mobile GPUs.</p>
 // - warpsize = 32
 layout(local_size_x=GPU_GROUP_SIZE, local_size_y=1, local_size_z=1) in;
 
-
-#define GPU_CLUSTER_DESCRIPTOR_BINDING      0
-#define GPU_DRAW_BUFFER_BINDING             1
-#define GPU_INSTANCE_DESCRIPTOR_BINDING     2
-
-const float pi_half = 1.570795;
-uint instance_id;
+#define GPU_DRAW_BUFFER_BINDING             0
+#define GPU_INSTANCE_DESCRIPTOR_BINDING     1
 
 struct BoundingSphere
 {
   vec3 center;
   float radius;
-};
-
-struct BoundingCone
-{
-  vec3 normal;
-  float angle;
-};
-
-struct ClusterDescriptor
-{
-  BoundingSphere sphere;
-  BoundingCone cone;
-  uint instance_idx;
 };
 
 struct InstanceData
@@ -1188,14 +1186,8 @@ out gl_PerClusterHUAWEI{
   int  gl_VertexOffsetHUAWEI;
   uint gl_FirstInstanceHUAWEI;
   uint gl_ClusterIDHUAWEI;
+  uint gl_ClusterShadingRateHUAWEI;
 };
-
-
-layout(binding = GPU_CLUSTER_DESCRIPTOR_BINDING, std430) readonly buffer cluster_descriptor_ssbo
-{
-        ClusterDescriptor cluster_descriptors[];
-};
-
 
 layout(binding = GPU_DRAW_BUFFER_BINDING, std430) buffer draw_indirect_ssbo
 {
@@ -1208,13 +1200,13 @@ layout(binding = GPU_INSTANCE_DESCRIPTOR_BINDING, std430) buffer instance_descri
 };
 
 
-bool isFrontFaceVisible( vec3 sphere_center, float sphere_radius, vec3 cone_normal, float cone_angle )
+float Distance(uint instance_id)
 {
-  vec3 sphere_center_dir = normalize(sphere_center -
-                           instance_descriptors[instance_id].instance_data.view_origin);
+    vec3 v = normalize(instance_descriptor[instance_id].sphere.center -
+                     instance_descriptor[instance_id].instance_data.view_origin);
+    float dist = sqrt(dot(v,v));
 
-  float sin_cone_angle = sin(min(cone_angle, pi_half));
-  return dot(cone_normal, sphere_center_dir) &lt; sin_cone_angle;
+    return dist;
 }
 
 bool isSphereOutsideFrustum( vec3 sphere_center, float sphere_radius )
@@ -1234,38 +1226,40 @@ bool isSphereOutsideFrustum( vec3 sphere_center, float sphere_radius )
 
 void main()
 {
-    uint cluster_id = gl_GlobalInvocationID.x;
-    ClusterDescriptor desc = cluster_descriptors[cluster_id];
-
     // get instance description
-    instance_id = desc.instance_idx;
+    instance_id = gl_GlobalInvocationID.x;
     InstanceDescriptor inst_desc = instance_descriptors[instance_id];
 
     //instance based culling
-    bool instance_render = !isSphereOutsideFrustum(inst_desc.sphere.center, inst_desc.sphere.radius);
+    bool render = !isSphereOutsideFrustum(inst_desc.sphere.center, inst_desc.sphere.radius);
 
-    if( instance_render)
+    if (render)
     {
-        // cluster based culling
-        bool render = (!isSphereOutsideFrustum(desc.sphere.center,
-        desc.sphere.radius) &amp;&amp; isFrontFaceVisible(desc.sphere.center, desc.sphere.radius, desc.cone.norm
-        al, desc.cone.angle));
+        // calculate distance
+        float distance = Distance(instance_id);
 
-        if (render)
-        {
-            // this cluster passed coarse-level culling, update built-in output variable.
-            // in case of indexed mode:
-            gl_IndexCountHUAWEI     = draw_commands[cluster_id].indexcount;
-            gl_InstanceCountHUAWEI  = draw_commands[cluster_id].instanceCount;
-            gl_FirstIndexHUAWEI     = draw_commands[cluster_id].firstIndex;
-            gl_VertexOffsetHUAWEI   = draw_commands[cluster_id].vertexoffset;
-            gl_FirstInstanceHUAWEI  = draw_commands[cluster_id].firstInstance;
-            gl_ClusterIDHUAWEI      = draw_commands[cluster_id].cluster_id;
+        // update shading rate built-in variable
+        if(distance &gt; 0.7)
+            gl_ClusterShadingRateHUAWEI =
+                gl_ShadingRateFlag4VerticalPixelsEXT | gl_ShadingRateFlag4HorizontalPixelsEXT;
+        else if(distance &gt; 0.3)
+            gl_ClusterShadingRateHUAWEI =
+                gl_ShadingRateFlag2VerticalPixelsEXT | gl_ShadingRateFlag2HorizontalPixelsEXT;
+        else
+            gl_ClusterShadingRateHUAWEI = 0;
 
-            // emit built-in output variables as a drawing command to subsequent
-            // rendering pipeline.
-            dispatchClusterHUAWEI();
-        }
+        // this is a visible cluster, update built-in output variable.
+        // in case of indexed mode:
+        gl_IndexCountHUAWEI     = draw_commands[cluster_id].indexcount;
+        gl_InstanceCountHUAWEI  = draw_commands[cluster_id].instanceCount;
+        gl_FirstIndexHUAWEI     = draw_commands[cluster_id].firstIndex;
+        gl_VertexOffsetHUAWEI   = draw_commands[cluster_id].vertexoffset;
+        gl_FirstInstanceHUAWEI  = draw_commands[cluster_id].firstInstance;
+        gl_ClusterIDHUAWEI      = draw_commands[cluster_id].cluster_id;
+
+        // emit built-in output variables as a drawing command to subsequent
+        // rendering pipeline.
+        dispatchClusterHUAWEI();
     }
 }</code></pre>
 </div>
@@ -1333,6 +1327,16 @@ vkCmdEndRenderPass(commandBuffer);</code></pre>
 </ul>
 </div>
 </li>
+<li>
+<p>Revision 3, 2023-08-21 (YuChang Wang)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add per-cluster shading rate.</p>
+</li>
+</ul>
+</div>
+</li>
 </ul>
 </div>
 </div>
@@ -1341,7 +1345,7 @@ vkCmdEndRenderPass(commandBuffer);</code></pre>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI</a>, <a href="VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI</a>, <a href="vkCmdDrawClusterHUAWEI.html">vkCmdDrawClusterHUAWEI</a>, <a href="vkCmdDrawClusterIndirectHUAWEI.html">vkCmdDrawClusterIndirectHUAWEI</a></p>
+<p><a href="VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI</a>, <a href="VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI</a>, <a href="VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI.html">VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI</a>, <a href="vkCmdDrawClusterHUAWEI.html">vkCmdDrawClusterHUAWEI</a>, <a href="vkCmdDrawClusterIndirectHUAWEI.html">vkCmdDrawClusterIndirectHUAWEI</a></p>
 </div>
 </div>
 </div>
@@ -1371,8 +1375,8 @@ Fixes and changes should be made to the generator scripts, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.271<br>
-Last updated 2023-11-26 21:16:05 -0800
+Version 1.3.272<br>
+Last updated 2023-12-01 02:31:24 -0800
 </div>
 </div>
 
