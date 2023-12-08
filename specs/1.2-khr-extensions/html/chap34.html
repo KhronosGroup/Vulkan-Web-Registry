@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.272 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.2.273 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.272 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.273 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.272,</span>
-<span id="revdate">2023-12-01 10:48:27Z</span>
-<br><span id="revremark">from git branch: github-main commit: 73207ec2babd7fce921920499ac4427583d7293d</span>
+<span id="revnumber">version 1.2.273,</span>
+<span id="revdate">2023-12-08 14:01:50Z</span>
+<br><span id="revremark">from git branch: github-main commit: f8d76125ca22ec65dfcaedc7177e204f11ad7c7b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -128,6 +128,7 @@
 <li><a href="chap7.html#synchronization-wait-idle">7.8. Wait Idle Operations</a></li>
 <li><a href="chap7.html#synchronization-submission-host-writes">7.9. Host Write Ordering Guarantees</a></li>
 <li><a href="chap7.html#synchronization-device-group">7.10. Synchronization and Multiple Physical Devices</a></li>
+<li><a href="chap7.html#calibrated-timestamps">7.11. Calibrated Timestamps</a></li>
 </ul>
 </li>
 <li><a href="chap8.html">8. Render Pass</a>
@@ -175,11 +176,11 @@
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
 <ul class="sectlevel2">
-<li><a href="chap10.html#pipelines-compute">10.1. Compute Pipelines</a></li>
-<li><a href="chap10.html#pipelines-graphics">10.2. Graphics Pipelines</a></li>
-<li><a href="chap10.html#pipelines-ray-tracing">10.3. Ray Tracing Pipelines</a></li>
-<li><a href="chap10.html#pipelines-destruction">10.4. Pipeline Destruction</a></li>
-<li><a href="chap10.html#pipelines-multiple">10.5. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-multiple">10.1. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-compute">10.2. Compute Pipelines</a></li>
+<li><a href="chap10.html#pipelines-graphics">10.3. Graphics Pipelines</a></li>
+<li><a href="chap10.html#pipelines-ray-tracing">10.4. Ray Tracing Pipelines</a></li>
+<li><a href="chap10.html#pipelines-destruction">10.5. Pipeline Destruction</a></li>
 <li><a href="chap10.html#pipelines-pipeline-derivatives">10.6. Pipeline Derivatives</a></li>
 <li><a href="chap10.html#pipelines-cache">10.7. Pipeline Cache</a></li>
 <li><a href="chap10.html#pipelines-specialization-constants">10.8. Specialization Constants</a></li>
@@ -288,7 +289,8 @@
 <ul class="sectlevel2">
 <li><a href="chap21.html#fxvertex-attrib">21.1. Vertex Attributes</a></li>
 <li><a href="chap21.html#fxvertex-input">21.2. Vertex Input Description</a></li>
-<li><a href="chap21.html#fxvertex-input-address-calculation">21.3. Vertex Input Address Calculation</a></li>
+<li><a href="chap21.html#fxvertex-attribute_divisor">21.3. Vertex Attribute Divisor in Instanced Rendering</a></li>
+<li><a href="chap21.html#fxvertex-input-address-calculation">21.4. Vertex Input Address Calculation</a></li>
 </ul>
 </li>
 <li><a href="chap22.html">22. Tessellation</a>
@@ -467,6 +469,7 @@
 <li><a href="chap41.html#capabilities-buffer">41.2. Additional Buffer Capabilities</a></li>
 <li><a href="chap41.html#capabilities-semaphore">41.3. Optional Semaphore Capabilities</a></li>
 <li><a href="chap41.html#capabilities-fence">41.4. Optional Fence Capabilities</a></li>
+<li><a href="chap41.html#features-timestamp-calibration">41.5. Timestamp Calibration Capabilities</a></li>
 </ul>
 </li>
 <li><a href="chap42.html">42. Debugging</a>
@@ -591,7 +594,7 @@ and geometries in an acceleration structure.</p>
 must execute
 <code>OpRayQueryProceedKHR</code>
 or
-<code>OpTraceRayKHR</code>
+a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace ray</a> instruction
 .
 When the <a href="chap38.html#features-rayTracingPipeline"><code>rayTracingPipeline</code></a> feature
 is enabled, <code>OpTraceRayKHR</code> <strong class="purple">can</strong> be used for <a href="chap35.html">ray tracing</a>
@@ -821,9 +824,9 @@ application.</p>
 <p>For triangle intersection candidates, the <span class="eq">b</span> and <span class="eq">c</span>
 <a href="chap25.html#primsrast-polygon-barycentrics">barycentric coordinates</a> on the triangle
 where the above condition is met are made available to future shading.
-If the ray was traced with <code>OpTraceRayKHR</code>, these values are available as
-a vector of 2 32-bit floating point values in the <code>HitAttributeKHR</code>
-storage class.</p>
+If the ray was traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instruction, these values are available as a vector of 2 32-bit
+floating point values in the <code>HitAttributeKHR</code> storage class.</p>
 </div>
 <div class="paragraph">
 <p>Once an intersection candidate is determined, it proceeds through the
@@ -921,8 +924,9 @@ trace instruction, and the intersection is with a triangle primitive, the
 intersection is dropped, and no further processing of this intersection
 occurs.
 If <code>VK_PIPELINE_CREATE_RAY_TRACING_SKIP_TRIANGLES_BIT_KHR</code> was included
-in the pipeline, traversal with <code>OpTraceRayKHR</code> calls will all behave as
-if <code>SkipTrianglesKHR</code> was included in its <code>Ray Flags</code> operand.</p>
+in the pipeline, traversal with <a href="chap50.html#glossary-pipeline-trace-ray">pipeline
+trace ray</a> instructions will all behave as if <code>SkipTrianglesKHR</code> was
+included in their <code>Ray Flags</code> operand.</p>
 </div>
 <div class="paragraph">
 <p>If <code>SkipAABBsKHR</code> was included in the <code>Ray Flags</code> operand of the ray
@@ -930,8 +934,9 @@ trace instruction, and the intersection is with an AABB primitive, the
 intersection is dropped, and no further processing of this intersection
 occurs.
 If <code>VK_PIPELINE_CREATE_RAY_TRACING_SKIP_AABBS_BIT_KHR</code> was included in
-the pipeline, traversal with <code>OpTraceRayKHR</code> calls will all behave as if
-<code>SkipAABBsKHR</code> was included in its <code>Ray Flags</code> operand.</p>
+the pipeline, traversal with <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instructions will all behave as if <code>SkipAABBsKHR</code> was included in
+their <code>Ray Flags</code> operand.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1012,11 +1017,11 @@ of this.</p>
 </tbody></table>
 </div>
 <div class="paragraph">
-<p>If the ray was traced with <code>OpTraceRayKHR</code>, the <code>HitKindKHR</code> built-in
-is set to <code>HitKindFrontFacingTriangleKHR</code> if the intersection is with
-front-facing geometry, and <code>HitKindBackFacingTriangleKHR</code> if the
-intersection is with back-facing geometry, for shader stages considering
-this intersection.</p>
+<p>If the ray was traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instruction, the <code>HitKindKHR</code> built-in is set to
+<code>HitKindFrontFacingTriangleKHR</code> if the intersection is with front-facing
+geometry, and <code>HitKindBackFacingTriangleKHR</code> if the intersection is with
+back-facing geometry, for shader stages considering this intersection.</p>
 </div>
 <div class="paragraph">
 <p>If the ray was traced with <code>OpRayQueryProceedKHR</code>,
@@ -1324,8 +1329,10 @@ To avoid propagating false intersections the application <strong class="purple">
 intersection candidate before reporting any hits.</p>
 </div>
 <div class="paragraph">
-<p>If the ray was traced with <code>OpTraceRayKHR</code>, an <a href="chap9.html#shaders-intersection">intersection shader</a> is invoked from the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according
-to the <a href="chap35.html#shader-binding-table-indexing-rules">specified indexing</a> for the
+<p>If the ray was traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instruction, an <a href="chap9.html#shaders-intersection">intersection shader</a> is
+invoked from the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according to the
+<a href="chap35.html#shader-binding-table-indexing-rules">specified indexing</a> for the
 intersected geometry.
 If this shader calls <code>OpReportIntersectionKHR</code>, a new intersection
 candidate is generated as described
@@ -1355,9 +1362,10 @@ intersection candidate with committed intersection type of
 Further ray query processing <strong class="purple">can</strong> be continued by executing
 <code>OpRayQueryProceedKHR</code> with the same ray query, or intersection <strong class="purple">can</strong> be
 terminated with <code>OpRayQueryTerminateKHR</code>.
-Unlike rays traced with <code>OpTraceRayKHR</code>, candidates generated in this way
-skip generated intersection candidate confirmation; applications <strong class="purple">should</strong>
-make this determination before generating the intersection.</p>
+Unlike rays traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instruction, candidates generated in this way skip generated
+intersection candidate confirmation; applications <strong class="purple">should</strong> make this
+determination before generating the intersection.</p>
 </div>
 <div class="paragraph">
 <p>This operation <strong class="purple">may</strong> be executed multiple times for the same intersection
@@ -1380,9 +1388,9 @@ valid hit and passes to the next stage of processing.</p>
 whether a hit occurred or not.</p>
 </div>
 <div class="paragraph">
-<p>If the ray was traced with <code>OpTraceRayKHR</code>, an <a href="chap9.html#shaders-any-hit">any-hit
-shader</a> is invoked from the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according to the
-specified indexing.
+<p>If the ray was traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace
+ray</a> instruction, an <a href="chap9.html#shaders-any-hit">any-hit shader</a> is invoked from
+the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according to the specified indexing.
 If this shader calls <code>OpIgnoreIntersectionKHR</code>, the candidate is dropped
 and no further processing of the candidate occurs.
 If the <a href="chap9.html#shaders-any-hit">any-hit shader</a> identified is
@@ -1455,23 +1463,26 @@ is forcibly terminated, the final result of the ray trace is determined.</p>
 a closest hit has occurred, otherwise the final result is a miss.</p>
 </div>
 <div class="paragraph">
-<p>For rays traced with <code>OpTraceRayKHR</code>, if a closest hit result was
-identified, a <a href="chap9.html#shaders-closest-hit">closest hit shader</a> is invoked from
-the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according to the
+<p>For rays traced with <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace ray</a>
+instructions which <strong class="purple">can</strong> invoke a closest hit shader, if a closest hit result
+was identified, a <a href="chap9.html#shaders-closest-hit">closest hit shader</a> is invoked
+from the <a href="chap35.html#shader-binding-table">Shader Binding Table</a> according to the
 <a href="chap35.html#shader-binding-table-indexing-rules">specified indexing</a> for the
 intersected geometry.
-Control returns to the shader that executed <code>OpTraceRayKHR</code> once this
+Control returns to the shader that executed the
+<a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace ray</a> instruction once this
 shader returns.
 This shader is skipped if either the ray flags included
 <code>SkipClosestHitShaderKHR</code>, or if the <a href="chap9.html#shaders-closest-hit">closest hit
 shader</a> identified is <code>VK_SHADER_UNUSED_KHR</code>.</p>
 </div>
 <div class="paragraph">
-<p>For rays traced with <code>OpTraceRayKHR</code> where no hit result was identified,
-the <a href="chap9.html#shaders-miss">miss shader</a> identified by the <code>Miss Index</code> parameter
-of <code>OpTraceRayKHR</code> is invoked.
-Control returns to the shader that executed <code>OpTraceRayKHR</code> once this
-shader returns.
+<p>For rays traced with a <a href="chap50.html#glossary-pipeline-trace-ray">pipeline trace ray</a>
+instruction where no hit result was identified, the <a href="chap9.html#shaders-miss">miss
+shader</a> identified by the <code>Miss Index</code> parameter of the instruction is
+invoked.
+Control returns to the shader that executed the pipeline trace ray
+instruction once this shader returns.
 This shader is skipped if the miss shader identified is
 <code>VK_SHADER_UNUSED_KHR</code>.</p>
 </div>
@@ -1503,8 +1514,8 @@ If no closest hit was identified, the committed intersection type will be
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.272<br>
-Last updated 2023-12-01 02:09:45 -0800
+Version 1.2.273<br>
+Last updated 2023-12-08 05:23:44 -0800
 </div>
 </div>
 

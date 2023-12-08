@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.272 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.1.273 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.272 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.273 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.272,</span>
-<span id="revdate">2023-12-01 10:55:25Z</span>
-<br><span id="revremark">from git branch: github-main commit: 73207ec2babd7fce921920499ac4427583d7293d</span>
+<span id="revnumber">version 1.1.273,</span>
+<span id="revdate">2023-12-08 14:07:36Z</span>
+<br><span id="revremark">from git branch: github-main commit: f8d76125ca22ec65dfcaedc7177e204f11ad7c7b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -128,6 +128,7 @@
 <li class="current"><a href="chap7.html#synchronization-wait-idle">7.8. Wait Idle Operations</a></li>
 <li class="current"><a href="chap7.html#synchronization-submission-host-writes">7.9. Host Write Ordering Guarantees</a></li>
 <li class="current"><a href="chap7.html#synchronization-device-group">7.10. Synchronization and Multiple Physical Devices</a></li>
+<li class="current"><a href="chap7.html#calibrated-timestamps">7.11. Calibrated Timestamps</a></li>
 </ul>
 </li>
 <li><a href="chap8.html">8. Render Pass</a>
@@ -175,11 +176,11 @@
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
 <ul class="sectlevel2">
-<li><a href="chap10.html#pipelines-compute">10.1. Compute Pipelines</a></li>
-<li><a href="chap10.html#pipelines-graphics">10.2. Graphics Pipelines</a></li>
-<li><a href="chap10.html#pipelines-ray-tracing">10.3. Ray Tracing Pipelines</a></li>
-<li><a href="chap10.html#pipelines-destruction">10.4. Pipeline Destruction</a></li>
-<li><a href="chap10.html#pipelines-multiple">10.5. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-multiple">10.1. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-compute">10.2. Compute Pipelines</a></li>
+<li><a href="chap10.html#pipelines-graphics">10.3. Graphics Pipelines</a></li>
+<li><a href="chap10.html#pipelines-ray-tracing">10.4. Ray Tracing Pipelines</a></li>
+<li><a href="chap10.html#pipelines-destruction">10.5. Pipeline Destruction</a></li>
 <li><a href="chap10.html#pipelines-pipeline-derivatives">10.6. Pipeline Derivatives</a></li>
 <li><a href="chap10.html#pipelines-cache">10.7. Pipeline Cache</a></li>
 <li><a href="chap10.html#pipelines-specialization-constants">10.8. Specialization Constants</a></li>
@@ -288,7 +289,8 @@
 <ul class="sectlevel2">
 <li><a href="chap21.html#fxvertex-attrib">21.1. Vertex Attributes</a></li>
 <li><a href="chap21.html#fxvertex-input">21.2. Vertex Input Description</a></li>
-<li><a href="chap21.html#fxvertex-input-address-calculation">21.3. Vertex Input Address Calculation</a></li>
+<li><a href="chap21.html#fxvertex-attribute_divisor">21.3. Vertex Attribute Divisor in Instanced Rendering</a></li>
+<li><a href="chap21.html#fxvertex-input-address-calculation">21.4. Vertex Input Address Calculation</a></li>
 </ul>
 </li>
 <li><a href="chap22.html">22. Tessellation</a>
@@ -467,6 +469,7 @@
 <li><a href="chap41.html#capabilities-buffer">41.2. Additional Buffer Capabilities</a></li>
 <li><a href="chap41.html#capabilities-semaphore">41.3. Optional Semaphore Capabilities</a></li>
 <li><a href="chap41.html#capabilities-fence">41.4. Optional Fence Capabilities</a></li>
+<li><a href="chap41.html#features-timestamp-calibration">41.5. Timestamp Calibration Capabilities</a></li>
 </ul>
 </li>
 <li><a href="chap42.html">42. Debugging</a>
@@ -16581,6 +16584,334 @@ waited on by a different physical device.</p>
 (or the host).</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="calibrated-timestamps"><a class="anchor" href="chap7.html#calibrated-timestamps"></a>7.11. Calibrated Timestamps</h3>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>In order to be able to correlate the time a particular operation took place
+at on timelines of different time domains (e.g. a device operation vs. a
+host operation), Vulkan allows querying calibrated timestamps from multiple
+time domains.</p>
+</div>
+<div class="paragraph">
+<p>To query calibrated timestamps from a set of time domains, call:</p>
+</div>
+<div id="vkGetCalibratedTimestampsKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_calibrated_timestamps</span>
+<span class="n">VkResult</span> <span class="nf">vkGetCalibratedTimestampsKHR</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="kt">uint32_t</span>                                    <span class="n">timestampCount</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkCalibratedTimestampInfoKHR</span><span class="o">*</span>         <span class="n">pTimestampInfos</span><span class="p">,</span>
+    <span class="kt">uint64_t</span><span class="o">*</span>                                   <span class="n">pTimestamps</span><span class="p">,</span>
+    <span class="kt">uint64_t</span><span class="o">*</span>                                   <span class="n">pMaxDeviation</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device used to perform the query.</p>
+</li>
+<li>
+<p><code>timestampCount</code> is the number of timestamps to query.</p>
+</li>
+<li>
+<p><code>pTimestampInfos</code> is a pointer to an array of <code>timestampCount</code>
+<a href="chap7.html#VkCalibratedTimestampInfoKHR">VkCalibratedTimestampInfoKHR</a> structures, describing the time
+domains the calibrated timestamps should be captured from.</p>
+</li>
+<li>
+<p><code>pTimestamps</code> is a pointer to an array of <code>timestampCount</code>
+64-bit unsigned integer values in which the requested calibrated
+timestamp values are returned.</p>
+</li>
+<li>
+<p><code>pMaxDeviation</code> is a pointer to a 64-bit unsigned integer value in
+which the strictly positive maximum deviation, in nanoseconds, of the
+calibrated timestamp values is returned.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The maximum deviation <strong class="purple">may</strong> vary between calls to
+<code>vkGetCalibratedTimestampsKHR</code> even for the same set of time domains due
+to implementation and platform specific reasons.
+It is the application’s responsibility to assess whether the returned
+maximum deviation makes the timestamp values suitable for any particular
+purpose and <strong class="purple">can</strong> choose to re-issue the timestamp calibration call pursuing
+a lower deviation value.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>Calibrated timestamp values <strong class="purple">can</strong> be extrapolated to estimate future
+coinciding timestamp values, however, depending on the nature of the time
+domains and other properties of the platform extrapolating values over a
+sufficiently long period of time <strong class="purple">may</strong> no longer be accurate enough to fit
+any particular purpose, so applications are expected to re-calibrate the
+timestamps on a regular basis.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsEXT-timeDomain-09246" href="chap7.html#VUID-vkGetCalibratedTimestampsEXT-timeDomain-09246"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsEXT-timeDomain-09246</span><br>
+
+The <code>timeDomain</code> value of each <code>VkCalibratedTimestampInfoEXT</code> in
+<code>pTimestampInfos</code> <strong class="purple">must</strong> be unique</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsKHR-device-parameter" href="chap7.html#VUID-vkGetCalibratedTimestampsKHR-device-parameter"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsKHR-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsKHR-pTimestampInfos-parameter" href="chap7.html#VUID-vkGetCalibratedTimestampsKHR-pTimestampInfos-parameter"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsKHR-pTimestampInfos-parameter</span><br>
+ <code>pTimestampInfos</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>timestampCount</code> valid <a href="chap7.html#VkCalibratedTimestampInfoKHR">VkCalibratedTimestampInfoKHR</a> structures</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsKHR-pTimestamps-parameter" href="chap7.html#VUID-vkGetCalibratedTimestampsKHR-pTimestamps-parameter"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsKHR-pTimestamps-parameter</span><br>
+ <code>pTimestamps</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>timestampCount</code> <code>uint64_t</code> values</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsKHR-pMaxDeviation-parameter" href="chap7.html#VUID-vkGetCalibratedTimestampsKHR-pMaxDeviation-parameter"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsKHR-pMaxDeviation-parameter</span><br>
+ <code>pMaxDeviation</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint64_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetCalibratedTimestampsKHR-timestampCount-arraylength" href="chap7.html#VUID-vkGetCalibratedTimestampsKHR-timestampCount-arraylength"></a> <span class="vuid">VUID-vkGetCalibratedTimestampsKHR-timestampCount-arraylength</span><br>
+ <code>timestampCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkCalibratedTimestampInfoKHR</code> structure is defined as:</p>
+</div>
+<div id="VkCalibratedTimestampInfoKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_calibrated_timestamps</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkCalibratedTimestampInfoKHR</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkTimeDomainKHR</span>    <span class="n">timeDomain</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkCalibratedTimestampInfoKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>timeDomain</code> is a <a href="chap7.html#VkTimeDomainKHR">VkTimeDomainKHR</a> value specifying the time
+domain from which the calibrated timestamp value should be returned.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCalibratedTimestampInfoEXT-timeDomain-02354" href="chap7.html#VUID-VkCalibratedTimestampInfoEXT-timeDomain-02354"></a> <span class="vuid">VUID-VkCalibratedTimestampInfoEXT-timeDomain-02354</span><br>
+
+<code>timeDomain</code> <strong class="purple">must</strong> be one of the <a href="chap7.html#VkTimeDomainKHR">VkTimeDomainKHR</a> values
+returned by <a href="chap41.html#vkGetPhysicalDeviceCalibrateableTimeDomainsKHR">vkGetPhysicalDeviceCalibrateableTimeDomainsKHR</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkCalibratedTimestampInfoKHR-sType-sType" href="chap7.html#VUID-VkCalibratedTimestampInfoKHR-sType-sType"></a> <span class="vuid">VUID-VkCalibratedTimestampInfoKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCalibratedTimestampInfoKHR-pNext-pNext" href="chap7.html#VUID-VkCalibratedTimestampInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkCalibratedTimestampInfoKHR-pNext-pNext</span><br>
+ <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkCalibratedTimestampInfoKHR-timeDomain-parameter" href="chap7.html#VUID-VkCalibratedTimestampInfoKHR-timeDomain-parameter"></a> <span class="vuid">VUID-VkCalibratedTimestampInfoKHR-timeDomain-parameter</span><br>
+ <code>timeDomain</code> <strong class="purple">must</strong> be a valid <a href="chap7.html#VkTimeDomainKHR">VkTimeDomainKHR</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The set of supported time domains consists of:</p>
+</div>
+<div id="VkTimeDomainKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_calibrated_timestamps</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkTimeDomainKHR</span> <span class="p">{</span>
+    <span class="n">VK_TIME_DOMAIN_DEVICE_KHR</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkTimeDomainKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_TIME_DOMAIN_DEVICE_KHR</code> specifies the device time domain.
+Timestamp values in this time domain use the same units and are
+comparable with device timestamp values captured using
+<a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a>
+or <a href="chap17.html#vkCmdWriteTimestamp2KHR">vkCmdWriteTimestamp2KHR</a>
+and are defined to be incrementing according to the
+<a href="chap39.html#limits-timestampPeriod"><code>timestampPeriod</code></a> of the device.</p>
+</li>
+<li>
+<p><code>VK_TIME_DOMAIN_CLOCK_MONOTONIC_KHR</code> specifies the CLOCK_MONOTONIC
+time domain available on POSIX platforms.
+Timestamp values in this time domain are in units of nanoseconds and are
+comparable with platform timestamp values captured using the POSIX
+clock_gettime API as computed by this example:</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>An implementation supporting
+<code><a href="chap47.html#VK_KHR_calibrated_timestamps">VK_KHR_calibrated_timestamps</a></code>
+will use the same time domain for all its <a href="chap5.html#VkQueue">VkQueue</a> so that timestamp
+values reported for <code>VK_TIME_DOMAIN_DEVICE_KHR</code> can be matched to any
+timestamp captured through <a href="chap17.html#vkCmdWriteTimestamp">vkCmdWriteTimestamp</a>
+or <a href="chap17.html#vkCmdWriteTimestamp2KHR">vkCmdWriteTimestamp2KHR</a>
+.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="k">struct</span> <span class="n">timespec</span> <span class="n">tv</span><span class="p">;</span>
+<span class="n">clock_gettime</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tv</span><span class="p">);</span>
+<span class="k">return</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_nsec</span> <span class="o">+</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span><span class="o">*</span><span class="mi">1000000000ull</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_TIME_DOMAIN_CLOCK_MONOTONIC_RAW_KHR</code> specifies the
+CLOCK_MONOTONIC_RAW time domain available on POSIX platforms.
+Timestamp values in this time domain are in units of nanoseconds and are
+comparable with platform timestamp values captured using the POSIX
+clock_gettime API as computed by this example:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="k">struct</span> <span class="n">timespec</span> <span class="n">tv</span><span class="p">;</span>
+<span class="n">clock_gettime</span><span class="p">(</span><span class="n">CLOCK_MONOTONIC_RAW</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tv</span><span class="p">);</span>
+<span class="k">return</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_nsec</span> <span class="o">+</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span><span class="o">*</span><span class="mi">1000000000ull</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR</code> specifies the
+performance counter (QPC) time domain available on Windows.
+Timestamp values in this time domain are in the same units as those
+provided by the Windows QueryPerformanceCounter API and are comparable
+with platform timestamp values captured using that API as computed by
+this example:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c"><span class="n">LARGE_INTEGER</span> <span class="n">counter</span><span class="p">;</span>
+<span class="n">QueryPerformanceCounter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">);</span>
+<span class="k">return</span> <span class="n">counter</span><span class="p">.</span><span class="n">QuadPart</span><span class="p">;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div></div>
 
@@ -16595,8 +16926,8 @@ waited on by a different physical device.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.272<br>
-Last updated 2023-12-01 02:09:45 -0800
+Version 1.1.273<br>
+Last updated 2023-12-08 05:23:44 -0800
 </div>
 </div>
 

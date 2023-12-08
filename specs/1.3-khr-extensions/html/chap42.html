@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.272 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.3.273 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.272 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.3.273 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.272,</span>
-<span id="revdate">2023-12-01 10:40:24Z</span>
-<br><span id="revremark">from git branch: github-main commit: 73207ec2babd7fce921920499ac4427583d7293d</span>
+<span id="revnumber">version 1.3.273,</span>
+<span id="revdate">2023-12-08 13:54:48Z</span>
+<br><span id="revremark">from git branch: github-main commit: f8d76125ca22ec65dfcaedc7177e204f11ad7c7b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -128,6 +128,7 @@
 <li><a href="chap7.html#synchronization-wait-idle">7.8. Wait Idle Operations</a></li>
 <li><a href="chap7.html#synchronization-submission-host-writes">7.9. Host Write Ordering Guarantees</a></li>
 <li><a href="chap7.html#synchronization-device-group">7.10. Synchronization and Multiple Physical Devices</a></li>
+<li><a href="chap7.html#calibrated-timestamps">7.11. Calibrated Timestamps</a></li>
 </ul>
 </li>
 <li><a href="chap8.html">8. Render Pass</a>
@@ -175,11 +176,11 @@
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
 <ul class="sectlevel2">
-<li><a href="chap10.html#pipelines-compute">10.1. Compute Pipelines</a></li>
-<li><a href="chap10.html#pipelines-graphics">10.2. Graphics Pipelines</a></li>
-<li><a href="chap10.html#pipelines-ray-tracing">10.3. Ray Tracing Pipelines</a></li>
-<li><a href="chap10.html#pipelines-destruction">10.4. Pipeline Destruction</a></li>
-<li><a href="chap10.html#pipelines-multiple">10.5. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-multiple">10.1. Multiple Pipeline Creation</a></li>
+<li><a href="chap10.html#pipelines-compute">10.2. Compute Pipelines</a></li>
+<li><a href="chap10.html#pipelines-graphics">10.3. Graphics Pipelines</a></li>
+<li><a href="chap10.html#pipelines-ray-tracing">10.4. Ray Tracing Pipelines</a></li>
+<li><a href="chap10.html#pipelines-destruction">10.5. Pipeline Destruction</a></li>
 <li><a href="chap10.html#pipelines-pipeline-derivatives">10.6. Pipeline Derivatives</a></li>
 <li><a href="chap10.html#pipelines-cache">10.7. Pipeline Cache</a></li>
 <li><a href="chap10.html#pipelines-specialization-constants">10.8. Specialization Constants</a></li>
@@ -289,7 +290,8 @@
 <ul class="sectlevel2">
 <li><a href="chap21.html#fxvertex-attrib">21.1. Vertex Attributes</a></li>
 <li><a href="chap21.html#fxvertex-input">21.2. Vertex Input Description</a></li>
-<li><a href="chap21.html#fxvertex-input-address-calculation">21.3. Vertex Input Address Calculation</a></li>
+<li><a href="chap21.html#fxvertex-attribute_divisor">21.3. Vertex Attribute Divisor in Instanced Rendering</a></li>
+<li><a href="chap21.html#fxvertex-input-address-calculation">21.4. Vertex Input Address Calculation</a></li>
 </ul>
 </li>
 <li><a href="chap22.html">22. Tessellation</a>
@@ -471,6 +473,7 @@
 <li class="current"><a href="chap42.html#capabilities-buffer">42.2. Additional Buffer Capabilities</a></li>
 <li class="current"><a href="chap42.html#capabilities-semaphore">42.3. Optional Semaphore Capabilities</a></li>
 <li class="current"><a href="chap42.html#capabilities-fence">42.4. Optional Fence Capabilities</a></li>
+<li class="current"><a href="chap42.html#features-timestamp-calibration">42.5. Timestamp Calibration Capabilities</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Debugging</a>
@@ -611,6 +614,9 @@ chapters, including:</p>
 </li>
 <li>
 <p><a href="chap42.html#capabilities-fence">Optional Fence Capabilities</a></p>
+</li>
+<li>
+<p><a href="chap42.html#features-timestamp-calibration">Timestamp Calibration Capabilities</a></p>
 </li>
 </ul>
 </div>
@@ -3364,6 +3370,113 @@ zero or more <a href="chap42.html#VkExternalFenceFeatureFlagBits">VkExternalFenc
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="features-timestamp-calibration"><a class="anchor" href="chap42.html#features-timestamp-calibration"></a>42.5. Timestamp Calibration Capabilities</h3>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To query the set of time domains for which a physical device supports
+timestamp calibration, call:</p>
+</div>
+<div id="vkGetPhysicalDeviceCalibrateableTimeDomainsKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_calibrated_timestamps</span>
+<span class="n">VkResult</span> <span class="nf">vkGetPhysicalDeviceCalibrateableTimeDomainsKHR</span><span class="p">(</span>
+    <span class="n">VkPhysicalDevice</span>                            <span class="n">physicalDevice</span><span class="p">,</span>
+    <span class="kt">uint32_t</span><span class="o">*</span>                                   <span class="n">pTimeDomainCount</span><span class="p">,</span>
+    <span class="n">VkTimeDomainKHR</span><span class="o">*</span>                            <span class="n">pTimeDomains</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>physicalDevice</code> is the physical device from which to query the set
+of calibrateable time domains.</p>
+</li>
+<li>
+<p><code>pTimeDomainCount</code> is a pointer to an integer related to the number
+of calibrateable time domains available or queried, as described below.</p>
+</li>
+<li>
+<p><code>pTimeDomains</code> is either <code>NULL</code> or a pointer to an array of
+<a href="chap7.html#VkTimeDomainKHR">VkTimeDomainKHR</a> values, indicating the supported calibrateable
+time domains.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>pTimeDomains</code> is <code>NULL</code>, then the number of calibrateable time
+domains supported for the given <code>physicalDevice</code> is returned in
+<code>pTimeDomainCount</code>.
+Otherwise, <code>pTimeDomainCount</code> <strong class="purple">must</strong> point to a variable set by the user
+to the number of elements in the <code>pTimeDomains</code> array, and on return the
+variable is overwritten with the number of values actually written to
+<code>pTimeDomains</code>.
+If the value of <code>pTimeDomainCount</code> is less than the number of
+calibrateable time domains supported, at most <code>pTimeDomainCount</code> values
+will be written to <code>pTimeDomains</code>, and <code>VK_INCOMPLETE</code> will be
+returned instead of <code>VK_SUCCESS</code>, to indicate that not all the available
+time domains were returned.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-physicalDevice-parameter" href="chap42.html#VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-physicalDevice-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-physicalDevice-parameter</span><br>
+ <code>physicalDevice</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomainCount-parameter" href="chap42.html#VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomainCount-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomainCount-parameter</span><br>
+ <code>pTimeDomainCount</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint32_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomains-parameter" href="chap42.html#VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomains-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceCalibrateableTimeDomainsKHR-pTimeDomains-parameter</span><br>
+ If the value referenced by <code>pTimeDomainCount</code> is not <code>0</code>, and <code>pTimeDomains</code> is not <code>NULL</code>, <code>pTimeDomains</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pTimeDomainCount</code> <a href="chap7.html#VkTimeDomainKHR">VkTimeDomainKHR</a> values</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div></div>
 
@@ -3378,8 +3491,8 @@ zero or more <a href="chap42.html#VkExternalFenceFeatureFlagBits">VkExternalFenc
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.272<br>
-Last updated 2023-12-01 02:09:45 -0800
+Version 1.3.273<br>
+Last updated 2023-12-08 05:23:44 -0800
 </div>
 </div>
 

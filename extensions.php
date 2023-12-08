@@ -6,6 +6,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_android_surface.html"> VK_KHR_android_surface </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_bind_memory2.html"> VK_KHR_bind_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_buffer_device_address.html"> VK_KHR_buffer_device_address </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_calibrated_timestamps.html"> VK_KHR_calibrated_timestamps </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_cooperative_matrix.html"> VK_KHR_cooperative_matrix </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_copy_commands2.html"> VK_KHR_copy_commands2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_create_renderpass2.html"> VK_KHR_create_renderpass2 </a> </li>
@@ -87,6 +88,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_timeline_semaphore.html"> VK_KHR_timeline_semaphore </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_uniform_buffer_standard_layout.html"> VK_KHR_uniform_buffer_standard_layout </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_variable_pointers.html"> VK_KHR_variable_pointers </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_vertex_attribute_divisor.html"> VK_KHR_vertex_attribute_divisor </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h264.html"> VK_KHR_video_decode_h264 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h265.html"> VK_KHR_video_decode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_queue.html"> VK_KHR_video_decode_queue </a> </li>
