@@ -75,19 +75,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
      <a href="specs/1.3-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.3-extensions/html/vkspec.html">(Single-file HTML)</a>
      This Specification includes all registered Vulkan extensions which have
-     been incorporated into the Specification Repository, including KHR,
-     EXT, and vendor extensions. </li>
+     been incorporated into the Specification Repository, including
+     <tt>KHR</tt>, <tt>EXT</tt>, and vendor extensions. </li>
 <li> <b>Vulkan 1.3 Core API</b>
      <a href="specs/1.3/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.3/pdf/vkspec.pdf">(PDF)</a> </li>
      <a href="specs/1.3/html/vkspec.html">(Single-file HTML)</a>
-<li> <b>Vulkan 1.3 Core API + Khronos-defined Extensions</b>
+<li> <b>Vulkan 1.3 Core API + Ratified Extensions</b>
      <a href="specs/1.3-khr-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.3-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.3-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
-     This Specification includes Khronos-defined <tt>KHR</tt> extensions
-     such as the Window-System Interface Extensions used to post images to a
-     display on different platforms and window systems. </li>
+     This Specification includes ratified <tt>KHR</tt> and <tt>EXT</tt>
+     extensions. </li>
 </ul>
 
 
@@ -161,19 +160,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
      <a href="specs/1.2-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.2-extensions/html/vkspec.html">(Single-file HTML)</a>
      This Specification includes all registered Vulkan extensions which have
-     been incorporated into the Specification Repository, including KHR,
-     EXT, and vendor extensions. </li>
+     been incorporated into the Specification Repository, including
+     <tt>KHR</tt>, <tt>EXT</tt>, and vendor extensions. </li>
 <li> <b>Vulkan 1.2 Core API</b>
      <a href="specs/1.2/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.2/pdf/vkspec.pdf">(PDF)</a> </li>
      <a href="specs/1.2/html/vkspec.html">(Single-file HTML)</a>
-<li> <b>Vulkan 1.2 Core API + Khronos-defined Extensions</b>
+<li> <b>Vulkan 1.2 Core API + Ratified Extensions</b>
      <a href="specs/1.2-khr-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.2-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.2-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
-     This Specification includes Khronos-defined <tt>KHR</tt> extensions
-     such as the Window-System Interface Extensions used to post images to a
-     display on different platforms and window systems. </li>
+     This Specification includes ratified <tt>KHR</tt> and <tt>EXT</tt>
+     extensions. </li>
   <!-- Not updated for 1.2
 <li> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">Vulkan 1.1 API
      Quick Reference</a> is a compact document summarizing the Vulkan 1.1
@@ -197,19 +195,18 @@ include_once("../../assets/static_pages/khr_page_top.php");
      <a href="specs/1.1-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.1-extensions/html/vkspec.html">(Single-file HTML)</a>
      This Specification includes all registered Vulkan extensions which have
-     been incorporated into the Specification Repository, including KHR,
-     EXT, and vendor extensions. </li>
+     been incorporated into the Specification Repository, including
+     <tt>KHR</tt>, <tt>EXT</tt>, and vendor extensions. </li>
 <li> <b>Vulkan 1.1 Core API</b>
      <a href="specs/1.1/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.1/pdf/vkspec.pdf">(PDF)</a> </li>
      <a href="specs/1.1/html/vkspec.html">(Single-file HTML)</a>
-<li> <b>Vulkan 1.1 Core API + Khronos-defined Extensions</b>
+<li> <b>Vulkan 1.1 Core API + Ratified Extensions</b>
      <a href="specs/1.1-khr-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.1-khr-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.1-khr-extensions/html/vkspec.html">(Single-file HTML)</a>
-     This Specification includes Khronos-defined <tt>KHR</tt> extensions
-     such as the Window-System Interface Extensions used to post images to a
-     display on different platforms and window systems. </li>
+     This Specification includes ratified <tt>KHR</tt> and <tt>EXT</tt>
+     extensions. </li>
 <li> The <a href="specs/1.1/refguide/Vulkan-1.1-web.pdf">Vulkan 1.1 API
      Quick Reference</a> is a compact document summarizing the Vulkan 1.1
      API commands, structures, and enumerants.
@@ -234,20 +231,19 @@ include_once("../../assets/static_pages/khr_page_top.php");
      <a href="specs/1.0-extensions/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.0-extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.0-extensions/html/vkspec.html">(Single-file HTML)</a>
-     This Specification includes all registered Vulkan extensions applicable
-     to Vulkan 1.0 which have been incorporated into the Specification
-     Repository, including KHR, EXT, and vendor extensions. </li>
+     This Specification includes all registered Vulkan extensions which have
+     been incorporated into the Specification Repository, including
+     <tt>KHR</tt>, <tt>EXT</tt>, and vendor extensions. </li>
 <li> <b>Vulkan 1.0 Core API</b>
      <a href="specs/1.0/html/index.html">(Chunked HTML)</a>
      <a href="specs/1.0/pdf/vkspec.pdf">(PDF)</a> </li>
      <a href="specs/1.0/html/vkspec.html">(Single-file HTML)</a>
-<li> <b>Vulkan 1.0 Core API + Khronos-defined Extensions</b>
+<li> <b>Vulkan 1.0 Core API + Ratified Extensions</b>
      <a href="specs/1.0-wsi_extensions/html/index.html">(Chunked)</a>
      <a href="specs/1.0-wsi_extensions/pdf/vkspec.pdf">(PDF)</a>.
      <a href="specs/1.0-wsi_extensions/html/vkspec.html">(Single-file HTML)</a>
-     This Specification includes Khronos-defined <tt>KHR</tt> extensions
-     such as the Window-System Interface Extensions used to post images to a
-     display on different platforms and window systems. </li>
+     This Specification includes ratified <tt>KHR</tt> and <tt>EXT</tt>
+     extensions. </li>
 <li> The <a href="specs/1.0/refguide/Vulkan-1.0-web.pdf">Vulkan 1.0 API
      Quick Reference</a> is a compact document summarizing the Vulkan 1.0
      API commands, structures, and enumerants. </p>
