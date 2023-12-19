@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.273 - A Specification</title>
+<title>Vulkan® 1.2.274 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.273 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.274 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.273,</span>
-<span id="revdate">2023-12-08 14:05:38Z</span>
-<br><span id="revremark">from git branch: github-main commit: f8d76125ca22ec65dfcaedc7177e204f11ad7c7b</span>
+<span id="revnumber">version 1.2.274,</span>
+<span id="revdate">2023-12-19 04:37:58Z</span>
+<br><span id="revremark">from git branch: github-main commit: 542718ca30aef2c3c5afbca41de6424bd37e1808</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4730,8 +4730,16 @@ size-compatible with, the <code>format</code> used to create <code>image</code><
 
 If <code>image</code> was created with the
 <code>VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT</code> flag and
-<code>format</code> is a non-compressed format, the <code>levelCount</code> and
-<code>layerCount</code> members of <code>subresourceRange</code> <strong class="purple">must</strong> both be <code>1</code></p>
+<code>format</code> is a non-compressed format, the <code>levelCount</code> member of
+<code>subresourceRange</code> <strong class="purple">must</strong> be <code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-image-09487" href="chap12.html#VUID-VkImageViewCreateInfo-image-09487"></a> <span class="vuid">VUID-VkImageViewCreateInfo-image-09487</span><br>
+
+If <code>image</code> was created with the
+<code>VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT</code> flag,
+and <code>format</code> is a non-compressed format, then the <code>layerCount</code>
+member of <code>subresourceRange</code> <strong class="purple">must</strong> be <code>1</code></p>
 </li>
 <li>
 <p><a id="VUID-VkImageViewCreateInfo-pNext-01585" href="chap12.html#VUID-VkImageViewCreateInfo-pNext-01585"></a> <span class="vuid">VUID-VkImageViewCreateInfo-pNext-01585</span><br>
@@ -5800,11 +5808,13 @@ requirements returned by
 </li>
 <li>
 <p>If <code>buffer</code> is a <code>VkBuffer</code> not created with the
-<code>VK_BUFFER_CREATE_SPARSE_BINDING_BIT</code> bit set, or if <code>image</code> is
-<a href="chap43.html#glossary-linear-resource">linear</a> image, then the <code>memoryTypeBits</code>
-member always contains at least one bit set corresponding to a
-<code>VkMemoryType</code> with a <code>propertyFlags</code> that has both the
-<code>VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</code> bit and the
+<code>VK_BUFFER_CREATE_SPARSE_BINDING_BIT</code> or
+<code>VK_BUFFER_CREATE_PROTECTED_BIT</code> bits set, or if <code>image</code> is a
+<a href="chap43.html#glossary-linear-resource">linear</a> image that was not created with the
+<code>VK_IMAGE_CREATE_PROTECTED_BIT</code> bit set, then the
+<code>memoryTypeBits</code> member always contains at least one bit set
+corresponding to a <code>VkMemoryType</code> with a <code>propertyFlags</code> that
+has both the <code>VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT</code> bit and the
 <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> bit set.
 In other words, mappable coherent memory <strong class="purple">can</strong> always be attached to
 these objects.</p>
@@ -6711,6 +6721,11 @@ bind.</p>
 <p>On some implementations, it <strong class="purple">may</strong> be more efficient to batch memory bindings
 into a single command.</p>
 </div>
+<div class="paragraph">
+<p>If any of the memory binding operations described by <code>pBindInfos</code> fail,
+the <a href="chap3.html#VkResult">VkResult</a> returned by this command <strong class="purple">must</strong> be the return value of any
+one of the memory binding operations which did not return <code>VK_SUCCESS</code>.</p>
+</div>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -6720,10 +6735,12 @@ into a single command.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>If <code>vkBindBufferMemory2</code> fails, and <code>bindInfoCount</code> was greater than
-one, then the buffers referenced by <code>pBindInfos</code> will be in an
-indeterminate state, and must not be used.
-Applications should destroy these buffers.</p>
+<p>If the <code>vkBindBufferMemory2</code> command failed,
+and <code>bindInfoCount</code> was greater than one, then the buffers referenced by
+<code>pBindInfos</code> will be in an indeterminate state, and must not be used.</p>
+</div>
+<div class="paragraph">
+<p>Applications should destroy these buffers.</p>
 </div>
 </td>
 </tr>
@@ -7346,6 +7363,11 @@ structures, describing images and memory to bind.</p>
 <p>On some implementations, it <strong class="purple">may</strong> be more efficient to batch memory bindings
 into a single command.</p>
 </div>
+<div class="paragraph">
+<p>If any of the memory binding operations described by <code>pBindInfos</code> fail,
+the <a href="chap3.html#VkResult">VkResult</a> returned by this command <strong class="purple">must</strong> be the return value of any
+one of the memory binding operations which did not return <code>VK_SUCCESS</code>.</p>
+</div>
 <div class="admonitionblock note">
 <table>
 <tbody><tr>
@@ -7355,10 +7377,12 @@ into a single command.</p>
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p>If <code>vkBindImageMemory2</code> fails, and <code>bindInfoCount</code> was greater than
-one, then the images referenced by <code>pBindInfos</code> will be in an
-indeterminate state, and must not be used.
-Applications should destroy these images.</p>
+<p>If the <code>vkBindImageMemory2</code> command failed,
+and <code>bindInfoCount</code> was greater than one, then the images referenced by
+<code>pBindInfos</code> will be in an indeterminate state, and must not be used.</p>
+</div>
+<div class="paragraph">
+<p>Applications should destroy these images.</p>
 </div>
 </td>
 </tr>
@@ -8453,8 +8477,8 @@ The concept of a device cache line size is not exposed in the memory model.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.2.273<br>
-Last updated 2023-12-08 05:23:44 -0800
+Version 1.2.274<br>
+Last updated 2023-12-18 20:14:15 -0800
 </div>
 </div>
 

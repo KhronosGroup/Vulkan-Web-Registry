@@ -846,32 +846,28 @@ structure.</p>
 </li>
 <li>
 <p><code>rateControlMode</code> is a <a href="VkVideoEncodeRateControlModeFlagBitsKHR.html">VkVideoEncodeRateControlModeFlagBitsKHR</a>
-value specifying the encode stream rate control mode.</p>
+value specifying the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a>.</p>
 </li>
 <li>
-<p><code>layerCount</code> specifies the number of rate control layers in the
-video encode stream.</p>
+<p><code>layerCount</code> specifies the number of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-layers" target="_blank" rel="noopener">rate control layers</a> to use.</p>
 </li>
 <li>
-<p><code>pLayers</code> is a pointer to an array of
-<a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a> structures specifying the
-rate control configurations of <code>layerCount</code> rate control layers.</p>
+<p><code>pLayers</code> is a pointer to an array of <code>layerCount</code>
+<a href="VkVideoEncodeRateControlLayerInfoKHR.html">VkVideoEncodeRateControlLayerInfoKHR</a> structures, each specifying
+the rate control configuration of the corresponding rate control layer.</p>
 </li>
 <li>
-<p><code>virtualBufferSizeInMs</code> is the leaky bucket model virtual buffer
-size in milliseconds, with respect to peak bitrate.
-Valid when rate control mode is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR</code> or
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR</code>.
-For example, virtual buffer size is (<code>virtualBufferSizeInMs</code> ×
-<code>maxBitrate</code> / 1000).</p>
+<p><code>virtualBufferSizeInMs</code> is the size in milliseconds of the virtual
+buffer used by the implementation&#8217;s rate control algorithm for the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-leaky-bucket-model" target="_blank" rel="noopener">leaky bucket model</a>, with respect to the
+average bitrate of the stream calculated by summing the values of the
+<code>averageBitrate</code> members of the elements of the <code>pLayers</code> array.</p>
 </li>
 <li>
 <p><code>initialVirtualBufferSizeInMs</code> is the initial occupancy in
-milliseconds of the virtual buffer in the leaky bucket model.
-Valid when rate control mode is
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR</code> or
-<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR</code>.</p>
+milliseconds of the virtual buffer used by the implementation&#8217;s rate
+control algorithm for the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-leaky-bucket-model" target="_blank" rel="noopener">leaky bucket
+model</a>.</p>
 </li>
 </ul>
 </div>
@@ -881,37 +877,189 @@ Valid when rate control mode is
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>If <code>layerCount</code> is zero then the values of <code>virtualBufferSizeInMs</code>
+and <code>initialVirtualBufferSizeInMs</code> are ignored.</p>
+</div>
+<div class="paragraph">
+<p>This structure <strong class="purple">can</strong> be specified in the following places:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In the <code>pNext</code> chain of <a href="VkVideoBeginCodingInfoKHR.html">VkVideoBeginCodingInfoKHR</a> to specify
+the current rate control state expected to be configured when beginning
+a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-coding-scope" target="_blank" rel="noopener">video coding scope</a>.</p>
+</li>
+<li>
+<p>In the <code>pNext</code> chain of <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> to change
+the rate control configuration of the bound video session.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
 <p>Including this structure in the <code>pNext</code> chain of
 <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> and including
 <code>VK_VIDEO_CODING_CONTROL_ENCODE_RATE_CONTROL_BIT_KHR</code> in
-<a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a>::<code>flags</code> will define stream rate
-control settings for video encoding.</p>
+<a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a>::<code>flags</code> enables updating the rate
+control configuration of the bound video session.
+This replaces the entire rate control configuration of the bound video
+session and <strong class="purple">may</strong> reset the state of all enabled rate control layers to an
+initial state according to the codec-specific rate control semantics defined
+in the corresponding sections listed below.</p>
 </div>
 <div class="paragraph">
-<p>Additional structures providing codec-specific rate control parameters <strong class="purple">may</strong>
-need to be included in the <code>pNext</code> chain of
-<code>VkVideoCodingControlInfoKHR</code> depending on the codec profile the bound
-video session was created with and the parameters specified in
-<code>VkVideoEncodeRateControlInfoKHR</code> (see <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-coding-control" target="_blank" rel="noopener">Video
-Coding Control</a>).</p>
+<p>When <code>layerCount</code> is greater than one, multiple
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-layers" target="_blank" rel="noopener">rate control layers</a> are configured, and each
+rate control layer is applied to the corresponding video coding layer
+identified by the index of the corresponding element of <code>pLayer</code>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then this index
+specifies the H.264 temporal layer ID of the video coding layer the rate
+control layer is applied to.</p>
+</li>
+<li>
+<p>If the video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then this index
+specifies the H.265 temporal ID of the video coding layer the rate
+control layer is applied to.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>To ensure that the video session is properly initialized with stream-level
-rate control settings, the application <strong class="purple">must</strong> call
-<a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> with stream-level rate control settings at
-least once in execution order before the first <a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a>
-command that is executed after video session reset.
-If not provided, default implementation-specific stream rate control
-settings will be used.</p>
+<p>Additional structures providing codec-specific rate control parameters <strong class="purple">can</strong>
+be included in the <code>pNext</code> chain of <code>VkVideoCodingControlInfoKHR</code>
+depending on the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profiles" target="_blank" rel="noopener">video profile</a> the bound video session
+was created.
+For further details see:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-coding-control" target="_blank" rel="noopener">Video Coding Control</a></p>
+</li>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h264-rate-control" target="_blank" rel="noopener">H.264 Encode Rate Control</a></p>
+</li>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h265-rate-control" target="_blank" rel="noopener">H.265 Encode Rate Control</a></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Stream rate control settings <strong class="purple">can</strong> also be re-initialized during an active
-video encoding session.
-The re-initialization takes effect whenever the
-<code>VkVideoEncodeRateControlInfoKHR</code> structure is included in the
-<code>pNext</code> chain of the <a href="VkVideoCodingControlInfoKHR.html">VkVideoCodingControlInfoKHR</a> structure in the
-call to <a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a>, and only impacts
-<a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a> operations that follow in execution order.</p>
+<p>The new rate control configuration takes effect when the corresponding
+<a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a> is executed on the device, and only impacts
+video encode operations that follow in execution order.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08248" href="#VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08248"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08248</span><br>
+
+If <code>rateControlMode</code> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code> or
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, then
+<code>layerCount</code> <strong class="purple">must</strong> be <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08275" href="#VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08275"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08275</span><br>
+
+If <code>rateControlMode</code> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR</code> or
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR</code>, then
+<code>layerCount</code> <strong class="purple">must</strong> be greater than <code>0</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08244" href="#VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08244"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08244</span><br>
+
+If <code>rateControlMode</code> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code>, then it <strong class="purple">must</strong>
+specify one of the bits included in
+<a href="VkVideoEncodeCapabilitiesKHR.html">VkVideoEncodeCapabilitiesKHR</a>::<code>rateControlModes</code>, as returned
+by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the used video
+profile</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08245" href="#VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08245"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08245</span><br>
+
+<code>layerCount</code> member <strong class="purple">must</strong> be less than or equal to
+<a href="VkVideoEncodeCapabilitiesKHR.html">VkVideoEncodeCapabilitiesKHR</a>::<code>maxRateControlLayers</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the used
+video profile</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08276" href="#VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08276"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08276</span><br>
+
+For each element of <code>pLayers</code>, its <code>averageBitrate</code> member <strong class="purple">must</strong>
+be between <code>1</code> and <a href="VkVideoEncodeCapabilitiesKHR.html">VkVideoEncodeCapabilitiesKHR</a>::<code>maxBitrate</code>,
+as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+used video profile</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08277" href="#VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08277"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-pLayers-08277</span><br>
+
+For each element of <code>pLayers</code>, its <code>maxBitrate</code> member <strong class="purple">must</strong> be
+between <code>1</code> and <a href="VkVideoEncodeCapabilitiesKHR.html">VkVideoEncodeCapabilitiesKHR</a>::<code>maxBitrate</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the used
+video profile</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08356" href="#VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08356"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08356</span><br>
+
+If <code>rateControlMode</code> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR</code>, then for each
+element of <code>pLayers</code>, its <code>averageBitrate</code> member <strong class="purple">must</strong> equal
+its <code>maxBitrate</code> member</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08278" href="#VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08278"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-rateControlMode-08278</span><br>
+
+If <code>rateControlMode</code> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR</code>, then for each
+element of <code>pLayers</code>, its <code>averageBitrate</code> member <strong class="purple">must</strong> be less
+than or equal to its <code>maxBitrate</code> member</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08357" href="#VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08357"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08357</span><br>
+
+If <code>layerCount</code> is not zero, then <code>virtualBufferSizeInMs</code> <strong class="purple">must</strong>
+be greater than zero</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08358" href="#VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08358"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-layerCount-08358</span><br>
+
+If <code>layerCount</code> is not zero, then <code>initialVirtualBufferSizeInMs</code>
+<strong class="purple">must</strong> be less than <code>virtualBufferSizeInMs</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07022" href="#VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07022"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07022</span><br>
+
+If the <code>videoCodecOperation</code> of the used video profile is
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, the <code>pNext</code>
+chain this structure is included in also includes an instance of the
+<a href="VkVideoEncodeH264RateControlInfoKHR.html">VkVideoEncodeH264RateControlInfoKHR</a> structure, and
+<code>layerCount</code> is greater than <code>1</code>, then <code>layerCount</code> <strong class="purple">must</strong> equal
+<a href="VkVideoEncodeH264RateControlInfoKHR.html">VkVideoEncodeH264RateControlInfoKHR</a>::<code>temporalLayerCount</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07025" href="#VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07025"></a> <span class="vuid">VUID-VkVideoEncodeRateControlInfoKHR-videoCodecOperation-07025</span><br>
+
+If the <code>videoCodecOperation</code> of the used video profile is
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, the <code>pNext</code>
+chain this structure is included in also includes an instance of the
+<a href="VkVideoEncodeH265RateControlInfoKHR.html">VkVideoEncodeH265RateControlInfoKHR</a> structure, and
+<code>layerCount</code> is greater than <code>1</code>, then <code>layerCount</code> <strong class="purple">must</strong> equal
+<a href="VkVideoEncodeH265RateControlInfoKHR.html">VkVideoEncodeH265RateControlInfoKHR</a>::<code>subLayerCount</code></p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -974,8 +1122,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.273<br>
-Last updated 2023-12-08 05:46:21 -0800
+Version 1.3.274<br>
+Last updated 2023-12-18 20:18:04 -0800
 </div>
 </div>
 

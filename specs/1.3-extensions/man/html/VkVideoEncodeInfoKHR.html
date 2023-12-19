@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>VkVideoEncodeInfoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>VkVideoEncodeInfoKHR - Structure to chain codec-specific structures to</p>
+<p>VkVideoEncodeInfoKHR - Structure specifying video encode parameters</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -841,9 +841,7 @@ typedef struct VkVideoEncodeInfoKHR {
 <p><code>sType</code> is a <a href="VkStructureType.html">VkStructureType</a> value identifying this structure.</p>
 </li>
 <li>
-<p><code>pNext</code> is a pointer to a structure extending this structure.
-A codec-specific extension structure <strong class="purple">must</strong> be chained to specify what
-bitstream unit to generate with this encode operation.</p>
+<p><code>pNext</code> is a pointer to a structure extending this structure.</p>
 </li>
 <li>
 <p><code>flags</code> is reserved for future use.</p>
@@ -854,58 +852,38 @@ encoded bitstream to.</p>
 </li>
 <li>
 <p><code>dstBufferOffset</code> is the starting offset in bytes from the start of
-<code>dstBuffer</code> to write the encoded bitstream to.
-<code>dstBufferOffset</code>&#8217;s value <strong class="purple">must</strong> be aligned to
-<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minBitstreamBufferOffsetAlignment</code>,
-as reported by the implementation.</p>
+<code>dstBuffer</code> to write the encoded bitstream to.</p>
 </li>
 <li>
-<p><code>dstBufferRange</code> is the maximum size in bytes of the encoded
-bitstream written to <code>dstBuffer</code>, starting from
-<code>dstBufferOffset</code>.
-<code>dstBufferRange</code>&#8217;s value <strong class="purple">must</strong> be aligned to
-<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minBitstreamBufferSizeAlignment</code>, as
-reported by the implementation.</p>
+<p><code>dstBufferRange</code> is the maximum bitstream size in bytes that <strong class="purple">can</strong> be
+written to <code>dstBuffer</code>, starting from <code>dstBufferOffset</code>.</p>
 </li>
 <li>
-<p><code>srcPictureResource</code> is the Picture Resource of the
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">Input Picture</a> to be encoded by the operation.</p>
+<p><code>srcPictureResource</code> is the video picture resource to use as the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">encode input picture</a>.</p>
 </li>
 <li>
-<p><code>pSetupReferenceSlot</code> is a pointer to a
-<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structure used for generating a
-reconstructed reference slot and Picture Resource.
-<code>pSetupReferenceSlot-&gt;slotIndex</code> specifies the slot index number to
-use as a target for producing the Reconstructed (DPB) data.
-<code>pSetupReferenceSlot</code> <strong class="purple">must</strong> be one of the entries provided in
-<a href="VkVideoBeginCodingInfoKHR.html">VkVideoBeginCodingInfoKHR</a> via the <code>pReferenceSlots</code> within the
-<a href="vkCmdBeginVideoCodingKHR.html">vkCmdBeginVideoCodingKHR</a> command that established the Vulkan Video
-Encode Context for this command.</p>
+<p><code>pSetupReferenceSlot</code> is <code>NULL</code> or a pointer to a
+<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structure specifying the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-reconstructed-picture-info" target="_blank" rel="noopener">reconstructed picture information</a>.</p>
 </li>
 <li>
-<p><code>referenceSlotCount</code> is the number of Reconstructed Reference
-Pictures that will be used when this encoding operation is executing.</p>
+<p><code>referenceSlotCount</code> is the number of elements in the
+<code>pReferenceSlots</code> array.</p>
 </li>
 <li>
 <p><code>pReferenceSlots</code> is <code>NULL</code> or a pointer to an array of
-<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structures that will be used when this
-encoding operation is executing.
-Each entry in <code>pReferenceSlots</code> <strong class="purple">must</strong> be one of the entries provided
-in <a href="VkVideoBeginCodingInfoKHR.html">VkVideoBeginCodingInfoKHR</a> via the <code>pReferenceSlots</code> within
-the <a href="vkCmdBeginVideoCodingKHR.html">vkCmdBeginVideoCodingKHR</a> command that established the Vulkan
-Video Encode Context for this command.</p>
+<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structures describing the DPB slots
+and corresponding <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">reference picture</a> resources to
+use in this video encode operation (the set of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#active-reference-pictures" target="_blank" rel="noopener">active reference pictures</a>).</p>
 </li>
 <li>
 <p><code>precedingExternallyEncodedBytes</code> is the number of bytes externally
-encoded for insertion in the active video encode session overall
-bitstream prior to the bitstream that will be generated by the
-implementation for this instance of <code>VkVideoEncodeInfoKHR</code>.
-The value provided is used to update the implementation&#8217;s rate control
-algorithm for the rate control layer this instance of
-<code>VkVideoEncodeInfoKHR</code> belongs to, by accounting for the bitrate
-budget consumed by these externally encoded bytes.
-See <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> for additional information
-about encode rate control.</p>
+encoded by the application to the video bitstream and is used to update
+the internal state of the implementation&#8217;s <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control" target="_blank" rel="noopener">rate
+control</a> algorithm to account for the bitrate budget consumed by these
+externally encoded bytes.</p>
 </li>
 </ul>
 </div>
@@ -914,35 +892,51 @@ about encode rate control.</p>
 <div class="sect1">
 <h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>The coded size of the encode operation is specified in <code>codedExtent</code> of
-<code>srcPictureResource</code>.</p>
-</div>
-<div class="paragraph">
-<p>Multiple <a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a> commands <strong class="purple">may</strong> be recorded within a Vulkan
-Video Encode Context.
-The execution of each <a href="vkCmdEncodeVideoKHR.html">vkCmdEncodeVideoKHR</a> command will result in
-generating codec-specific bitstream units.
-These bitstream units are generated consecutively into the bitstream buffer
-specified in <code>dstBuffer</code> of a <code>VkVideoEncodeInfoKHR</code> structure
-within the <a href="vkCmdBeginVideoCodingKHR.html">vkCmdBeginVideoCodingKHR</a> command.
-The produced bitstream is the sum of all these bitstream units, including
-any padding between the bitstream units.
-Any bitstream padding <strong class="purple">must</strong> be filled with data compliant to the codec
-standard so as not to cause any syntax errors during decoding of the
-bitstream units with the padding included.
-The range of the bitstream buffer written <strong class="purple">can</strong> be queried via
-<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#queries-video-encode-feedback" target="_blank" rel="noopener">video encode feedback queries</a>.</p>
-</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-VkVideoEncodeInfoKHR-None-07012" href="#VUID-VkVideoEncodeInfoKHR-None-07012"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-None-07012</span><br>
+<p><a id="VUID-VkVideoEncodeInfoKHR-dstBuffer-08236" href="#VUID-VkVideoEncodeInfoKHR-dstBuffer-08236"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-dstBuffer-08236</span><br>
 
-The bound video session <strong class="purple">must</strong> not be in <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-session-uninitialized" target="_blank" rel="noopener">uninitialized</a> state at the time the command is executed on the device</p>
+<code>dstBuffer</code> <strong class="purple">must</strong> have been created with
+<code>VK_BUFFER_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code> set</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-dstBufferOffset-08237" href="#VUID-VkVideoEncodeInfoKHR-dstBufferOffset-08237"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-dstBufferOffset-08237</span><br>
+
+<code>dstBufferOffset</code> <strong class="purple">must</strong> be less than the size of <code>dstBuffer</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-dstBufferRange-08238" href="#VUID-VkVideoEncodeInfoKHR-dstBufferRange-08238"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-dstBufferRange-08238</span><br>
+
+<code>dstBufferRange</code> <strong class="purple">must</strong> be less than or equal to the size of
+<code>dstBuffer</code> minus <code>dstBufferOffset</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08239" href="#VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08239"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08239</span><br>
+
+If <code>pSetupReferenceSlot</code> is not <code>NULL</code>, then its <code>slotIndex</code>
+member <strong class="purple">must</strong> not be negative</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08240" href="#VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08240"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-pSetupReferenceSlot-08240</span><br>
+
+If <code>pSetupReferenceSlot</code> is not <code>NULL</code>, then its
+<code>pPictureResource</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-slotIndex-08241" href="#VUID-VkVideoEncodeInfoKHR-slotIndex-08241"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-slotIndex-08241</span><br>
+
+The <code>slotIndex</code> member of each element of <code>pReferenceSlots</code>
+<strong class="purple">must</strong> not be negative</p>
+</li>
+<li>
+<p><a id="VUID-VkVideoEncodeInfoKHR-pPictureResource-08242" href="#VUID-VkVideoEncodeInfoKHR-pPictureResource-08242"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-pPictureResource-08242</span><br>
+
+The <code>pPictureResource</code> member of each element of
+<code>pReferenceSlots</code> <strong class="purple">must</strong> not be <code>NULL</code></p>
 </li>
 </ul>
 </div>
@@ -959,7 +953,7 @@ The bound video session <strong class="purple">must</strong> not be in <a href="
 </li>
 <li>
 <p><a id="VUID-VkVideoEncodeInfoKHR-pNext-pNext" href="#VUID-VkVideoEncodeInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkVideoEncodeH264PictureInfoEXT.html">VkVideoEncodeH264PictureInfoEXT</a> or <a href="VkVideoEncodeH265PictureInfoEXT.html">VkVideoEncodeH265PictureInfoEXT</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a>, <a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a>, or <a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkVideoEncodeInfoKHR-sType-unique" href="#VUID-VkVideoEncodeInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkVideoEncodeInfoKHR-sType-unique</span><br>
@@ -1025,8 +1019,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.273<br>
-Last updated 2023-12-08 05:46:21 -0800
+Version 1.3.274<br>
+Last updated 2023-12-18 20:18:04 -0800
 </div>
 </div>
 

@@ -800,7 +800,7 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <h1>vkCmdEncodeVideoKHR(3) Manual Page</h1>
 <h2 id="_name">Name</h2>
 <div class="sectionbody">
-<p>vkCmdEncodeVideoKHR - Encode operation for bitstream generation</p>
+<p>vkCmdEncodeVideoKHR - Launch video encode operations</p>
 </div>
 </div>
 <div id="loading_msg" class="hidden" hidden><p>Loading&hellip; please wait.</p></div>
@@ -828,12 +828,12 @@ void vkCmdEncodeVideoKHR(
 <div class="ulist">
 <ul>
 <li>
-<p><code>commandBuffer</code> is the command buffer to be filled with this
-function for encoding to generate a bitstream.</p>
+<p><code>commandBuffer</code> is the command buffer in which to record the
+command.</p>
 </li>
 <li>
-<p><code>pEncodeInfo</code> is a pointer to a <a href="VkVideoEncodeInfoKHR.html">VkVideoEncodeInfoKHR</a>
-structure.</p>
+<p><code>pEncodeInfo</code> is a pointer to a <a href="VkVideoEncodeInfoKHR.html">VkVideoEncodeInfoKHR</a> structure
+specifying the parameters of the video encode operations.</p>
 </li>
 </ul>
 </div>
@@ -854,11 +854,321 @@ After calling this command, the
 <p>Currently each call to this command results in the issue of a single video
 encode operation.</p>
 </div>
+<div class="paragraph">
+<p>If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code> and the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a <a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a>
+structure with its <code>queryPool</code> member specifying a valid
+<code>VkQueryPool</code> handle, then this command will execute a query for each
+video encode operation issued by it.</p>
+</div>
+<div id="encode-active-reference-picture-info" class="dlist">
+<dl>
+<dt class="hdlist1">Active Reference Picture Information</dt>
+<dd>
+<p>The list of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#active-reference-pictures" target="_blank" rel="noopener">active reference pictures</a> used by
+a video encode operation is a list of image subregions used as the source of
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reference-picture" target="_blank" rel="noopener">reference picture</a> data and related parameters, and is
+derived from the <a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structures provided as
+the elements of the <code>pEncodeInfo-&gt;pReferenceSlots</code> array.
+For each element of <code>pEncodeInfo-&gt;pReferenceSlots</code>, one or more elements
+are added to the active reference picture list, as defined by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-codec-specific-semantics" target="_blank" rel="noopener">codec-specific semantics</a>.
+Each element of this list contains the following information:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The image subregion within the image subresource
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resources" target="_blank" rel="noopener">video picture resource</a> used as the reference
+picture.</p>
+</li>
+<li>
+<p>The <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB slot</a> index the reference picture is associated
+with.</p>
+</li>
+<li>
+<p>The codec-specific reference information related to the reference
+picture.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div id="encode-reconstructed-picture-info" class="dlist">
+<dl>
+<dt class="hdlist1">Reconstructed Picture Information</dt>
+<dd>
+<p>Information related to the optional <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reconstructed-picture" target="_blank" rel="noopener">reconstructed
+picture</a> used by a video encode operation is derived from the
+<a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structure pointed to by
+<code>pEncodeInfo-&gt;pSetupReferenceSlot</code>, if not <code>NULL</code>, as defined by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-codec-specific-semantics" target="_blank" rel="noopener">codec-specific semantics</a>, and consists
+of the following:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The image subregion within the image subresource
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resources" target="_blank" rel="noopener">video picture resource</a> used as the
+reconstructed picture.</p>
+</li>
+<li>
+<p>The <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot" target="_blank" rel="noopener">DPB slot</a> index to use for picture reconstruction.</p>
+</li>
+<li>
+<p>The codec-specific reference information related to the reconstructed
+picture.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div id="encode-ref-pic-setup" class="paragraph">
+<p>Specifying a valid <a href="VkVideoReferenceSlotInfoKHR.html">VkVideoReferenceSlotInfoKHR</a> structure in
+<code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is always required, unless the video
+session was created with <a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlot</code>
+equal to zero.
+However, the DPB slot identified by
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;slotIndex</code> is only
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb-slot-states" target="_blank" rel="noopener">activated</a> with the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reconstructed-picture" target="_blank" rel="noopener">reconstructed
+picture</a> specified in
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;pPictureResource</code> if reference
+picture setup is requested according to the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-codec-specific-semantics" target="_blank" rel="noopener">codec-specific semantics</a>.</p>
+</div>
+<div class="paragraph">
+<p>If reconstructed picture information is specified, but reference picture
+setup is not requested, according to the codec-specific semantics, the
+contents of the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resources" target="_blank" rel="noopener">video picture resource</a>
+corresponding to the reconstructed picture will be undefined after the
+video encode operation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Some implementations may always output the reconstructed picture or use it
+as temporary storage during the video encode operation even when the
+reconstructed picture is not marked for future reference.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="encode-input-picture-info" class="dlist">
+<dl>
+<dt class="hdlist1">Encode Input Picture Information</dt>
+<dd>
+<p>Information related to the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">encode input picture</a>
+used by a video encode operation is derived from
+<code>pEncodeInfo-&gt;srcPictureResource</code> and any codec-specific parameters
+provided in the <code>pEncodeInfo-&gt;pNext</code> chain, as defined by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-codec-specific-semantics" target="_blank" rel="noopener">codec-specific semantics</a>, and consists
+of the following:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The image subregion within the image subresource
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to by the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resources" target="_blank" rel="noopener">video picture resource</a> used as the encode
+input picture.</p>
+</li>
+<li>
+<p>The codec-specific picture information related to the encoded picture.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Several limiting values are defined below that are referenced by the
+relevant valid usage statements of this command.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Let <code>uint32_t activeReferencePictureCount</code> be the size of the list of
+active reference pictures used by the video encode operation.
+Unless otherwise defined, <code>activeReferencePictureCount</code> is set to
+the value of <code>pEncodeInfo-&gt;referenceSlotCount</code>.</p>
+</li>
+<li>
+<p>Let <code>VkOffset2D codedOffsetGranularity</code> be the minimum alignment
+requirement for the coded offset of video picture resources.
+Unless otherwise defined, the value of the <code>x</code> and <code>y</code> members
+of <code>codedOffsetGranularity</code> are <code>0</code>.</p>
+</li>
+<li>
+<p>Let <code>uint32_t dpbFrameUseCount[]</code> be an array of size <code>maxDpbSlots</code>,
+where <code>maxDpbSlots</code> is the
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> the bound video
+session was created with, with each element indicating the number of
+times a frame associated with the corresponding DPB slot index is
+referred to by the video coding operation.
+Let the initial value of each element of the array be <code>0</code>.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then
+<code>dpbFrameUseCount[i]</code> is incremented by one, where <code>i</code> equals
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;slotIndex</code>.</p>
+</li>
+<li>
+<p>For each element of <code>pEncodeInfo-&gt;pReferenceSlots</code>,
+<code>dpbFrameUseCount[i]</code> is incremented by one, where <code>i</code> equals the
+<code>slotIndex</code> member of the corresponding element.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Let <code>VkExtent2D maxCodingBlockSize</code> be the maximum codec-specific coding
+block size that <strong class="purple">may</strong> be used by the video encode operation.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If the bound video session object was created with an
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h264-profile" target="_blank" rel="noopener">H.264 encode profile</a>, then let
+<code>maxCodingBlockSize</code> be equal to the size of an H.264 macroblock,
+i.e. <code>{16,16}</code>.</p>
+</li>
+<li>
+<p>If the bound video session object was created with an
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h265-profile" target="_blank" rel="noopener">H.265 encode profile</a>, then let
+<code>maxCodingBlockSize</code> be equal to the maximum H.265 coding block
+size that <strong class="purple">may</strong> be used by the video encode operation derived as the
+maximum of the CTB sizes corresponding to the
+<a href="VkVideoEncodeH265CtbSizeFlagBitsKHR.html">VkVideoEncodeH265CtbSizeFlagBitsKHR</a> bits set in
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>ctbSizes</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+bound video session was created with.</p>
+</li>
+<li>
+<p>Otherwise, <code>maxCodingBlockSize</code> is undefined.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If <code>maxCodingBlockSize</code> is defined, then let <code>VkExtent2D
+minCodingBlockExtent</code> be the coded extent of the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">encode input picture</a> expressed in terms of
+codec-specific coding blocks, assuming the maximum size of such coding
+blocks, as defined by <code>maxCodingBlockSize</code>, calculated from the
+value of the <code>codedExtent</code> member of
+<code>pEncodeInfo-&gt;srcPictureResource</code> as follows:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="eq"><code>minCodingBlockExtent.width</code> = (<code>codedExtent.width</code><br>
+<code>maxCodingBlockSize.width</code> - 1) / <code>maxCodingBlockSize.width</code></span></p>
+</li>
+<li>
+<p><span class="eq"><code>minCodingBlockExtent.height</code> = (<code>codedExtent.height</code><br>
+<code>maxCodingBlockSize.height</code> - 1) / <code>maxCodingBlockSize.height</code></span></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the bound video session object was created with an
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h264-profile" target="_blank" rel="noopener">H.264 encode profile</a>, then:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Let <code>StdVideoH264PictureType h264PictureType</code> be the picture type of
+the encoded picture set to the value of
+<code>pStdPictureInfo-&gt;primary_pic_type</code> specified in the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pEncodeInfo-&gt;pNext</code> chain.</p>
+</li>
+<li>
+<p>Let <code>StdVideoH264PictureType h264L0PictureTypes[]</code> and
+<code>StdVideoH264PictureType h264L1PictureTypes[]</code> be the picture types of
+the reference pictures in the L0 and L1 reference lists, respectively.
+If <code>pStdPictureInfo-&gt;pRefLists</code> specified in the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pEncodeInfo-&gt;pNext</code> chain is not <code>NULL</code>, then for each reference
+index specified in the elements of the
+<code>pStdPictureInfo-&gt;pRefLists-&gt;RefPicList0</code> and
+<code>pStdPictureInfo-&gt;pRefLists-&gt;RefPicList1</code> arrays, if the reference
+index is not <code>STD_VIDEO_H264_NO_REFERENCE_PICTURE</code>,
+<code>pStdReferenceInfo-&gt;primary_pic_type</code> is added to
+<code>h264L0PictureTypes</code> or <code>h264L1PictureTypes</code>, respectively,
+where <code>pStdReferenceInfo</code> is the member of the
+<a href="VkVideoEncodeH264DpbSlotInfoKHR.html">VkVideoEncodeH264DpbSlotInfoKHR</a> structure included in the
+<code>pNext</code> chain of the element of <code>pEncodeInfo-&gt;pReferenceSlots</code>
+for which <code>slotIndex</code> equals the reference index in question.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If the bound video session object was created with an
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-h264-profile" target="_blank" rel="noopener">H.265 encode profile</a>, then:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Let <code>StdVideoH265PictureType h265PictureType</code> be the picture type of
+the encoded picture set to the value of <code>pStdPictureInfo-&gt;pic_type</code>
+specified in the <a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure
+included in the <code>pEncodeInfo-&gt;pNext</code> chain.</p>
+</li>
+<li>
+<p>Let <code>StdVideoH265PictureType h265L0PictureTypes[]</code> and
+<code>StdVideoH265PictureType h265L1PictureTypes[]</code> be the picture types of
+the reference pictures in the L0 and L1 reference lists, respectively.
+If <code>pStdPictureInfo-&gt;pRefLists</code> specified in the
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pEncodeInfo-&gt;pNext</code> chain is not <code>NULL</code>, then for each reference
+index specified in the elements of the
+<code>pStdPictureInfo-&gt;pRefLists-&gt;RefPicList0</code> and
+<code>pStdPictureInfo-&gt;pRefLists-&gt;RefPicList1</code> arrays, if the reference
+index is not <code>STD_VIDEO_H265_NO_REFERENCE_PICTURE</code>,
+<code>pStdReferenceInfo-&gt;pic_type</code> is added to <code>h265L0PictureTypes</code>
+or <code>h265L1PictureTypes</code>, respectively, where
+<code>pStdReferenceInfo</code> is the member of the
+<a href="VkVideoEncodeH265DpbSlotInfoKHR.html">VkVideoEncodeH265DpbSlotInfoKHR</a> structure included in the
+<code>pNext</code> chain of the element of <code>pEncodeInfo-&gt;pReferenceSlots</code>
+for which <code>slotIndex</code> equals the reference index in question.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-None-08250" href="#VUID-vkCmdEncodeVideoKHR-None-08250"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-None-08250</span><br>
+
+The bound video session <strong class="purple">must</strong> have been created with an encode operation</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-None-07012" href="#VUID-vkCmdEncodeVideoKHR-None-07012"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-None-07012</span><br>
+
+The bound video session <strong class="purple">must</strong> not be in <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-session-uninitialized" target="_blank" rel="noopener">uninitialized</a> state at the time the command is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-None-08318" href="#VUID-vkCmdEncodeVideoKHR-None-08318"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-None-08318</span><br>
+
+The bound video session parameters object <strong class="purple">must</strong> have been created with
+the currently set <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-quality-level" target="_blank" rel="noopener">video encode quality level</a>
+for the bound video session at the time the command is executed on the
+device</p>
+</li>
 <li>
 <p><a id="VUID-vkCmdEncodeVideoKHR-opCount-07174" href="#VUID-vkCmdEncodeVideoKHR-opCount-07174"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-opCount-07174</span><br>
 
@@ -868,6 +1178,682 @@ corresponding to the query type of that query plus <code>opCount</code> <strong 
 be less than or equal to the
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#queries-operation-last-activatable-query-index" target="_blank" rel="noopener">last activatable query
 index</a> corresponding to the query type of that query plus one</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08360" href="#VUID-vkCmdEncodeVideoKHR-pNext-08360"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08360</span><br>
+
+If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code>, and the
+<code>pNext</code> chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a> structure with its <code>queryPool</code>
+member specifying a valid <code>VkQueryPool</code> handle, then
+<a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a>::queryCount <strong class="purple">must</strong> equal <code>opCount</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08361" href="#VUID-vkCmdEncodeVideoKHR-pNext-08361"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08361</span><br>
+
+If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code>, and the
+<code>pNext</code> chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a> structure with its <code>queryPool</code>
+member specifying a valid <code>VkQueryPool</code> handle, then all the queries
+used by the command, as specified by the <a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a>
+structure, <strong class="purple">must</strong> be <em>unavailable</em></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-queryType-08362" href="#VUID-vkCmdEncodeVideoKHR-queryType-08362"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-queryType-08362</span><br>
+
+If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code>, then the
+<code>queryType</code> used to create the <code>queryPool</code> specified in the
+<a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a> structure included in the <code>pNext</code>
+chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> be
+<code>VK_QUERY_TYPE_RESULT_STATUS_ONLY_KHR</code> or
+<code>VK_QUERY_TYPE_VIDEO_ENCODE_FEEDBACK_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-queryPool-08363" href="#VUID-vkCmdEncodeVideoKHR-queryPool-08363"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-queryPool-08363</span><br>
+
+If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code>, then the
+<code>queryPool</code> specified in the <a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a>
+structure included in the <code>pNext</code> chain of <code>pEncodeInfo</code> <strong class="purple">must</strong>
+have been created with a <a href="VkVideoProfileInfoKHR.html">VkVideoProfileInfoKHR</a> structure included
+in the <code>pNext</code> chain of <a href="VkQueryPoolCreateInfo.html">VkQueryPoolCreateInfo</a> identical to the
+one specified in <a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>pVideoProfile</code>
+the bound video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-queryType-08364" href="#VUID-vkCmdEncodeVideoKHR-queryType-08364"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-queryType-08364</span><br>
+
+If the bound video session was created with
+<code>VK_VIDEO_SESSION_CREATE_INLINE_QUERIES_BIT_KHR</code>, and the
+<code>queryType</code> used to create the <code>queryPool</code> specified in the
+<a href="VkVideoInlineQueryInfoKHR.html">VkVideoInlineQueryInfoKHR</a> structure included in the <code>pNext</code>
+chain of <code>pEncodeInfo</code> is
+<code>VK_QUERY_TYPE_RESULT_STATUS_ONLY_KHR</code>, then the <code>VkCommandPool</code>
+that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> have been created with
+a queue family index that supports <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#queries-result-status-only" target="_blank" rel="noopener">result
+status queries</a>, as indicated by
+<a href="VkQueueFamilyQueryResultStatusPropertiesKHR.html">VkQueueFamilyQueryResultStatusPropertiesKHR</a>::<code>queryResultStatusSupport</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08201" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08201"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08201</span><br>
+
+<code>pEncodeInfo-&gt;dstBuffer</code> <strong class="purple">must</strong> be <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-compatibility" target="_blank" rel="noopener">compatible</a> with the video profile the bound video session was created
+with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-commandBuffer-08202" href="#VUID-vkCmdEncodeVideoKHR-commandBuffer-08202"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-commandBuffer-08202</span><br>
+
+If <code>commandBuffer</code> is an unprotected command buffer and
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-protectedNoFault" target="_blank" rel="noopener"><code>protectedNoFault</code></a> is not supported,
+then <code>pEncodeInfo-&gt;dstBuffer</code> <strong class="purple">must</strong> not be a protected buffer</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-commandBuffer-08203" href="#VUID-vkCmdEncodeVideoKHR-commandBuffer-08203"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-commandBuffer-08203</span><br>
+
+If <code>commandBuffer</code> is a protected command buffer and
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-protectedNoFault" target="_blank" rel="noopener"><code>protectedNoFault</code></a> is not supported,
+then <code>pEncodeInfo-&gt;dstBuffer</code> <strong class="purple">must</strong> be a protected buffer</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08204" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08204"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08204</span><br>
+
+<code>pEncodeInfo-&gt;dstBufferOffset</code> <strong class="purple">must</strong> be an integer multiple of
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minBitstreamBufferOffsetAlignment</code>,
+as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+video profile the bound video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08205" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08205"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08205</span><br>
+
+<code>pEncodeInfo-&gt;dstBufferRange</code> <strong class="purple">must</strong> be an integer multiple of
+<a href="VkVideoCapabilitiesKHR.html">VkVideoCapabilitiesKHR</a>::<code>minBitstreamBufferSizeAlignment</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08206" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08206"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08206</span><br>
+
+<code>pEncodeInfo-&gt;srcPictureResource.imageViewBinding</code> <strong class="purple">must</strong> be
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-compatibility" target="_blank" rel="noopener">compatible</a> with the video profile the
+bound video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08207" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08207"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08207</span><br>
+
+The format of <code>pEncodeInfo-&gt;srcPictureResource.imageViewBinding</code>
+<strong class="purple">must</strong> match the <a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>pictureFormat</code>
+the bound video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08208" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08208"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08208</span><br>
+
+<code>pEncodeInfo-&gt;srcPictureResource.codedOffset</code> <strong class="purple">must</strong> be an integer
+multiple of <code>codedOffsetGranularity</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08209" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08209"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08209</span><br>
+
+<code>pEncodeInfo-&gt;srcPictureResource.codedExtent</code> <strong class="purple">must</strong> be between
+<code>minCodedExtent</code> and <code>maxCodedExtent</code>, inclusive, the bound
+video session was created with</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08210" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08210"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08210</span><br>
+
+<code>pEncodeInfo-&gt;srcPictureResource.imageViewBinding</code> <strong class="purple">must</strong> have been
+created with <code>VK_IMAGE_USAGE_VIDEO_ENCODE_SRC_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-commandBuffer-08211" href="#VUID-vkCmdEncodeVideoKHR-commandBuffer-08211"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-commandBuffer-08211</span><br>
+
+If <code>commandBuffer</code> is an unprotected command buffer and
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-protectedNoFault" target="_blank" rel="noopener"><code>protectedNoFault</code></a> is not supported,
+then <code>pEncodeInfo-&gt;srcPictureResource.imageViewBinding</code> <strong class="purple">must</strong> not
+have been created from a protected image</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-commandBuffer-08212" href="#VUID-vkCmdEncodeVideoKHR-commandBuffer-08212"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-commandBuffer-08212</span><br>
+
+If <code>commandBuffer</code> is a protected command buffer and
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-protectedNoFault" target="_blank" rel="noopener"><code>protectedNoFault</code></a> is not supported,
+then <code>pEncodeInfo-&gt;srcPictureResource.imageViewBinding</code> <strong class="purple">must</strong> have
+been created from a protected image</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08377" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08377"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08377</span><br>
+
+<code>pEncodeInfo-&gt;pSetupReferenceSlot</code> <strong class="purple">must</strong> not be <code>NULL</code> unless the
+bound video session was created with
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> equal to zero</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08213" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08213"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08213</span><br>
+
+If <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;slotIndex</code> <strong class="purple">must</strong> be less than the
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> specified when the
+bound video session was created</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08214" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08214"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08214</span><br>
+
+If <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;pPictureResource-&gt;codedOffset</code>
+<strong class="purple">must</strong> be an integer multiple of <code>codedOffsetGranularity</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08215" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08215"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08215</span><br>
+
+If <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;pPictureResource</code> <strong class="purple">must</strong>
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resource-matching" target="_blank" rel="noopener">match</a> one of the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#bound-reference-picture-resources" target="_blank" rel="noopener">bound reference picture resource</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-activeReferencePictureCount-08216" href="#VUID-vkCmdEncodeVideoKHR-activeReferencePictureCount-08216"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-activeReferencePictureCount-08216</span><br>
+
+<code>activeReferencePictureCount</code> <strong class="purple">must</strong> be less than or equal to the
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxActiveReferencePictures</code>
+specified when the bound video session was created</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-slotIndex-08217" href="#VUID-vkCmdEncodeVideoKHR-slotIndex-08217"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-slotIndex-08217</span><br>
+
+The <code>slotIndex</code> member of each element of
+<code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong> be less than the
+<a href="VkVideoSessionCreateInfoKHR.html">VkVideoSessionCreateInfoKHR</a>::<code>maxDpbSlots</code> specified when the
+bound video session was created</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-codedOffset-08218" href="#VUID-vkCmdEncodeVideoKHR-codedOffset-08218"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-codedOffset-08218</span><br>
+
+The <code>codedOffset</code> member of the <a href="VkVideoPictureResourceInfoKHR.html">VkVideoPictureResourceInfoKHR</a>
+structure pointed to by the <code>pPictureResource</code> member of each
+element of <code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong> be an integer
+multiple of <code>codedOffsetGranularity</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pPictureResource-08219" href="#VUID-vkCmdEncodeVideoKHR-pPictureResource-08219"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pPictureResource-08219</span><br>
+
+The <code>pPictureResource</code> member of each element of
+<code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong>
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resource-matching" target="_blank" rel="noopener">match</a> one of the
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#bound-reference-picture-resources" target="_blank" rel="noopener">bound reference picture resource</a>
+associated with the DPB slot index specified in the <code>slotIndex</code>
+member of that element</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pPictureResource-08220" href="#VUID-vkCmdEncodeVideoKHR-pPictureResource-08220"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pPictureResource-08220</span><br>
+
+Each video picture resource corresponding to the <code>pPictureResource</code>
+member specified in the elements of <code>pEncodeInfo-&gt;pReferenceSlots</code>
+<strong class="purple">must</strong> be <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-picture-resource-uniqueness" target="_blank" rel="noopener">unique</a> within
+<code>pEncodeInfo-&gt;pReferenceSlots</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-dpbFrameUseCount-08221" href="#VUID-vkCmdEncodeVideoKHR-dpbFrameUseCount-08221"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-dpbFrameUseCount-08221</span><br>
+
+All elements of <code>dpbFrameUseCount</code> <strong class="purple">must</strong> be less than or equal to
+<code>1</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08222" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08222"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08222</span><br>
+
+The image subresource <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to
+by <code>pEncodeInfo-&gt;srcPictureResource</code> <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR</code> layout at the time the video
+encode operation is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08223" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08223"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08223</span><br>
+
+If <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then the image
+subresource <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to by
+<code>pEncodeInfo-&gt;pSetupReferenceSlot-&gt;pPictureResource</code> <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_DPB_KHR</code> layout at the time the video
+encode operation is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pPictureResource-08224" href="#VUID-vkCmdEncodeVideoKHR-pPictureResource-08224"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pPictureResource-08224</span><br>
+
+The image subresource <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-image-subresource-reference" target="_blank" rel="noopener">referred</a> to
+by the <code>pPictureResource</code> member of each element of
+<code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong> be in the
+<code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_DPB_KHR</code> layout at the time the video
+encode operation is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08225" href="#VUID-vkCmdEncodeVideoKHR-pNext-08225"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08225</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then the <code>pNext</code>
+chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> include a
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-StdVideoH264SequenceParameterSet-08226" href="#VUID-vkCmdEncodeVideoKHR-StdVideoH264SequenceParameterSet-08226"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-StdVideoH264SequenceParameterSet-08226</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then the bound video
+session parameters object <strong class="purple">must</strong> contain a
+<code>StdVideoH264SequenceParameterSet</code> entry with
+<code>seq_parameter_set_id</code> matching
+<code>StdVideoEncodeH264PictureInfo</code>::<code>seq_parameter_set_id</code> that is
+provided in the <code>pStdPictureInfo</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-StdVideoH264PictureParameterSet-08227" href="#VUID-vkCmdEncodeVideoKHR-StdVideoH264PictureParameterSet-08227"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-StdVideoH264PictureParameterSet-08227</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then the bound video
+session parameters object <strong class="purple">must</strong> contain a
+<code>StdVideoH264PictureParameterSet</code> entry with
+<code>seq_parameter_set_id</code> and <code>pic_parameter_set_id</code> matching
+<code>StdVideoEncodeH264PictureInfo</code>::<code>seq_parameter_set_id</code> and
+<code>StdVideoEncodeH264PictureInfo</code>::<code>pic_parameter_set_id</code>,
+respectively, that are provided in the <code>pStdPictureInfo</code> member of
+the <a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08228" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08228"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08228</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then the
+<code>pNext</code> chain of <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> <strong class="purple">must</strong>
+include a <a href="VkVideoEncodeH264DpbSlotInfoKHR.html">VkVideoEncodeH264DpbSlotInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08229" href="#VUID-vkCmdEncodeVideoKHR-pNext-08229"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08229</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then the <code>pNext</code>
+chain of each element of <code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong>
+include a <a href="VkVideoEncodeH264DpbSlotInfoKHR.html">VkVideoEncodeH264DpbSlotInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08269" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08269"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08269</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and the current
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, then
+<a href="VkVideoEncodeH264NaluSliceInfoKHR.html">VkVideoEncodeH264NaluSliceInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong> be zero
+for each element of the <code>pNaluSliceEntries</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08270" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08270"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08270</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and the current
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, then
+<a href="VkVideoEncodeH264NaluSliceInfoKHR.html">VkVideoEncodeH264NaluSliceInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong> be
+between <a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>minQp</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>maxQp</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+bound video session was created with, for each element of the
+<code>pNaluSliceEntries</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08271" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08271"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08271</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H264_CAPABILITY_PER_SLICE_CONSTANT_QP_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then
+<a href="VkVideoEncodeH264NaluSliceInfoKHR.html">VkVideoEncodeH264NaluSliceInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong> have the
+same value for each element of the <code>pNaluSliceEntries</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08302" href="#VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08302"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08302</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, then the
+<code>naluSliceEntryCount</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> be less than or equal to
+<code>minCodingBlockExtent.width</code> multiplied by
+<code>minCodingBlockExtent.height</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08312" href="#VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08312"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-naluSliceEntryCount-08312</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H264_CAPABILITY_ROW_UNALIGNED_SLICE_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then the
+<code>naluSliceEntryCount</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> be less than or equal to
+<code>minCodingBlockExtent.height</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08352" href="#VUID-vkCmdEncodeVideoKHR-pNext-08352"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08352</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure, and
+<code>pEncodeInfo-&gt;referenceSlotCount</code> is greater than zero, then
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+<strong class="purple">must</strong> not be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08339" href="#VUID-vkCmdEncodeVideoKHR-pNext-08339"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08339</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure, and
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+is not <code>NULL</code>, then each element of the <code>RefPicList0</code> and
+<code>RefPicList1</code> array members of the
+<code>StdVideoEncodeH264ReferenceListsInfo</code> structure pointed to by
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+<strong class="purple">must</strong> either be <code>STD_VIDEO_H264_NO_REFERENCE_PICTURE</code> or <strong class="purple">must</strong> equal
+the <code>slotIndex</code> member of one of the elements of
+<code>pEncodeInfo-&gt;pReferenceSlots</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08353" href="#VUID-vkCmdEncodeVideoKHR-pNext-08353"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08353</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure, and
+<code>pEncodeInfo-&gt;referenceSlotCount</code> is greater than zero, then the
+<code>slotIndex</code> member of each element of
+<code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong> equal one of the elements of
+the <code>RefPicList0</code> or <code>RefPicList1</code> array members of the
+<code>StdVideoEncodeH264ReferenceListsInfo</code> structure pointed to by
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08340" href="#VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08340"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08340</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>maxPPictureL0ReferenceCount</code>
+is zero, as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a>
+for the video profile the bound video session was created with, then
+<code>h264PictureType</code> and each element of <code>h264L0PictureTypes</code> and
+<code>h264L1PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H264_PICTURE_TYPE_P</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08341" href="#VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08341"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08341</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>maxBPictureL0ReferenceCount</code>
+and <a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>maxL1ReferenceCount</code>
+are both zero, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+bound video session was created with, then <code>h264PictureType</code> and
+each element of <code>h264L0PictureTypes</code> and <code>h264L1PictureTypes</code>
+<strong class="purple">must</strong> not be <code>STD_VIDEO_H264_PICTURE_TYPE_B</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-flags-08342" href="#VUID-vkCmdEncodeVideoKHR-flags-08342"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-flags-08342</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H264_CAPABILITY_B_FRAME_IN_L0_LIST_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then each element of
+<code>h264L0PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H264_PICTURE_TYPE_B</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-flags-08343" href="#VUID-vkCmdEncodeVideoKHR-flags-08343"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-flags-08343</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code> and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H264_CAPABILITY_B_FRAME_IN_L1_LIST_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then each element of
+<code>h264L1PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H264_PICTURE_TYPE_B</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08230" href="#VUID-vkCmdEncodeVideoKHR-pNext-08230"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08230</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the <code>pNext</code>
+chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> include a
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-StdVideoH265VideoParameterSet-08231" href="#VUID-vkCmdEncodeVideoKHR-StdVideoH265VideoParameterSet-08231"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-StdVideoH265VideoParameterSet-08231</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the bound video
+session parameters object <strong class="purple">must</strong> contain a
+<code>StdVideoH265VideoParameterSet</code> entry with
+<code>vps_video_parameter_set_id</code> matching
+<code>StdVideoEncodeH265PictureInfo</code>::<code>sps_video_parameter_set_id</code>
+that is provided in the <code>pStdPictureInfo</code> member of the
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-StdVideoH265SequenceParameterSet-08232" href="#VUID-vkCmdEncodeVideoKHR-StdVideoH265SequenceParameterSet-08232"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-StdVideoH265SequenceParameterSet-08232</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the bound video
+session parameters object <strong class="purple">must</strong> contain a
+<code>StdVideoH265SequenceParameterSet</code> entry with
+<code>sps_video_parameter_set_id</code> and <code>sps_seq_parameter_set_id</code>
+matching
+<code>StdVideoEncodeH265PictureInfo</code>::<code>sps_video_parameter_set_id</code> and
+<code>StdVideoEncodeH265PictureInfo</code>::<code>pps_seq_parameter_set_id</code>,
+respectively, that are provided in the <code>pStdPictureInfo</code> member of
+the <a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-StdVideoH265PictureParameterSet-08233" href="#VUID-vkCmdEncodeVideoKHR-StdVideoH265PictureParameterSet-08233"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-StdVideoH265PictureParameterSet-08233</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the bound video
+session parameters object <strong class="purple">must</strong> contain a
+<code>StdVideoH265PictureParameterSet</code> entry with
+<code>sps_video_parameter_set_id</code>, <code>pps_seq_parameter_set_id</code>, and
+<code>pps_pic_parameter_set_id</code> matching
+<code>StdVideoEncodeH265PictureInfo</code>::<code>sps_video_parameter_set_id</code>,
+<code>StdVideoEncodeH265PictureInfo</code>::<code>pps_seq_parameter_set_id</code>, and
+<code>StdVideoEncodeH265PictureInfo</code>::<code>pps_pic_parameter_set_id</code>,
+respectively, that are provided in the <code>pStdPictureInfo</code> member of
+the <a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08234" href="#VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08234"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pEncodeInfo-08234</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<code>pEncodeInfo-&gt;pSetupReferenceSlot</code> is not <code>NULL</code>, then the
+<code>pNext</code> chain of <code>pEncodeInfo-&gt;pSetupReferenceSlot</code> <strong class="purple">must</strong>
+include a <a href="VkVideoEncodeH265DpbSlotInfoKHR.html">VkVideoEncodeH265DpbSlotInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08235" href="#VUID-vkCmdEncodeVideoKHR-pNext-08235"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08235</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the <code>pNext</code>
+chain of each element of <code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong>
+include a <a href="VkVideoEncodeH265DpbSlotInfoKHR.html">VkVideoEncodeH265DpbSlotInfoKHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08272" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08272"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08272</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and the current
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, then
+<a href="VkVideoEncodeH265NaluSliceSegmentInfoKHR.html">VkVideoEncodeH265NaluSliceSegmentInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong>
+be zero for each element of the <code>pNaluSliceSegmentEntries</code> member of
+the <a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08273" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08273"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08273</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and the current
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, then
+<a href="VkVideoEncodeH265NaluSliceSegmentInfoKHR.html">VkVideoEncodeH265NaluSliceSegmentInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong>
+be between <a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>minQp</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>maxQp</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+bound video session was created with, for each element of the
+<code>pNaluSliceSegmentEntries</code> member of the
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-constantQp-08274" href="#VUID-vkCmdEncodeVideoKHR-constantQp-08274"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-constantQp-08274</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H265_CAPABILITY_PER_SLICE_SEGMENT_CONSTANT_QP_BIT_KHR</code>,
+as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+video profile the bound video session was created with, then
+<a href="VkVideoEncodeH265NaluSliceSegmentInfoKHR.html">VkVideoEncodeH265NaluSliceSegmentInfoKHR</a>::<code>constantQp</code> <strong class="purple">must</strong>
+have the same value for each element of the
+<code>pNaluSliceSegmentEntries</code> member of the
+<a href="VkVideoEncodeH264PictureInfoKHR.html">VkVideoEncodeH264PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08307" href="#VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08307"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08307</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, then the
+<code>naluSliceSegmentEntryCount</code> member of the
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> be less than or equal to
+<code>minCodingBlockExtent.width</code> multiplied by
+<code>minCodingBlockExtent.height</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08313" href="#VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08313"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-naluSliceSegmentEntryCount-08313</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H265_CAPABILITY_ROW_UNALIGNED_SLICE_SEGMENT_BIT_KHR</code>,
+as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+video profile the bound video session was created with, then the
+<code>naluSliceSegmentEntryCount</code> member of the
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure included in the
+<code>pNext</code> chain of <code>pEncodeInfo</code> <strong class="purple">must</strong> be less than or equal to
+<code>minCodingBlockExtent.height</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08354" href="#VUID-vkCmdEncodeVideoKHR-pNext-08354"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08354</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure, and
+<code>pEncodeInfo-&gt;referenceSlotCount</code> is greater than zero, then
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+<strong class="purple">must</strong> not be <code>NULL</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08344" href="#VUID-vkCmdEncodeVideoKHR-pNext-08344"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08344</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure, and
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+is not <code>NULL</code>, then each element of the <code>RefPicList0</code> and
+<code>RefPicList1</code> array members of the
+<code>StdVideoEncodeH265ReferenceListsInfo</code> structure pointed to by
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code>
+<strong class="purple">must</strong> either be <code>STD_VIDEO_H265_NO_REFERENCE_PICTURE</code> or <strong class="purple">must</strong> equal
+the <code>slotIndex</code> member of one of the elements of
+<code>pEncodeInfo-&gt;pReferenceSlots</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-pNext-08355" href="#VUID-vkCmdEncodeVideoKHR-pNext-08355"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-pNext-08355</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, the <code>pNext</code>
+chain of <code>pEncodeInfo</code> includes a
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a> structure, and
+<code>pEncodeInfo-&gt;referenceSlotCount</code> is greater than zero, then the
+<code>slotIndex</code> member of each element of
+<code>pEncodeInfo-&gt;pReferenceSlots</code> <strong class="purple">must</strong> equal one of the elements of
+the <code>RefPicList0</code> or <code>RefPicList1</code> array members of the
+<code>StdVideoEncodeH265ReferenceListsInfo</code> structure pointed to by
+<a href="VkVideoEncodeH265PictureInfoKHR.html">VkVideoEncodeH265PictureInfoKHR</a>::<code>pStdPictureInfo-&gt;pRefLists</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08345" href="#VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08345"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-maxPPictureL0ReferenceCount-08345</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>maxPPictureL0ReferenceCount</code>
+is zero, as returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a>
+for the video profile the bound video session was created with, then
+<code>h265PictureType</code> and each element of <code>h265L0PictureTypes</code> and
+<code>h265L1PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H265_PICTURE_TYPE_P</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08346" href="#VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08346"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-maxBPictureL0ReferenceCount-08346</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>maxBPictureL0ReferenceCount</code>
+and <a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>maxL1ReferenceCount</code>
+are both zero, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+bound video session was created with, then <code>h265PictureType</code> and
+each element of <code>h265L0PictureTypes</code> and <code>h265L1PictureTypes</code>
+<strong class="purple">must</strong> not be <code>STD_VIDEO_H265_PICTURE_TYPE_B</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-flags-08347" href="#VUID-vkCmdEncodeVideoKHR-flags-08347"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-flags-08347</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H265_CAPABILITY_B_FRAME_IN_L0_LIST_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then each element of
+<code>h265L0PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H264_PICTURE_TYPE_B</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdEncodeVideoKHR-flags-08348" href="#VUID-vkCmdEncodeVideoKHR-flags-08348"></a> <span class="vuid">VUID-vkCmdEncodeVideoKHR-flags-08348</span><br>
+
+If the bound video session was created with the video codec operation
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code> and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>flags</code> does not include
+<code>VK_VIDEO_ENCODE_H265_CAPABILITY_B_FRAME_IN_L1_LIST_BIT_KHR</code>, as
+returned by <a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile the bound video session was created with, then each element of
+<code>h265L1PictureTypes</code> <strong class="purple">must</strong> not be <code>STD_VIDEO_H265_PICTURE_TYPE_B</code></p>
 </li>
 </ul>
 </div>
@@ -993,8 +1979,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.273<br>
-Last updated 2023-12-08 05:46:21 -0800
+Version 1.3.274<br>
+Last updated 2023-12-18 20:18:04 -0800
 </div>
 </div>
 

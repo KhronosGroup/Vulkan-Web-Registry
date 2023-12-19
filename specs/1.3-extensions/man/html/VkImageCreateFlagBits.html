@@ -850,6 +850,8 @@ typedef enum VkImageCreateFlagBits {
     VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT = 0x00020000,
   // Provided by VK_QCOM_fragment_density_map_offset
     VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM = 0x00008000,
+  // Provided by VK_KHR_video_maintenance1
+    VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR = 0x00100000,
   // Provided by VK_KHR_bind_memory2 with VK_KHR_device_group
     VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR = VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT,
   // Provided by VK_KHR_maintenance1
@@ -1035,6 +1037,64 @@ specifies that an image <strong class="purple">can</strong> be used with
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#multisampled-render-to-single-sampled" target="_blank" rel="noopener">multisampled rendering as a
 single-sampled framebuffer attachment</a></p>
 </li>
+<li>
+<p><code>VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR</code> specifies that
+the image <strong class="purple">can</strong> be used in <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-coding" target="_blank" rel="noopener">video coding operations</a>
+without having to specify at image creation time the set of video
+profiles the image will be used with, except for images used only as
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#dpb" target="_blank" rel="noopener">DPB</a> pictures, as long as the image is otherwise
+<a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-profile-compatibility" target="_blank" rel="noopener">compatible</a> with the video profile in
+question.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This enables exchanging video picture data without additional copies or
+conversions when used as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-output-picture" target="_blank" rel="noopener">Decode output pictures</a>, indifferent of the
+video profile used to produce them.</p>
+</li>
+<li>
+<p><a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-input-picture" target="_blank" rel="noopener">Encode input pictures</a>, indifferent of the video
+profile used to consume them.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This includes images created with both
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code> and
+<code>VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR</code>, which is necessary to use the
+same video picture as the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#reconstructed-picture" target="_blank" rel="noopener">reconstructed picture</a>
+and <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#decode-output-picture" target="_blank" rel="noopener">decode output picture</a> in a video decode
+operation on implementations supporting
+<code>VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR</code>.</p>
+</div>
+<div class="paragraph">
+<p>However, images with only DPB usage remain tied to the video profiles the
+image was created with, as the data layout of such DPB-only images <strong class="purple">may</strong> be
+implementation- and codec-dependent.</p>
+</div>
+<div class="paragraph">
+<p>If an application would like to share or reuse the device memory backing
+such images (e.g. for the purposes of temporal aliasing), then it <strong class="purple">should</strong>
+create separate image objects for each video profile and bind them to the
+same underlying device memory range, similar to how memory resources <strong class="purple">can</strong> be
+shared across separate video sessions or any other memory-backed resource.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1078,8 +1138,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.273<br>
-Last updated 2023-12-08 05:46:21 -0800
+Version 1.3.274<br>
+Last updated 2023-12-18 20:18:04 -0800
 </div>
 </div>
 

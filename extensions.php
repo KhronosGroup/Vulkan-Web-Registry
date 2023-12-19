@@ -49,6 +49,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance3.html"> VK_KHR_maintenance3 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance4.html"> VK_KHR_maintenance4 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance5.html"> VK_KHR_maintenance5 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance6.html"> VK_KHR_maintenance6 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_map_memory2.html"> VK_KHR_map_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_multiview.html"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
@@ -92,7 +93,10 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h264.html"> VK_KHR_video_decode_h264 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h265.html"> VK_KHR_video_decode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_queue.html"> VK_KHR_video_decode_queue </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_h264.html"> VK_KHR_video_encode_h264 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_h265.html"> VK_KHR_video_encode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_queue.html"> VK_KHR_video_encode_queue </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_maintenance1.html"> VK_KHR_video_maintenance1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_queue.html"> VK_KHR_video_queue </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_vulkan_memory_model.html"> VK_KHR_vulkan_memory_model </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_wayland_surface.html"> VK_KHR_wayland_surface </a> </li>
@@ -226,8 +230,6 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_validation_flags.html"> VK_EXT_validation_flags </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_vertex_attribute_divisor.html"> VK_EXT_vertex_attribute_divisor </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_vertex_input_dynamic_state.html"> VK_EXT_vertex_input_dynamic_state </a> </li>
-    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_video_encode_h264.html"> VK_EXT_video_encode_h264 </a> </li>
-    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_video_encode_h265.html"> VK_EXT_video_encode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_2plane_444_formats.html"> VK_EXT_ycbcr_2plane_444_formats </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_image_arrays.html"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
@@ -334,6 +336,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_memory_decompression.html"> VK_NV_memory_decompression </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_mesh_shader.html"> VK_NV_mesh_shader </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_per_stage_descriptor_set.html"> VK_NV_per_stage_descriptor_set </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_present_barrier.html"> VK_NV_present_barrier </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_invocation_reorder.html"> VK_NV_ray_tracing_invocation_reorder </a> </li>

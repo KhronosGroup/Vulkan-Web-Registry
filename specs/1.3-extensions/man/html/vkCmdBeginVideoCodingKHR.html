@@ -907,7 +907,7 @@ then the element is ignored.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<div class="title">Note:</div>
+<div class="title">Note</div>
 <div class="paragraph">
 <p>It is possible for multiple bound reference picture resources to be
 associated with the same DPB slot index, or for a single bound reference
@@ -957,7 +957,7 @@ command is executed on the device.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<div class="title">Note:</div>
+<div class="title">Note</div>
 <div class="paragraph">
 <p>The application does not have to specify an entry in
 <code>pBeginInfo-&gt;pReferenceSlots</code> corresponding to all active DPB slots of
@@ -965,6 +965,44 @@ the video session, but only for those which are intended to be used in the
 video coding scope.
 This way the application can avoid any potential runtime cost associated
 with binding the corresponding picture resources to the command buffer.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In case of a video encode session, the application is also responsible for
+providing information about the current <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-state" target="_blank" rel="noopener">rate
+control state</a> configured for the video session by including an instance of
+the <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure in the <code>pNext</code> chain
+of <code>pBeginInfo</code>.
+If no <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> is included, then the presence
+of an empty <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure is implied which
+indicates that the current <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a>
+is <code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code>.
+The specified state <strong class="purple">must</strong> <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-state-matching" target="_blank" rel="noopener">match</a> the
+effective rate control state configured for the video session at the time
+the recorded command is executed on the device.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Including an instance of the <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure
+in the <code>pNext</code> chain of <code>pBeginInfo</code> does not change the rate
+control state configured for the video session, but only specifies the
+expected rate control state configured at the time the recorded command is
+executed on the device which allows the implementation to have information
+about the configured rate control state at command buffer recording time.
+In order to change the current rate control state of a video session, the
+application has to issue an appropriate <a href="vkCmdControlVideoCodingKHR.html">vkCmdControlVideoCodingKHR</a>
+command as described in the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#video-coding-control" target="_blank" rel="noopener">Video Coding Control</a>
+and <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-state" target="_blank" rel="noopener">Rate Control State</a> sections.</p>
 </div>
 </td>
 </tr>
@@ -1044,6 +1082,58 @@ negative <strong class="purple">must</strong> <a href="https://registry.khronos.
 video picture resources currently associated with the DPB slot index of
 <code>pBeginInfo-&gt;videoSession</code> specified by <code>slotIndex</code> at the time
 the command is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08253" href="#VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08253"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08253</span><br>
+
+If <code>pBeginInfo-&gt;videoSession</code> was created with a video encode
+operation and the <code>pNext</code> chain of <code>pBeginInfo</code> does not include
+an instance of the <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure, then
+the <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> configured for
+<code>pBeginInfo-&gt;videoSession</code> at the time the command is executed on
+the device <strong class="purple">must</strong> be <code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08254" href="#VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08254"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08254</span><br>
+
+If <code>pBeginInfo-&gt;videoSession</code> was created with a video encode
+operation and the <code>pNext</code> chain of <code>pBeginInfo</code> includes an
+instance of the <a href="VkVideoEncodeRateControlInfoKHR.html">VkVideoEncodeRateControlInfoKHR</a> structure, then it
+<strong class="purple">must</strong> <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-state-matching" target="_blank" rel="noopener">match</a> the rate control
+state configured for <code>pBeginInfo-&gt;videoSession</code> at the time the
+command is executed on the device</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08255" href="#VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08255"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08255</span><br>
+
+If <code>pBeginInfo-&gt;videoSession</code> was created with the video codec
+operation <code>VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR</code>, the
+current <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code> or
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, and
+<a href="VkVideoEncodeH264CapabilitiesKHR.html">VkVideoEncodeH264CapabilitiesKHR</a>::<code>requiresGopRemainingFrames</code>
+is <code>VK_TRUE</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+<code>pBeginInfo-&gt;videoSession</code> was created with, then the <code>pNext</code>
+chain of <code>pBeginInfo</code> <strong class="purple">must</strong> include an instance of the
+<a href="VkVideoEncodeH264GopRemainingFrameInfoKHR.html">VkVideoEncodeH264GopRemainingFrameInfoKHR</a> with its
+<code>useGopRemainingFrames</code> member set to <code>VK_TRUE</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08256" href="#VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08256"></a> <span class="vuid">VUID-vkCmdBeginVideoCodingKHR-pBeginInfo-08256</span><br>
+
+If <code>pBeginInfo-&gt;videoSession</code> was created with the video codec
+operation <code>VK_VIDEO_CODEC_OPERATION_ENCODE_H265_BIT_KHR</code>, the
+current <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#encode-rate-control-modes" target="_blank" rel="noopener">rate control mode</a> is not
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR</code> or
+<code>VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DISABLED_BIT_KHR</code>, and
+<a href="VkVideoEncodeH265CapabilitiesKHR.html">VkVideoEncodeH265CapabilitiesKHR</a>::<code>requiresGopRemainingFrames</code>
+is <code>VK_TRUE</code>, as returned by
+<a href="vkGetPhysicalDeviceVideoCapabilitiesKHR.html">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile the
+<code>pBeginInfo-&gt;videoSession</code> was created with, then the <code>pNext</code>
+chain of <code>pBeginInfo</code> <strong class="purple">must</strong> include an instance of the
+<a href="VkVideoEncodeH265GopRemainingFrameInfoKHR.html">VkVideoEncodeH265GopRemainingFrameInfoKHR</a> with its
+<code>useGopRemainingFrames</code> member set to <code>VK_TRUE</code></p>
 </li>
 </ul>
 </div>
@@ -1171,8 +1261,8 @@ Fixes and changes should be made to the Specification, not directly.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.273<br>
-Last updated 2023-12-08 05:46:21 -0800
+Version 1.3.274<br>
+Last updated 2023-12-18 20:18:04 -0800
 </div>
 </div>
 
