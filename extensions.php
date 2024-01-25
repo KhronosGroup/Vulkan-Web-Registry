@@ -21,6 +21,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_draw_indirect_count.html"> VK_KHR_draw_indirect_count </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_driver_properties.html"> VK_KHR_driver_properties </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_dynamic_rendering.html"> VK_KHR_dynamic_rendering </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_dynamic_rendering_local_read.html"> VK_KHR_dynamic_rendering_local_read </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_external_fence.html"> VK_KHR_external_fence </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_external_fence_capabilities.html"> VK_KHR_external_fence_capabilities </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_external_fence_fd.html"> VK_KHR_external_fence_fd </a> </li>
@@ -44,6 +45,9 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_image_format_list.html"> VK_KHR_image_format_list </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_imageless_framebuffer.html"> VK_KHR_imageless_framebuffer </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_incremental_present.html"> VK_KHR_incremental_present </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_index_type_uint8.html"> VK_KHR_index_type_uint8 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_line_rasterization.html"> VK_KHR_line_rasterization </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_load_store_op_none.html"> VK_KHR_load_store_op_none </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance1.html"> VK_KHR_maintenance1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance2.html"> VK_KHR_maintenance2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance3.html"> VK_KHR_maintenance3 </a> </li>
@@ -71,11 +75,16 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_atomic_int64.html"> VK_KHR_shader_atomic_int64 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_clock.html"> VK_KHR_shader_clock </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_draw_parameters.html"> VK_KHR_shader_draw_parameters </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_expect_assume.html"> VK_KHR_shader_expect_assume </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_float16_int8.html"> VK_KHR_shader_float16_int8 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_float_controls.html"> VK_KHR_shader_float_controls </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_float_controls2.html"> VK_KHR_shader_float_controls2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_integer_dot_product.html"> VK_KHR_shader_integer_dot_product </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_maximal_reconvergence.html"> VK_KHR_shader_maximal_reconvergence </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_non_semantic_info.html"> VK_KHR_shader_non_semantic_info </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_quad_control.html"> VK_KHR_shader_quad_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_extended_types.html"> VK_KHR_shader_subgroup_extended_types </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_rotate.html"> VK_KHR_shader_subgroup_rotate </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_uniform_control_flow.html"> VK_KHR_shader_subgroup_uniform_control_flow </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_terminate_invocation.html"> VK_KHR_shader_terminate_invocation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shared_presentable_image.html"> VK_KHR_shared_presentable_image </a> </li>
