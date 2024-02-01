@@ -99,6 +99,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_uniform_buffer_standard_layout.html"> VK_KHR_uniform_buffer_standard_layout </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_variable_pointers.html"> VK_KHR_variable_pointers </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_vertex_attribute_divisor.html"> VK_KHR_vertex_attribute_divisor </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_av1.html"> VK_KHR_video_decode_av1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h264.html"> VK_KHR_video_decode_h264 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h265.html"> VK_KHR_video_decode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_queue.html"> VK_KHR_video_decode_queue </a> </li>
