@@ -182,6 +182,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_legacy_dithering.html"> VK_EXT_legacy_dithering </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_map_memory_placed.html"> VK_EXT_map_memory_placed </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_memory_budget.html"> VK_EXT_memory_budget </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_memory_priority.html"> VK_EXT_memory_priority </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_mesh_shader.html"> VK_EXT_mesh_shader </a> </li>
@@ -354,6 +355,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_representative_fragment_test.html"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_sample_mask_override_coverage.html"> VK_NV_sample_mask_override_coverage </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_scissor_exclusive.html"> VK_NV_scissor_exclusive </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_shader_atomic_float16_vector.html"> VK_NV_shader_atomic_float16_vector </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_shader_image_footprint.html"> VK_NV_shader_image_footprint </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_shader_sm_builtins.html"> VK_NV_shader_sm_builtins </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_shader_subgroup_partitioned.html"> VK_NV_shader_subgroup_partitioned </a> </li>

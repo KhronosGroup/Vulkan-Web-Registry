@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.277 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.0.278 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.277 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.278 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.277,</span>
-<span id="revdate">2024-02-01 13:41:09Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8c4e3f27f12060fd0bd1302393c4808fee6ce81f</span>
+<span id="revnumber">version 1.0.278,</span>
+<span id="revdate">2024-02-16 10:14:19Z</span>
+<br><span id="revremark">from git branch: github-main commit: 2e3aca8d6a3a6d52a9d904d0511a1c5e57a09e0f</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -5040,6 +5040,7 @@ arguments to <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR">vkG
 <li>
 <p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919</span><br>
 
+If surface is not VK_NULL_HANDLE,
 <code>surface</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> handle</p>
 </li>
 </ul>
@@ -5058,10 +5059,6 @@ arguments to <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR">vkG
 <li>
 <p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext</span><br>
  <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
-</li>
-<li>
-<p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-parameter" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-parameter"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-parameter</span><br>
- If <code>surface</code> is not <a href="chap48.html#VK_NULL_HANDLE">VK_NULL_HANDLE</a>, <code>surface</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> handle</p>
 </li>
 </ul>
 </div>
@@ -9066,6 +9063,154 @@ image that is currently acquired.</p>
 </tr>
 </tbody></table>
 </div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The origin of the native orientation of the surface coordinate system is not
+specified in the Vulkan specification; it depends on the platform.
+For most platforms the origin is by default upper-left, meaning the pixel of
+the presented <a href="chap12.html#VkImage">VkImage</a> at coordinates <span class="eq">(0,0)</span> would appear at the
+upper left pixel of the platform surface (assuming
+<code>VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</code>, and the display standing the
+right way up).</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>The result codes <code>VK_ERROR_OUT_OF_DATE_KHR</code> and <code>VK_SUBOPTIMAL_KHR</code>
+have the same meaning when returned by <code>vkQueuePresentKHR</code> as they do
+when returned by <code>vkAcquireNextImageKHR</code>.
+If multiple swapchains are presented, the result code is determined by
+applying the following rules in order:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the device is lost, <code>VK_ERROR_DEVICE_LOST</code> is returned.</p>
+</li>
+<li>
+<p>If any of the target surfaces are no longer available the error
+<code>VK_ERROR_SURFACE_LOST_KHR</code> is returned.</p>
+</li>
+<li>
+<p>If any of the presents would have a result of
+<code>VK_ERROR_OUT_OF_DATE_KHR</code> if issued separately then
+<code>VK_ERROR_OUT_OF_DATE_KHR</code> is returned.</p>
+</li>
+<li>
+<p>If any of the presents would have a result of <code>VK_SUBOPTIMAL_KHR</code> if
+issued separately then <code>VK_SUBOPTIMAL_KHR</code> is returned.</p>
+</li>
+<li>
+<p>Otherwise <code>VK_SUCCESS</code> is returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Any writes to memory backing the images referenced by the
+<code>pImageIndices</code> and <code>pSwapchains</code> members of <code>pPresentInfo</code>,
+that are available before <a href="chap30.html#vkQueuePresentKHR">vkQueuePresentKHR</a> is executed, are
+automatically made visible to the read access performed by the presentation
+engine.
+This automatic visibility operation for an image happens-after the semaphore
+signal operation, and happens-before the presentation engine accesses the
+image.</p>
+</div>
+<div class="paragraph">
+<p>Presentation is a read-only operation that will not affect the content of
+the presentable images.
+Upon reacquiring the image and transitioning it away from the
+<code>VK_IMAGE_LAYOUT_PRESENT_SRC_KHR</code> layout, the contents will be the same
+as they were prior to transitioning the image to the present source layout
+and presenting it.
+However, if a mechanism other than Vulkan is used to modify the platform
+window associated with the swapchain, the content of all presentable images
+in the swapchain becomes undefined.</p>
+</div>
+<div class="paragraph">
+<p>Calls to <code>vkQueuePresentKHR</code> <strong class="purple">may</strong> block, but <strong class="purple">must</strong> return in finite
+time.
+The processing of the presentation happens in issue order with other queue
+operations, but semaphores <strong class="purple">must</strong> be used to ensure that prior rendering and
+other commands in the specified queue complete before the presentation
+begins.
+The presentation command itself does not delay processing of subsequent
+commands on the queue.
+However, presentation requests sent to a particular queue are always
+performed in order.
+Exact presentation timing is controlled by the semantics of the presentation
+engine and native platform in use.</p>
+</div>
+<div class="paragraph">
+<p>If an image is presented to a swapchain created from a display surface, the
+mode of the associated display will be updated, if necessary, to match the
+mode specified when creating the display surface.
+The mode switch and presentation of the specified image will be performed as
+one atomic operation.</p>
+</div>
+<div class="paragraph">
+<p>Queueing an image for presentation defines a set of <em>queue operations</em>,
+including waiting on the semaphores and submitting a presentation request to
+the presentation engine.
+However, the scope of this set of queue operations does not include the
+actual processing of the image by the presentation engine.</p>
+</div>
+<div class="paragraph">
+<p>If <code>vkQueuePresentKHR</code> fails to enqueue the corresponding set of queue
+operations, it <strong class="purple">may</strong> return <code>VK_ERROR_OUT_OF_HOST_MEMORY</code> or
+<code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code>.
+If it does, the implementation <strong class="purple">must</strong> ensure that the state and contents of
+any resources or synchronization primitives referenced is unaffected by the
+call or its failure.</p>
+</div>
+<div class="paragraph">
+<p>If <code>vkQueuePresentKHR</code> fails in such a way that the implementation is
+unable to make that guarantee, the implementation <strong class="purple">must</strong> return
+<code>VK_ERROR_DEVICE_LOST</code>.</p>
+</div>
+<div class="paragraph">
+<p>However, if the presentation request is rejected by the presentation engine
+with an error <code>VK_ERROR_OUT_OF_DATE_KHR</code>,
+or <code>VK_ERROR_SURFACE_LOST_KHR</code>, the set of queue operations are still
+considered to be enqueued and thus any semaphore wait operation specified in
+<a href="chap30.html#VkPresentInfoKHR">VkPresentInfoKHR</a> will execute when the corresponding queue operation
+is complete.</p>
+</div>
+<div class="paragraph">
+<p><code>vkQueuePresentKHR</code> releases the acquisition of the images referenced by
+<code>imageIndices</code>.
+The queue family corresponding to the queue <code>vkQueuePresentKHR</code> is
+executed on <strong class="purple">must</strong> have ownership of the presented images as defined in
+<a href="chap12.html#resources-sharing">Resource Sharing</a>.
+<code>vkQueuePresentKHR</code> does not alter the queue family ownership, but the
+presented images <strong class="purple">must</strong> not be used again before they have been reacquired
+using <code>vkAcquireNextImageKHR</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>The application <strong class="purple">can</strong> continue to present any acquired images from a retired
+swapchain as long as the swapchain has not entered a state that causes
+<a href="chap30.html#vkQueuePresentKHR">vkQueuePresentKHR</a> to return <code>VK_ERROR_OUT_OF_DATE_KHR</code>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
@@ -9113,69 +9258,6 @@ for execution</p>
 </ul>
 </div>
 </div>
-</div>
-<div class="paragraph">
-<p>Any writes to memory backing the images referenced by the
-<code>pImageIndices</code> and <code>pSwapchains</code> members of <code>pPresentInfo</code>,
-that are available before <a href="chap30.html#vkQueuePresentKHR">vkQueuePresentKHR</a> is executed, are
-automatically made visible to the read access performed by the presentation
-engine.
-This automatic visibility operation for an image happens-after the semaphore
-signal operation, and happens-before the presentation engine accesses the
-image.</p>
-</div>
-<div class="paragraph">
-<p>Queueing an image for presentation defines a set of <em>queue operations</em>,
-including waiting on the semaphores and submitting a presentation request to
-the presentation engine.
-However, the scope of this set of queue operations does not include the
-actual processing of the image by the presentation engine.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tbody><tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>The origin of the native orientation of the surface coordinate system is not
-specified in the Vulkan specification; it depends on the platform.
-For most platforms the origin is by default upper-left, meaning the pixel of
-the presented <a href="chap12.html#VkImage">VkImage</a> at coordinates <span class="eq">(0,0)</span> would appear at the
-upper left pixel of the platform surface (assuming
-<code>VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR</code>, and the display standing the
-right way up).</p>
-</div>
-</td>
-</tr>
-</tbody></table>
-</div>
-<div class="paragraph">
-<p>If <code>vkQueuePresentKHR</code> fails to enqueue the corresponding set of queue
-operations, it <strong class="purple">may</strong> return <code>VK_ERROR_OUT_OF_HOST_MEMORY</code> or
-<code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code>.
-If it does, the implementation <strong class="purple">must</strong> ensure that the state and contents of
-any resources or synchronization primitives referenced is unaffected by the
-call or its failure.</p>
-</div>
-<div class="paragraph">
-<p>If <code>vkQueuePresentKHR</code> fails in such a way that the implementation is
-unable to make that guarantee, the implementation <strong class="purple">must</strong> return
-<code>VK_ERROR_DEVICE_LOST</code>.</p>
-</div>
-<div class="paragraph">
-<p>However, if the presentation request is rejected by the presentation engine
-with an error <code>VK_ERROR_OUT_OF_DATE_KHR</code>,
-or <code>VK_ERROR_SURFACE_LOST_KHR</code>, the set of queue operations are still
-considered to be enqueued and thus any semaphore wait operation specified in
-<a href="chap30.html#VkPresentInfoKHR">VkPresentInfoKHR</a> will execute when the corresponding queue operation
-is complete.</p>
-</div>
-<div class="paragraph">
-<p>Calls to <code>vkQueuePresentKHR</code> <strong class="purple">may</strong> block, but <strong class="purple">must</strong> return in finite
-time.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -10255,92 +10337,6 @@ The <a href="chap38.html#features-presentWait"><code>presentWait</code></a> feat
 </div>
 </div>
 </div>
-<div class="paragraph">
-<p><code>vkQueuePresentKHR</code> releases the acquisition of the images referenced by
-<code>imageIndices</code>.
-The queue family corresponding to the queue <code>vkQueuePresentKHR</code> is
-executed on <strong class="purple">must</strong> have ownership of the presented images as defined in
-<a href="chap12.html#resources-sharing">Resource Sharing</a>.
-<code>vkQueuePresentKHR</code> does not alter the queue family ownership, but the
-presented images <strong class="purple">must</strong> not be used again before they have been reacquired
-using <code>vkAcquireNextImageKHR</code>.</p>
-</div>
-<div class="paragraph">
-<p>The processing of the presentation happens in issue order with other queue
-operations, but semaphores have to be used to ensure that prior rendering
-and other commands in the specified queue complete before the presentation
-begins.
-The presentation command itself does not delay processing of subsequent
-commands on the queue, however, presentation requests sent to a particular
-queue are always performed in order.
-Exact presentation timing is controlled by the semantics of the presentation
-engine and native platform in use.</p>
-</div>
-<div class="paragraph">
-<p>If an image is presented to a swapchain created from a display surface, the
-mode of the associated display will be updated, if necessary, to match the
-mode specified when creating the display surface.
-The mode switch and presentation of the specified image will be performed as
-one atomic operation.</p>
-</div>
-<div class="paragraph">
-<p>The result codes <code>VK_ERROR_OUT_OF_DATE_KHR</code> and <code>VK_SUBOPTIMAL_KHR</code>
-have the same meaning when returned by <code>vkQueuePresentKHR</code> as they do
-when returned by <code>vkAcquireNextImageKHR</code>.
-If multiple swapchains are presented, the result code is determined applying
-the following rules in order:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>If the device is lost, <code>VK_ERROR_DEVICE_LOST</code> is returned.</p>
-</li>
-<li>
-<p>If any of the target surfaces are no longer available the error
-<code>VK_ERROR_SURFACE_LOST_KHR</code> is returned.</p>
-</li>
-<li>
-<p>If any of the presents would have a result of
-<code>VK_ERROR_OUT_OF_DATE_KHR</code> if issued separately then
-<code>VK_ERROR_OUT_OF_DATE_KHR</code> is returned.</p>
-</li>
-<li>
-<p>If any of the presents would have a result of <code>VK_SUBOPTIMAL_KHR</code> if
-issued separately then <code>VK_SUBOPTIMAL_KHR</code> is returned.</p>
-</li>
-<li>
-<p>Otherwise <code>VK_SUCCESS</code> is returned.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Presentation is a read-only operation that will not affect the content of
-the presentable images.
-Upon reacquiring the image and transitioning it away from the
-<code>VK_IMAGE_LAYOUT_PRESENT_SRC_KHR</code> layout, the contents will be the same
-as they were prior to transitioning the image to the present source layout
-and presenting it.
-However, if a mechanism other than Vulkan is used to modify the platform
-window associated with the swapchain, the content of all presentable images
-in the swapchain becomes undefined.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tbody><tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>The application <strong class="purple">can</strong> continue to present any acquired images from a retired
-swapchain as long as the swapchain has not entered a state that causes
-<a href="chap30.html#vkQueuePresentKHR">vkQueuePresentKHR</a> to return <code>VK_ERROR_OUT_OF_DATE_KHR</code>.</p>
-</div>
-</td>
-</tr>
-</tbody></table>
-</div>
 </div>
 </div>
 </div></div>
@@ -10356,8 +10352,8 @@ swapchain as long as the swapchain has not entered a state that causes
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.277<br>
-Last updated 2024-02-01 05:29:37 -0800
+Version 1.0.278<br>
+Last updated 2024-02-16 02:01:24 -0800
 </div>
 </div>
 
