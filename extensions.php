@@ -349,6 +349,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_optical_flow.html"> VK_NV_optical_flow </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_per_stage_descriptor_set.html"> VK_NV_per_stage_descriptor_set </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_present_barrier.html"> VK_NV_present_barrier </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_raw_access_chains.html"> VK_NV_raw_access_chains </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_invocation_reorder.html"> VK_NV_ray_tracing_invocation_reorder </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
