@@ -353,6 +353,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing.html"> VK_NV_ray_tracing </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_invocation_reorder.html"> VK_NV_ray_tracing_invocation_reorder </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_motion_blur.html"> VK_NV_ray_tracing_motion_blur </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_ray_tracing_validation.html"> VK_NV_ray_tracing_validation </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_representative_fragment_test.html"> VK_NV_representative_fragment_test </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_sample_mask_override_coverage.html"> VK_NV_sample_mask_override_coverage </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_scissor_exclusive.html"> VK_NV_scissor_exclusive </a> </li>
