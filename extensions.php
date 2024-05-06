@@ -180,6 +180,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_inline_uniform_block.html"> VK_EXT_inline_uniform_block </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_layer_settings.html"> VK_EXT_layer_settings </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_legacy_dithering.html"> VK_EXT_legacy_dithering </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_legacy_vertex_attributes.html"> VK_EXT_legacy_vertex_attributes </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_line_rasterization.html"> VK_EXT_line_rasterization </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_load_store_op_none.html"> VK_EXT_load_store_op_none </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_map_memory_placed.html"> VK_EXT_map_memory_placed </a> </li>
