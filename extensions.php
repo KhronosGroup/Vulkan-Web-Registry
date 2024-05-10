@@ -305,6 +305,8 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_INTEL_shader_integer_functions2.html"> VK_INTEL_shader_integer_functions2 </a> </li>
     <li> <b>  LUNARG Extensions (LunarG, Inc.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_LUNARG_direct_driver_loading.html"> VK_LUNARG_direct_driver_loading </a> </li>
+    <li> <b>  MESA Extensions (Mesa open source project)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_MESA_image_alignment_control.html"> VK_MESA_image_alignment_control </a> </li>
     <li> <b>  MSFT Extensions (Microsoft Corporation)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_MSFT_layered_driver.html"> VK_MSFT_layered_driver </a> </li>
     <li> <b>  MVK Extensions (The Brenwill Workshop Ltd.)  </b> </li>

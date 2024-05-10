@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.284 - A Specification</title>
+<title>Vulkan® 1.1.285 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.284 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.285 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.284,</span>
-<span id="revdate">2024-05-06 04:58:38Z</span>
-<br><span id="revremark">from git branch: github-main commit: ff188a8ffa950a010422c4c4b277f06db10d0dce</span>
+<span id="revnumber">version 1.1.285,</span>
+<span id="revdate">2024-05-10 08:12:20Z</span>
+<br><span id="revremark">from git branch: github-main commit: 8fc686b6321f035dc4a589e5ec1dc67208a71ac2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -86,8 +86,9 @@
 <li class="current"><a href="chap3.html#fundamentals-returncodes">3.8. <code>VkResult</code> Return Codes</a></li>
 <li class="current"><a href="chap3.html#fundamentals-numerics">3.9. Numeric Representation and Computation</a></li>
 <li class="current"><a href="chap3.html#fundamentals-fixedconv">3.10. Fixed-Point Data Conversions</a></li>
-<li class="current"><a href="chap3.html#fundamentals-common-objects">3.11. Common Object Types</a></li>
-<li class="current"><a href="chap3.html#fundamentals-api-name-aliases">3.12. API Name Aliases</a></li>
+<li class="current"><a href="chap3.html#fundamentals-strings">3.11. String Representation</a></li>
+<li class="current"><a href="chap3.html#fundamentals-common-objects">3.12. Common Object Types</a></li>
+<li class="current"><a href="chap3.html#fundamentals-api-name-aliases">3.13. API Name Aliases</a></li>
 </ul>
 </li>
 <li><a href="chap4.html">4. Initialization</a>
@@ -2018,6 +2019,12 @@ a structure) satisfy the alignment requirements of the host processor.</p>
 values terminated by a null character, or if <em>explicitly called out in the
 Specification</em>, <strong class="purple">can</strong> be <code>NULL</code>.</p>
 </div>
+<div class="paragraph">
+<p>Strings specified as UTF-8 encoded <strong class="purple">must</strong> not contain invalid UTF-8
+sequences.
+See <a href="chap3.html#fundamentals-strings">String Representation</a> for additional
+information about strings.</p>
+</div>
 </div>
 <div class="sect4">
 <h5 id="fundamentals-validusage-enums"><a class="anchor" href="chap3.html#fundamentals-validusage-enums"></a>Valid Usage for Enumerated Types</h5>
@@ -2892,14 +2899,60 @@ signed normalized fixed-point.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fundamentals-common-objects"><a class="anchor" href="chap3.html#fundamentals-common-objects"></a>3.11. Common Object Types</h3>
+<h3 id="fundamentals-strings"><a class="anchor" href="chap3.html#fundamentals-strings"></a>3.11. String Representation</h3>
+<div class="paragraph">
+<p>Strings passed into and returned from Vulkan API commands are usually
+defined to be null-terminated and UTF-8 encoded.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Exceptions to this rule exist only when strings are defined or used by
+operating system APIs where that OS has a different convention.
+For example, <code>VkExportMemoryWin32HandleInfoKHR</code>::<code>name</code> is a
+null-terminated UTF-16 encoded string used in conjunction with Windows
+handles.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>When a UTF-8 string is <strong>returned from</strong> a Vulkan API query, it is returned in
+a fixed-length buffer of C <code>char</code>.
+For example, a string returned in
+<a href="chap5.html#VkPhysicalDeviceProperties">VkPhysicalDeviceProperties</a>::<code>deviceName</code> has maximum length
+<code>VK_MAX_PHYSICAL_DEVICE_NAME_SIZE</code>, and a string returned in
+<a href="chap30.html#VkExtensionProperties">VkExtensionProperties</a>::<code>extensionName</code> has maximum length
+<code>VK_MAX_EXTENSION_NAME_SIZE</code>.
+The string, <strong>including</strong> its null terminator, will always fit completely
+within this buffer.
+If the string is shorter than the buffer size, the contents of <code>char</code> in
+the buffer following the null terminator are undefined.</p>
+</div>
+<div class="paragraph">
+<p>When a UTF-8 string is <strong>passed into</strong> a Vulkan API, such as
+<a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a>::<code>ppEnabledExtensionNames</code>, there is no
+explicit limit on the length of that string.
+However, the string <strong class="purple">must</strong> contain a valid UTF-8 encoded string and <strong class="purple">must</strong> be
+null-terminated.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="fundamentals-common-objects"><a class="anchor" href="chap3.html#fundamentals-common-objects"></a>3.12. Common Object Types</h3>
 <div class="paragraph">
 <p>Some types of Vulkan objects are used in many different structures and
 command parameters, and are described here.
 These types include <em>offsets</em>, <em>extents</em>, and <em>rectangles</em>.</p>
 </div>
 <div class="sect3">
-<h4 id="_offsets"><a class="anchor" href="chap3.html#_offsets"></a>3.11.1. Offsets</h4>
+<h4 id="_offsets"><a class="anchor" href="chap3.html#_offsets"></a>3.12.1. Offsets</h4>
 <div class="paragraph">
 <p>Offsets are used to describe a pixel location within an image or
 framebuffer, as an (x,y) location for two-dimensional images, or an (x,y,z)
@@ -2963,7 +3016,7 @@ location for three-dimensional images.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_extents"><a class="anchor" href="chap3.html#_extents"></a>3.11.2. Extents</h4>
+<h4 id="_extents"><a class="anchor" href="chap3.html#_extents"></a>3.12.2. Extents</h4>
 <div class="paragraph">
 <p>Extents are used to describe the size of a rectangular region of pixels
 within an image or framebuffer, as (width,height) for two-dimensional
@@ -3027,7 +3080,7 @@ images, or as (width,height,depth) for three-dimensional images.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rectangles"><a class="anchor" href="chap3.html#_rectangles"></a>3.11.3. Rectangles</h4>
+<h4 id="_rectangles"><a class="anchor" href="chap3.html#_rectangles"></a>3.12.3. Rectangles</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3060,7 +3113,7 @@ Two-dimensional rectangles are defined by the structure</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_structure_types"><a class="anchor" href="chap3.html#_structure_types"></a>3.11.4. Structure Types</h4>
+<h4 id="_structure_types"><a class="anchor" href="chap3.html#_structure_types"></a>3.12.4. Structure Types</h4>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -3279,7 +3332,7 @@ Specification.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="fundamentals-api-name-aliases"><a class="anchor" href="chap3.html#fundamentals-api-name-aliases"></a>3.12. API Name Aliases</h3>
+<h3 id="fundamentals-api-name-aliases"><a class="anchor" href="chap3.html#fundamentals-api-name-aliases"></a>3.13. API Name Aliases</h3>
 <div class="paragraph">
 <p>A small number of APIs did not follow the <a href="chap2.html#vulkan-styleguide">naming
 conventions</a> when initially defined.
@@ -3324,8 +3377,8 @@ correct name.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.1.284<br>
-Last updated 2024-05-05 21:40:43 -0700
+Version 1.1.285<br>
+Last updated 2024-05-10 00:56:41 -0700
 </div>
 </div>
 
