@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.285 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.0.286 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.285 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.286 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.285,</span>
-<span id="revdate">2024-05-10 08:14:30Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8fc686b6321f035dc4a589e5ec1dc67208a71ac2</span>
+<span id="revnumber">version 1.0.286,</span>
+<span id="revdate">2024-05-31 09:53:51Z</span>
+<br><span id="revremark">from git branch: github-main commit: ed4ba0242beb89a1795d6084709fa9e713559c94</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -380,10 +380,11 @@
 <li class="current"><a href="chap30.html#display">30.3. Presenting Directly to Display Devices</a></li>
 <li class="current"><a href="chap30.html#_querying_for_wsi_support">30.4. Querying for WSI Support</a></li>
 <li class="current"><a href="chap30.html#_surface_queries">30.5. Surface Queries</a></li>
-<li class="current"><a href="chap30.html#_device_group_queries">30.6. Device Group Queries</a></li>
-<li class="current"><a href="chap30.html#present-wait">30.7. Present Wait</a></li>
-<li class="current"><a href="chap30.html#_wsi_swapchain">30.8. WSI Swapchain</a></li>
-<li class="current"><a href="chap30.html#_hdr_metadata">30.9. Hdr Metadata</a></li>
+<li class="current"><a href="chap30.html#_full_screen_exclusive_control">30.6. Full Screen Exclusive Control</a></li>
+<li class="current"><a href="chap30.html#_device_group_queries">30.7. Device Group Queries</a></li>
+<li class="current"><a href="chap30.html#present-wait">30.8. Present Wait</a></li>
+<li class="current"><a href="chap30.html#_wsi_swapchain">30.9. WSI Swapchain</a></li>
+<li class="current"><a href="chap30.html#_hdr_metadata">30.10. Hdr Metadata</a></li>
 </ul>
 </li>
 <li><a href="chap31.html">31. Deferred Host Operations</a>
@@ -1280,6 +1281,12 @@ Failing to do so <strong class="purple">may</strong> result in deadlocks.</p>
 </li>
 <li>
 <p><a href="chap30.html#vkQueuePresentKHR">vkQueuePresentKHR</a></p>
+</li>
+<li>
+<p><a href="chap30.html#vkAcquireFullScreenExclusiveModeEXT">vkAcquireFullScreenExclusiveModeEXT</a></p>
+</li>
+<li>
+<p><a href="chap30.html#vkReleaseFullScreenExclusiveModeEXT">vkReleaseFullScreenExclusiveModeEXT</a></p>
 </li>
 <li>
 <p><a href="chap30.html#vkSetHdrMetadataEXT">vkSetHdrMetadataEXT</a></p>
@@ -4946,6 +4953,18 @@ equivalent platform-specific mechanism</p>
 </li>
 </ul>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfaceCapabilities2KHR-pNext-02671" href="chap30.html#VUID-vkGetPhysicalDeviceSurfaceCapabilities2KHR-pNext-02671"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfaceCapabilities2KHR-pNext-02671</span><br>
+
+If a <a href="chap30.html#VkSurfaceCapabilitiesFullScreenExclusiveEXT">VkSurfaceCapabilitiesFullScreenExclusiveEXT</a> structure is
+included in the <code>pNext</code> chain of <code>pSurfaceCapabilities</code>, a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a> structure <strong class="purple">must</strong> be
+included in the <code>pNext</code> chain of <code>pSurfaceInfo</code></p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="sidebarblock">
@@ -5040,11 +5059,37 @@ structure.</p>
 arguments to <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR">vkGetPhysicalDeviceSurfaceCapabilitiesKHR</a>, with
 <code>sType</code> and <code>pNext</code> added for extensibility.</p>
 </div>
+<div class="paragraph">
+<p>Additional capabilities of a surface <strong class="purple">may</strong> be available to swapchains created
+with different full-screen exclusive settings - particularly if exclusive
+full-screen access is application controlled.
+These additional capabilities <strong class="purple">can</strong> be queried by adding a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure to the <code>pNext</code> chain
+of this structure when used to query surface properties.
+Additionally, for Win32 surfaces with application controlled exclusive
+full-screen access, chaining a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a> structure <strong class="purple">may</strong> also report
+additional surface capabilities.
+These additional capabilities only apply to swapchains created with the same
+parameters included in the <code>pNext</code> chain of
+<a href="chap30.html#VkSwapchainCreateInfoKHR">VkSwapchainCreateInfoKHR</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Valid Usage</div>
 <div class="ulist">
 <ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-02672" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-02672"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-02672</span><br>
+
+If the <code>pNext</code> chain includes a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure with its
+<code>fullScreenExclusive</code> member set to
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code>, and
+<code>surface</code> was created using <a href="chap30.html#vkCreateWin32SurfaceKHR">vkCreateWin32SurfaceKHR</a>, a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a> structure <strong class="purple">must</strong> be
+included in the <code>pNext</code> chain</p>
+</li>
 <li>
 <p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-surface-07919</span><br>
 
@@ -5066,7 +5111,210 @@ If surface is not VK_NULL_HANDLE,
 </li>
 <li>
 <p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-pNext-pNext</span><br>
- <code>pNext</code> <strong class="purple">must</strong> be <code>NULL</code></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> or <a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a></p>
+</li>
+<li>
+<p><a id="VUID-VkPhysicalDeviceSurfaceInfo2KHR-sType-unique" href="chap30.html#VUID-VkPhysicalDeviceSurfaceInfo2KHR-sType-unique"></a> <span class="vuid">VUID-VkPhysicalDeviceSurfaceInfo2KHR-sType-unique</span><br>
+ The <code>sType</code> value of each struct in the <code>pNext</code> chain <strong class="purple">must</strong> be unique</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>If the <code>pNext</code> chain of <a href="chap30.html#VkSwapchainCreateInfoKHR">VkSwapchainCreateInfoKHR</a> includes a
+<code>VkSurfaceFullScreenExclusiveInfoEXT</code> structure, then that structure
+specifies the application’s preferred full-screen transition behavior.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkSurfaceFullScreenExclusiveInfoEXT</code> structure is defined as:</p>
+</div>
+<div id="VkSurfaceFullScreenExclusiveInfoEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSurfaceFullScreenExclusiveInfoEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>             <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>                       <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkFullScreenExclusiveEXT</span>    <span class="n">fullScreenExclusive</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkSurfaceFullScreenExclusiveInfoEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>fullScreenExclusive</code> is a <a href="chap30.html#VkFullScreenExclusiveEXT">VkFullScreenExclusiveEXT</a> value
+specifying the preferred full-screen transition behavior.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If this structure is not present, <code>fullScreenExclusive</code> is considered to
+be <code>VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSurfaceFullScreenExclusiveInfoEXT-sType-sType" href="chap30.html#VUID-VkSurfaceFullScreenExclusiveInfoEXT-sType-sType"></a> <span class="vuid">VUID-VkSurfaceFullScreenExclusiveInfoEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkSurfaceFullScreenExclusiveInfoEXT-fullScreenExclusive-parameter" href="chap30.html#VUID-VkSurfaceFullScreenExclusiveInfoEXT-fullScreenExclusive-parameter"></a> <span class="vuid">VUID-VkSurfaceFullScreenExclusiveInfoEXT-fullScreenExclusive-parameter</span><br>
+ <code>fullScreenExclusive</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkFullScreenExclusiveEXT">VkFullScreenExclusiveEXT</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values of
+<code>VkSurfaceFullScreenExclusiveInfoEXT</code>::<code>fullScreenExclusive</code> are:</p>
+</div>
+<div id="VkFullScreenExclusiveEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkFullScreenExclusiveEXT</span> <span class="p">{</span>
+    <span class="n">VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkFullScreenExclusiveEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT</code> indicates the implementation
+<strong class="purple">should</strong> determine the appropriate full-screen method by whatever means
+it deems appropriate.</p>
+</li>
+<li>
+<p><code>VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT</code> indicates the implementation
+<strong class="purple">may</strong> use full-screen exclusive mechanisms when available.
+Such mechanisms <strong class="purple">may</strong> result in better performance and/or the
+availability of different presentation capabilities, but <strong class="purple">may</strong> require a
+more disruptive transition during swapchain initialization, first
+presentation and/or destruction.</p>
+</li>
+<li>
+<p><code>VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT</code> indicates the
+implementation <strong class="purple">should</strong> avoid using full-screen mechanisms which rely on
+disruptive transitions.</p>
+</li>
+<li>
+<p><code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code> indicates the
+application will manage full-screen exclusive mode by using the
+<a href="chap30.html#vkAcquireFullScreenExclusiveModeEXT">vkAcquireFullScreenExclusiveModeEXT</a> and
+<a href="chap30.html#vkReleaseFullScreenExclusiveModeEXT">vkReleaseFullScreenExclusiveModeEXT</a> commands.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkSurfaceFullScreenExclusiveWin32InfoEXT</code> structure is defined as:</p>
+</div>
+<div id="VkSurfaceFullScreenExclusiveWin32InfoEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_win32_surface with VK_EXT_full_screen_exclusive</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSurfaceFullScreenExclusiveWin32InfoEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>        <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">HMONITOR</span>           <span class="n">hmonitor</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkSurfaceFullScreenExclusiveWin32InfoEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>hmonitor</code> is the Win32 <code>HMONITOR</code> handle identifying the display
+to create the surface with.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>If <code>hmonitor</code> is invalidated (e.g. the monitor is unplugged) during the
+lifetime of a swapchain created with this structure, operations on that
+swapchain will return <code>VK_ERROR_OUT_OF_DATE_KHR</code>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>It is the responsibility of the application to change the display settings
+of the targeted Win32 display using the appropriate platform APIs.
+Such changes <strong class="purple">may</strong> alter the surface capabilities reported for the created
+surface.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-hmonitor-02673" href="chap30.html#VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-hmonitor-02673"></a> <span class="vuid">VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-hmonitor-02673</span><br>
+
+<code>hmonitor</code> <strong class="purple">must</strong> be a valid <code>HMONITOR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-sType-sType" href="chap30.html#VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-sType-sType"></a> <span class="vuid">VUID-VkSurfaceFullScreenExclusiveWin32InfoEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -5115,7 +5363,7 @@ describing the capabilities of the specified surface.</p>
 </li>
 <li>
 <p><a id="VUID-VkSurfaceCapabilities2KHR-pNext-pNext" href="chap30.html#VUID-VkSurfaceCapabilities2KHR-pNext-pNext"></a> <span class="vuid">VUID-VkSurfaceCapabilities2KHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap30.html#VkSharedPresentSurfaceCapabilitiesKHR">VkSharedPresentSurfaceCapabilitiesKHR</a> or <a href="chap30.html#VkSurfaceProtectedCapabilitiesKHR">VkSurfaceProtectedCapabilitiesKHR</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap30.html#VkSharedPresentSurfaceCapabilitiesKHR">VkSharedPresentSurfaceCapabilitiesKHR</a>, <a href="chap30.html#VkSurfaceCapabilitiesFullScreenExclusiveEXT">VkSurfaceCapabilitiesFullScreenExclusiveEXT</a>, or <a href="chap30.html#VkSurfaceProtectedCapabilitiesKHR">VkSurfaceProtectedCapabilitiesKHR</a></p>
 </li>
 <li>
 <p><a id="VUID-VkSurfaceCapabilities2KHR-sType-unique" href="chap30.html#VUID-VkSurfaceCapabilities2KHR-sType-unique"></a> <span class="vuid">VUID-VkSurfaceCapabilities2KHR-sType-unique</span><br>
@@ -5227,6 +5475,64 @@ but implementations <strong class="purple">may</strong> support additional usage
 <li>
 <p><a id="VUID-VkSharedPresentSurfaceCapabilitiesKHR-sType-sType" href="chap30.html#VUID-VkSharedPresentSurfaceCapabilitiesKHR-sType-sType"></a> <span class="vuid">VUID-VkSharedPresentSurfaceCapabilitiesKHR-sType-sType</span><br>
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkSurfaceCapabilitiesFullScreenExclusiveEXT</code> structure is defined
+as:</p>
+</div>
+<div id="VkSurfaceCapabilitiesFullScreenExclusiveEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkSurfaceCapabilitiesFullScreenExclusiveEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkBool32</span>           <span class="n">fullScreenExclusiveSupported</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkSurfaceCapabilitiesFullScreenExclusiveEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>fullScreenExclusiveControlSupported</code> is a boolean describing
+whether the surface is able to make use of exclusive full-screen access.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This structure <strong class="purple">can</strong> be included in the <code>pNext</code> chain of
+<a href="chap30.html#VkSurfaceCapabilities2KHR">VkSurfaceCapabilities2KHR</a> to determine support for exclusive
+full-screen access.
+If <code>fullScreenExclusiveSupported</code> is <code>VK_FALSE</code>, it indicates that
+exclusive full-screen access is not obtainable for this surface.</p>
+</div>
+<div class="paragraph">
+<p>Applications <strong class="purple">must</strong> not attempt to create swapchains with
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code> set if
+<code>fullScreenExclusiveSupported</code> is <code>VK_FALSE</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkSurfaceCapabilitiesFullScreenExclusiveEXT-sType-sType" href="chap30.html#VUID-VkSurfaceCapabilitiesFullScreenExclusiveEXT-sType-sType"></a> <span class="vuid">VUID-VkSurfaceCapabilitiesFullScreenExclusiveEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -5946,6 +6252,137 @@ platform-specific mechanism</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>Alternatively, to query the supported presentation modes for a surface
+combined with select other fixed swapchain creation parameters, call:</p>
+</div>
+<div id="vkGetPhysicalDeviceSurfacePresentModes2EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="n">VkResult</span> <span class="nf">vkGetPhysicalDeviceSurfacePresentModes2EXT</span><span class="p">(</span>
+    <span class="n">VkPhysicalDevice</span>                            <span class="n">physicalDevice</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkPhysicalDeviceSurfaceInfo2KHR</span><span class="o">*</span>      <span class="n">pSurfaceInfo</span><span class="p">,</span>
+    <span class="kt">uint32_t</span><span class="o">*</span>                                   <span class="n">pPresentModeCount</span><span class="p">,</span>
+    <span class="n">VkPresentModeKHR</span><span class="o">*</span>                           <span class="n">pPresentModes</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>physicalDevice</code> is the physical device that will be associated with
+the swapchain to be created, as described for
+<a href="chap30.html#vkCreateSwapchainKHR">vkCreateSwapchainKHR</a>.</p>
+</li>
+<li>
+<p><code>pSurfaceInfo</code> is a pointer to a
+<a href="chap30.html#VkPhysicalDeviceSurfaceInfo2KHR">VkPhysicalDeviceSurfaceInfo2KHR</a> structure describing the surface
+and other fixed parameters that would be consumed by
+<a href="chap30.html#vkCreateSwapchainKHR">vkCreateSwapchainKHR</a>.</p>
+</li>
+<li>
+<p><code>pPresentModeCount</code> is a pointer to an integer related to the number
+of presentation modes available or queried, as described below.</p>
+</li>
+<li>
+<p><code>pPresentModes</code> is either <code>NULL</code> or a pointer to an array of
+<a href="chap30.html#VkPresentModeKHR">VkPresentModeKHR</a> values, indicating the supported presentation
+modes.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkGetPhysicalDeviceSurfacePresentModes2EXT</code> behaves similarly to
+<a href="chap30.html#vkGetPhysicalDeviceSurfacePresentModesKHR">vkGetPhysicalDeviceSurfacePresentModesKHR</a>, with the ability to specify
+extended inputs via chained input structures.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06521" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06521"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06521</span><br>
+
+<code>pSurfaceInfo-&gt;surface</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkSurfaceKHR">VkSurfaceKHR</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06522" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06522"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-06522</span><br>
+
+<code>pSurfaceInfo-&gt;surface</code> <strong class="purple">must</strong> be supported by <code>physicalDevice</code>,
+as reported by <a href="chap30.html#vkGetPhysicalDeviceSurfaceSupportKHR">vkGetPhysicalDeviceSurfaceSupportKHR</a> or an
+equivalent platform-specific mechanism</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-physicalDevice-parameter" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-physicalDevice-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-physicalDevice-parameter</span><br>
+ <code>physicalDevice</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkPhysicalDevice">VkPhysicalDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-parameter" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pSurfaceInfo-parameter</span><br>
+ <code>pSurfaceInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap30.html#VkPhysicalDeviceSurfaceInfo2KHR">VkPhysicalDeviceSurfaceInfo2KHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModeCount-parameter" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModeCount-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModeCount-parameter</span><br>
+ <code>pPresentModeCount</code> <strong class="purple">must</strong> be a valid pointer to a <code>uint32_t</code> value</p>
+</li>
+<li>
+<p><a id="VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModes-parameter" href="chap30.html#VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModes-parameter"></a> <span class="vuid">VUID-vkGetPhysicalDeviceSurfacePresentModes2EXT-pPresentModes-parameter</span><br>
+ If the value referenced by <code>pPresentModeCount</code> is not <code>0</code>, and <code>pPresentModes</code> is not <code>NULL</code>, <code>pPresentModes</code> <strong class="purple">must</strong> be a valid pointer to an array of <code>pPresentModeCount</code> <a href="chap30.html#VkPresentModeKHR">VkPresentModeKHR</a> values</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+<li>
+<p><code>VK_INCOMPLETE</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>Possible values of elements of the
 <a href="chap30.html#vkGetPhysicalDeviceSurfacePresentModesKHR">vkGetPhysicalDeviceSurfacePresentModesKHR</a>::<code>pPresentModes</code> array,
 indicating the supported presentation modes for a surface, are:</p>
@@ -6110,7 +6547,268 @@ equivalent to the behavior of {wgl|glX}SwapBuffers with a swap interval of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_device_group_queries"><a class="anchor" href="chap30.html#_device_group_queries"></a>30.6. Device Group Queries</h3>
+<h3 id="_full_screen_exclusive_control"><a class="anchor" href="chap30.html#_full_screen_exclusive_control"></a>30.6. Full Screen Exclusive Control</h3>
+<div class="paragraph">
+<p>Swapchains created with <code>fullScreenExclusive</code> set to
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code> <strong class="purple">must</strong> acquire and
+release exclusive full-screen access explicitly, using the following
+commands.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To acquire exclusive full-screen access for a swapchain, call:</p>
+</div>
+<div id="vkAcquireFullScreenExclusiveModeEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="n">VkResult</span> <span class="nf">vkAcquireFullScreenExclusiveModeEXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkSwapchainKHR</span>                              <span class="n">swapchain</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the device associated with <code>swapchain</code>.</p>
+</li>
+<li>
+<p><code>swapchain</code> is the swapchain to acquire exclusive full-screen access
+for.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02674" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02674"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02674</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> not be in the retired state</p>
+</li>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02675" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02675"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02675</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> be a swapchain created with a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure, with
+<code>fullScreenExclusive</code> set to
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02676" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02676"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-02676</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> not currently have exclusive full-screen access</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>A return value of <code>VK_SUCCESS</code> indicates that the <code>swapchain</code>
+successfully acquired exclusive full-screen access.
+The swapchain will retain this exclusivity until either the application
+releases exclusive full-screen access with
+<a href="chap30.html#vkReleaseFullScreenExclusiveModeEXT">vkReleaseFullScreenExclusiveModeEXT</a>, destroys the swapchain, or if any
+of the swapchain commands return
+<code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> indicating that the mode
+was lost because of platform-specific changes.</p>
+</div>
+<div class="paragraph">
+<p>If the swapchain was unable to acquire exclusive full-screen access to the
+display then <code>VK_ERROR_INITIALIZATION_FAILED</code> is returned.
+An application <strong class="purple">can</strong> attempt to acquire exclusive full-screen access again
+for the same swapchain even if this command fails, or if
+<code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> has been returned by a
+swapchain command.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-device-parameter" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-device-parameter"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parameter" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parameter"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parameter</span><br>
+ <code>swapchain</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkSwapchainKHR">VkSwapchainKHR</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parent" href="chap30.html#VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parent"></a> <span class="vuid">VUID-vkAcquireFullScreenExclusiveModeEXT-swapchain-parent</span><br>
+ <code>swapchain</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_INITIALIZATION_FAILED</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To release exclusive full-screen access from a swapchain, call:</p>
+</div>
+<div id="vkReleaseFullScreenExclusiveModeEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_full_screen_exclusive</span>
+<span class="n">VkResult</span> <span class="nf">vkReleaseFullScreenExclusiveModeEXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="n">VkSwapchainKHR</span>                              <span class="n">swapchain</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the device associated with <code>swapchain</code>.</p>
+</li>
+<li>
+<p><code>swapchain</code> is the swapchain to release exclusive full-screen access
+from.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Applications will not be able to present to <code>swapchain</code> after this call
+until exclusive full-screen access is reacquired.
+This is usually useful to handle when an application is minimized or
+otherwise intends to stop presenting for a time.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02677" href="chap30.html#VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02677"></a> <span class="vuid">VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02677</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> not be in the retired state</p>
+</li>
+<li>
+<p><a id="VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02678" href="chap30.html#VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02678"></a> <span class="vuid">VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-02678</span><br>
+
+<code>swapchain</code> <strong class="purple">must</strong> be a swapchain created with a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure, with
+<code>fullScreenExclusive</code> set to
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkReleaseFullScreenExclusiveModeEXT-device-parameter" href="chap30.html#VUID-vkReleaseFullScreenExclusiveModeEXT-device-parameter"></a> <span class="vuid">VUID-vkReleaseFullScreenExclusiveModeEXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parameter" href="chap30.html#VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parameter"></a> <span class="vuid">VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parameter</span><br>
+ <code>swapchain</code> <strong class="purple">must</strong> be a valid <a href="chap30.html#VkSwapchainKHR">VkSwapchainKHR</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parent" href="chap30.html#VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parent"></a> <span class="vuid">VUID-vkReleaseFullScreenExclusiveModeEXT-swapchain-parent</span><br>
+ <code>swapchain</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from <code>device</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_device_group_queries"><a class="anchor" href="chap30.html#_device_group_queries"></a>30.7. Device Group Queries</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -6452,6 +7150,120 @@ or an equivalent platform-specific mechanism</p>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>Alternatively, to query the supported device group presentation modes for a
+surface combined with select other fixed swapchain creation parameters,
+call:</p>
+</div>
+<div id="vkGetDeviceGroupSurfacePresentModes2EXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_VERSION_1_1 with VK_EXT_full_screen_exclusive, VK_KHR_device_group with VK_EXT_full_screen_exclusive</span>
+<span class="n">VkResult</span> <span class="nf">vkGetDeviceGroupSurfacePresentModes2EXT</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkPhysicalDeviceSurfaceInfo2KHR</span><span class="o">*</span>      <span class="n">pSurfaceInfo</span><span class="p">,</span>
+    <span class="n">VkDeviceGroupPresentModeFlagsKHR</span><span class="o">*</span>           <span class="n">pModes</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device.</p>
+</li>
+<li>
+<p><code>pSurfaceInfo</code> is a pointer to a
+<a href="chap30.html#VkPhysicalDeviceSurfaceInfo2KHR">VkPhysicalDeviceSurfaceInfo2KHR</a> structure describing the surface
+and other fixed parameters that would be consumed by
+<a href="chap30.html#vkCreateSwapchainKHR">vkCreateSwapchainKHR</a>.</p>
+</li>
+<li>
+<p><code>pModes</code> is a pointer to a <a href="chap30.html#VkDeviceGroupPresentModeFlagsKHR">VkDeviceGroupPresentModeFlagsKHR</a> in
+which the supported device group present modes for the surface are
+returned.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>vkGetDeviceGroupSurfacePresentModes2EXT</code> behaves similarly to
+<a href="chap30.html#vkGetDeviceGroupSurfacePresentModesKHR">vkGetDeviceGroupSurfacePresentModesKHR</a>, with the ability to specify
+extended inputs via chained input structures.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-06213" href="chap30.html#VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-06213"></a> <span class="vuid">VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-06213</span><br>
+
+<code>pSurfaceInfo-&gt;surface</code> <strong class="purple">must</strong> be supported by all physical devices
+associated with <code>device</code>, as reported by
+<a href="chap30.html#vkGetPhysicalDeviceSurfaceSupportKHR">vkGetPhysicalDeviceSurfaceSupportKHR</a> or an equivalent
+platform-specific mechanism</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetDeviceGroupSurfacePresentModes2EXT-device-parameter" href="chap30.html#VUID-vkGetDeviceGroupSurfacePresentModes2EXT-device-parameter"></a> <span class="vuid">VUID-vkGetDeviceGroupSurfacePresentModes2EXT-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-parameter" href="chap30.html#VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-parameter"></a> <span class="vuid">VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pSurfaceInfo-parameter</span><br>
+ <code>pSurfaceInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap30.html#VkPhysicalDeviceSurfaceInfo2KHR">VkPhysicalDeviceSurfaceInfo2KHR</a> structure</p>
+</li>
+<li>
+<p><a id="VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pModes-parameter" href="chap30.html#VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pModes-parameter"></a> <span class="vuid">VUID-vkGetDeviceGroupSurfacePresentModes2EXT-pModes-parameter</span><br>
+ <code>pModes</code> <strong class="purple">must</strong> be a valid pointer to a <a href="chap30.html#VkDeviceGroupPresentModeFlagsKHR">VkDeviceGroupPresentModeFlagsKHR</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Return Codes</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-successcodes">Success</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_SUCCESS</code></p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><a href="chap3.html#fundamentals-errorcodes">Failure</a></dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_ERROR_OUT_OF_HOST_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_OUT_OF_DEVICE_MEMORY</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>When using <code>VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR</code>,
 the application <strong class="purple">may</strong> need to know which regions of the surface are used when
 presenting locally on each physical device.
@@ -6609,7 +7421,7 @@ platform-specific mechanism</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="present-wait"><a class="anchor" href="chap30.html#present-wait"></a>30.7. Present Wait</h3>
+<h3 id="present-wait"><a class="anchor" href="chap30.html#present-wait"></a>30.8. Present Wait</h3>
 <div class="paragraph">
 <p>Applications wanting to control the pacing of the application by monitoring
 when presentation processes have completed to limit the number of
@@ -6632,7 +7444,7 @@ presentation is finished.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wsi_swapchain"><a class="anchor" href="chap30.html#_wsi_swapchain"></a>30.8. WSI Swapchain</h3>
+<h3 id="_wsi_swapchain"><a class="anchor" href="chap30.html#_wsi_swapchain"></a>30.9. WSI Swapchain</h3>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -6888,6 +7700,9 @@ presentable image, call:</p>
 <li>
 <p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
 </li>
+<li>
+<p><code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -7088,6 +7903,57 @@ affected by the lost device.
 After successfully recreating a <code>VkDevice</code>, the same <code>VkSurfaceKHR</code>
 <strong class="purple">can</strong> be used to create a new <code>VkSwapchainKHR</code>, provided the previous one
 was destroyed.</p>
+</div>
+<div class="paragraph">
+<p>If the <code>oldSwapchain</code> parameter of <code>pCreateInfo</code> is a valid
+swapchain, which has exclusive full-screen access, that access is released
+from <code>pCreateInfo-&gt;oldSwapchain</code>.
+If the command succeeds in this case, the newly created swapchain will
+automatically acquire exclusive full-screen access from
+<code>pCreateInfo-&gt;oldSwapchain</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This implicit transfer is intended to avoid exiting and entering full-screen
+exclusive mode, which may otherwise cause unwanted visual updates to the
+display.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>In some cases, swapchain creation <strong class="purple">may</strong> fail if exclusive full-screen mode is
+requested for application control, but for some implementation-specific
+reason exclusive full-screen access is unavailable for the particular
+combination of parameters provided.
+If this occurs, <code>VK_ERROR_INITIALIZATION_FAILED</code> will be returned.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>In particular, it will fail if the <code>imageExtent</code> member of
+<code>pCreateInfo</code> does not match the extents of the monitor.
+Other reasons for failure may include the app not being set as high-dpi
+aware, or if the physical device and monitor are not compatible in this
+mode.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -7600,6 +8466,17 @@ then <code>VkSurfaceProtectedCapabilitiesKHR</code>::<code>supportsProtected</co
 structure returned by <a href="chap30.html#vkGetPhysicalDeviceSurfaceCapabilities2KHR">vkGetPhysicalDeviceSurfaceCapabilities2KHR</a>
 for <code>surface</code></p>
 </li>
+<li>
+<p><a id="VUID-VkSwapchainCreateInfoKHR-pNext-02679" href="chap30.html#VUID-VkSwapchainCreateInfoKHR-pNext-02679"></a> <span class="vuid">VUID-VkSwapchainCreateInfoKHR-pNext-02679</span><br>
+
+If the <code>pNext</code> chain includes a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure with its
+<code>fullScreenExclusive</code> member set to
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code>, and
+<code>surface</code> was created using <a href="chap30.html#vkCreateWin32SurfaceKHR">vkCreateWin32SurfaceKHR</a>, a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a> structure <strong class="purple">must</strong> be
+included in the <code>pNext</code> chain</p>
+</li>
 </ul>
 </div>
 </div>
@@ -7615,7 +8492,7 @@ for <code>surface</code></p>
 </li>
 <li>
 <p><a id="VUID-VkSwapchainCreateInfoKHR-pNext-pNext" href="chap30.html#VUID-VkSwapchainCreateInfoKHR-pNext-pNext"></a> <span class="vuid">VUID-VkSwapchainCreateInfoKHR-pNext-pNext</span><br>
- Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap30.html#VkDeviceGroupSwapchainCreateInfoKHR">VkDeviceGroupSwapchainCreateInfoKHR</a> or <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a></p>
+ Each <code>pNext</code> member of any structure (including this one) in the <code>pNext</code> chain <strong class="purple">must</strong> be either <code>NULL</code> or a pointer to a valid instance of <a href="chap30.html#VkDeviceGroupSwapchainCreateInfoKHR">VkDeviceGroupSwapchainCreateInfoKHR</a>, <a href="chap12.html#VkImageFormatListCreateInfo">VkImageFormatListCreateInfo</a>, <a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a>, or <a href="chap30.html#VkSurfaceFullScreenExclusiveWin32InfoEXT">VkSurfaceFullScreenExclusiveWin32InfoEXT</a></p>
 </li>
 <li>
 <p><a id="VUID-VkSwapchainCreateInfoKHR-sType-unique" href="chap30.html#VUID-VkSwapchainCreateInfoKHR-sType-unique"></a> <span class="vuid">VUID-VkSwapchainCreateInfoKHR-sType-unique</span><br>
@@ -7794,6 +8671,13 @@ structure.</p>
 </div>
 </div>
 </div>
+<div class="paragraph">
+<p>If the <code>pNext</code> chain of <a href="chap30.html#VkSwapchainCreateInfoKHR">VkSwapchainCreateInfoKHR</a> includes a
+<a href="chap30.html#VkSurfaceFullScreenExclusiveInfoEXT">VkSurfaceFullScreenExclusiveInfoEXT</a> structure, then that structure
+specifies the application’s preferred full-screen presentation behavior.
+If this structure is not present, <code>fullScreenExclusive</code> is considered to
+be <code>VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT</code>.</p>
+</div>
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
@@ -7844,6 +8728,10 @@ images from any swapchain associated with the display surface <strong class="pur
 reverted by the implementation to their state prior to the first present
 performed on one of these swapchains, or such resources <strong class="purple">must</strong> be left in
 their current state.</p>
+</div>
+<div class="paragraph">
+<p>If <code>swapchain</code> has exclusive full-screen access, it is released before
+the swapchain is destroyed.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -8410,6 +9298,9 @@ member of <code>pAcquireInfo</code>, the <code>timeout</code> member of
 <li>
 <p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
 </li>
+<li>
+<p><code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -8837,6 +9728,9 @@ guaranteed for the <code>surface</code> used to create <code>swapchain</code>, t
 <li>
 <p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
 </li>
+<li>
+<p><code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -9096,6 +9990,11 @@ right way up).</p>
 <p>The result codes <code>VK_ERROR_OUT_OF_DATE_KHR</code> and <code>VK_SUBOPTIMAL_KHR</code>
 have the same meaning when returned by <code>vkQueuePresentKHR</code> as they do
 when returned by <code>vkAcquireNextImageKHR</code>.
+If any <code>swapchain</code> member of <code>pPresentInfo</code> was created with
+<code>VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT</code>,
+<code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> will be returned if that
+swapchain does not have exclusive full-screen access, possibly for
+implementation-specific reasons outside of the application’s control.
 If multiple swapchains are presented, the result code is determined by
 applying the following rules in order:</p>
 </div>
@@ -9112,6 +10011,11 @@ applying the following rules in order:</p>
 <p>If any of the presents would have a result of
 <code>VK_ERROR_OUT_OF_DATE_KHR</code> if issued separately then
 <code>VK_ERROR_OUT_OF_DATE_KHR</code> is returned.</p>
+</li>
+<li>
+<p>If any of the presents would have a result of
+<code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> if issued separately
+then <code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code> is returned.</p>
 </li>
 <li>
 <p>If any of the presents would have a result of <code>VK_SUBOPTIMAL_KHR</code> if
@@ -9187,6 +10091,7 @@ unable to make that guarantee, the implementation <strong class="purple">must</s
 <div class="paragraph">
 <p>However, if the presentation request is rejected by the presentation engine
 with an error <code>VK_ERROR_OUT_OF_DATE_KHR</code>,
+<code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code>,
 or <code>VK_ERROR_SURFACE_LOST_KHR</code>, the set of queue operations are still
 considered to be enqueued and thus any semaphore wait operation specified in
 <a href="chap30.html#VkPresentInfoKHR">VkPresentInfoKHR</a> will execute when the corresponding queue operation
@@ -9370,6 +10275,9 @@ for execution</p>
 </li>
 <li>
 <p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
+</li>
+<li>
+<p><code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code></p>
 </li>
 </ul>
 </div>
@@ -10336,6 +11244,9 @@ The <a href="chap38.html#features-presentWait"><code>presentWait</code></a> feat
 <li>
 <p><code>VK_ERROR_SURFACE_LOST_KHR</code></p>
 </li>
+<li>
+<p><code>VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT</code></p>
+</li>
 </ul>
 </div>
 </dd>
@@ -10347,7 +11258,7 @@ The <a href="chap38.html#features-presentWait"><code>presentWait</code></a> feat
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hdr_metadata"><a class="anchor" href="chap30.html#_hdr_metadata"></a>30.9. Hdr Metadata</h3>
+<h3 id="_hdr_metadata"><a class="anchor" href="chap30.html#_hdr_metadata"></a>30.10. Hdr Metadata</h3>
 <div class="paragraph">
 <p>This section describes how to improve color reproduction of content to
 better reproduce colors as seen on the reference monitor.
@@ -10570,8 +11481,8 @@ for real colors for the reference monitor.</p>
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.285<br>
-Last updated 2024-05-10 00:56:41 -0700
+Version 1.0.286<br>
+Last updated 2024-05-31 02:17:10 -0700
 </div>
 </div>
 

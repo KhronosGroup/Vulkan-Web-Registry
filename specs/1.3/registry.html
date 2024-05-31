@@ -1052,9 +1052,9 @@ pre.rouge .w {
 <h1>The Khronos<sup>®</sup> Vulkan<sup>®</sup> API Registry</h1>
 <div class="details">
 <span id="author" class="author">Jon Leech</span><br>
-<span id="revnumber">version 1.3.285,</span>
-<span id="revdate">2024-05-10 08:12:19Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8fc686b6321f035dc4a589e5ec1dc67208a71ac2</span>
+<span id="revnumber">version 1.3.286,</span>
+<span id="revdate">2024-05-31 09:54:07Z</span>
+<br><span id="revremark">from git branch: github-main commit: ed4ba0242beb89a1795d6084709fa9e713559c94</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -2502,9 +2502,9 @@ If present, this attribute should match the <code>name</code> attribute of a
 corresponding <code>type</code> tag.</p>
 </li>
 <li>
-<p><code>type</code> - optional.
+<p><code>type</code> - required.
 String describing the data type of the values of this group of enums.
-At present the only accepted categories are <code>enum</code> and <code>bitmask</code>, as
+The accepted categories are <code>bitmask</code>, <code>constants</code>, and <code>enum</code>, as
 described below.</p>
 </li>
 <li>
@@ -2559,7 +2559,7 @@ this results in</p>
 <h2 id="tag-enum"><a class="anchor" href="#tag-enum"></a>12. Enumerants (<code>enum</code> Tag)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Each <code>enum</code> tag defines a single Vulkan (or other API) token.</p>
+<p>Each <code>enum</code> tag defines a single API token.</p>
 </div>
 <div class="sect2">
 <h3 id="_attributes_of_enum_tags"><a class="anchor" href="#_attributes_of_enum_tags"></a>12.1. Attributes of <code>enum</code> Tags</h3>
@@ -3241,10 +3241,70 @@ interfaces are protected against multiple inclusion.
 Example: <code>"VK_VERSION_1_0"</code>.</p>
 </li>
 <li>
-<p><code>number</code> - required.
+<p><code>number</code> - required, but deprecated and will eventually be removed.
 Feature version number, usually a string interpreted as
 <code>majorNumber.minorNumber</code>.
 Example: <code>4.2</code>.</p>
+<div class="openblock">
+<div class="content">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>number</code> is deprecated, replaced by <code>depends</code>.
+<code>number</code> is retained only for backwards compatibility with downstream
+consumers, and will eventually be removed.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</li>
+<li>
+<p><code>depends</code> - optional.
+String containing a boolean expression of one or more API core version
+and extension names.
+The feature requires the expression in the string to be satisfied to
+use any functionality it defines.
+Supported operators include <code>,</code> for logical OR, <code>+</code> for logical AND, and
+<code>(</code> <code>)</code> for grouping.
+<code>,</code> and <code>+</code> are of equal precedence, and lower than <code>(</code> <code>)</code>.
+Expressions must be evaluated left-to-right for operators of the same
+precedence.
+Terms which are core version names are true if the corresponding
+API version is supported.
+Terms which are extension names are true if the corresponding extension
+is enabled.</p>
+<div class="openblock">
+<div class="content">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>depends</code> replaces the <code>number</code> attribute used in the past.
+The expected purposes of this attribute include sorting features in
+dependency order when emitting them from generator scripts, and ensuring
+that all dependent features are included when building with a specified
+feature.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
 </li>
 <li>
 <p><code>sortorder</code> - optional.
@@ -4885,10 +4945,10 @@ These correspond to the definitions found in the first <code>enums</code> sectio
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;enums</span> <span class="na">name=</span><span class="s">"API Constants"</span>
+<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;enums</span> <span class="na">name=</span><span class="s">"API Constants"</span> <span class="na">type=</span><span class="s">"constants"</span>
        <span class="na">comment=</span><span class="s">"Vulkan hardcoded constants - not an enumerated type, part of the header boilerplate"</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;enum</span> <span class="na">value=</span><span class="s">"256"</span>        <span class="na">name=</span><span class="s">"VK_MAX_PHYSICAL_DEVICE_NAME"</span><span class="nt">/&gt;</span>
-    <span class="nt">&lt;enum</span> <span class="na">value=</span><span class="s">"256"</span>        <span class="na">name=</span><span class="s">"VK_MAX_EXTENSION_NAME"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;enum</span> <span class="na">type=</span><span class="s">"uint32_t"</span> <span class="na">value=</span><span class="s">"256"</span>   <span class="na">name=</span><span class="s">"VK_MAX_PHYSICAL_DEVICE_NAME"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;enum</span> <span class="na">type=</span><span class="s">"uint32_t"</span> <span class="na">value=</span><span class="s">"256"</span>   <span class="na">name=</span><span class="s">"VK_MAX_EXTENSION_NAME"</span><span class="nt">/&gt;</span>
     ...</code></pre>
 </div>
 </div>
@@ -5120,7 +5180,7 @@ Add (if not present) a nested <code>require</code> block labeled</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;enums</span> <span class="na">comment=</span><span class="s">"Misc. hardcoded constants - not an enumerated type"</span><span class="nt">&gt;</span></code></pre>
+<pre class="rouge highlight"><code data-lang="xml"><span class="nt">&lt;enums</span> <span class="na">name=</span><span class="s">"API Constants"</span> <span class="na">type=</span><span class="s">"constants"</span> <span class="err">...</span><span class="nt">&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5628,6 +5688,15 @@ Changes to the <code>.xml</code> files and Python scripts are logged in GitHub h
 <div class="ulist">
 <ul>
 <li>
+<p>2024-05-28 - Deprecate the <code>feature</code> <code>number</code> attribute with the
+new <code>depends</code> tag (public issue 2327).</p>
+</li>
+<li>
+<p>2024-05-08 - Add a <code>enums</code> <code>type</code> <code>"constants"</code> value for
+compile time constant definitions so they can be treated more
+consistently (public issue 2359).</p>
+</li>
+<li>
 <p>2024-04-03 - Add <code>"SFIXED5"</code> as an allowed <code>component</code>
 <code>numericFormat</code> type (internal issue 3802).</p>
 </li>
@@ -5986,8 +6055,8 @@ make minor changes to markup.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.3.285<br>
-Last updated 2024-05-08 03:28:41 -0700
+Version 1.3.286<br>
+Last updated 2024-05-31 02:49:22 -0700
 </div>
 </div>
 

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.18">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.285 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.0.286 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="style1.css" type="text/css">
@@ -58,12 +58,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.285 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.286 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.285,</span>
-<span id="revdate">2024-05-10 08:14:30Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8fc686b6321f035dc4a589e5ec1dc67208a71ac2</span>
+<span id="revnumber">version 1.0.286,</span>
+<span id="revdate">2024-05-31 09:53:51Z</span>
+<br><span id="revremark">from git branch: github-main commit: ed4ba0242beb89a1795d6084709fa9e713559c94</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -380,10 +380,11 @@
 <li><a href="chap30.html#display">30.3. Presenting Directly to Display Devices</a></li>
 <li><a href="chap30.html#_querying_for_wsi_support">30.4. Querying for WSI Support</a></li>
 <li><a href="chap30.html#_surface_queries">30.5. Surface Queries</a></li>
-<li><a href="chap30.html#_device_group_queries">30.6. Device Group Queries</a></li>
-<li><a href="chap30.html#present-wait">30.7. Present Wait</a></li>
-<li><a href="chap30.html#_wsi_swapchain">30.8. WSI Swapchain</a></li>
-<li><a href="chap30.html#_hdr_metadata">30.9. Hdr Metadata</a></li>
+<li><a href="chap30.html#_full_screen_exclusive_control">30.6. Full Screen Exclusive Control</a></li>
+<li><a href="chap30.html#_device_group_queries">30.7. Device Group Queries</a></li>
+<li><a href="chap30.html#present-wait">30.8. Present Wait</a></li>
+<li><a href="chap30.html#_wsi_swapchain">30.9. WSI Swapchain</a></li>
+<li><a href="chap30.html#_hdr_metadata">30.10. Hdr Metadata</a></li>
 </ul>
 </li>
 <li><a href="chap31.html">31. Deferred Host Operations</a>
@@ -671,7 +672,8 @@ indicated by the value stored by the implementation in the counter buffer.</p>
 <div class="paragraph">
 <p>For multi-vertex primitives, all values for a given vertex are written
 before writing values for any other vertex.
-Implementations
+When <a href="chap38.html#features-transformFeedbackPreservesProvokingVertex"><code>transformFeedbackPreservesProvokingVertex</code></a> is not enabled,
+implementations
 <strong class="purple">may</strong> write out any vertex within the primitive first, but all subsequent
 vertices for that primitive <strong class="purple">must</strong> be written out in a consistent winding
 order defined as follows:</p>
@@ -700,6 +702,36 @@ appended according to the winding order defined by
 <a href="chap22.html#tessellation-isoline-tessellation">isoline tessellation</a>.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>When <a href="chap38.html#features-transformFeedbackPreservesProvokingVertex"><code>transformFeedbackPreservesProvokingVertex</code></a> is enabled, then in
+addition to writing vertices with a consistent winding order, the vertex
+order <strong class="purple">must</strong> preserve the <a href="chap24.html#vertexpostproc-flatshading">provoking vertex</a> of
+each primitive:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>When the
+<a href="chap24.html#VkPipelineRasterizationProvokingVertexStateCreateInfoEXT">pipeline’s
+provoking vertex mode</a> is
+<code>VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT</code>, the primitive’s
+provoking vertex must be the first vertex written.</p>
+</li>
+<li>
+<p>When the
+<a href="chap24.html#VkPipelineRasterizationProvokingVertexStateCreateInfoEXT">pipeline’s
+provoking vertex mode</a> is
+<code>VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT</code>, the primitive’s
+provoking vertex must be the last vertex written.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <a href="chap39.html#limits-transformFeedbackPreservesTriangleFanProvokingVertex"><code>transformFeedbackPreservesTriangleFanProvokingVertex</code></a> is
+<code>VK_FALSE</code>, neither <a href="chap23.html">geometry</a> nor <a href="chap22.html">tessellation</a> shading is active, and the <a href="chap20.html#drawing-primitive-topologies">primitive topology</a> is <code>VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN</code>, then the
+first vertex written from each primitive is implementation-defined even when
+<a href="chap38.html#features-transformFeedbackPreservesProvokingVertex"><code>transformFeedbackPreservesProvokingVertex</code></a> is enabled.</p>
 </div>
 <div class="paragraph">
 <p>When capturing vertices, the stride associated with each transform feedback
@@ -1468,6 +1500,274 @@ defined by the <a href="chap20.html#drawing-point-lists"><code>OutputPoints</cod
 <p>If <a href="chap22.html">tessellation shading</a> is active but <a href="chap23.html">geometry
 shading</a> is not, the provoking vertex <strong class="purple">may</strong> be any of the vertices in each
 primitive.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>For a given primitive topology, the pipeline’s provoking vertex mode
+determines which vertex is the provoking vertex.
+To specify the provoking vertex mode, include a
+<code>VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</code> structure in
+the <a href="chap25.html#VkPipelineRasterizationStateCreateInfo">VkPipelineRasterizationStateCreateInfo</a>::<code>pNext</code> chain when
+creating the pipeline.</p>
+</div>
+<div class="paragraph">
+<p>The <code>VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</code> structure
+is defined as:</p>
+</div>
+<div id="VkPipelineRasterizationProvokingVertexStateCreateInfoEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_provoking_vertex</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>             <span class="n">sType</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span>                 <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkProvokingVertexModeEXT</span>    <span class="n">provokingVertexMode</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><code>provokingVertexMode</code> is a <a href="chap24.html#VkProvokingVertexModeEXT">VkProvokingVertexModeEXT</a> value
+selecting the provoking vertex mode.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If this struct is not provided when creating the pipeline, the pipeline will
+use the <code>VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT</code> mode.</p>
+</div>
+<div class="paragraph">
+<p>If the <a href="chap39.html#limits-provokingVertexModePerPipeline"><code>provokingVertexModePerPipeline</code></a> limit is <code>VK_FALSE</code>, then all
+pipelines bound within a render pass instance <strong class="purple">must</strong> have the same
+<code>provokingVertexMode</code>.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-04883" href="chap24.html#VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-04883"></a> <span class="vuid">VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-04883</span><br>
+
+If <code>provokingVertexMode</code> is
+<code>VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT</code>, then the
+<a href="chap38.html#features-provokingVertexLast"><code>provokingVertexLast</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-sType-sType" href="chap24.html#VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-sType-sType"></a> <span class="vuid">VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-parameter" href="chap24.html#VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-parameter"></a> <span class="vuid">VUID-VkPipelineRasterizationProvokingVertexStateCreateInfoEXT-provokingVertexMode-parameter</span><br>
+ <code>provokingVertexMode</code> <strong class="purple">must</strong> be a valid <a href="chap24.html#VkProvokingVertexModeEXT">VkProvokingVertexModeEXT</a> value</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>Possible values of
+<a href="chap24.html#VkPipelineRasterizationProvokingVertexStateCreateInfoEXT">VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</a>::<code>provokingVertexMode</code>
+are:</p>
+</div>
+<div id="VkProvokingVertexModeEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_provoking_vertex</span>
+<span class="k">typedef</span> <span class="k">enum</span> <span class="n">VkProvokingVertexModeEXT</span> <span class="p">{</span>
+    <span class="n">VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span> <span class="n">VkProvokingVertexModeEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT</code> specifies that the
+provoking vertex is the first non-adjacency vertex in the list of
+vertices used by a primitive.</p>
+</li>
+<li>
+<p><code>VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT</code> specifies that the
+provoking vertex is the last non-adjacency vertex in the list of
+vertices used by a primitive.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These modes are described more precisely in
+<a href="chap20.html#drawing-primitive-topologies">Primitive Topologies</a>.</p>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>To <a href="chap10.html#pipelines-dynamic-state">dynamically set</a> the
+<code>provokingVertexMode</code> state, call:</p>
+</div>
+<div id="vkCmdSetProvokingVertexModeEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_extended_dynamic_state3 with VK_EXT_provoking_vertex, VK_EXT_provoking_vertex with VK_EXT_shader_object</span>
+<span class="kt">void</span> <span class="nf">vkCmdSetProvokingVertexModeEXT</span><span class="p">(</span>
+    <span class="n">VkCommandBuffer</span>                             <span class="n">commandBuffer</span><span class="p">,</span>
+    <span class="n">VkProvokingVertexModeEXT</span>                    <span class="n">provokingVertexMode</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>commandBuffer</code> is the command buffer into which the command will be
+recorded.</p>
+</li>
+<li>
+<p><code>provokingVertexMode</code> specifies the <code>provokingVertexMode</code> state.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This command sets the <code>provokingVertexMode</code> state for subsequent drawing
+commands
+when drawing using <a href="chap9.html#shaders-objects">shader objects</a>, or
+when the graphics pipeline is created with
+<code>VK_DYNAMIC_STATE_PROVOKING_VERTEX_MODE_EXT</code> set in
+<a href="chap10.html#VkPipelineDynamicStateCreateInfo">VkPipelineDynamicStateCreateInfo</a>::<code>pDynamicStates</code>.
+Otherwise, this state is specified by the
+<a href="chap24.html#VkPipelineRasterizationProvokingVertexStateCreateInfoEXT">VkPipelineRasterizationProvokingVertexStateCreateInfoEXT</a>::<code>provokingVertexMode</code>
+value used to create the currently active pipeline.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-None-09423" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-None-09423"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-None-09423</span><br>
+
+At least one of the following <strong class="purple">must</strong> be true:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The <a href="chap38.html#features-extendedDynamicState3ProvokingVertexMode"><code>extendedDynamicState3ProvokingVertexMode</code></a> feature is
+enabled</p>
+</li>
+<li>
+<p>The <a href="chap38.html#features-shaderObject"><code>shaderObject</code></a> feature is enabled</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-07447" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-07447"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-07447</span><br>
+
+If <code>provokingVertexMode</code> is
+<code>VK_PROVOKING_VERTEX_MODE_LAST_VERTEX_EXT</code>, then the
+<a href="chap38.html#features-provokingVertexLast"><code>provokingVertexLast</code></a> feature
+<strong class="purple">must</strong> be enabled</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-parameter" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-parameter"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-parameter</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="chap6.html#VkCommandBuffer">VkCommandBuffer</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-parameter" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-parameter"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-provokingVertexMode-parameter</span><br>
+ <code>provokingVertexMode</code> <strong class="purple">must</strong> be a valid <a href="chap24.html#VkProvokingVertexModeEXT">VkProvokingVertexModeEXT</a> value</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-recording" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-recording</span><br>
+ <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="chap6.html#commandbuffers-lifecycle">recording state</a></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-cmdpool" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-cmdpool"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-commandBuffer-cmdpool</span><br>
+ The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics operations</p>
+</li>
+<li>
+<p><a id="VUID-vkCmdSetProvokingVertexModeEXT-videocoding" href="chap24.html#VUID-vkCmdSetProvokingVertexModeEXT-videocoding"></a> <span class="vuid">VUID-vkCmdSetProvokingVertexModeEXT-videocoding</span><br>
+ This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Host Synchronization</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Host access to <code>commandBuffer</code> <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+<li>
+<p>Host access to the <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> be externally synchronized</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Command Properties</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"><a href="chap6.html#VkCommandBufferLevel">Command Buffer Levels</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap8.html#vkCmdBeginRenderPass">Render Pass Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap36.html#vkCmdBeginVideoCodingKHR">Video Coding Scope</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap5.html#VkQueueFlagBits">Supported Queue Types</a></th>
+<th class="tableblock halign-left valign-top"><a href="chap3.html#fundamentals-queueoperation-command-types">Command Type</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Primary<br>
+Secondary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graphics</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">State</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2966,8 +3266,8 @@ enabled,
 </nav>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.285<br>
-Last updated 2024-05-10 00:56:41 -0700
+Version 1.0.286<br>
+Last updated 2024-05-31 02:17:10 -0700
 </div>
 </div>
 
