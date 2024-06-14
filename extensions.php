@@ -83,6 +83,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_maximal_reconvergence.html"> VK_KHR_shader_maximal_reconvergence </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_non_semantic_info.html"> VK_KHR_shader_non_semantic_info </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_quad_control.html"> VK_KHR_shader_quad_control </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_relaxed_extended_instruction.html"> VK_KHR_shader_relaxed_extended_instruction </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_extended_types.html"> VK_KHR_shader_subgroup_extended_types </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_rotate.html"> VK_KHR_shader_subgroup_rotate </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_shader_subgroup_uniform_control_flow.html"> VK_KHR_shader_subgroup_uniform_control_flow </a> </li>
