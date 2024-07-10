@@ -54,6 +54,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance4.html"> VK_KHR_maintenance4 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance5.html"> VK_KHR_maintenance5 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance6.html"> VK_KHR_maintenance6 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_maintenance7.html"> VK_KHR_maintenance7 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_map_memory2.html"> VK_KHR_map_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_multiview.html"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
