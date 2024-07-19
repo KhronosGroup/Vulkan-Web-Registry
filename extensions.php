@@ -248,6 +248,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_2plane_444_formats.html"> VK_EXT_ycbcr_2plane_444_formats </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_image_arrays.html"> VK_EXT_ycbcr_image_arrays </a> </li>
     <li> <b>  AMD Extensions (Advanced Micro Devices, Inc.)  </b> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_AMD_anti_lag.html"> VK_AMD_anti_lag </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_buffer_marker.html"> VK_AMD_buffer_marker </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_device_coherent_memory.html"> VK_AMD_device_coherent_memory </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_AMD_display_native_hdr.html"> VK_AMD_display_native_hdr </a> </li>
