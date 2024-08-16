@@ -321,6 +321,7 @@
     <li> <b>  NV Extensions (NVIDIA Corporation)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_acquire_winrt_display.html"> VK_NV_acquire_winrt_display </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_clip_space_w_scaling.html"> VK_NV_clip_space_w_scaling </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_command_buffer_inheritance.html"> VK_NV_command_buffer_inheritance </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_compute_shader_derivatives.html"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_cooperative_matrix.html"> VK_NV_cooperative_matrix </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_copy_memory_indirect.html"> VK_NV_copy_memory_indirect </a> </li>
