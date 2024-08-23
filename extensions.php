@@ -58,6 +58,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_map_memory2.html"> VK_KHR_map_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_multiview.html"> VK_KHR_multiview </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_performance_query.html"> VK_KHR_performance_query </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_pipeline_binary.html"> VK_KHR_pipeline_binary </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_pipeline_executable_properties.html"> VK_KHR_pipeline_executable_properties </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_pipeline_library.html"> VK_KHR_pipeline_library </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_portability_enumeration.html"> VK_KHR_portability_enumeration </a> </li>
