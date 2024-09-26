@@ -7,6 +7,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_bind_memory2.html"> VK_KHR_bind_memory2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_buffer_device_address.html"> VK_KHR_buffer_device_address </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_calibrated_timestamps.html"> VK_KHR_calibrated_timestamps </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_compute_shader_derivatives.html"> VK_KHR_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_cooperative_matrix.html"> VK_KHR_cooperative_matrix </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_copy_commands2.html"> VK_KHR_copy_commands2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_create_renderpass2.html"> VK_KHR_create_renderpass2 </a> </li>
@@ -138,6 +139,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_debug_report.html"> VK_EXT_debug_report </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_debug_utils.html"> VK_EXT_debug_utils </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_bias_control.html"> VK_EXT_depth_bias_control </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clamp_control.html"> VK_EXT_depth_clamp_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clamp_zero_one.html"> VK_EXT_depth_clamp_zero_one </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clip_control.html"> VK_EXT_depth_clip_control </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_depth_clip_enable.html"> VK_EXT_depth_clip_enable </a> </li>
@@ -146,6 +148,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_descriptor_indexing.html"> VK_EXT_descriptor_indexing </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_device_address_binding_report.html"> VK_EXT_device_address_binding_report </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_device_fault.html"> VK_EXT_device_fault </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_device_generated_commands.html"> VK_EXT_device_generated_commands </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_device_memory_report.html"> VK_EXT_device_memory_report </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_direct_mode_display.html"> VK_EXT_direct_mode_display </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_directfb_surface.html"> VK_EXT_directfb_surface </a> </li>

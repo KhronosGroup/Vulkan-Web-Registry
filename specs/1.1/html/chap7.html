@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.295 - A Specification</title>
+<title>Vulkan® 1.1.296 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.295 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.1.296 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.295,</span>
-<span id="revdate">2024-08-30 09:38:26Z</span>
-<br><span id="revremark">from git branch: github-main commit: 8e435deb15124bbf9a7e3340e6cc7975999ed5c5</span>
+<span id="revnumber">version 1.1.296,</span>
+<span id="revdate">2024-09-26 07:25:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: 486e4b289053a7d64784e7ce791711843c60c235</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1085,7 +1085,7 @@ For further details on queue capabilities see
 and <a href="chap5.html#devsandqueues-queues">Queues</a>.</p>
 </div>
 <table id="synchronization-pipeline-stages-supported" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Supported pipeline stage flags</caption>
+<caption class="title">Table 3. Supported Pipeline Stage Flags</caption>
 <colgroup>
 <col style="width: 70%;">
 <col style="width: 30%;">
@@ -1196,6 +1196,10 @@ and <a href="chap5.html#devsandqueues-queues">Queues</a>.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_2_PRE_RASTERIZATION_SHADERS_BIT</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_QUEUE_GRAPHICS_BIT</code> or <code>VK_QUEUE_COMPUTE_BIT</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1514,7 +1518,7 @@ The following table lists, for each access flag, which pipeline stages <strong c
 perform that type of access.</p>
 </div>
 <table id="synchronization-access-types-supported" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Supported access types</caption>
+<caption class="title">Table 4. Supported Access Types</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -1652,6 +1656,14 @@ perform that type of access.</p>
 	<code>VK_PIPELINE_STAGE_2_GEOMETRY_SHADER_BIT</code>,
 	<code>VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT</code>,
 	<code>VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT</code>,</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_2_COMMAND_PREPROCESS_READ_BIT_EXT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_ACCESS_2_COMMAND_PREPROCESS_WRITE_BIT_EXT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>VK_PIPELINE_STAGE_2_COMMAND_PREPROCESS_BIT_EXT</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -3466,9 +3478,38 @@ and defines <em>semaphore wait operations</em>.</p>
 to the unsignaled state.</p>
 </div>
 <div class="paragraph">
-<p>The first synchronization scope includes all semaphore signal operations
-that operate on semaphores waited on in the same batch, and that
-happen-before the wait completes.</p>
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes one <a href="chap7.html#synchronization-semaphores-signaling">semaphore signal
+operation</a> for each semaphore waited on by this batch.
+The specific signal operation waited on for each semaphore <strong class="purple">must</strong> meet the
+following criteria:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>
+the signal operation is either earlier in
+<a href="chap7.html#synchronization-submission-order">submission order</a> on the same queue,
+or is submitted by a command whose host operation happens-before this
+batch is submitted on the host</p>
+</li>
+<li>
+<p>
+no wait operation exists that happens-after the signal operation and
+happens-before this wait operation</p>
+</li>
+<li>
+<p>the signal operation is not guaranteed to happen-after the semaphore
+wait operation in this batch</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If multiple semaphore signal operations meet these criteria, any of those
+operations <strong class="purple">may</strong> be included in the first
+<a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>.
+When waiting on a binary semaphore, applications <strong class="purple">must</strong> ensure that exactly
+one semaphore signal operation meets these criteria.</p>
 </div>
 <div class="paragraph">
 <p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
@@ -7030,7 +7071,6 @@ waited on by a different physical device.</p>
 </div>
 </div>
 </div></div>
-
 <nav>
   <a rel="prev" href="chap6.html" class="nav nav-prev" title="Previous page" aria-label="Previous page" aria-keyshortcuts="Left">
         <i class="fa fa-angle-left"></i>
@@ -7040,12 +7080,7 @@ waited on by a different physical device.</p>
      </a>
   <div style="clear: both"></div>
 </nav>
-<div id="footer">
-<div id="footer-text">
-Version 1.1.295<br>
-Last updated 2024-08-30 01:53:32 -0700
-</div>
-</div>
+
 
 
 
