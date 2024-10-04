@@ -211,6 +211,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_pipeline_protected_access.html"> VK_EXT_pipeline_protected_access </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_pipeline_robustness.html"> VK_EXT_pipeline_robustness </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_post_depth_coverage.html"> VK_EXT_post_depth_coverage </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_present_mode_fifo_latest_ready.html"> VK_EXT_present_mode_fifo_latest_ready </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_primitive_topology_list_restart.html"> VK_EXT_primitive_topology_list_restart </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_primitives_generated_query.html"> VK_EXT_primitives_generated_query </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_private_data.html"> VK_EXT_private_data </a> </li>
