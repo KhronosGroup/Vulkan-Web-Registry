@@ -816,7 +816,9 @@ li > p > a[id^="VUID-"].link:hover { color: black; }
 <pre class="highlight"><code class="language-c++" data-lang="c++">// Provided by VK_AMDX_shader_enqueue
 void vkCmdInitializeGraphScratchMemoryAMDX(
     VkCommandBuffer                             commandBuffer,
-    VkDeviceAddress                             scratch);</code></pre>
+    VkPipeline                                  executionGraph,
+    VkDeviceAddress                             scratch,
+    VkDeviceSize                                scratchSize);</code></pre>
 </div>
 </div>
 </div>
@@ -831,7 +833,15 @@ void vkCmdInitializeGraphScratchMemoryAMDX(
 recorded.</p>
 </li>
 <li>
-<p><code>scratch</code> is a pointer to the scratch memory to be initialized.</p>
+<p><code>executionGraph</code> is the execution graph pipeline to initialize the
+scratch memory for.</p>
+</li>
+<li>
+<p><code>scratch</code> is the address of scratch memory to be initialized.</p>
+</li>
+<li>
+<p><code>scratchSize</code> is a range in bytes of scratch memory to be
+initialized.</p>
 </li>
 </ul>
 </div>
@@ -846,10 +856,7 @@ currently bound execution graph pipeline.</p>
 </div>
 <div class="paragraph">
 <p>Execution of this command <strong class="purple">may</strong> modify any memory locations in the range
-[<code>scratch</code>,<code>scratch</code> + <code>size</code>), where <code>size</code> is the value
-returned in <a href="VkExecutionGraphPipelineScratchSizeAMDX.html">VkExecutionGraphPipelineScratchSizeAMDX</a>::<code>size</code> by
-<a href="VkExecutionGraphPipelineScratchSizeAMDX.html">VkExecutionGraphPipelineScratchSizeAMDX</a> for the currently bound
-execution graph pipeline.
+[<code>scratch</code>,<code>scratch</code> + <code>scratchSize</code>).
 Accesses to this memory range are performed in the
 <code>VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT</code> pipeline stage with the
 <code>VK_ACCESS_2_SHADER_STORAGE_READ_BIT</code> and
@@ -859,7 +866,7 @@ Accesses to this memory range are performed in the
 <p>If any portion of <code>scratch</code> is modified by any command other than
 <a href="vkCmdDispatchGraphAMDX.html">vkCmdDispatchGraphAMDX</a>, <a href="vkCmdDispatchGraphIndirectAMDX.html">vkCmdDispatchGraphIndirectAMDX</a>,
 <a href="vkCmdDispatchGraphIndirectCountAMDX.html">vkCmdDispatchGraphIndirectCountAMDX</a>, or
-<code>vkCmdInitializeGraphScratchMemoryAMDX</code> with the same execution graph,
+<a href="vkCmdInitializeGraphScratchMemoryAMDX.html">vkCmdInitializeGraphScratchMemoryAMDX</a> with the same execution graph,
 it <strong class="purple">must</strong> be reinitialized for the execution graph again before dispatching
 against it.</p>
 </div>
@@ -869,12 +876,17 @@ against it.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-09143" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-09143"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-09143</span><br>
+<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-10185" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-10185"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratch-10185</span><br>
 
 <code>scratch</code> <strong class="purple">must</strong> be the device address of an allocated memory range
-at least as large as the value of
-<a href="VkExecutionGraphPipelineScratchSizeAMDX.html">VkExecutionGraphPipelineScratchSizeAMDX</a>::<code>size</code> returned by
-<a href="VkExecutionGraphPipelineScratchSizeAMDX.html">VkExecutionGraphPipelineScratchSizeAMDX</a> for the currently bound
+at least as large as <code>scratchSize</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratchSize-10186" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratchSize-10186"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-scratchSize-10186</span><br>
+
+<code>scratchSize</code> <strong class="purple">must</strong> be greater than or equal to
+<a href="VkExecutionGraphPipelineScratchSizeAMDX.html">VkExecutionGraphPipelineScratchSizeAMDX</a>::<code>minSize</code> returned by
+<a href="vkGetExecutionGraphPipelineScratchSizeAMDX.html">vkGetExecutionGraphPipelineScratchSizeAMDX</a> for the currently bound
 execution graph pipeline</p>
 </li>
 <li>
@@ -896,6 +908,10 @@ execution graph pipeline</p>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a valid <a href="VkCommandBuffer.html">VkCommandBuffer</a> handle</p>
 </li>
 <li>
+<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-executionGraph-parameter" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-executionGraph-parameter"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-executionGraph-parameter</span><br>
+ <code>executionGraph</code> <strong class="purple">must</strong> be a valid <a href="VkPipeline.html">VkPipeline</a> handle</p>
+</li>
+<li>
 <p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-commandBuffer-recording" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-commandBuffer-recording"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-commandBuffer-recording</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be in the <a href="#commandbuffers-lifecycle">recording state</a></p>
 </li>
@@ -904,16 +920,16 @@ execution graph pipeline</p>
  The <code>VkCommandPool</code> that <code>commandBuffer</code> was allocated from <strong class="purple">must</strong> support graphics, or compute operations</p>
 </li>
 <li>
-<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-renderpass" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-renderpass"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-renderpass</span><br>
- This command <strong class="purple">must</strong> only be called outside of a render pass instance</p>
-</li>
-<li>
 <p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-videocoding" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-videocoding"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-videocoding</span><br>
  This command <strong class="purple">must</strong> only be called outside of a video coding scope</p>
 </li>
 <li>
 <p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-bufferlevel" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-bufferlevel"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-bufferlevel</span><br>
  <code>commandBuffer</code> <strong class="purple">must</strong> be a primary <code>VkCommandBuffer</code></p>
+</li>
+<li>
+<p><a id="VUID-vkCmdInitializeGraphScratchMemoryAMDX-commonparent" href="#VUID-vkCmdInitializeGraphScratchMemoryAMDX-commonparent"></a> <span class="vuid">VUID-vkCmdInitializeGraphScratchMemoryAMDX-commonparent</span><br>
+ Both of <code>commandBuffer</code>, and <code>executionGraph</code> <strong class="purple">must</strong> have been created, allocated, or retrieved from the same <a href="VkDevice.html">VkDevice</a></p>
 </li>
 </ul>
 </div>
@@ -954,7 +970,7 @@ execution graph pipeline</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Primary</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Outside</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Graphics<br>
 Compute</p></td>
@@ -970,7 +986,7 @@ Compute</p></td>
 <h2 id="_see_also"><a class="anchor" href="#_see_also"></a>See Also</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a href="VK_AMDX_shader_enqueue.html">VK_AMDX_shader_enqueue</a>, <a href="VkCommandBuffer.html">VkCommandBuffer</a>, <a href="VkDeviceAddress.html">VkDeviceAddress</a></p>
+<p><a href="VK_AMDX_shader_enqueue.html">VK_AMDX_shader_enqueue</a>, <a href="VkCommandBuffer.html">VkCommandBuffer</a>, <a href="VkDeviceAddress.html">VkDeviceAddress</a>, <a href="VkDeviceSize.html">VkDeviceSize</a>, <a href="VkPipeline.html">VkPipeline</a></p>
 </div>
 </div>
 </div>
