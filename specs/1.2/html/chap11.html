@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.299 - A Specification</title>
+<title>Vulkan® 1.2.300 - A Specification</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.299 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.2.300 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.299,</span>
-<span id="revdate">2024-10-18 11:16:51Z</span>
-<br><span id="revremark">from git branch: github-main commit: 46e04bb59e0f85b9124899e694a477dd9025d17c</span>
+<span id="revnumber">version 1.2.300,</span>
+<span id="revdate">2024-10-25 13:34:09Z</span>
+<br><span id="revremark">from git branch: github-main commit: c9304f8dd1aa20183942c6a3638b28c81b4e681d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1763,8 +1763,9 @@ allocated with this type <strong class="purple">can</strong> be mapped for host 
 <p><a id="memory-coherent"></a> <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> bit
 specifies that the host cache management commands
 <a href="chap11.html#vkFlushMappedMemoryRanges">vkFlushMappedMemoryRanges</a> and <a href="chap11.html#vkInvalidateMappedMemoryRanges">vkInvalidateMappedMemoryRanges</a>
-are not needed to flush host writes to the device or make device writes
-visible to the host, respectively.</p>
+are not needed to manage
+<a href="chap7.html#synchronization-dependencies-available-and-visible">availability and
+visibility</a> on the host.</p>
 </li>
 <li>
 <p><code>VK_MEMORY_PROPERTY_HOST_CACHED_BIT</code> bit specifies that memory
@@ -2797,7 +2798,7 @@ allocation.</p>
 <p><code>ppData</code> is a pointer to a <code>void*</code> variable in which a
 host-accessible pointer to the beginning of the mapped range is
 returned.
-This pointer minus <code>offset</code> <strong class="purple">must</strong> be aligned to at least
+The value of the returned pointer minus <code>offset</code> <strong class="purple">must</strong> be aligned to
 <a href="chap32.html#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a>::<code>minMemoryMapAlignment</code>.</p>
 </li>
 </ul>
@@ -3078,13 +3079,62 @@ domain operations</a> using the <code>VK_ACCESS_HOST_WRITE_BIT</code>
 <a href="chap7.html#synchronization-access-types">access type</a>.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is flushed if any byte in that
-set has been written by the host since it was first host mapped, or the last
-time it was flushed.
-If <code>pMemoryRanges</code> includes sets of <code>nonCoherentAtomSize</code> bytes
-where no bytes have been written by the host, those bytes <strong class="purple">must</strong> not be
-flushed.</p>
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Some systems allow writes that do not directly integrate with the host
+memory model; these have to be synchronized by the application manually.
+One example of this is non-temporal store instructions on x86; to ensure
+these happen-before submission, applications should call <code>_mm_sfence()</code>.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a>
+includes host writes to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a host write to a memory location is made available in this way, each
+whole aligned set of <a href="chap32.html#limits-nonCoherentAtomSize"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made available as if they were written by the host.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object via a host mapping, the first
+128 bytes of the memory object will be made available by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> is
+empty.</p>
 </div>
 <div id="memory-device-unmap-does-not-flush" class="paragraph">
 <p>Unmapping non-coherent memory does not implicitly flush the host mapped
@@ -3204,10 +3254,84 @@ If a range of non-coherent memory is written by the host and then
 invalidated without first being flushed, its contents are undefined.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is invalidated if any byte in
-that set has been written by the device since it was first host mapped, or
-the last time it was invalidated.</p>
+<p>The first <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This function does not synchronize with device operations directly - other
+host <a href="chap7.html">synchronization operations</a> that depend on device
+operations such as <a href="chap7.html#vkWaitForFences">vkWaitForFences</a> must be executed beforehand.
+So for any non-coherent device write to be made visible to the host, there
+has to be a dependency chain along the following lines:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Device write</p>
+</li>
+<li>
+<p>Device memory barrier including host reads in its second scope</p>
+</li>
+<li>
+<p>Signal on the device (e.g. a <a href="chap7.html#synchronization-fences-signaling">fence
+signal operation</a>)</p>
+</li>
+<li>
+<p>Wait on the host (e.g. <a href="chap7.html#vkWaitForFences">vkWaitForFences</a>)</p>
+</li>
+<li>
+<p><a href="chap11.html#vkInvalidateMappedMemoryRanges">vkInvalidateMappedMemoryRanges</a></p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happen-after it, as defined by the host
+memory model.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="chap7.html#synchronization-dependencies-access-scopes">access scope</a>
+includes host reads to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a device write to a memory location is made visible to the host in this
+way, each whole aligned set of <a href="chap32.html#limits-nonCoherentAtomSize"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made visible as if they were written by the device.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object on the device, the first 128
+bytes of the memory object will be made visible by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 <div class="admonitionblock note">
 <table>

@@ -855,10 +855,84 @@ If a range of non-coherent memory is written by the host and then
 invalidated without first being flushed, its contents are undefined.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is invalidated if any byte in
-that set has been written by the device since it was first host mapped, or
-the last time it was invalidated.</p>
+<p>The first <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This function does not synchronize with device operations directly - other
+host <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization" target="_blank" rel="noopener">synchronization operations</a> that depend on device
+operations such as <a href="vkWaitForFences.html">vkWaitForFences</a> must be executed beforehand.
+So for any non-coherent device write to be made visible to the host, there
+has to be a dependency chain along the following lines:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Device write</p>
+</li>
+<li>
+<p>Device memory barrier including host reads in its second scope</p>
+</li>
+<li>
+<p>Signal on the device (e.g. a <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-fences-signaling" target="_blank" rel="noopener">fence
+signal operation</a>)</p>
+</li>
+<li>
+<p>Wait on the host (e.g. <a href="vkWaitForFences.html">vkWaitForFences</a>)</p>
+</li>
+<li>
+<p><a href="vkInvalidateMappedMemoryRanges.html">vkInvalidateMappedMemoryRanges</a></p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a>
+includes all host operations that happen-after it, as defined by the host
+memory model.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-access-scopes" target="_blank" rel="noopener">access scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-access-scopes" target="_blank" rel="noopener">access scope</a>
+includes host reads to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a device write to a memory location is made visible to the host in this
+way, each whole aligned set of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-nonCoherentAtomSize" target="_blank" rel="noopener"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made visible as if they were written by the device.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object on the device, the first 128
+bytes of the memory object will be made visible by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.3.299 - A Specification</title>
+<title>Vulkan® 1.3.300 - A Specification</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -955,12 +955,12 @@ pre.rouge .w {
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.3.299 - A Specification </h1>
+<h1>Vulkan<sup>®</sup> 1.3.300 - A Specification </h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.3.299,</span>
-<span id="revdate">2024-10-18 11:17:42Z</span>
-<br><span id="revremark">from git branch: github-main commit: 46e04bb59e0f85b9124899e694a477dd9025d17c</span>
+<span id="revnumber">version 1.3.300,</span>
+<span id="revdate">2024-10-25 13:33:11Z</span>
+<br><span id="revremark">from git branch: github-main commit: c9304f8dd1aa20183942c6a3638b28c81b4e681d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -5393,7 +5393,7 @@ A valid returned function pointer (&#8220;fp&#8221;) <strong class="purple">must
 <p>The returned function pointer is of type <a href="#PFN_vkVoidFunction">PFN_vkVoidFunction</a>, and <strong class="purple">must</strong>
 be cast to the type of the command being queried before use.</p>
 </div>
-<table class="tableblock frame-all grid-all" style="width: 80%;">
+<table id="vkGetInstanceProcAddr-behavior" class="tableblock frame-all grid-all" style="width: 80%;">
 <caption class="title">Table 1. <code>vkGetInstanceProcAddr</code> behavior</caption>
 <colgroup>
 <col style="width: 33.3333%;">
@@ -5539,7 +5539,7 @@ be cast to the type of the command being queried before use.
 The function pointer <strong class="purple">must</strong> only be called with a dispatchable object (the
 first parameter) that is <code>device</code> or a child of <code>device</code>.</p>
 </div>
-<table class="tableblock frame-all grid-all" style="width: 80%;">
+<table id="vkGetDeviceProcAddr-behavior" class="tableblock frame-all grid-all" style="width: 80%;">
 <caption class="title">Table 2. <code>vkGetDeviceProcAddr</code> behavior</caption>
 <colgroup>
 <col style="width: 33.3333%;">
@@ -45779,8 +45779,9 @@ allocated with this type <strong class="purple">can</strong> be mapped for host 
 <p><a id="memory-coherent"></a> <code>VK_MEMORY_PROPERTY_HOST_COHERENT_BIT</code> bit
 specifies that the host cache management commands
 <a href="#vkFlushMappedMemoryRanges">vkFlushMappedMemoryRanges</a> and <a href="#vkInvalidateMappedMemoryRanges">vkInvalidateMappedMemoryRanges</a>
-are not needed to flush host writes to the device or make device writes
-visible to the host, respectively.</p>
+are not needed to manage
+<a href="#synchronization-dependencies-available-and-visible">availability and
+visibility</a> on the host.</p>
 </li>
 <li>
 <p><code>VK_MEMORY_PROPERTY_HOST_CACHED_BIT</code> bit specifies that memory
@@ -46813,7 +46814,7 @@ allocation.</p>
 <p><code>ppData</code> is a pointer to a <code>void*</code> variable in which a
 host-accessible pointer to the beginning of the mapped range is
 returned.
-This pointer minus <code>offset</code> <strong class="purple">must</strong> be aligned to at least
+The value of the returned pointer minus <code>offset</code> <strong class="purple">must</strong> be aligned to
 <a href="#VkPhysicalDeviceLimits">VkPhysicalDeviceLimits</a>::<code>minMemoryMapAlignment</code>.</p>
 </li>
 </ul>
@@ -47094,13 +47095,62 @@ domain operations</a> using the <code>VK_ACCESS_HOST_WRITE_BIT</code>
 <a href="#synchronization-access-types">access type</a>.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is flushed if any byte in that
-set has been written by the host since it was first host mapped, or the last
-time it was flushed.
-If <code>pMemoryRanges</code> includes sets of <code>nonCoherentAtomSize</code> bytes
-where no bytes have been written by the host, those bytes <strong class="purple">must</strong> not be
-flushed.</p>
+<p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Some systems allow writes that do not directly integrate with the host
+memory model; these have to be synchronized by the application manually.
+One example of this is non-temporal store instructions on x86; to ensure
+these happen-before submission, applications should call <code>_mm_sfence()</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a>
+includes host writes to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a host write to a memory location is made available in this way, each
+whole aligned set of <a href="#limits-nonCoherentAtomSize"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made available as if they were written by the host.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object via a host mapping, the first
+128 bytes of the memory object will be made available by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+empty.</p>
 </div>
 <div id="memory-device-unmap-does-not-flush" class="paragraph">
 <p>Unmapping non-coherent memory does not implicitly flush the host mapped
@@ -47220,10 +47270,84 @@ If a range of non-coherent memory is written by the host and then
 invalidated without first being flushed, its contents are undefined.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is invalidated if any byte in
-that set has been written by the device since it was first host mapped, or
-the last time it was invalidated.</p>
+<p>The first <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This function does not synchronize with device operations directly - other
+host <a href="#synchronization">synchronization operations</a> that depend on device
+operations such as <a href="#vkWaitForFences">vkWaitForFences</a> must be executed beforehand.
+So for any non-coherent device write to be made visible to the host, there
+has to be a dependency chain along the following lines:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Device write</p>
+</li>
+<li>
+<p>Device memory barrier including host reads in its second scope</p>
+</li>
+<li>
+<p>Signal on the device (e.g. a <a href="#synchronization-fences-signaling">fence
+signal operation</a>)</p>
+</li>
+<li>
+<p>Wait on the host (e.g. <a href="#vkWaitForFences">vkWaitForFences</a>)</p>
+</li>
+<li>
+<p><a href="#vkInvalidateMappedMemoryRanges">vkInvalidateMappedMemoryRanges</a></p>
+</li>
+</ol>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="#synchronization-dependencies-scopes">synchronization scope</a>
+includes all host operations that happen-after it, as defined by the host
+memory model.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="#synchronization-dependencies-access-scopes">access scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The second <a href="#synchronization-dependencies-access-scopes">access scope</a>
+includes host reads to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a device write to a memory location is made visible to the host in this
+way, each whole aligned set of <a href="#limits-nonCoherentAtomSize"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made visible as if they were written by the device.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object on the device, the first 128
+bytes of the memory object will be made visible by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -56534,14 +56658,21 @@ to satisfy all the above requirements.</p>
 <div class="sect3">
 <h4 id="resources-memory-overlap"><a class="anchor" href="#resources-memory-overlap"></a>12.8.1. Resource Memory Overlap</h4>
 <div class="paragraph">
-<p>Applications <strong class="purple">can</strong> safely access a resource concurrently as long as the
-memory locations do not overlap as defined in
-<a href="#memory-model-memory-location">Memory Location</a>.
-This includes aliased resources if such aliasing is well-defined.
-It also includes access from different queues and/or queue families if such
-concurrent access is supported by the resource.
-Transfer commands only access memory locations specified by the range of the
-transfer command.</p>
+<p>Applications <strong class="purple">can</strong> safely access resources concurrently via separate device
+and host operations as long as the accessed memory locations are guaranteed
+to not overlap, as defined in <a href="#memory-model-memory-location">Memory
+Location</a>, and the operation, resource, and access are otherwise
+independently valid.</p>
+</div>
+<div class="paragraph">
+<p>Some operations have alignment requirements or access ambiguous
+<a href="#memory-model-memory-location">memory locations</a>, so the semantics of a
+particular operation <strong class="purple">should</strong> be considered when determining the overlap.
+Such requirements will be described alongside the operation.
+Operations between host and device when using non-coherent memory are
+aligned to <a href="#limits-nonCoherentAtomSize"><code>nonCoherentAtomSize</code></a>, as
+defined by <a href="#vkFlushMappedMemoryRanges">vkFlushMappedMemoryRanges</a> and
+<a href="#vkInvalidateMappedMemoryRanges">vkInvalidateMappedMemoryRanges</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -62521,6 +62652,7 @@ for the descriptor writes is taken from the
 as specified below.</p>
 </div>
 <div id="descriptorsets-updates-consecutive" class="paragraph">
+<div class="title">Consecutive Binding Updates</div>
 <p>If the <code>dstBinding</code> has fewer than <code>descriptorCount</code> array elements
 remaining starting from <code>dstArrayElement</code>, then the remainder will be
 used to update the subsequent binding - <span class="eq"><code>dstBinding</code>+1</span> starting at
@@ -62609,8 +62741,8 @@ either use immutable samplers or <strong class="purple">must</strong> all not us
 
 The sum of <code>dstArrayElement</code> and <code>descriptorCount</code> <strong class="purple">must</strong> be less
 than or equal to the number of array elements in the descriptor set
-binding specified by <code>dstBinding</code>, and all applicable consecutive
-bindings, as described by <a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+binding specified by <code>dstBinding</code>, and all applicable
+<a href="#descriptorsets-updates-consecutive">consecutive bindings</a></p>
 </li>
 <li>
 <p><a id="VUID-VkWriteDescriptorSet-descriptorType-02219" href="#VUID-VkWriteDescriptorSet-descriptorType-02219"></a> <span class="vuid">VUID-VkWriteDescriptorSet-descriptorType-02219</span><br>
@@ -63414,8 +63546,8 @@ bytes in those.</p>
 
 The sum of <code>srcArrayElement</code> and <code>descriptorCount</code> <strong class="purple">must</strong> be less
 than or equal to the number of array elements in the descriptor set
-binding specified by <code>srcBinding</code>, and all applicable consecutive
-bindings, as described by <a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+binding specified by <code>srcBinding</code>, and all applicable
+<a href="#descriptorsets-updates-consecutive">consecutive bindings</a></p>
 </li>
 <li>
 <p><a id="VUID-VkCopyDescriptorSet-dstBinding-00347" href="#VUID-VkCopyDescriptorSet-dstBinding-00347"></a> <span class="vuid">VUID-VkCopyDescriptorSet-dstBinding-00347</span><br>
@@ -63427,8 +63559,8 @@ bindings, as described by <a href="#descriptorsets-updates-consecutive">consecut
 
 The sum of <code>dstArrayElement</code> and <code>descriptorCount</code> <strong class="purple">must</strong> be less
 than or equal to the number of array elements in the descriptor set
-binding specified by <code>dstBinding</code>, and all applicable consecutive
-bindings, as described by <a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+binding specified by <code>dstBinding</code>, and all applicable
+<a href="#descriptorsets-updates-consecutive">consecutive bindings</a></p>
 </li>
 <li>
 <p><a id="VUID-VkCopyDescriptorSet-dstBinding-02632" href="#VUID-VkCopyDescriptorSet-dstBinding-02632"></a> <span class="vuid">VUID-VkCopyDescriptorSet-dstBinding-02632</span><br>
@@ -63441,8 +63573,7 @@ type of <code>srcBinding</code> within <code>srcSet</code></p>
 
 If <code>srcSet</code> is equal to <code>dstSet</code>, then the source and
 destination ranges of descriptors <strong class="purple">must</strong> not overlap, where the ranges
-<strong class="purple">may</strong> include array elements from consecutive bindings as described by
-<a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+<strong class="purple">may</strong> include array elements from <a href="#descriptorsets-updates-consecutive">consecutive bindings</a></p>
 </li>
 <li>
 <p><a id="VUID-VkCopyDescriptorSet-srcBinding-02223" href="#VUID-VkCopyDescriptorSet-srcBinding-02223"></a> <span class="vuid">VUID-VkCopyDescriptorSet-srcBinding-02223</span><br>
@@ -63949,8 +64080,7 @@ descriptors</p>
 <code>dstArrayElement</code> and <code>descriptorCount</code> <strong class="purple">must</strong> be less than or
 equal to the number of array elements in the descriptor set binding
 implicitly specified when using a descriptor update template to update
-descriptors, and all applicable consecutive bindings, as described by
-<a href="#descriptorsets-updates-consecutive">consecutive binding updates</a></p>
+descriptors, and all applicable <a href="#descriptorsets-updates-consecutive">consecutive bindings</a></p>
 </li>
 <li>
 <p><a id="VUID-VkDescriptorUpdateTemplateEntry-descriptor-02226" href="#VUID-VkDescriptorUpdateTemplateEntry-descriptor-02226"></a> <span class="vuid">VUID-VkDescriptorUpdateTemplateEntry-descriptor-02226</span><br>
@@ -101708,21 +101838,6 @@ If <code>maxDrawCount</code> is greater than or equal to <code>1</code>,
 +  sizeof(<code>VkDrawIndirectCommand</code>))</span> <strong class="purple">must</strong> be less than or equal
 to the size of <code>buffer</code></p>
 </li>
-<li>
-<p><a id="VUID-vkCmdDrawIndirectCount-countBuffer-03121" href="#VUID-vkCmdDrawIndirectCount-countBuffer-03121"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-countBuffer-03121</span><br>
-
-If the count stored in <code>countBuffer</code> is equal to <code>1</code>,
-<span class="eq">(<code>offset</code> +  sizeof(<code>VkDrawIndirectCommand</code>))</span> <strong class="purple">must</strong> be
-less than or equal to the size of <code>buffer</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdDrawIndirectCount-countBuffer-03122" href="#VUID-vkCmdDrawIndirectCount-countBuffer-03122"></a> <span class="vuid">VUID-vkCmdDrawIndirectCount-countBuffer-03122</span><br>
-
-If the count stored in <code>countBuffer</code> is greater than <code>1</code>,
-<span class="eq">(<code>stride</code> × (<code>drawCount</code> - 1) +  <code>offset</code>
-+  sizeof(<code>VkDrawIndirectCommand</code>))</span> <strong class="purple">must</strong> be less than or equal
-to the size of <code>buffer</code></p>
-</li>
 </ul>
 </div>
 </div>
@@ -104251,21 +104366,6 @@ equal to sizeof(<code>VkDrawIndexedIndirectCommand</code>)</p>
 
 If <code>maxDrawCount</code> is greater than or equal to <code>1</code>,
 <span class="eq">(<code>stride</code> × (<code>maxDrawCount</code> - 1) +  <code>offset</code>
-+  sizeof(<code>VkDrawIndexedIndirectCommand</code>))</span> <strong class="purple">must</strong> be less than
-or equal to the size of <code>buffer</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03153" href="#VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03153"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03153</span><br>
-
-If count stored in <code>countBuffer</code> is equal to <code>1</code>, <span class="eq">(<code>offset</code>
-+  sizeof(<code>VkDrawIndexedIndirectCommand</code>))</span> <strong class="purple">must</strong> be less than
-or equal to the size of <code>buffer</code></p>
-</li>
-<li>
-<p><a id="VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03154" href="#VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03154"></a> <span class="vuid">VUID-vkCmdDrawIndexedIndirectCount-countBuffer-03154</span><br>
-
-If count stored in <code>countBuffer</code> is greater than <code>1</code>,
-<span class="eq">(<code>stride</code> × (<code>drawCount</code> - 1) +  <code>offset</code>
 +  sizeof(<code>VkDrawIndexedIndirectCommand</code>))</span> <strong class="purple">must</strong> be less than
 or equal to the size of <code>buffer</code></p>
 </li>
@@ -110687,7 +110787,7 @@ Locations are defined relative to an origin in the upper left corner of the
 fragment.</p>
 </div>
 <div style="page-break-after: always;"></div>
-<table class="tableblock frame-all grid-all stretch">
+<table id="standard-sample-locations" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 24. Standard Sample Locations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
@@ -125260,11 +125360,13 @@ documentation</a>.</p>
 <h2 id="features"><a class="anchor" href="#features"></a>32. Features</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em>Features</em> describe functionality which is not supported on all
-implementations.
-Features are properties of the physical device.
-Features are <strong class="purple">optional</strong>, and <strong class="purple">must</strong> be explicitly enabled before use.
-Support for features is reported and enabled on a per-feature basis.</p>
+<p><em>Features</em> advertise additional functionality which <strong class="purple">can</strong> be enabled in the
+API.
+If a feature is <em>supported</em> by a physical device, it <strong class="purple">must</strong> be <em>enabled</em> when
+creating a <a href="#VkDevice">VkDevice</a> in order to use its associated functionality with
+that <a href="#VkDevice">VkDevice</a>.
+If a feature is <em>unsupported</em>, that functionality <strong class="purple">cannot</strong> be used with that
+<a href="#VkDevice">VkDevice</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -125440,8 +125542,11 @@ structure in which the physical device features are returned.</p>
 <div class="paragraph">
 <p>Each structure in <code>pFeatures</code> and its <code>pNext</code> chain contains members
 corresponding to fine-grained features.
-<code>vkGetPhysicalDeviceFeatures2</code> writes each member to a boolean value
-indicating whether that feature is supported.</p>
+Each structure in <code>pFeatures</code> and its <code>pNext</code> chain contains
+<a href="#VkBool32">VkBool32</a> members corresponding to fine-grained features.
+Each such member is returned with a <code>VK_TRUE</code> value indicating that
+feature is supported on this physical device, or a <code>VK_FALSE</code> value
+indicating it is unsupported.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -130238,6 +130343,10 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <div class="ulist">
 <ul>
 <li>
+<p><a href="#features-storageBuffer16BitAccess"><code>storageBuffer16BitAccess</code></a>
+if <a href="#features-uniformAndStorageBuffer16BitAccess">uniformAndStorageBuffer16BitAccess</a> is supported</p>
+</li>
+<li>
 <p><a href="#features-multiview"><code>multiview</code></a></p>
 </li>
 <li>
@@ -130264,8 +130373,76 @@ if <code><code>VK_KHR_sampler_mirror_clamp_to_edge</code></code> is supported</p
 if <code><code>VK_KHR_draw_indirect_count</code></code> is supported</p>
 </li>
 <li>
+<p><a href="#features-storageBuffer8BitAccess"><code>storageBuffer8BitAccess</code></a>
+if <a href="#features-uniformAndStorageBuffer8BitAccess">uniformAndStorageBuffer8BitAccess</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderInt64"><code>shaderInt64</code></a>
+if <a href="#features-shaderSharedInt64Atomics">shaderSharedInt64Atomics</a> or <a href="#features-shaderBufferInt64Atomics">shaderBufferInt64Atomics</a> are supported</p>
+</li>
+<li>
 <p><a href="#features-descriptorIndexing"><code>descriptorIndexing</code></a>
 if <code><code>VK_EXT_descriptor_indexing</code></code> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderSampledImageArrayDynamicIndexing"><code>shaderSampledImageArrayDynamicIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderStorageBufferArrayDynamicIndexing"><code>shaderStorageBufferArrayDynamicIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderUniformTexelBufferArrayDynamicIndexing"><code>shaderUniformTexelBufferArrayDynamicIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderStorageTexelBufferArrayDynamicIndexing"><code>shaderStorageTexelBufferArrayDynamicIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderSampledImageArrayNonUniformIndexing"><code>shaderSampledImageArrayNonUniformIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderStorageBufferArrayNonUniformIndexing"><code>shaderStorageBufferArrayNonUniformIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-shaderUniformTexelBufferArrayNonUniformIndexing"><code>shaderUniformTexelBufferArrayNonUniformIndexing</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingSampledImageUpdateAfterBind"><code>descriptorBindingSampledImageUpdateAfterBind</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingStorageImageUpdateAfterBind"><code>descriptorBindingStorageImageUpdateAfterBind</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingStorageBufferUpdateAfterBind"><code>descriptorBindingStorageBufferUpdateAfterBind</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingUniformTexelBufferUpdateAfterBind"><code>descriptorBindingUniformTexelBufferUpdateAfterBind</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingStorageTexelBufferUpdateAfterBind"><code>descriptorBindingStorageTexelBufferUpdateAfterBind</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingUpdateUnusedWhilePending"><code>descriptorBindingUpdateUnusedWhilePending</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-descriptorBindingPartiallyBound"><code>descriptorBindingPartiallyBound</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
+</li>
+<li>
+<p><a href="#features-runtimeDescriptorArray"><code>runtimeDescriptorArray</code></a>
+if <a href="#features-descriptorIndexing">descriptorIndexing</a> is supported</p>
 </li>
 <li>
 <p><a href="#features-shaderOutputViewportIndex"><code>shaderOutputViewportIndex</code></a>
@@ -130355,84 +130532,10 @@ the following features <strong class="purple">must</strong> be supported:</p>
 </li>
 <li>
 <p><a href="#features-descriptorBindingInlineUniformBlockUpdateAfterBind"><code>descriptorBindingInlineUniformBlockUpdateAfterBind</code></a>
-if <code><code>VK_EXT_descriptor_indexing</code></code> is supported</p>
+if <code><code>VK_EXT_descriptor_indexing</code></code> or <a href="#features-descriptorIndexing">descriptorIndexing</a> are supported</p>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p><a href="#features-storageBuffer8BitAccess"><code>storageBuffer8BitAccess</code></a>, if
-<a href="#features-uniformAndStorageBuffer8BitAccess"><code>uniformAndStorageBuffer8BitAccess</code></a> is enabled.</p>
-</li>
-<li>
-<p>If the <a href="#features-descriptorIndexing"><code>descriptorIndexing</code></a> feature
-is supported:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="#features-shaderSampledImageArrayDynamicIndexing"><code>shaderSampledImageArrayDynamicIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderStorageBufferArrayDynamicIndexing"><code>shaderStorageBufferArrayDynamicIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderUniformTexelBufferArrayDynamicIndexing"><code>shaderUniformTexelBufferArrayDynamicIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderStorageTexelBufferArrayDynamicIndexing"><code>shaderStorageTexelBufferArrayDynamicIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderSampledImageArrayNonUniformIndexing"><code>shaderSampledImageArrayNonUniformIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderStorageBufferArrayNonUniformIndexing"><code>shaderStorageBufferArrayNonUniformIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-shaderUniformTexelBufferArrayNonUniformIndexing"><code>shaderUniformTexelBufferArrayNonUniformIndexing</code></a></p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingSampledImageUpdateAfterBind"><code>descriptorBindingSampledImageUpdateAfterBind</code></a></p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingStorageImageUpdateAfterBind"><code>descriptorBindingStorageImageUpdateAfterBind</code></a></p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingStorageBufferUpdateAfterBind"><code>descriptorBindingStorageBufferUpdateAfterBind</code></a> (see also
-<a href="#limits-robustBufferAccessUpdateAfterBind"><code>robustBufferAccessUpdateAfterBind</code></a>)</p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingUniformTexelBufferUpdateAfterBind"><code>descriptorBindingUniformTexelBufferUpdateAfterBind</code></a> (see also
-<a href="#limits-robustBufferAccessUpdateAfterBind"><code>robustBufferAccessUpdateAfterBind</code></a>)</p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingStorageTexelBufferUpdateAfterBind"><code>descriptorBindingStorageTexelBufferUpdateAfterBind</code></a> (see also
-<a href="#limits-robustBufferAccessUpdateAfterBind"><code>robustBufferAccessUpdateAfterBind</code></a>)</p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingUpdateUnusedWhilePending"><code>descriptorBindingUpdateUnusedWhilePending</code></a></p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingPartiallyBound"><code>descriptorBindingPartiallyBound</code></a></p>
-</li>
-<li>
-<p><a href="#features-runtimeDescriptorArray"><code>runtimeDescriptorArray</code></a></p>
-</li>
-<li>
-<p><a href="#features-descriptorBindingInlineUniformBlockUpdateAfterBind"><code>descriptorBindingInlineUniformBlockUpdateAfterBind</code></a>, if Vulkan
-1.3 or <code><code>VK_EXT_inline_uniform_block</code></code> is supported</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p><a href="#features-shaderInt64"><code>shaderInt64</code></a>, if the
-<a href="#features-shaderSharedInt64Atomics"><code>shaderSharedInt64Atomics</code></a> or
-<a href="#features-shaderBufferInt64Atomics"><code>shaderBufferInt64Atomics</code></a>
-features are supported.</p>
-</li>
-<li>
-<p><a href="#features-storageBuffer16BitAccess"><code>storageBuffer16BitAccess</code></a>,
-if <a href="#features-uniformAndStorageBuffer16BitAccess"><code>uniformAndStorageBuffer16BitAccess</code></a> is enabled.</p>
 </li>
 </ul>
 </div>
@@ -150776,7 +150879,7 @@ Otherwise, either the floating-point value closest to and no less than
 <span class="eq">x</span> or the value closest to and no greater than <span class="eq">x</span> will be
 returned.</p>
 </div>
-<div class="paragraph">
+<div id="spirvenv-ulp" class="paragraph">
 <div class="title">ULP</div>
 <p>Where an error bound of <span class="eq">n</span> ULP (units in the last place) is given, for
 an operation with infinitely precise result <mark>x</mark> the value returned <strong class="purple">must</strong> be
@@ -150965,7 +151068,7 @@ different sign than the infinitely precise result.</p>
 </tr>
 </table>
 </div>
-<table class="tableblock frame-all grid-all stretch">
+<table id="precision-of-glsl-std-450-instructions" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 66. Precision of GLSL.std.450 Instructions</caption>
 <colgroup>
 <col style="width: 33.3333%;">
@@ -159725,7 +159828,7 @@ Specification.</p>
 <div class="content">
 <pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_VERSION_1_0</span>
 <span class="c1">// Version of this file</span>
-<span class="cp">#define VK_HEADER_VERSION 299
+<span class="cp">#define VK_HEADER_VERSION 300
 </span></code></pre>
 </div>
 </div>

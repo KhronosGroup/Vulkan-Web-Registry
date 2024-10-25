@@ -854,13 +854,62 @@ domain operations</a> using the <code>VK_ACCESS_HOST_WRITE_BIT</code>
 <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-access-types" target="_blank" rel="noopener">access type</a>.</p>
 </div>
 <div class="paragraph">
-<p>Within each range described by <code>pMemoryRanges</code>, each set of
-<code>nonCoherentAtomSize</code> bytes in that range is flushed if any byte in that
-set has been written by the host since it was first host mapped, or the last
-time it was flushed.
-If <code>pMemoryRanges</code> includes sets of <code>nonCoherentAtomSize</code> bytes
-where no bytes have been written by the host, those bytes <strong class="purple">must</strong> not be
-flushed.</p>
+<p>The first <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a>
+includes all host operations that happened-before it, as defined by the host
+memory model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>Some systems allow writes that do not directly integrate with the host
+memory model; these have to be synchronized by the application manually.
+One example of this is non-temporal store instructions on x86; to ensure
+these happen-before submission, applications should call <code>_mm_sfence()</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-scopes" target="_blank" rel="noopener">synchronization scope</a> is
+empty.</p>
+</div>
+<div class="paragraph">
+<p>The first <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-access-scopes" target="_blank" rel="noopener">access scope</a>
+includes host writes to the specified memory ranges.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>When a host write to a memory location is made available in this way, each
+whole aligned set of <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#limits-nonCoherentAtomSize" target="_blank" rel="noopener"><code>nonCoherentAtomSize</code></a> bytes that the memory location exists in will
+also be made available as if they were written by the host.
+For example, with a <code>nonCoherentAtomSize</code> of 128, if an application
+writes to the first byte of a memory object via a host mapping, the first
+128 bytes of the memory object will be made available by this command.
+While the value of the following 127 bytes will be unchanged, this does
+count as an access for the purpose of synchronization, so care must be taken
+to avoid data races.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second <a href="https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#synchronization-dependencies-access-scopes" target="_blank" rel="noopener">access scope</a> is
+empty.</p>
 </div>
 <div id="memory-device-unmap-does-not-flush" class="paragraph">
 <p>Unmapping non-coherent memory does not implicitly flush the host mapped

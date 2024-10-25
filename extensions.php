@@ -329,6 +329,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_command_buffer_inheritance.html"> VK_NV_command_buffer_inheritance </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_compute_shader_derivatives.html"> VK_NV_compute_shader_derivatives </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_cooperative_matrix.html"> VK_NV_cooperative_matrix </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_cooperative_matrix2.html"> VK_NV_cooperative_matrix2 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_copy_memory_indirect.html"> VK_NV_copy_memory_indirect </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_corner_sampled_image.html"> VK_NV_corner_sampled_image </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_coverage_reduction_mode.html"> VK_NV_coverage_reduction_mode </a> </li>

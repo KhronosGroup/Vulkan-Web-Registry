@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.299 - A Specification (with all ratified extensions)</title>
+<title>Vulkan® 1.0.300 - A Specification (with all ratified extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.299 - A Specification (with all ratified extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.300 - A Specification (with all ratified extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.299,</span>
-<span id="revdate">2024-10-18 11:21:53Z</span>
-<br><span id="revremark">from git branch: github-main commit: 46e04bb59e0f85b9124899e694a477dd9025d17c</span>
+<span id="revnumber">version 1.0.300,</span>
+<span id="revdate">2024-10-25 13:36:12Z</span>
+<br><span id="revremark">from git branch: github-main commit: c9304f8dd1aa20183942c6a3638b28c81b4e681d</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -169,7 +169,7 @@
 <li class="current"><a href="chap9.html#shaders-scope">9.21. Scope</a></li>
 <li class="current"><a href="chap9.html#shaders-derivative-operations">9.22. Derivative Operations</a></li>
 <li class="current"><a href="chap9.html#shaders-helper-invocations">9.23. Helper Invocations</a></li>
-<li class="current"><a href="chap9.html#_cooperative_matrices">9.24. Cooperative Matrices</a></li>
+<li class="current"><a href="chap9.html#cooperative-matrices">9.24. Cooperative Matrices</a></li>
 </ul>
 </li>
 <li><a href="chap10.html">10. Pipelines</a>
@@ -256,8 +256,9 @@
 <li><a href="chap17.html#queries-timestamps">17.5. Timestamp Queries</a></li>
 <li><a href="chap17.html#queries-performance">17.6. Performance Queries</a></li>
 <li><a href="chap17.html#queries-transform-feedback">17.7. Transform Feedback Queries</a></li>
-<li><a href="chap17.html#queries-result-status-only">17.8. Result Status Queries</a></li>
-<li><a href="chap17.html#queries-video-encode-feedback">17.9. Video Encode Feedback Queries</a></li>
+<li><a href="chap17.html#queries-primitives-generated">17.8. Primitives Generated Queries</a></li>
+<li><a href="chap17.html#queries-result-status-only">17.9. Result Status Queries</a></li>
+<li><a href="chap17.html#queries-video-encode-feedback">17.10. Video Encode Feedback Queries</a></li>
 </ul>
 </li>
 <li><a href="chap18.html">18. Clear Commands</a>
@@ -391,7 +392,7 @@
 <li><a href="chap31.html#_full_screen_exclusive_control">31.6. Full Screen Exclusive Control</a></li>
 <li><a href="chap31.html#_device_group_queries">31.7. Device Group Queries</a></li>
 <li><a href="chap31.html#present-wait">31.8. Present Wait</a></li>
-<li><a href="chap31.html#_wsi_swapchain">31.9. WSI Swapchain</a></li>
+<li><a href="chap31.html#wsi-swapchain">31.9. WSI Swapchain</a></li>
 <li><a href="chap31.html#_hdr_metadata">31.10. HDR Metadata</a></li>
 </ul>
 </li>
@@ -492,7 +493,8 @@
 </li>
 <li><a href="chap43.html">43. Debugging</a>
 <ul class="sectlevel2">
-<li><a href="chap43.html#_frame_boundary">43.1. Frame Boundary</a></li>
+<li><a href="chap43.html#debugging-debug-utils">43.1. Debug Utilities</a></li>
+<li><a href="chap43.html#_frame_boundary">43.2. Frame Boundary</a></li>
 </ul>
 </li>
 <li><a href="chap44.html">Appendix A: Vulkan Environment for SPIR-V</a>
@@ -3999,13 +4001,67 @@ shaders have defined quad scope instances.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="shaders-scope-invocation"><a class="anchor" href="chap9.html#shaders-scope-invocation"></a>9.21.9. Invocation</h4>
+<h4 id="shaders-scope-fragment-interlock"><a class="anchor" href="chap9.html#shaders-scope-fragment-interlock"></a>9.21.9. Fragment Interlock</h4>
+<div class="paragraph">
+<p>A <em>fragment interlock scope instance</em> is formed of fragment shader
+invocations based on their framebuffer locations <span class="eq">(x,y,layer,sample)</span>,
+executed by commands inside a single <a href="chap8.html">subpass</a>.</p>
+</div>
+<div class="paragraph">
+<p>The specific set of invocations included varies based on the execution mode
+as follows:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>SampleInterlockOrderedEXT</code> or
+<code>SampleInterlockUnorderedEXT</code> execution modes are used, only
+invocations with identical framebuffer locations
+<span class="eq">(x,y,layer,sample)</span> are included.</p>
+</li>
+<li>
+<p>If the <code>PixelInterlockOrderedEXT</code> or <code>PixelInterlockUnorderedEXT</code>
+execution modes are used, fragments with different sample ids are also
+included.</p>
+</li>
+<li>
+<p>If the <code>ShadingRateInterlockOrderedEXT</code> or
+    <code>ShadingRateInterlockUnorderedEXT</code> execution modes are used,
+    fragments from neighboring framebuffer locations are also included.
+    The
+<a href="chap25.html#primsrast-fragment-shading-rate">fragment shading rate</a>
+    determines these fragments.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Only fragment shaders with one of the above execution modes have defined
+fragment interlock scope instances.</p>
+</div>
+<div class="paragraph">
+<p>There is no specific <code>Scope</code> value for communication across invocations
+in a fragment interlock scope instance.
+However, this is implicitly used as a memory scope by
+<code>OpBeginInvocationInterlockEXT</code> and <code>OpEndInvocationInterlockEXT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Each invocation in a fragment interlock scope instance <strong class="purple">must</strong> be in the same
+<a href="chap9.html#shaders-scope-queue-family">queue family scope instance</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="shaders-scope-invocation"><a class="anchor" href="chap9.html#shaders-scope-invocation"></a>9.21.10. Invocation</h4>
 <div class="paragraph">
 <p>The smallest <em>scope</em> is a single invocation; this is represented by the
 <code>Invocation</code> <code>Scope</code> in SPIR-V.</p>
 </div>
 <div class="paragraph">
 <p>Fragment shader invocations <strong class="purple">must</strong> be in a <a href="chap9.html#shaders-scope-primitive">primitive scope instance</a>.</p>
+</div>
+<div class="paragraph">
+<p>Invocations in <a href="chap9.html#shaders-scope-fragment-interlock">fragment shaders that
+have a defined fragment interlock scope</a> <strong class="purple">must</strong> be in a
+<a href="chap9.html#shaders-scope-fragment-interlock">fragment interlock scope instance</a>.</p>
 </div>
 <div class="paragraph">
 <p>Invocations in <a href="chap9.html#shaders-scope-workgroup">shaders that have defined
@@ -4251,7 +4307,7 @@ invocation.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cooperative_matrices"><a class="anchor" href="chap9.html#_cooperative_matrices"></a>9.24. Cooperative Matrices</h3>
+<h3 id="cooperative-matrices"><a class="anchor" href="chap9.html#cooperative-matrices"></a>9.24. Cooperative Matrices</h3>
 <div class="paragraph">
 <p>A <em>cooperative matrix</em> type is a SPIR-V type where the storage for and
 computations performed on the matrix are spread across the invocations in a
