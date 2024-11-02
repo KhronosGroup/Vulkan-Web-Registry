@@ -303,6 +303,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_GOOGLE_user_type.html"> VK_GOOGLE_user_type </a> </li>
     <li> <b>  HUAWEI Extensions (Huawei Technologies Co. Ltd.)  </b> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_HUAWEI_cluster_culling_shader.html"> VK_HUAWEI_cluster_culling_shader </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_HUAWEI_hdr_vivid.html"> VK_HUAWEI_hdr_vivid </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_HUAWEI_invocation_mask.html"> VK_HUAWEI_invocation_mask </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_HUAWEI_subpass_shading.html"> VK_HUAWEI_subpass_shading </a> </li>
     <li> <b>  IMG Extensions (Imagination Technologies)  </b> </li>
