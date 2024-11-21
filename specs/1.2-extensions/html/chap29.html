@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.2.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.301,</span>
-<span id="revdate">2024-11-01 15:49:42Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.2.302,</span>
+<span id="revdate">2024-11-21 05:58:54Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -520,8 +520,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -778,22 +780,7 @@ fragment.
 Fragment operations will update the coverage mask to add or subtract
 coverage where appropriate.
 If a fragment operation results in all bits of the coverage mask being <code>0</code>,
-the fragment is discarded, and no further operations are performed.
-Fragments can also be programmatically discarded in a fragment shader by
-executing one of</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>OpTerminateInvocation</code></p>
-</li>
-<li>
-<p><code>OpDemoteToHelperInvocationEXT</code></p>
-</li>
-<li>
-<p><code>OpKill</code>.</p>
-</li>
-</ul>
+the fragment is discarded, and no further operations are performed.</p>
 </div>
 <div class="paragraph">
 <p>When one of the fragment operations in this chapter is described as
@@ -2556,7 +2543,17 @@ as the input built-in.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="fragops-shader-tileimage-reads"><a class="anchor" href="chap29.html#fragops-shader-tileimage-reads"></a>29.5.2. Fragment Shader Tile Image Reads</h4>
+<h4 id="fragops-shader-termination"><a class="anchor" href="chap29.html#fragops-shader-termination"></a>29.5.2. Shader Termination and Demotion</h4>
+<div class="paragraph">
+<p>If a fragment shader is <a href="chap9.html#shaders-termination">terminated early</a> or
+<a href="chap9.html#shaders-helper-invocations">demoted to a helper invocation</a> by using
+<code>OpKill</code>, <code>OpTerminateInvocation</code>, or <code>OpDemoteToHelperInvocation</code>,
+samples covered by that shader invocation have their coverage mask bits set
+to <code>0</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="fragops-shader-tileimage-reads"><a class="anchor" href="chap29.html#fragops-shader-tileimage-reads"></a>29.5.3. Fragment Shader Tile Image Reads</h4>
 <div class="paragraph">
 <p>If the <code><a href="chap55.html#VK_EXT_shader_tile_image">VK_EXT_shader_tile_image</a></code> extension is enabled,
 implementations divide the framebuffer into a grid of tiles.
@@ -2762,7 +2759,7 @@ draw call.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="fragops-shader-depthreplacement"><a class="anchor" href="chap29.html#fragops-shader-depthreplacement"></a>29.5.3. Depth Replacement</h4>
+<h4 id="fragops-shader-depthreplacement"><a class="anchor" href="chap29.html#fragops-shader-depthreplacement"></a>29.5.4. Depth Replacement</h4>
 <div class="paragraph">
 <p>Writing to the <a href="chap15.html#interfaces-builtin-variables-fragdepth"><code>FragDepth</code></a>
 built-in will replace the fragment’s calculated depth values for each sample
@@ -2772,7 +2769,7 @@ this fragment will use this new value as <span class="eq">z<sub>f</sub></span>.<
 </div>
 </div>
 <div class="sect3">
-<h4 id="fragops-shader-stencilrefreplacement"><a class="anchor" href="chap29.html#fragops-shader-stencilrefreplacement"></a>29.5.4. Stencil Reference Replacement</h4>
+<h4 id="fragops-shader-stencilrefreplacement"><a class="anchor" href="chap29.html#fragops-shader-stencilrefreplacement"></a>29.5.5. Stencil Reference Replacement</h4>
 <div class="paragraph">
 <p>Writing to the
 <a href="chap15.html#interfaces-builtin-variables-fragstencilref"><code>FragStencilRefEXT</code></a>
@@ -2783,7 +2780,7 @@ this fragment will use this new value as <span class="eq">s<sub>r</sub></span>.<
 </div>
 </div>
 <div class="sect3">
-<h4 id="fragops-shader-interlock"><a class="anchor" href="chap29.html#fragops-shader-interlock"></a>29.5.5. Interlocked Operations</h4>
+<h4 id="fragops-shader-interlock"><a class="anchor" href="chap29.html#fragops-shader-interlock"></a>29.5.6. Interlocked Operations</h4>
 <div class="paragraph">
 <p><code>OpBeginInvocationInterlockEXT</code> and <code>OpEndInvocationInterlockEXT</code>
 define a section of a fragment shader which imposes additional ordering
@@ -3396,12 +3393,12 @@ mask of zero or more <a href="chap29.html#VkPipelineDepthStencilStateCreateFlagB
 <ul>
 <li>
 <p><code>VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_EXT</code>
-indicates that access to the depth aspects of depth/stencil and input
+specifies that access to the depth aspects of depth/stencil and input
 attachments will have implicit framebuffer-local memory dependencies.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_EXT</code>
-indicates that access to the stencil aspects of depth/stencil and input
+specifies that access to the stencil aspects of depth/stencil and input
 attachments will have implicit framebuffer-local memory dependencies.</p>
 </li>
 </ul>
@@ -4770,7 +4767,8 @@ enabled, <span class="eq">z<sub>f</sub></span> is clamped to <span class="eq">[z
 = min(n,f)</span>, <span class="eq">z<sub>max</sub> = max(n,f)</span>, and <span class="eq">n</span> and <span class="eq">f</span> are the
 <code>minDepth</code> and <code>maxDepth</code> depth range values of the viewport used by
 this fragment, respectively.
-If <a href="chap46.html#features-depthClampControl"><code>depthClampControl</code></a> is enabled and
+If the <a href="chap46.html#features-depthClampControl"><code>depthClampControl</code></a> feature is
+enabled and
 <a href="chap29.html#VkPipelineViewportDepthClampControlCreateInfoEXT">VkPipelineViewportDepthClampControlCreateInfoEXT</a>::<code>depthClampMode</code>
 is <code>VK_DEPTH_CLAMP_MODE_USER_DEFINED_RANGE_EXT</code>, then <span class="eq">z<sub>min</sub></span> and
 <span class="eq">z<sub>max</sub></span> are equal to the <code>minDepthClamp</code> and <code>maxDepthClamp</code>

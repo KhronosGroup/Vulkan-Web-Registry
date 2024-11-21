@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.2.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.2.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.2.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.2.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.2.301,</span>
-<span id="revdate">2024-11-01 15:49:42Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.2.302,</span>
+<span id="revdate">2024-11-21 05:58:54Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -520,8 +520,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -801,6 +803,15 @@ default values as described <a href="chap22.html#fxvertex-input-extraction">belo
 <div class="paragraph">
 <p>If an implementation supports <a href="chap46.html#features-storageInputOutput16"><code>storageInputOutput16</code></a>, vertex shader input variables <strong class="purple">can</strong> have a
 width of 16 bits.</p>
+</div>
+<div class="paragraph">
+<p>In all the following component assignment specifications, if
+<a href="chap46.html#features-vertexAttributeRobustness"><code>vertexAttributeRobustness</code></a> is
+enabled and there is no
+<code>VkVertexInputAttributeDescription</code>::<code>location</code> specified for the
+shader vertex attribute <code>Location</code> being read, the value (0,0,0,0) or
+(0,0,0,1) is used for each of the equivalent (x,y,z,w) components consumed
+entries as specified below.</p>
 </div>
 <table id="fxvertex-attrib-components" class="tableblock frame-all grid-all" style="width: 65%;">
 <caption class="title">Table 32. Input Attribute Components Accessed By 16-Bit and 32-Bit Input Variables</caption>
@@ -1562,6 +1573,12 @@ the bound pipeline state object was also created with the
 <code>VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE</code> dynamic state enabled,
 then <a href="chap22.html#vkCmdBindVertexBuffers2EXT">vkCmdBindVertexBuffers2EXT</a> can be used instead of
 <code>vkCmdSetVertexInputEXT</code> to dynamically set the stride.</p>
+</div>
+<div class="paragraph">
+<p>The vertex attribute description for any location in the range
+<span class="eq">[0,<code>VkPhysicalDeviceLimits</code>::<code>maxVertexInputAttributes</code>)</span> not
+specified in the <code>pVertexAttributeDescriptions</code> array becomes
+undefined.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -2549,13 +2566,13 @@ then the divisor has a logical default value of 1.</p>
 <li>
 <p><a id="VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateZeroDivisor-02228" href="chap22.html#VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateZeroDivisor-02228"></a> <span class="vuid">VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateZeroDivisor-02228</span><br>
 
-If the <code>vertexAttributeInstanceRateZeroDivisor</code> feature is not
-enabled, <code>divisor</code> <strong class="purple">must</strong> not be <code>0</code></p>
+If the <a href="chap46.html#features-vertexAttributeInstanceRateZeroDivisor"><code>vertexAttributeInstanceRateZeroDivisor</code></a> feature is not enabled,
+<code>divisor</code> <strong class="purple">must</strong> not be <code>0</code></p>
 </li>
 <li>
 <p><a id="VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateDivisor-02229" href="chap22.html#VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateDivisor-02229"></a> <span class="vuid">VUID-VkVertexInputBindingDivisorDescriptionKHR-vertexAttributeInstanceRateDivisor-02229</span><br>
 
-If the <code>vertexAttributeInstanceRateDivisor</code> feature is not enabled,
+If the <a href="chap46.html#features-vertexAttributeInstanceRateDivisor"><code>vertexAttributeInstanceRateDivisor</code></a> feature is not enabled,
 <code>divisor</code> <strong class="purple">must</strong> be <code>1</code></p>
 </li>
 <li>
@@ -2607,8 +2624,8 @@ between <code>firstVertex</code> and <code>firstVertex</code>+<code>vertexCount<
 <code>firstInstance</code> and <code>firstInstance</code>+<code>instanceCount</code>).</p>
 </li>
 <li>
-<p>Let <code>offset</code> be an array of offsets into the currently bound vertex
-    buffers specified during <code>vkCmdBindVertexBuffers</code>
+<p>Let <code>offset</code> be an array of offsets into the bound vertex buffers
+    specified during <code>vkCmdBindVertexBuffers</code>
 or <code>vkCmdBindVertexBuffers2EXT</code>
     with <code>pOffsets</code>.</p>
 </li>
@@ -2669,14 +2686,16 @@ variable in the shader.
 The input variable in the shader <strong class="purple">must</strong> be declared as a 64-bit data type if
 and only if <code>format</code> is a 64-bit data type.
 If
-either <code>format</code> is a 64-bit format or <a href="chap46.html#features-legacyVertexAttributes"><code>legacyVertexAttributes</code></a> is not enabled, and
+either <code>format</code> is a 64-bit format or the
+<a href="chap46.html#features-legacyVertexAttributes"><code>legacyVertexAttributes</code></a> feature is
+not enabled, and
 <code>format</code> is a packed format, <code>attribAddress</code> <strong class="purple">must</strong> be a multiple of the
 size in bytes of the whole attribute data type as described in
 <a href="chap48.html#formats-packed">Packed Formats</a>.
 Otherwise,
-if either <code>format</code> is a 64-bit format or
-<a href="chap46.html#features-legacyVertexAttributes"><code>legacyVertexAttributes</code></a> is not
-enabled,
+if either <code>format</code> is a 64-bit format or the
+<a href="chap46.html#features-legacyVertexAttributes"><code>legacyVertexAttributes</code></a> feature is
+not enabled,
 <code>attribAddress</code> <strong class="purple">must</strong> be a multiple of the size in bytes of the component
 type indicated by <code>format</code> (see <a href="chap48.html">Formats</a>).
 For attributes that are not 64-bit data types, each component is converted

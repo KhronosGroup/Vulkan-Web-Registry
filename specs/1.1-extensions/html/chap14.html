@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.1.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.301,</span>
-<span id="revdate">2024-11-01 15:49:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.1.302,</span>
+<span id="revdate">2024-11-21 05:58:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -520,8 +520,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -2418,7 +2420,7 @@ specifying options for the corresponding descriptor set layout binding, are:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT</code> indicates that if
+<p><code>VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT</code> specifies that if
 descriptors in this binding are updated between when the descriptor set
 is bound in a command buffer and when that command buffer is submitted
 to a queue, then the submission will use the most recently set
@@ -2436,7 +2438,7 @@ being bound to a command buffer in another thread, but not concurrently
 with the set being reset or freed.</p>
 </li>
 <li>
-<p><code>VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT</code> indicates that
+<p><code>VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT</code> specifies that
 descriptors in this binding that are not <em>dynamically used</em> need not
 contain valid descriptors at the time the descriptors are consumed.
 A descriptor is dynamically used if any shader invocation executes an
@@ -2445,7 +2447,7 @@ If a descriptor is not dynamically used, any resource referenced by the
 descriptor is not considered to be referenced during command execution.</p>
 </li>
 <li>
-<p><code>VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT</code> indicates
+<p><code>VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT</code> specifies
 that descriptors in this binding <strong class="purple">can</strong> be updated after a command buffer
 has bound this descriptor set, or while a command buffer that uses this
 descriptor set is pending execution, as long as the descriptors that are
@@ -2463,7 +2465,7 @@ descriptors <strong class="purple">can</strong> be updated as long as they are n
 any shader invocations.</p>
 </li>
 <li>
-<p><code>VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT</code> indicates that
+<p><code>VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT</code> specifies that
     this is a <em>variable-sized descriptor binding</em> whose size will be
     specified when a descriptor set is allocated using this layout.
     The value of <code>descriptorCount</code> is treated as an upper bound on the
@@ -3721,8 +3723,7 @@ Any element of <code>pSetLayouts</code> <strong class="purple">must</strong> not
 <li>
 <p><a id="VUID-VkPipelineLayoutCreateInfo-graphicsPipelineLibrary-06753" href="chap14.html#VUID-VkPipelineLayoutCreateInfo-graphicsPipelineLibrary-06753"></a> <span class="vuid">VUID-VkPipelineLayoutCreateInfo-graphicsPipelineLibrary-06753</span><br>
 
-If <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a>
-is not enabled, elements
+If the <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a> feature is not enabled, elements
 of <code>pSetLayouts</code> <strong class="purple">must</strong> be valid <a href="chap14.html#VkDescriptorSetLayout">VkDescriptorSetLayout</a> objects</p>
 </li>
 <li>
@@ -8554,8 +8555,7 @@ a <code>VkDescriptorPool</code> with the
 <p><a id="VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563" href="chap14.html#VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563"></a> <span class="vuid">VUID-vkCmdBindDescriptorSets-pDescriptorSets-06563</span><br>
 
 
-If <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a>
-is not enabled, each
+If the <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a> feature is not enabled, each
 element of <code>pDescriptorSets</code> <strong class="purple">must</strong> be a valid <a href="chap14.html#VkDescriptorSet">VkDescriptorSet</a></p>
 </li>
 <li>
@@ -8941,8 +8941,7 @@ a <code>VkDescriptorPool</code> with the
 <p><a id="VUID-VkBindDescriptorSetsInfoKHR-pDescriptorSets-06563" href="chap14.html#VUID-VkBindDescriptorSetsInfoKHR-pDescriptorSets-06563"></a> <span class="vuid">VUID-VkBindDescriptorSetsInfoKHR-pDescriptorSets-06563</span><br>
 
 
-If <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a>
-is not enabled, each
+If the <a href="chap46.html#features-graphicsPipelineLibrary"><code>graphicsPipelineLibrary</code></a> feature is not enabled, each
 element of <code>pDescriptorSets</code> <strong class="purple">must</strong> be a valid <a href="chap14.html#VkDescriptorSet">VkDescriptorSet</a></p>
 </li>
 <li>
@@ -12026,21 +12025,25 @@ be enabled</p>
 
 There <strong class="purple">must</strong> be no more than
 <a href="chap47.html#VkPhysicalDeviceDescriptorBufferPropertiesEXT">VkPhysicalDeviceDescriptorBufferPropertiesEXT</a>::<code>maxSamplerDescriptorBufferBindings</code>
-descriptor buffers containing sampler descriptor data bound</p>
+elements in <code>pBindingInfos</code> with
+<a href="chap14.html#VkDescriptorBufferBindingInfoEXT">VkDescriptorBufferBindingInfoEXT</a>::<code>usage</code> containing
+<code>VK_BUFFER_USAGE_SAMPLER_DESCRIPTOR_BUFFER_BIT_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorBuffersEXT-maxResourceDescriptorBufferBindings-08049" href="chap14.html#VUID-vkCmdBindDescriptorBuffersEXT-maxResourceDescriptorBufferBindings-08049"></a> <span class="vuid">VUID-vkCmdBindDescriptorBuffersEXT-maxResourceDescriptorBufferBindings-08049</span><br>
 
 There <strong class="purple">must</strong> be no more than
 <a href="chap47.html#VkPhysicalDeviceDescriptorBufferPropertiesEXT">VkPhysicalDeviceDescriptorBufferPropertiesEXT</a>::<code>maxResourceDescriptorBufferBindings</code>
-descriptor buffers containing resource descriptor data bound</p>
+elements in <code>pBindingInfos</code> with
+<a href="chap14.html#VkDescriptorBufferBindingInfoEXT">VkDescriptorBufferBindingInfoEXT</a>::<code>usage</code> containing
+<code>VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorBuffersEXT-None-08050" href="chap14.html#VUID-vkCmdBindDescriptorBuffersEXT-None-08050"></a> <span class="vuid">VUID-vkCmdBindDescriptorBuffersEXT-None-08050</span><br>
 
-There <strong class="purple">must</strong> be no more than <code>1</code> descriptor buffer bound that was created
-with the
-<code>VK_BUFFER_USAGE_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT</code> bit set</p>
+There <strong class="purple">must</strong> be no more than <code>1</code> element in <code>pBindingInfos</code> with
+<a href="chap14.html#VkDescriptorBufferBindingInfoEXT">VkDescriptorBufferBindingInfoEXT</a>::<code>usage</code> containing
+<code>VK_BUFFER_USAGE_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT</code></p>
 </li>
 <li>
 <p><a id="VUID-vkCmdBindDescriptorBuffersEXT-bufferCount-08051" href="chap14.html#VUID-vkCmdBindDescriptorBuffersEXT-bufferCount-08051"></a> <span class="vuid">VUID-vkCmdBindDescriptorBuffersEXT-bufferCount-08051</span><br>

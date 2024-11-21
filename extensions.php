@@ -107,8 +107,10 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h264.html"> VK_KHR_video_decode_h264 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_h265.html"> VK_KHR_video_decode_h265 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_decode_queue.html"> VK_KHR_video_decode_queue </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_av1.html"> VK_KHR_video_encode_av1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_h264.html"> VK_KHR_video_encode_h264 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_h265.html"> VK_KHR_video_encode_h265 </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_quantization_map.html"> VK_KHR_video_encode_quantization_map </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_encode_queue.html"> VK_KHR_video_encode_queue </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_maintenance1.html"> VK_KHR_video_maintenance1 </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_KHR_video_queue.html"> VK_KHR_video_queue </a> </li>
@@ -249,6 +251,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_validation_features.html"> VK_EXT_validation_features </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_validation_flags.html"> VK_EXT_validation_flags </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_vertex_attribute_divisor.html"> VK_EXT_vertex_attribute_divisor </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_EXT_vertex_attribute_robustness.html"> VK_EXT_vertex_attribute_robustness </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_vertex_input_dynamic_state.html"> VK_EXT_vertex_input_dynamic_state </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_2plane_444_formats.html"> VK_EXT_ycbcr_2plane_444_formats </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_EXT_ycbcr_image_arrays.html"> VK_EXT_ycbcr_image_arrays </a> </li>
@@ -343,6 +346,7 @@
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands.html"> VK_NV_device_generated_commands </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_device_generated_commands_compute.html"> VK_NV_device_generated_commands_compute </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_displacement_micromap.html"> VK_NV_displacement_micromap </a> </li>
+    <li> <a href="specs/1.3-extensions/man/html/VK_NV_display_stereo.html"> VK_NV_display_stereo </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_extended_sparse_address_space.html"> VK_NV_extended_sparse_address_space </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory.html"> VK_NV_external_memory </a> </li>
     <li> <a href="specs/1.3-extensions/man/html/VK_NV_external_memory_capabilities.html"> VK_NV_external_memory_capabilities </a> </li>

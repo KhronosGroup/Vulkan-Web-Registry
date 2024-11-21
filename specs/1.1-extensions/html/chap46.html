@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.1.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.301,</span>
-<span id="revdate">2024-11-01 15:49:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.1.302,</span>
+<span id="revdate">2024-11-21 05:58:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -520,8 +520,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -746,7 +748,7 @@ When a promoted extension is available, any corresponding feature aliases
 <strong class="purple">must</strong> be supported.</p>
 </div>
 <table id="features-extension-aliases" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 64. Extension Feature Aliases</caption>
+<caption class="title">Table 66. Extension Feature Aliases</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -959,8 +961,8 @@ the fine-grained features of the Vulkan 1.0 API.</p>
 features defined by extensions.
 This structure <strong class="purple">can</strong> be used in <a href="chap46.html#vkGetPhysicalDeviceFeatures2">vkGetPhysicalDeviceFeatures2</a> or <strong class="purple">can</strong> be
 included in the <code>pNext</code> chain of a <a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> structure,
-in which case it controls which features are enabled on the device in lieu
-of <code>pEnabledFeatures</code>.</p>
+in which case it controls which features are enabled in lieu of
+<code>pEnabledFeatures</code>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1081,7 +1083,7 @@ Buffer accesses through buffer device addresses are not
 bounds-checked.</p>
 </li>
 <li>
-<p>If the <a href="chap46.html#features-cooperativeMatrixRobustBufferAccess-NV"><code>VkPhysicalDeviceCooperativeMatrixFeaturesNV</code>::<code>cooperativeMatrixRobustBufferAccess</code></a>
+<p>If the <a href="chap46.html#features-cooperativeMatrixRobustBufferAccessNV"><code>VkPhysicalDeviceCooperativeMatrixFeaturesNV</code>::<code>cooperativeMatrixRobustBufferAccess</code></a>
 feature is not enabled, then accesses using
 <code>OpCooperativeMatrixLoadNV</code> and <code>OpCooperativeMatrixStoreNV</code>
 <strong class="purple">may</strong> not be bounds-checked.</p>
@@ -1111,8 +1113,8 @@ used.</p>
 </li>
 <li>
 <p>If
-<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is not
-enabled and
+the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is not enabled and
 any buffer access is determined to be out of bounds, then any other
 access of the same type (load, store, or atomic) to the same buffer
 that accesses an address less than 16 bytes away from the out of
@@ -1141,8 +1143,8 @@ accesses to a null descriptor.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>If the access is to a uniform buffer and
-<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
+<p>If the access is to a uniform buffer and the
+<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> feature is
 enabled, loads of offsets between the end of the descriptor range and
 the end of the descriptor range rounded up to a multiple of
 <a href="chap47.html#limits-robustUniformBufferAccessSizeAlignment"><code>robustUniformBufferAccessSizeAlignment</code></a> bytes <strong class="purple">must</strong> return
@@ -1153,8 +1155,8 @@ Loads of offsets past the descriptor range rounded up to a multiple of
 values.</p>
 </li>
 <li>
-<p>If the access is to a storage buffer and
-<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
+<p>If the access is to a storage buffer and the
+<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> feature is
 enabled, loads of offsets between the end of the descriptor range and
 the end of the descriptor range rounded up to a multiple of
 <a href="chap47.html#limits-robustStorageBufferAccessSizeAlignment"><code>robustStorageBufferAccessSizeAlignment</code></a> bytes <strong class="purple">must</strong> return
@@ -1174,14 +1176,14 @@ discarded.</p>
 bounds-checked.</p>
 </li>
 <li>
-<p>If the access is to an index buffer and
-<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
+<p>If the access is to an index buffer and the
+<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> feature is
 enabled, zero values <strong class="purple">must</strong> be returned.</p>
 </li>
 <li>
 <p>If the access is to a uniform texel buffer or storage texel buffer and
-<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
-enabled, zero values <strong class="purple">must</strong> be returned, and then
+the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is enabled, zero values <strong class="purple">must</strong> be returned, and then
 <a href="chap16.html#textures-conversion-to-rgba">Conversion to RGBA</a> is applied based on
 the buffer view’s format.</p>
 </li>
@@ -1215,8 +1217,8 @@ bound to the buffer, but <strong class="purple">must</strong> not modify any oth
 <div class="ulist">
 <ul>
 <li>
-<p>If <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
-enabled, out of bounds writes <strong class="purple">must</strong> not modify any memory.</p>
+<p>If the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is enabled, out of bounds writes <strong class="purple">must</strong> not modify any memory.</p>
 </li>
 </ul>
 </div>
@@ -1228,16 +1230,16 @@ an undefined value.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>If <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
-enabled, out of bounds atomics <strong class="purple">must</strong> not modify any memory, and return
-an undefined value.</p>
+<p>If the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is enabled, out of bounds atomics <strong class="purple">must</strong> not modify any memory,
+and return an undefined value.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>If <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
-disabled, vertex
+<p>If the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is not enabled, vertex
 input attributes are considered out of bounds if the offset of the
 attribute in the bound vertex buffer range plus the size of the
 attribute is greater than either:</p>
@@ -1281,11 +1283,11 @@ attribute.</p>
 </div>
 </li>
 <li>
-<p>If <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a> is
-enabled, vertex input attributes are considered out of bounds if the
-offset of the attribute in the bound vertex buffer range plus the size
-of the attribute is greater than the byte size of the memory range
-bound to the vertex buffer binding.</p>
+<p>If the <a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>
+feature is enabled, vertex input attributes are considered out of
+bounds if the offset of the attribute in the bound vertex buffer range
+plus the size of the attribute is greater than the byte size of the
+memory range bound to the vertex buffer binding.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -3554,13 +3556,15 @@ corresponding feature is supported.
 structure.</p>
 </li>
 <li>
-<p><code>taskShader</code> specifies whether task shaders are supported.
+<p><a id="features-taskShaderNV"></a> <code>taskShader</code> specifies whether task
+shaders are supported.
 If this feature is not enabled, the <code>VK_SHADER_STAGE_TASK_BIT_NV</code>
 and <code>VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV</code> enum values <strong class="purple">must</strong> not be
 used.</p>
 </li>
 <li>
-<p><code>meshShader</code> specifies whether mesh shaders are supported.
+<p><a id="features-meshShaderNV"></a> <code>meshShader</code> specifies whether mesh
+shaders are supported.
 If this feature is not enabled, the <code>VK_SHADER_STAGE_MESH_BIT_NV</code>
 and <code>VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV</code> enum values <strong class="purple">must</strong> not be
 used.</p>
@@ -4628,7 +4632,7 @@ as:</p>
 structure.</p>
 </li>
 <li>
-<p><a id="features-cornersampledimage"></a> <code>cornerSampledImage</code> specifies
+<p><a id="features-cornerSampledImage"></a> <code>cornerSampledImage</code> specifies
 whether images can be created with a
 <a href="chap12.html#VkImageCreateInfo">VkImageCreateInfo</a>::<code>flags</code> containing
 <code>VK_IMAGE_CREATE_CORNER_SAMPLED_BIT_NV</code>.
@@ -5619,8 +5623,8 @@ replay.</p>
 <li>
 <p><a id="features-bufferDeviceAddressMultiDeviceEXT"></a>
 <code>bufferDeviceAddressMultiDevice</code> indicates that the implementation
-supports the <code>bufferDeviceAddress</code> feature for logical devices
-created with multiple physical devices.
+supports the <a href="chap46.html#features-bufferDeviceAddressEXT"><code>bufferDeviceAddress</code></a> feature for logical devices created with
+multiple physical devices.
 If this feature is not supported, buffer addresses <strong class="purple">must</strong> not be queried
 on a logical device created with more than one physical device.</p>
 </li>
@@ -5901,12 +5905,12 @@ as:</p>
 structure.</p>
 </li>
 <li>
-<p><a id="features-cooperativeMatrix-NV"></a> <code>cooperativeMatrix</code> indicates that
+<p><a id="features-cooperativeMatrixNV"></a> <code>cooperativeMatrix</code> indicates that
 the implementation supports the <code>CooperativeMatrixNV</code> SPIR-V
 capability.</p>
 </li>
 <li>
-<p><a id="features-cooperativeMatrixRobustBufferAccess-NV"></a>
+<p><a id="features-cooperativeMatrixRobustBufferAccessNV"></a>
 <code>cooperativeMatrixRobustBufferAccess</code> indicates that the
 implementation supports robust buffer access for SPIR-V
 <code>OpCooperativeMatrixLoadNV</code> and <code>OpCooperativeMatrixStoreNV</code>
@@ -6531,7 +6535,7 @@ of the <code>_screen_buffer</code>.</p>
 </ul>
 </div>
 <table id="features-externalscreenbuffer-table" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 65. Functionality Supported for QNX Screen Buffer Features</caption>
+<caption class="title">Table 67. Functionality Supported for QNX Screen Buffer Features</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -7906,6 +7910,81 @@ corresponding feature is supported.
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>The <code>VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR</code> structure is
+defined as:</p>
+</div>
+<div id="VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_encode_quantization_map</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkBool32</span>           <span class="n">videoEncodeQuantizationMap</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This structure describes the following features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><a id="features-videoEncodeQuantizationMap"></a> <code>videoEncodeQuantizationMap</code>
+indicates that the implementation supports
+<a href="chap42.html#encode-quantization-map">video encode quantization maps</a>.</p>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Support for <code>videoEncodeQuantizationMap</code> does not indicate that all
+video encode profiles support quantization maps.
+Support for quantization maps for any specific video encode profile is
+subject to video-profile-specific capabilities.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap46.html#VkPhysicalDeviceFeatures2">VkPhysicalDeviceFeatures2</a> structure passed to
+<a href="chap46.html#vkGetPhysicalDeviceFeatures2">vkGetPhysicalDeviceFeatures2</a>, it is filled in to indicate whether each
+corresponding feature is supported.
+<code>VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR</code> <strong class="purple">can</strong> also be used in the <code>pNext</code> chain of
+<a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> to selectively enable these features.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR-sType-sType" href="chap46.html#VUID-VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>The <code>VkPhysicalDeviceVideoMaintenance1FeaturesKHR</code> structure is defined
 as:</p>
 </div>
@@ -7969,6 +8048,62 @@ corresponding feature is supported.
 <li>
 <p><a id="VUID-VkPhysicalDeviceVideoMaintenance1FeaturesKHR-sType-sType" href="chap46.html#VUID-VkPhysicalDeviceVideoMaintenance1FeaturesKHR-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoMaintenance1FeaturesKHR-sType-sType</span><br>
  <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPhysicalDeviceVideoEncodeAV1FeaturesKHR</code> structure is defined as:</p>
+</div>
+<div id="VkPhysicalDeviceVideoEncodeAV1FeaturesKHR" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_KHR_video_encode_av1</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceVideoEncodeAV1FeaturesKHR</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkBool32</span>           <span class="n">videoEncodeAV1</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceVideoEncodeAV1FeaturesKHR</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This structure describes the following features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><a id="features-videoEncodeAV1"></a> <code>videoEncodeAV1</code> indicates that the
+implementation supports <a href="chap42.html#encode-av1">AV1 encode operations</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceVideoEncodeAV1FeaturesKHR</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap46.html#VkPhysicalDeviceFeatures2">VkPhysicalDeviceFeatures2</a> structure passed to
+<a href="chap46.html#vkGetPhysicalDeviceFeatures2">vkGetPhysicalDeviceFeatures2</a>, it is filled in to indicate whether each
+corresponding feature is supported.
+<code>VkPhysicalDeviceVideoEncodeAV1FeaturesKHR</code> <strong class="purple">can</strong> also be used in the <code>pNext</code> chain of
+<a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> to selectively enable these features.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVideoEncodeAV1FeaturesKHR-sType-sType" href="chap46.html#VUID-VkPhysicalDeviceVideoEncodeAV1FeaturesKHR-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceVideoEncodeAV1FeaturesKHR-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -9820,13 +9955,13 @@ This member is only meaningful if the <a href="chap46.html#features-sampleRateSh
 whether this implementation supports
 <a href="chap23.html#tessellation-isoline-tessellation">isoline output</a> from the
 <a href="chap23.html">Tessellation</a> stage of a graphics pipeline.
-This member is only meaningful if <a href="chap46.html#features-tessellationShader"><code>tessellationShader</code></a> are supported.</p>
+This member is only meaningful if the <a href="chap46.html#features-tessellationShader"><code>tessellationShader</code></a> feature is supported.</p>
 </li>
 <li>
 <p><a id="features-tessellationPointMode"></a> <code>tessellationPointMode</code> indicates
 whether this implementation supports <a href="chap23.html#tessellation-point-mode">point
 output</a> from the <a href="chap23.html">Tessellation</a> stage of a graphics pipeline.
-This member is only meaningful if <a href="chap46.html#features-tessellationShader"><code>tessellationShader</code></a> are supported.</p>
+This member is only meaningful if the <a href="chap46.html#features-tessellationShader"><code>tessellationShader</code></a> feature is supported.</p>
 </li>
 <li>
 <p><a id="features-triangleFans"></a> <code>triangleFans</code> indicates whether this
@@ -12594,11 +12729,12 @@ robustness <strong class="purple">can</strong> be requested on a per-pipeline-st
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Enabling <a href="chap46.html#features-pipelineRobustness"><code>pipelineRobustness</code></a> may, on
-some platforms, incur a minor performance cost when
-<a href="chap46.html#features-robustBufferAccess"><code>robustBufferAccess</code></a> is disabled, even
-for pipelines which do not make use of any robustness features.
-If robustness is not needed, <a href="chap46.html#features-pipelineRobustness"><code>pipelineRobustness</code></a> should not be enabled by an application.</p>
+<p>Enabling the <a href="chap46.html#features-pipelineRobustness"><code>pipelineRobustness</code></a>
+feature may, on some platforms, incur a minor performance cost when the
+<a href="chap46.html#features-robustBufferAccess"><code>robustBufferAccess</code></a> feature is not
+enabled, even for pipelines which do not make use of any robustness
+features.
+If robustness is not needed, the <a href="chap46.html#features-pipelineRobustness"><code>pipelineRobustness</code></a> feature should not be enabled by an application.</p>
 </div>
 </td>
 </tr>
@@ -14952,7 +15088,7 @@ is defined as:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><a id="features-multiview-per-view-render-areas"></a>
+<p><a id="features-multiviewPerViewRenderAreas"></a>
 <code>multiviewPerViewRenderAreas</code> indicates that the implementation
 supports multiview per-view render areas.</p>
 </li>
@@ -15220,8 +15356,8 @@ corresponding feature is supported.
 <div class="ulist">
 <ul>
 <li>
-<p><a id="features-filter-cubic-range-clamp"></a> <code>cubicRangeClamp</code> indicates
-that the implementation supports cubic filtering in combination with a
+<p><a id="features-cubicRangeClamp"></a> <code>cubicRangeClamp</code> indicates that the
+implementation supports cubic filtering in combination with a
 <a href="chap16.html#textures-texel-range-clamp">texel range clamp</a>.</p>
 </li>
 </ul>
@@ -15326,7 +15462,7 @@ corresponding feature is supported.
 <div class="ulist">
 <ul>
 <li>
-<p><a id="features-filter-cubic-weight-selection"></a> <code>selectableCubicWeights</code>
+<p><a id="features-selectableCubicWeights"></a> <code>selectableCubicWeights</code>
 indicates that the implementation supports the selection of filter cubic
 weights.</p>
 </li>
@@ -16453,6 +16589,65 @@ corresponding feature is supported.
 </div>
 </div>
 </div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>The <code>VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT</code> structure is
+defined as:</p>
+</div>
+<div id="VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_EXT_vertex_attribute_robustness</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="nc">VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT</span> <span class="p">{</span>
+    <span class="n">VkStructureType</span>    <span class="n">sType</span><span class="p">;</span>
+    <span class="kt">void</span><span class="o">*</span>              <span class="n">pNext</span><span class="p">;</span>
+    <span class="n">VkBool32</span>           <span class="n">vertexAttributeRobustness</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT</span><span class="p">;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This structure describes the following feature:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sType</code> is a <a href="chap3.html#VkStructureType">VkStructureType</a> value identifying this structure.</p>
+</li>
+<li>
+<p><code>pNext</code> is <code>NULL</code> or a pointer to a structure extending this
+structure.</p>
+</li>
+<li>
+<p><a id="features-vertexAttributeRobustness"></a> <code>vertexAttributeRobustness</code>
+indicates that vertex shaders <strong class="purple">can</strong> read vertex attribute locations that
+have no vertex attribute description and the value returned is (0,0,0,0)
+or (0,0,0,1).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT</code> structure is included in the <code>pNext</code> chain of the
+<a href="chap46.html#VkPhysicalDeviceFeatures2">VkPhysicalDeviceFeatures2</a> structure passed to
+<a href="chap46.html#vkGetPhysicalDeviceFeatures2">vkGetPhysicalDeviceFeatures2</a>, it is filled in to indicate whether each
+corresponding feature is supported.
+<code>VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT</code> <strong class="purple">can</strong> also be used in the <code>pNext</code> chain of
+<a href="chap5.html#VkDeviceCreateInfo">VkDeviceCreateInfo</a> to selectively enable these features.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT-sType-sType" href="chap46.html#VUID-VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT-sType-sType"></a> <span class="vuid">VUID-VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT-sType-sType</span><br>
+ <code>sType</code> <strong class="purple">must</strong> be <code>VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="sect2">
 <h3 id="features-requirements"><a class="anchor" href="chap46.html#features-requirements"></a>46.1. Feature Requirements</h3>
 <div class="paragraph">
@@ -16472,7 +16667,7 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <ul>
 <li>
 <p><a href="chap46.html#features-storageBuffer16BitAccess"><code>storageBuffer16BitAccess</code></a>
-if <a href="chap46.html#features-uniformAndStorageBuffer16BitAccess">uniformAndStorageBuffer16BitAccess</a> is supported</p>
+if <a href="chap46.html#features-uniformAndStorageBuffer16BitAccess"><code>uniformAndStorageBuffer16BitAccess</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-multiview"><code>multiview</code></a></p>
@@ -16593,6 +16788,10 @@ if <code><a href="chap55.html#VK_KHR_shader_draw_parameters">VK_KHR_shader_draw_
 <a href="chap46.html#features-synchronization2"><code>synchronization2</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_KHR_fragment_shader_barycentric">VK_KHR_fragment_shader_barycentric</a></code> is supported,
+<a href="chap46.html#features-fragmentShaderBarycentric"><code>fragmentShaderBarycentric</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_KHR_shader_subgroup_uniform_control_flow">VK_KHR_shader_subgroup_uniform_control_flow</a></code> is supported,
 <a href="chap46.html#features-shaderSubgroupUniformControlFlow"><code>shaderSubgroupUniformControlFlow</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16641,6 +16840,10 @@ if <code><a href="chap55.html#VK_KHR_shader_draw_parameters">VK_KHR_shader_draw_
 <a href="chap46.html#features-computeDerivativeGroupLinear"><code>computeDerivativeGroupLinear</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_KHR_video_encode_av1">VK_KHR_video_encode_av1</a></code> is supported,
+<a href="chap46.html#features-videoEncodeAV1"><code>videoEncodeAV1</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_KHR_video_maintenance1">VK_KHR_video_maintenance1</a></code> is supported,
 <a href="chap46.html#features-videoMaintenance1"><code>videoMaintenance1</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16669,6 +16872,10 @@ if <code><a href="chap55.html#VK_KHR_shader_draw_parameters">VK_KHR_shader_draw_
 <a href="chap46.html#features-maintenance6"><code>maintenance6</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_KHR_video_encode_quantization_map">VK_KHR_video_encode_quantization_map</a></code> is supported,
+<a href="chap46.html#features-videoEncodeQuantizationMap"><code>videoEncodeQuantizationMap</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_KHR_shader_relaxed_extended_instruction">VK_KHR_shader_relaxed_extended_instruction</a></code> is supported,
 <a href="chap46.html#features-shaderRelaxedExtendedInstruction"><code>shaderRelaxedExtendedInstruction</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16679,6 +16886,10 @@ if <code><a href="chap55.html#VK_KHR_shader_draw_parameters">VK_KHR_shader_draw_
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedback</a></code> is supported,
 <a href="chap46.html#features-transformFeedback"><code>transformFeedback</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_corner_sampled_image">VK_NV_corner_sampled_image</a></code> is supported,
+<a href="chap46.html#features-cornerSampledImage"><code>cornerSampledImage</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_texture_compression_astc_hdr">VK_EXT_texture_compression_astc_hdr</a></code> is supported,
@@ -16726,10 +16937,14 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <li>
 <p><a href="chap46.html#features-descriptorBindingInlineUniformBlockUpdateAfterBind"><code>descriptorBindingInlineUniformBlockUpdateAfterBind</code></a>
 if <code><a href="chap55.html#VK_EXT_descriptor_indexing">VK_EXT_descriptor_indexing</a></code> is supported, or
-if Vulkan 1.2 and <a href="#features-descriptorIndexing" class="target-missing">descriptorIndexing</a> are supported</p>
+if Vulkan 1.2 and <a href="#features-descriptorIndexing" class="target-missing"><code>descriptorIndexing</code></a> are supported</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_shader_sm_builtins">VK_NV_shader_sm_builtins</a></code> is supported,
+<a href="chap46.html#features-shaderSMBuiltins"><code>shaderSMBuiltins</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_descriptor_indexing">VK_EXT_descriptor_indexing</a></code> is supported,
@@ -16797,6 +17012,26 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <a href="chap46.html#features-vertexAttributeInstanceRateDivisor"><code>vertexAttributeInstanceRateDivisor</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_NV_compute_shader_derivatives">VK_NV_compute_shader_derivatives</a></code> is supported,
+<a href="chap46.html#features-computeDerivativeGroupQuads"><code>computeDerivativeGroupQuads</code></a>, or <a href="chap46.html#features-computeDerivativeGroupLinear"><code>computeDerivativeGroupLinear</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_mesh_shader">VK_NV_mesh_shader</a></code> is supported,
+<a href="chap46.html#features-meshShaderNV"><code>VkPhysicalDeviceMeshShaderFeaturesNV</code>::<code>meshShader</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_shader_image_footprint">VK_NV_shader_image_footprint</a></code> is supported,
+<a href="chap46.html#features-imageFootprint"><code>imageFootprint</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_scissor_exclusive">VK_NV_scissor_exclusive</a></code> is supported,
+<a href="chap46.html#features-exclusiveScissor"><code>exclusiveScissor</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_INTEL_shader_integer_functions2">VK_INTEL_shader_integer_functions2</a></code> is supported,
+<a href="chap46.html#features-shaderIntegerFunctions2"><code>shaderIntegerFunctions2</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_fragment_density_map">VK_EXT_fragment_density_map</a></code> is supported,
 <a href="chap46.html#features-fragmentDensityMap"><code>fragmentDensityMap</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16841,6 +17076,18 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <a href="chap46.html#features-memoryPriority"><code>memoryPriority</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_NV_dedicated_allocation_image_aliasing">VK_NV_dedicated_allocation_image_aliasing</a></code> is supported,
+<a href="chap46.html#features-dedicatedAllocationImageAliasing"><code>dedicatedAllocationImageAliasing</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_buffer_device_address">VK_EXT_buffer_device_address</a></code> is supported,
+<a href="chap46.html#features-bufferDeviceAddressEXT"><code>VkPhysicalDeviceBufferDeviceAddressFeaturesEXT</code>::<code>bufferDeviceAddress</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_cooperative_matrix">VK_NV_cooperative_matrix</a></code> is supported,
+<a href="chap46.html#features-cooperativeMatrixNV"><code>VkPhysicalDeviceCooperativeMatrixFeaturesNV</code>::<code>cooperativeMatrix</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_NV_coverage_reduction_mode">VK_NV_coverage_reduction_mode</a></code> is supported,
 <a href="chap46.html#features-coverageReductionMode"><code>coverageReductionMode</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16866,12 +17113,15 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <div class="ulist">
 <ul>
 <li>
+<p><a href="chap46.html#features-shaderBufferFloat32Atomics"><code>shaderBufferFloat32Atomics</code></a>, <a href="chap46.html#features-shaderBufferFloat32AtomicAdd"><code>shaderBufferFloat32AtomicAdd</code></a>, <a href="chap46.html#features-shaderBufferFloat64Atomics"><code>shaderBufferFloat64Atomics</code></a>, <a href="chap46.html#features-shaderBufferFloat64AtomicAdd"><code>shaderBufferFloat64AtomicAdd</code></a>, <a href="chap46.html#features-shaderSharedFloat32Atomics"><code>shaderSharedFloat32Atomics</code></a>, <a href="chap46.html#features-shaderSharedFloat32AtomicAdd"><code>shaderSharedFloat32AtomicAdd</code></a>, <a href="chap46.html#features-shaderSharedFloat64Atomics"><code>shaderSharedFloat64Atomics</code></a>, <a href="chap46.html#features-shaderSharedFloat64AtomicAdd"><code>shaderSharedFloat64AtomicAdd</code></a>, <a href="chap46.html#features-shaderImageFloat32Atomics"><code>shaderImageFloat32Atomics</code></a>, or <a href="chap46.html#features-shaderImageFloat32AtomicAdd"><code>shaderImageFloat32AtomicAdd</code></a></p>
+</li>
+<li>
 <p><a href="chap46.html#features-shaderImageFloat32Atomics"><code>shaderImageFloat32Atomics</code></a>
-if <a href="chap46.html#features-sparseImageFloat32Atomics">sparseImageFloat32Atomics</a> is supported</p>
+if <a href="chap46.html#features-sparseImageFloat32Atomics"><code>sparseImageFloat32Atomics</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-shaderImageFloat32AtomicAdd"><code>shaderImageFloat32AtomicAdd</code></a>
-if <a href="chap46.html#features-sparseImageFloat32AtomicAdd">sparseImageFloat32AtomicAdd</a> is supported</p>
+if <a href="chap46.html#features-sparseImageFloat32AtomicAdd"><code>sparseImageFloat32AtomicAdd</code></a> is supported</p>
 </li>
 </ul>
 </div>
@@ -16898,8 +17148,18 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicAdd">sparseImageFloat32
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_shader_atomic_float2">VK_EXT_shader_atomic_float2</a></code> is supported,
-<a href="chap46.html#features-shaderImageFloat32AtomicMinMax"><code>shaderImageFloat32AtomicMinMax</code></a> <strong class="purple">must</strong> be supported
-if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloat32AtomicMinMax</a> is supported</p>
+the following features <strong class="purple">must</strong> be supported:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="chap46.html#features-shaderBufferFloat16Atomics"><code>shaderBufferFloat16Atomics</code></a>, <a href="chap46.html#features-shaderBufferFloat16AtomicAdd"><code>shaderBufferFloat16AtomicAdd</code></a>, <a href="chap46.html#features-shaderBufferFloat16AtomicMinMax"><code>shaderBufferFloat16AtomicMinMax</code></a>, <a href="chap46.html#features-shaderBufferFloat32AtomicMinMax"><code>shaderBufferFloat32AtomicMinMax</code></a>, <a href="chap46.html#features-shaderBufferFloat64AtomicMinMax"><code>shaderBufferFloat64AtomicMinMax</code></a>, <a href="chap46.html#features-shaderSharedFloat16Atomics"><code>shaderSharedFloat16Atomics</code></a>, <a href="chap46.html#features-shaderSharedFloat16AtomicAdd"><code>shaderSharedFloat16AtomicAdd</code></a>, <a href="chap46.html#features-shaderSharedFloat16AtomicMinMax"><code>shaderSharedFloat16AtomicMinMax</code></a>, <a href="chap46.html#features-shaderSharedFloat32AtomicMinMax"><code>shaderSharedFloat32AtomicMinMax</code></a>, <a href="chap46.html#features-shaderSharedFloat64AtomicMinMax"><code>shaderSharedFloat64AtomicMinMax</code></a>, or <a href="chap46.html#features-shaderImageFloat32AtomicMinMax"><code>shaderImageFloat32AtomicMinMax</code></a></p>
+</li>
+<li>
+<p><a href="chap46.html#features-shaderImageFloat32AtomicMinMax"><code>shaderImageFloat32AtomicMinMax</code></a>
+if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax"><code>sparseImageFloat32AtomicMinMax</code></a> is supported</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_swapchain_maintenance1">VK_EXT_swapchain_maintenance1</a></code> is supported,
@@ -16911,7 +17171,11 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_NV_device_generated_commands">VK_NV_device_generated_commands</a></code> is supported,
-<a href="chap46.html#features-deviceGeneratedCommands"><code>deviceGeneratedCommands</code></a> <strong class="purple">must</strong> be supported</p>
+<a href="chap46.html#features-deviceGeneratedCommandsNV"><code>VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV</code>::<code>deviceGeneratedCommands</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_inherited_viewport_scissor">VK_NV_inherited_viewport_scissor</a></code> is supported,
+<a href="chap46.html#features-inheritedViewportScissor2D"><code>inheritedViewportScissor2D</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_texel_buffer_alignment">VK_EXT_texel_buffer_alignment</a></code> is supported,
@@ -16924,6 +17188,10 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_device_memory_report">VK_EXT_device_memory_report</a></code> is supported,
 <a href="chap46.html#features-deviceMemoryReport"><code>deviceMemoryReport</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_robustness2">VK_EXT_robustness2</a></code> is supported,
+<a href="chap46.html#features-robustBufferAccess2"><code>robustBufferAccess2</code></a>, <a href="chap46.html#features-robustImageAccess2"><code>robustImageAccess2</code></a>, or <a href="chap46.html#features-nullDescriptor"><code>nullDescriptor</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_custom_border_color">VK_EXT_custom_border_color</a></code> is supported,
@@ -16942,6 +17210,14 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <a href="chap46.html#features-pipelineCreationCacheControl"><code>pipelineCreationCacheControl</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_NV_device_diagnostics_config">VK_NV_device_diagnostics_config</a></code> is supported,
+<a href="chap46.html#features-diagnosticsConfig"><code>diagnosticsConfig</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_cuda_kernel_launch">VK_NV_cuda_kernel_launch</a></code> is supported,
+<a href="chap46.html#features-cudaKernelLaunchFeatures"><code>cudaKernelLaunchFeatures</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_descriptor_buffer">VK_EXT_descriptor_buffer</a></code> is supported,
 <a href="chap46.html#features-descriptorBuffer"><code>descriptorBuffer</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -16954,8 +17230,20 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <a href="chap46.html#features-shaderEarlyAndLateFragmentTests"><code>shaderEarlyAndLateFragmentTests</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_NV_fragment_shading_rate_enums">VK_NV_fragment_shading_rate_enums</a></code> is supported,
+<a href="chap46.html#features-fragmentShadingRateEnums"><code>fragmentShadingRateEnums</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_ray_tracing_motion_blur">VK_NV_ray_tracing_motion_blur</a></code> is supported,
+<a href="chap46.html#features-rayTracingMotionBlur"><code>rayTracingMotionBlur</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_ycbcr_2plane_444_formats">VK_EXT_ycbcr_2plane_444_formats</a></code> is supported,
 <a href="chap46.html#features-ycbcr2plane444Formats"><code>ycbcr2plane444Formats</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_fragment_density_map2">VK_EXT_fragment_density_map2</a></code> is supported,
+<a href="chap46.html#features-fragmentDensityMapDeferred"><code>fragmentDensityMapDeferred</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_image_robustness">VK_EXT_image_robustness</a></code> is supported,
@@ -16976,6 +17264,10 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_device_fault">VK_EXT_device_fault</a></code> is supported,
 <a href="chap46.html#features-deviceFault"><code>deviceFault</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_rgba10x6_formats">VK_EXT_rgba10x6_formats</a></code> is supported,
+<a href="chap46.html#features-formatRgba10x6WithoutYCbCrSampler"><code>formatRgba10x6WithoutYCbCrSampler</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_VALVE_mutable_descriptor_type">VK_VALVE_mutable_descriptor_type</a></code> is supported,
@@ -17000,6 +17292,22 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_present_mode_fifo_latest_ready">VK_EXT_present_mode_fifo_latest_ready</a></code> is supported,
 <a href="chap46.html#features-presentModeFifoLatestReady"><code>presentModeFifoLatestReady</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_HUAWEI_subpass_shading">VK_HUAWEI_subpass_shading</a></code> is supported,
+<a href="chap46.html#features-subpassShading"><code>subpassShading</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_HUAWEI_invocation_mask">VK_HUAWEI_invocation_mask</a></code> is supported,
+<a href="chap46.html#features-invocationMask"><code>invocationMask</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_external_memory_rdma">VK_NV_external_memory_rdma</a></code> is supported,
+<a href="chap46.html#features-externalMemoryRDMA"><code>externalMemoryRDMA</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_pipeline_properties">VK_EXT_pipeline_properties</a></code> is supported,
+<a href="chap46.html#features-pipelinePropertiesIdentifier"><code>pipelinePropertiesIdentifier</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_frame_boundary">VK_EXT_frame_boundary</a></code> is supported,
@@ -17050,6 +17358,10 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <a href="chap46.html#features-displacementMicromap"><code>displacementMicromap</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_HUAWEI_cluster_culling_shader">VK_HUAWEI_cluster_culling_shader</a></code> is supported,
+<a href="chap46.html#features-clustercullingShader"><code>clustercullingShader</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_border_color_swizzle">VK_EXT_border_color_swizzle</a></code> is supported,
 <a href="chap46.html#features-borderColorSwizzle"><code>borderColorSwizzle</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -17066,6 +17378,10 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <a href="chap46.html#features-imageSlicedViewOf3D"><code>imageSlicedViewOf3D</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_VALVE_descriptor_set_host_mapping">VK_VALVE_descriptor_set_host_mapping</a></code> is supported,
+<a href="chap55.html#features-descriptorSetHostMapping"><code>descriptorSetHostMapping</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_depth_clamp_zero_one">VK_EXT_depth_clamp_zero_one</a></code> is supported,
 <a href="chap46.html#features-depthClampZeroOne"><code>depthClampZeroOne</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -17076,6 +17392,18 @@ if <a href="chap46.html#features-sparseImageFloat32AtomicMinMax">sparseImageFloa
 <li>
 <p>If <code><a href="chap55.html#VK_ARM_render_pass_striped">VK_ARM_render_pass_striped</a></code> is supported,
 <a href="chap46.html#features-renderPassStriped"><code>renderPassStriped</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_QCOM_fragment_density_map_offset">VK_QCOM_fragment_density_map_offset</a></code> is supported,
+<a href="chap46.html#features-fragmentDensityMapOffset"><code>fragmentDensityMapOffset</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_copy_memory_indirect">VK_NV_copy_memory_indirect</a></code> is supported,
+<a href="chap46.html#features-indirectCopy"><code>indirectCopy</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_memory_decompression">VK_NV_memory_decompression</a></code> is supported,
+<a href="chap46.html#features-memoryDecompression"><code>memoryDecompression</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_NV_device_generated_commands_compute">VK_NV_device_generated_commands_compute</a></code> is supported,
@@ -17117,27 +17445,27 @@ the following features <strong class="purple">must</strong> be supported:</p>
 <ul>
 <li>
 <p><a href="chap46.html#features-tessellationShader"><code>tessellationShader</code></a>
-if <a href="chap46.html#features-extendedDynamicState3TessellationDomainOrigin">extendedDynamicState3TessellationDomainOrigin</a> is supported</p>
+if <a href="chap46.html#features-extendedDynamicState3TessellationDomainOrigin"><code>extendedDynamicState3TessellationDomainOrigin</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-depthClamp"><code>depthClamp</code></a>
-if <a href="chap46.html#features-extendedDynamicState3DepthClampEnable">extendedDynamicState3DepthClampEnable</a> is supported</p>
+if <a href="chap46.html#features-extendedDynamicState3DepthClampEnable"><code>extendedDynamicState3DepthClampEnable</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-fillModeNonSolid"><code>fillModeNonSolid</code></a>
-if <a href="chap46.html#features-extendedDynamicState3PolygonMode">extendedDynamicState3PolygonMode</a> is supported</p>
+if <a href="chap46.html#features-extendedDynamicState3PolygonMode"><code>extendedDynamicState3PolygonMode</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-alphaToOne"><code>alphaToOne</code></a>
-if <a href="chap46.html#features-extendedDynamicState3AlphaToOneEnable">extendedDynamicState3AlphaToOneEnable</a> is supported</p>
+if <a href="chap46.html#features-extendedDynamicState3AlphaToOneEnable"><code>extendedDynamicState3AlphaToOneEnable</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-logicOp"><code>logicOp</code></a>
-if <a href="chap46.html#features-extendedDynamicState3LogicOpEnable">extendedDynamicState3LogicOpEnable</a> is supported</p>
+if <a href="chap46.html#features-extendedDynamicState3LogicOpEnable"><code>extendedDynamicState3LogicOpEnable</code></a> is supported</p>
 </li>
 <li>
 <p><a href="chap46.html#features-geometryStreams"><code>geometryStreams</code></a>
-if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedback</a></code> and <a href="chap46.html#features-extendedDynamicState3RasterizationStream">extendedDynamicState3RasterizationStream</a> are supported</p>
+if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedback</a></code> and <a href="chap46.html#features-extendedDynamicState3RasterizationStream"><code>extendedDynamicState3RasterizationStream</code></a> are supported</p>
 </li>
 </ul>
 </div>
@@ -17149,6 +17477,10 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_shader_module_identifier">VK_EXT_shader_module_identifier</a></code> is supported,
 <a href="chap46.html#features-shaderModuleIdentifier"><code>shaderModuleIdentifier</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_optical_flow">VK_NV_optical_flow</a></code> is supported,
+<a href="chap46.html#features-opticalFlow"><code>opticalFlow</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_legacy_dithering">VK_EXT_legacy_dithering</a></code> is supported,
@@ -17175,8 +17507,16 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <a href="chap46.html#features-tileProperties"><code>tileProperties</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_SEC_amigo_profiling">VK_SEC_amigo_profiling</a></code> is supported,
+<a href="chap55.html#features-amigoProfiling"><code>amigoProfiling</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_QCOM_multiview_per_view_viewports">VK_QCOM_multiview_per_view_viewports</a></code> is supported,
 <a href="chap46.html#features-multiviewPerViewViewports"><code>multiviewPerViewViewports</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_NV_ray_tracing_invocation_reorder">VK_NV_ray_tracing_invocation_reorder</a></code> is supported,
+<a href="chap46.html#features-rayTracingInvocationReorder"><code>rayTracingInvocationReorder</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_NV_extended_sparse_address_space">VK_NV_extended_sparse_address_space</a></code> is supported,
@@ -17191,12 +17531,20 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <a href="chap46.html#features-legacyVertexAttributes"><code>legacyVertexAttributes</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_ARM_shader_core_builtins">VK_ARM_shader_core_builtins</a></code> is supported,
+<a href="chap46.html#features-shaderCoreBuiltins"><code>shaderCoreBuiltins</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_pipeline_library_group_handles">VK_EXT_pipeline_library_group_handles</a></code> is supported,
 <a href="chap46.html#features-pipelineLibraryGroupHandles"><code>pipelineLibraryGroupHandles</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_EXT_dynamic_rendering_unused_attachments">VK_EXT_dynamic_rendering_unused_attachments</a></code> is supported,
 <a href="chap46.html#features-dynamicRenderingUnusedAttachments"><code>dynamicRenderingUnusedAttachments</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_QCOM_multiview_per_view_render_areas">VK_QCOM_multiview_per_view_render_areas</a></code> is supported,
+<a href="chap46.html#features-multiviewPerViewRenderAreas"><code>multiviewPerViewRenderAreas</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_NV_per_stage_descriptor_set">VK_NV_per_stage_descriptor_set</a></code> is supported,
@@ -17207,12 +17555,24 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <a href="chap46.html#features-textureBlockMatch2"><code>textureBlockMatch2</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_QCOM_filter_cubic_weights">VK_QCOM_filter_cubic_weights</a></code> is supported,
+<a href="chap46.html#features-selectableCubicWeights"><code>selectableCubicWeights</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_QCOM_ycbcr_degamma">VK_QCOM_ycbcr_degamma</a></code> is supported,
 <a href="chap46.html#features-ycbcrDegamma"><code>ycbcrDegamma</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_QCOM_filter_cubic_clamp">VK_QCOM_filter_cubic_clamp</a></code> is supported,
+<a href="chap46.html#features-cubicRangeClamp"><code>cubicRangeClamp</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_attachment_feedback_loop_dynamic_state">VK_EXT_attachment_feedback_loop_dynamic_state</a></code> is supported,
 <a href="chap46.html#features-attachmentFeedbackLoopDynamicState"><code>attachmentFeedbackLoopDynamicState</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_QNX_external_memory_screen_buffer">VK_QNX_external_memory_screen_buffer</a></code> is supported,
+<a href="chap46.html#features-screenBufferImport"><code>screenBufferImport</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_NV_descriptor_pool_overallocation">VK_NV_descriptor_pool_overallocation</a></code> is supported,
@@ -17235,6 +17595,10 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <a href="chap46.html#features-shaderReplicatedComposites"><code>shaderReplicatedComposites</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
+<p>If <code><a href="chap55.html#VK_NV_ray_tracing_validation">VK_NV_ray_tracing_validation</a></code> is supported,
+<a href="chap46.html#features-rayTracingValidation"><code>rayTracingValidation</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
 <p>If <code><a href="chap55.html#VK_EXT_device_generated_commands">VK_EXT_device_generated_commands</a></code> is supported,
 <a href="chap46.html#features-deviceGeneratedCommands"><code>deviceGeneratedCommands</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
@@ -17253,6 +17617,10 @@ if <code><a href="chap55.html#VK_EXT_transform_feedback">VK_EXT_transform_feedba
 <li>
 <p>If <code><a href="chap55.html#VK_NV_cooperative_matrix2">VK_NV_cooperative_matrix2</a></code> is supported,
 <a href="chap46.html#features-cooperativeMatrixWorkgroupScope"><code>cooperativeMatrixWorkgroupScope</code></a>, <a href="chap46.html#features-cooperativeMatrixFlexibleDimensions"><code>cooperativeMatrixFlexibleDimensions</code></a>, <a href="chap46.html#features-cooperativeMatrixReductions"><code>cooperativeMatrixReductions</code></a>, <a href="chap46.html#features-cooperativeMatrixConversions"><code>cooperativeMatrixConversions</code></a>, <a href="chap46.html#features-cooperativeMatrixPerElementOperations"><code>cooperativeMatrixPerElementOperations</code></a>, <a href="chap46.html#features-cooperativeMatrixTensorAddressing"><code>cooperativeMatrixTensorAddressing</code></a>, or <a href="chap46.html#features-cooperativeMatrixBlockLoads"><code>cooperativeMatrixBlockLoads</code></a> <strong class="purple">must</strong> be supported</p>
+</li>
+<li>
+<p>If <code><a href="chap55.html#VK_EXT_vertex_attribute_robustness">VK_EXT_vertex_attribute_robustness</a></code> is supported,
+<a href="chap46.html#features-vertexAttributeRobustness"><code>vertexAttributeRobustness</code></a> <strong class="purple">must</strong> be supported</p>
 </li>
 <li>
 <p>If <code><a href="chap55.html#VK_KHR_acceleration_structure">VK_KHR_acceleration_structure</a></code> is supported,
@@ -17310,7 +17678,7 @@ the following features <strong class="purple">must</strong> be supported:</p>
 </li>
 <li>
 <p><a href="chap46.html#features-primitiveFragmentShadingRate"><code>primitiveFragmentShadingRate</code></a>
-if <code><a href="chap55.html#VK_KHR_fragment_shading_rate">VK_KHR_fragment_shading_rate</a></code> and <a href="chap46.html#features-primitiveFragmentShadingRateMeshShader">primitiveFragmentShadingRateMeshShader</a> are supported</p>
+if <code><a href="chap55.html#VK_KHR_fragment_shading_rate">VK_KHR_fragment_shading_rate</a></code> and <a href="chap46.html#features-primitiveFragmentShadingRateMeshShader"><code>primitiveFragmentShadingRateMeshShader</code></a> are supported</p>
 </li>
 </ul>
 </div>

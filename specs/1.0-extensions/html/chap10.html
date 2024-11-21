@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.0.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.0.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.0.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.0.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.0.301,</span>
-<span id="revdate">2024-11-01 15:49:18Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.0.302,</span>
+<span id="revdate">2024-11-21 05:58:28Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -518,8 +518,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -1582,7 +1584,7 @@ descriptor count</p>
 <p><a id="VUID-VkComputePipelineCreateInfo-flags-09007" href="chap10.html#VUID-VkComputePipelineCreateInfo-flags-09007"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-flags-09007</span><br>
 
 If the <a href="chap46.html#features-deviceGeneratedComputePipelines"><code>VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV</code>::<code>deviceGeneratedComputePipelines</code></a>
-is not enabled,
+feature is not enabled,
 <code>flags</code> <strong class="purple">must</strong> not include
 <code>VK_PIPELINE_CREATE_INDIRECT_BINDABLE_BIT_NV</code></p>
 </li>
@@ -1635,7 +1637,8 @@ stage <strong class="purple">must</strong> be less than or equal to
 <li>
 <p><a id="VUID-VkComputePipelineCreateInfo-shaderEnqueue-09177" href="chap10.html#VUID-VkComputePipelineCreateInfo-shaderEnqueue-09177"></a> <span class="vuid">VUID-VkComputePipelineCreateInfo-shaderEnqueue-09177</span><br>
 
-If <a href="chap46.html#features-shaderEnqueue"><code>shaderEnqueue</code></a> is not enabled,
+If the <a href="chap46.html#features-shaderEnqueue"><code>shaderEnqueue</code></a> feature is not
+enabled,
 <code>flags</code> <strong class="purple">must</strong> not include <code>VK_PIPELINE_CREATE_LIBRARY_BIT_KHR</code></p>
 </li>
 <li>
@@ -2927,7 +2930,7 @@ is not supported, <code>images</code> <strong class="purple">must</strong> not b
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT_EXT</code>
 specifies that this pipeline stage follows the behavior of robustness
-features that are enabled on the device that created this pipeline</p>
+features that are enabled that created this pipeline</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DISABLED_EXT</code> specifies that
@@ -3757,8 +3760,9 @@ multisample state used when rasterization is enabled.
 <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
 <code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>, and
 <code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code> dynamic states set,
-and either <a href="chap46.html#features-alphaToOne">alphaToOne</a> is disabled on the device
-or <code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> is set, in which case
+and either the <a href="chap46.html#features-alphaToOne">alphaToOne</a> feature is not
+enabled or <code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> is set, in
+which case
 <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a>::<code>sampleShadingEnable</code> is
 assumed to be <code>VK_FALSE</code>.</p>
 </li>
@@ -4365,10 +4369,11 @@ then <code>pStages</code> <strong class="purple">must</strong> include tessellat
 
 If the pipeline is being created with a <code>TessellationEvaluation</code>
 <code>Execution</code> <code>Model</code>, no <code>Geometry</code> <code>Execution</code> <code>Model</code>, uses the
-<code>PointMode</code> <code>Execution</code> <code>Mode</code>, and
-<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> is enabled, a
+<code>PointMode</code> <code>Execution</code> <code>Mode</code>, and the
+<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> feature is enabled, a
 <code>PointSize</code> decorated variable <strong class="purple">must</strong> be written to
-if <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> is not enabled</p>
+if the <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-topology-08773" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-topology-08773"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-topology-08773</span><br>
@@ -4382,40 +4387,42 @@ not enabled or
 <a href="chap47.html#limits-dynamicPrimitiveTopologyUnrestricted"><code>dynamicPrimitiveTopologyUnrestricted</code></a>
 is <code>VK_FALSE</code>,
 a <code>PointSize</code> decorated variable <strong class="purple">must</strong> be written to
-if <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> is not enabled</p>
+if the <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-maintenance5-08775" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-maintenance5-08775"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-maintenance5-08775</span><br>
 
-If <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> is enabled and a
-<code>PointSize</code> decorated variable is written to, all execution paths
-<strong class="purple">must</strong> write to a <code>PointSize</code> decorated variable</p>
+If the <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> feature is enabled
+and a <code>PointSize</code> decorated variable is written to, all execution
+paths <strong class="purple">must</strong> write to a <code>PointSize</code> decorated variable</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-TessellationEvaluation-07724" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-TessellationEvaluation-07724"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-TessellationEvaluation-07724</span><br>
 
 If the pipeline is being created with a <code>TessellationEvaluation</code>
 <code>Execution</code> <code>Model</code>, no <code>Geometry</code> <code>Execution</code> <code>Model</code>, uses the
-<code>PointMode</code> <code>Execution</code> <code>Mode</code>, and
-<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> is not enabled, a
+<code>PointMode</code> <code>Execution</code> <code>Mode</code>, and the
+<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> feature is not enabled, a
 <code>PointSize</code> decorated variable <strong class="purple">must</strong> not be written to</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-shaderTessellationAndGeometryPointSize-08776" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-shaderTessellationAndGeometryPointSize-08776"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-shaderTessellationAndGeometryPointSize-08776</span><br>
 
 If the pipeline is being created with a <code>Geometry</code> <code>Execution</code> <code>Model</code>,
-uses the <code>OutputPoints</code> <code>Execution</code> <code>Mode</code>, and
-<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> is enabled, a
+uses the <code>OutputPoints</code> <code>Execution</code> <code>Mode</code>, and the
+<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> feature is enabled, a
 <code>PointSize</code> decorated variable <strong class="purple">must</strong> be written to for every vertex
 emitted
-if <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> is not enabled</p>
+if the <a href="chap46.html#features-maintenance5"><code>maintenance5</code></a> feature is not
+enabled</p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-Geometry-07726" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-Geometry-07726"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-Geometry-07726</span><br>
 
 If the pipeline is being created with a <code>Geometry</code> <code>Execution</code> <code>Model</code>,
-uses the <code>OutputPoints</code> <code>Execution</code> <code>Mode</code>, and
-<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> is not enabled, a
+uses the <code>OutputPoints</code> <code>Execution</code> <code>Mode</code>, and the
+<a href="chap46.html#features-shaderTessellationAndGeometryPointSize"><code>shaderTessellationAndGeometryPointSize</code></a> feature is not enabled, a
 <code>PointSize</code> decorated variable <strong class="purple">must</strong> not be written to</p>
 </li>
 <li>
@@ -4555,7 +4562,7 @@ and the <code><a href="chap55.html#VK_EXT_extended_dynamic_state3">VK_EXT_extend
 or any of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
 <code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>, or
 <code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code> dynamic states is
-not set, or <a href="chap46.html#features-alphaToOne">alphaToOne</a> is enabled on the device
+not set, or the <a href="chap46.html#features-alphaToOne">alphaToOne</a> feature is enabled
 and <code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> is not set,
 <code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
@@ -4894,7 +4901,10 @@ If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-vertex-
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-Input-07904" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-Input-07904"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-Input-07904</span><br>
 
-If the pipeline is being created with
+If
+<a href="chap46.html#features-vertexAttributeRobustness"><code>vertexAttributeRobustness</code></a>
+is not enabled and
+the pipeline is being created with
 <a href="chap10.html#pipelines-graphics-subsets-vertex-input">vertex input state</a> and
 <code>pVertexInputState</code> is not dynamic, then all variables with the
 <code>Input</code> storage class decorated with <code>Location</code> in the <code>Vertex</code>
@@ -5041,8 +5051,8 @@ range <span class="eq">[1,256]</span></p>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-shaderMeshEnqueue-10187" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-shaderMeshEnqueue-10187"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-shaderMeshEnqueue-10187</span><br>
 
-If <a href="chap46.html#features-shaderMeshEnqueue"><code>shaderMeshEnqueue</code></a> is not
-enabled, shaders specified by <code>pStages</code> <strong class="purple">must</strong> not declare the
+If the <a href="chap46.html#features-shaderMeshEnqueue"><code>shaderMeshEnqueue</code></a> feature is
+not enabled, shaders specified by <code>pStages</code> <strong class="purple">must</strong> not declare the
 <code>ShaderEnqueueAMDX</code> capability</p>
 </li>
 <li>
@@ -6129,8 +6139,8 @@ and if
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-flags-06608" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-flags-06608"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-flags-06608</span><br>
 
 
-If <a href="chap46.html#features-shaderMeshEnqueue"><code>shaderMeshEnqueue</code> feature</a> is not
-enabled, and
+If the <a href="chap46.html#features-shaderMeshEnqueue"><code>shaderMeshEnqueue</code></a> feature is
+not enabled, and
 the pipeline is being created with
 <a href="chap10.html#pipelines-graphics-subsets-complete">all possible state subsets</a>,
 <code>flags</code> <strong class="purple">must</strong> not include <code>VK_PIPELINE_CREATE_LIBRARY_BIT_KHR</code></p>
@@ -6488,7 +6498,7 @@ and the <code><a href="chap55.html#VK_EXT_extended_dynamic_state3">VK_EXT_extend
 or any of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
 <code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>, or
 <code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code> dynamic states is
-not set, or <a href="chap46.html#features-alphaToOne">alphaToOne</a> is enabled on the device
+not set, or the <a href="chap46.html#features-alphaToOne">alphaToOne</a> feature is enabled
 and <code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> is not set,
 then <code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
@@ -6503,7 +6513,7 @@ and the <code><a href="chap55.html#VK_EXT_extended_dynamic_state3">VK_EXT_extend
 or any of the <code>VK_DYNAMIC_STATE_RASTERIZATION_SAMPLES_EXT</code>,
 <code>VK_DYNAMIC_STATE_SAMPLE_MASK_EXT</code>, or
 <code>VK_DYNAMIC_STATE_ALPHA_TO_COVERAGE_ENABLE_EXT</code> dynamic states is
-not set, or <a href="chap46.html#features-alphaToOne">alphaToOne</a> is enabled on the device
+not set, or the <a href="chap46.html#features-alphaToOne">alphaToOne</a> feature is enabled
 and <code>VK_DYNAMIC_STATE_ALPHA_TO_ONE_ENABLE_EXT</code> is not set,
 then <code>pMultisampleState</code> <strong class="purple">must</strong> be a valid pointer to a valid
 <a href="chap28.html#VkPipelineMultisampleStateCreateInfo">VkPipelineMultisampleStateCreateInfo</a> structure</p>
@@ -7052,11 +7062,11 @@ enabled, there <strong class="purple">must</strong> be no element of the <code>p
 If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a>, and no element of the
 <code>pDynamicStates</code> member of <code>pDynamicState</code> is
 <code>VK_DYNAMIC_STATE_VIEWPORT</code> or
-<code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code>, and if
+<code>VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT</code>, and if the
 <a href="chap46.html#features-multiviewPerViewViewports"><code>multiviewPerViewViewports</code></a>
-is enabled, then the index of the most significant bit in each element
-of <a href="chap8.html#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewMasks</code> <strong class="purple">must</strong> be less
-than <code>pViewportState-&gt;viewportCount</code></p>
+feature is enabled, then the index of the most significant bit in each
+element of <a href="chap8.html#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewMasks</code> <strong class="purple">must</strong>
+be less than <code>pViewportState-&gt;viewportCount</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-07731" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-07731"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pDynamicStates-07731</span><br>
@@ -7064,11 +7074,11 @@ than <code>pViewportState-&gt;viewportCount</code></p>
 If the pipeline requires <a href="chap10.html#pipelines-graphics-subsets-pre-rasterization">pre-rasterization shader state</a>, and no element of the
 <code>pDynamicStates</code> member of <code>pDynamicState</code> is
 <code>VK_DYNAMIC_STATE_SCISSOR</code> or
-<code>VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT</code>, and if
+<code>VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT</code>, and if the
 <a href="chap46.html#features-multiviewPerViewViewports"><code>multiviewPerViewViewports</code></a>
-is enabled, then the index of the most significant bit in each element
-of <a href="chap8.html#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewMasks</code> <strong class="purple">must</strong> be less
-than <code>pViewportState-&gt;scissorCount</code></p>
+feature is enabled, then the index of the most significant bit in each
+element of <a href="chap8.html#VkRenderPassMultiviewCreateInfo">VkRenderPassMultiviewCreateInfo</a>::<code>pViewMasks</code> <strong class="purple">must</strong>
+be less than <code>pViewportState-&gt;scissorCount</code></p>
 </li>
 <li>
 <p><a id="VUID-VkGraphicsPipelineCreateInfo-pStages-08711" href="chap10.html#VUID-VkGraphicsPipelineCreateInfo-pStages-08711"></a> <span class="vuid">VUID-VkGraphicsPipelineCreateInfo-pStages-08711</span><br>
@@ -11629,21 +11639,21 @@ commands without <code>pShaderGroupCaptureReplayHandle</code> provided</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR</code> indicates a shader
-group with a single <code>VK_SHADER_STAGE_RAYGEN_BIT_KHR</code>,
+<p><code>VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR</code> specifies that a
+shader group with a single <code>VK_SHADER_STAGE_RAYGEN_BIT_KHR</code>,
 <code>VK_SHADER_STAGE_MISS_BIT_KHR</code>, or
 <code>VK_SHADER_STAGE_CALLABLE_BIT_KHR</code> shader in it.</p>
 </li>
 <li>
 <p><code>VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR</code> specifies
-a shader group that only hits triangles and <strong class="purple">must</strong> not contain an
+that a shader group that only hits triangles and <strong class="purple">must</strong> not contain an
 intersection shader, only closest hit and any-hit shaders.</p>
 </li>
 <li>
 <p><code>VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR</code>
-specifies a shader group that only intersects with custom geometry and
-<strong class="purple">must</strong> contain an intersection shader and <strong class="purple">may</strong> contain closest hit and
-any-hit shaders.</p>
+specifies that a shader group that only intersects with custom geometry
+and <strong class="purple">must</strong> contain an intersection shader and <strong class="purple">may</strong> contain closest hit
+and any-hit shaders.</p>
 </li>
 </ul>
 </div>
@@ -15765,8 +15775,8 @@ buffer, even if this state is specified as dynamic in the pipeline object.</p>
 <div class="paragraph">
 <p>Applications running on Vulkan implementations advertising an
 <a href="chap5.html#VkPhysicalDeviceDriverProperties">VkPhysicalDeviceDriverProperties</a>::<code>conformanceVersion</code> less than
-1.3.8.0 should be aware that rebinding the currently bound pipeline object
-may not reapply static state.</p>
+1.3.8.0 should be aware that rebinding the bound pipeline object may not
+reapply static state.</p>
 </div>
 </td>
 </tr>
@@ -17406,12 +17416,12 @@ are undefined.</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT</code> indicates that the
+<p><code>VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT</code> specifies that the
 feedback information is valid.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT</code>
-indicates that a readily usable pipeline or pipeline stage was found in
+specifies that a readily usable pipeline or pipeline stage was found in
 the <code>pipelineCache</code> specified by the application in the pipeline
 creation command.</p>
 <div class="paragraph">
@@ -17449,7 +17459,7 @@ this bit as the feedback would be unactionable.</p>
 </li>
 <li>
 <p><code>VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT</code>
-indicates that the base pipeline specified by the
+specifies that the base pipeline specified by the
 <code>basePipelineHandle</code> or <code>basePipelineIndex</code> member of the
 <code>Vk*PipelineCreateInfo</code> structure was used to accelerate the
 creation of the pipeline.</p>

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="The Khronos® Vulkan  Working Group">
-<title>Vulkan® 1.1.301 - A Specification (with all registered extensions)</title>
+<title>Vulkan® 1.1.302 - A Specification (with all registered extensions)</title>
 <link rel="stylesheet" href="style0.css" type="text/css">
 <link rel="stylesheet" href="style1.css" type="text/css">
 <link rel="stylesheet" href="style2.css" type="text/css">
@@ -57,12 +57,12 @@
     </span>
 </div>
 <div id="header">
-<h1>Vulkan<sup>®</sup> 1.1.301 - A Specification (with all registered extensions)</h1>
+<h1>Vulkan<sup>®</sup> 1.1.302 - A Specification (with all registered extensions)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> Vulkan  Working Group</span><br>
-<span id="revnumber">version 1.1.301,</span>
-<span id="revdate">2024-11-01 15:49:22Z</span>
-<br><span id="revremark">from git branch: github-main commit: d095b206f80dc85140898a7979b2c3bb81aeb7f9</span>
+<span id="revnumber">version 1.1.302,</span>
+<span id="revdate">2024-11-21 05:58:41Z</span>
+<br><span id="revremark">from git branch: github-main commit: 310c86fb5a06544a84bce70867f7c038b748e51c</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -142,7 +142,7 @@
 <li><a href="chap8.html#renderpass-resolve-operations">8.7. Render Pass Multisample Resolve Operations</a></li>
 <li><a href="chap8.html#renderpass-commands">8.8. Render Pass Commands</a></li>
 <li><a href="chap8.html#renderpass-creation-feedback">8.9. Render Pass Creation Feedback</a></li>
-<li><a href="chap8.html#_common_render_pass_data_races_informative">8.10. Common Render Pass Data Races (Informative)</a></li>
+<li><a href="chap8.html#common-render-pass-data-races">8.10. Common Render Pass Data Races (Informative)</a></li>
 </ul>
 </li>
 <li><a href="chap9.html">9. Shaders</a>
@@ -520,8 +520,10 @@
 <li><a href="chap42.html#decode-av1">42.14. AV1 Decode Operations</a></li>
 <li><a href="chap42.html#video-encode-operations">42.15. Video Encode Operations</a></li>
 <li><a href="chap42.html#encode-rate-control">42.16. Video Encode Rate Control</a></li>
-<li><a href="chap42.html#encode-h264">42.17. H.264 Encode Operations</a></li>
-<li><a href="chap42.html#encode-h265">42.18. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-quantization-map">42.17. Video Encode Quantization Maps</a></li>
+<li><a href="chap42.html#encode-h264">42.18. H.264 Encode Operations</a></li>
+<li><a href="chap42.html#encode-h265">42.19. H.265 Encode Operations</a></li>
+<li><a href="chap42.html#encode-av1">42.20. AV1 Encode Operations</a></li>
 </ul>
 </li>
 <li><a href="chap43.html">43. Optical Flow</a>
@@ -1129,6 +1131,16 @@ member specifying an encode operation</p>
 If <code>flags</code> includes
 <code>VK_BUFFER_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR</code>, then
 <a href="chap46.html#features-videoMaintenance1"><code>videoMaintenance1</code></a> <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkBufferCreateInfo-pNext-10249" href="chap12.html#VUID-VkBufferCreateInfo-pNext-10249"></a> <span class="vuid">VUID-VkBufferCreateInfo-pNext-10249</span><br>
+
+If the <code>pNext</code> chain includes a <a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a>
+structure and for any element of its <code>pProfiles</code> member
+<code>videoCodecOperation</code> is
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR</code>, then the
+<a href="chap46.html#features-videoEncodeAV1"><code>videoEncodeAV1</code></a> feature <strong class="purple">must</strong> be
+enabled</p>
 </li>
 <li>
 <p><a id="VUID-VkBufferCreateInfo-size-06409" href="chap12.html#VUID-VkBufferCreateInfo-size-06409"></a> <span class="vuid">VUID-VkBufferCreateInfo-size-06409</span><br>
@@ -3197,7 +3209,8 @@ be supported unless other parameters meet all of the constraints:</p>
 </li>
 <li>
 <p><code>arrayLayers</code> is 1, unless
-the <code>ycbcrImageArrays</code> feature is enabled, or
+the <a href="chap46.html#features-ycbcrImageArrays"><code>ycbcrImageArrays</code></a> feature is
+enabled, or
 otherwise indicated by
 <a href="chap49.html#VkImageFormatProperties">VkImageFormatProperties</a>::<code>maxArrayLayers</code>, as returned by
 <a href="chap49.html#vkGetPhysicalDeviceImageFormatProperties">vkGetPhysicalDeviceImageFormatProperties</a></p>
@@ -4516,6 +4529,8 @@ does not include <code>VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR</code>, then
 If <code>flags</code> includes
 <code>VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR</code>, then
 <code>usage</code> <strong class="purple">must</strong> not include
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code>,
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, or
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DPB_BIT_KHR</code></p>
 </li>
 <li>
@@ -4524,6 +4539,101 @@ If <code>flags</code> includes
 If the <code>pNext</code> chain includes a <a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a>
 structure with <code>profileCount</code> greater than <code>0</code>, then
 <code>supportedVideoFormat</code> <strong class="purple">must</strong> be <code>VK_TRUE</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-pNext-10250" href="chap12.html#VUID-VkImageCreateInfo-pNext-10250"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-10250</span><br>
+
+If the <code>pNext</code> chain includes a <a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a>
+structure and for any element of its <code>pProfiles</code> member
+<code>videoCodecOperation</code> is
+<code>VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR</code>, then the
+<a href="chap46.html#features-videoEncodeAV1"><code>videoEncodeAV1</code></a> feature <strong class="purple">must</strong> be
+enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10251" href="chap12.html#VUID-VkImageCreateInfo-usage-10251"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10251</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, then the
+<a href="chap46.html#features-videoEncodeQuantizationMap"><code>videoEncodeQuantizationMap</code></a> feature <strong class="purple">must</strong> be enabled</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10252" href="chap12.html#VUID-VkImageCreateInfo-usage-10252"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10252</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, <code>imageType</code>
+<strong class="purple">must</strong> be <code>VK_IMAGE_TYPE_2D</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10253" href="chap12.html#VUID-VkImageCreateInfo-usage-10253"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10253</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, <code>samples</code>
+<strong class="purple">must</strong> be <code>VK_SAMPLE_COUNT_1_BIT</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10254" href="chap12.html#VUID-VkImageCreateInfo-usage-10254"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10254</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, then the
+<code>pNext</code> chain <strong class="purple">must</strong> include a <a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a>
+structure with <code>profileCount</code> equal to <code>1</code> and <code>pProfiles</code>
+pointing to a <a href="chap42.html#VkVideoProfileInfoKHR">VkVideoProfileInfoKHR</a> structure with a
+<code>videoCodecOperation</code> member specifying an encode operation</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10255" href="chap12.html#VUID-VkImageCreateInfo-usage-10255"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10255</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code>, then
+<a href="chap42.html#VkVideoEncodeCapabilitiesKHR">VkVideoEncodeCapabilitiesKHR</a>::<code>flags</code> <strong class="purple">must</strong> include
+<code>VK_VIDEO_ENCODE_CAPABILITY_QUANTIZATION_DELTA_MAP_BIT_KHR</code>, as
+returned by <a href="chap42.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video
+profile specified in the <code>pProfiles</code> member of the
+<a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a> structure included in the <code>pNext</code>
+chain</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10256" href="chap12.html#VUID-VkImageCreateInfo-usage-10256"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10256</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, then
+<a href="chap42.html#VkVideoEncodeCapabilitiesKHR">VkVideoEncodeCapabilitiesKHR</a>::<code>flags</code> <strong class="purple">must</strong> include
+<code>VK_VIDEO_ENCODE_CAPABILITY_EMPHASIS_MAP_BIT_KHR</code>, as returned by
+<a href="chap42.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the video profile
+specified in the <code>pProfiles</code> member of the
+<a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a> structure included in the <code>pNext</code>
+chain</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10257" href="chap12.html#VUID-VkImageCreateInfo-usage-10257"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10257</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>,
+<code>extent.width</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap42.html#VkVideoEncodeQuantizationMapCapabilitiesKHR">VkVideoEncodeQuantizationMapCapabilitiesKHR</a>::<code>maxQuantizationMapExtent.width</code>,
+as returned by <a href="chap42.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+video profile specified in the <code>pProfiles</code> member of the
+<a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a> structure included in the <code>pNext</code>
+chain</p>
+</li>
+<li>
+<p><a id="VUID-VkImageCreateInfo-usage-10258" href="chap12.html#VUID-VkImageCreateInfo-usage-10258"></a> <span class="vuid">VUID-VkImageCreateInfo-usage-10258</span><br>
+
+If <code>usage</code> includes
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>,
+<code>extent.height</code> <strong class="purple">must</strong> be less than or equal to
+<a href="chap42.html#VkVideoEncodeQuantizationMapCapabilitiesKHR">VkVideoEncodeQuantizationMapCapabilitiesKHR</a>::<code>maxQuantizationMapExtent.height</code>,
+as returned by <a href="chap42.html#vkGetPhysicalDeviceVideoCapabilitiesKHR">vkGetPhysicalDeviceVideoCapabilitiesKHR</a> for the
+video profile specified in the <code>pProfiles</code> member of the
+<a href="chap42.html#VkVideoProfileListInfoKHR">VkVideoProfileListInfoKHR</a> structure included in the <code>pNext</code>
+chain</p>
 </li>
 <li>
 <p><a id="VUID-VkImageCreateInfo-pNext-06390" href="chap12.html#VUID-VkImageCreateInfo-pNext-06390"></a> <span class="vuid">VUID-VkImageCreateInfo-pNext-06390</span><br>
@@ -6119,9 +6229,10 @@ implementation <strong class="purple">should</strong> return the smallest alignm
 where a larger alignment would enable image compression -
 the implementation <strong class="purple">should</strong> not use <code>maximumRequestedAlignment</code>, and
 <strong class="purple">should</strong> return the smallest alignment which does not compromise compression.
-If <a href="chap46.html#features-imageCompressionControl"><code>imageCompressionControl</code></a> is
-enabled, the application <strong class="purple">can</strong> chain a <a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a>
-with <code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code>.
+If the <a href="chap46.html#features-imageCompressionControl"><code>imageCompressionControl</code></a>
+feature is enabled, the application <strong class="purple">can</strong> chain a
+<a href="chap12.html#VkImageCompressionControlEXT">VkImageCompressionControlEXT</a> with
+<code>VK_IMAGE_COMPRESSION_DISABLED_EXT</code>.
 In this case, image compression considerations <strong class="purple">should</strong> not apply when
 implementation decides alignment.</p>
 </div>
@@ -6148,7 +6259,7 @@ If <code>maximumRequestedAlignment</code> is not 0, the bitwise-and of
 <p><a id="VUID-VkImageAlignmentControlCreateInfoMESA-imageAlignmentControl-09657" href="chap12.html#VUID-VkImageAlignmentControlCreateInfoMESA-imageAlignmentControl-09657"></a> <span class="vuid">VUID-VkImageAlignmentControlCreateInfoMESA-imageAlignmentControl-09657</span><br>
 
 <a href="chap46.html#features-imageAlignmentControl"><code>imageAlignmentControl</code></a> <strong class="purple">must</strong> be
-enabled on the device</p>
+enabled</p>
 </li>
 </ul>
 </div>
@@ -6228,6 +6339,10 @@ enabled on the device</p>
     <span class="n">VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM</span> <span class="o">=</span> <span class="mh">0x00100000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_QCOM_image_processing</span>
     <span class="n">VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM</span> <span class="o">=</span> <span class="mh">0x00200000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_encode_quantization_map</span>
+    <span class="n">VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x02000000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_encode_quantization_map</span>
+    <span class="n">VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</span> <span class="o">=</span> <span class="mh">0x04000000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_NV_shading_rate_image</span>
     <span class="n">VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV</span> <span class="o">=</span> <span class="n">VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR</span><span class="p">,</span>
 <span class="p">}</span> <span class="n">VkImageUsageFlagBits</span><span class="p">;</span></code></pre>
@@ -6341,6 +6456,17 @@ combined image sampler or input attachment) in the same render pass.</p>
 <p><code>VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT</code> specifies that the image <strong class="purple">can</strong>
 be used with host copy commands and host layout transitions.</p>
 </li>
+<li>
+<p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code>
+specifies that the image <strong class="purple">can</strong> be used as a
+<a href="chap42.html#encode-quantization-delta-map">quantization delta map</a> in a
+<a href="chap42.html#video-encode-operations">video encode operation</a>.</p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code> specifies that
+the image <strong class="purple">can</strong> be used as an <a href="chap42.html#encode-emphasis-map">emphasis map</a> in a
+<a href="chap42.html#video-encode-operations">video encode operation</a>.</p>
+</li>
 </ul>
 </div>
 </div>
@@ -6404,6 +6530,12 @@ be used with host copy commands and host layout transitions.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code></p>
 </li>
 </ul>
 </div>
@@ -6775,7 +6907,7 @@ out in memory in row-major order, possibly with some padding on each
 row).</p>
 </li>
 <li>
-<p><code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code> indicates that the image’s
+<p><code>VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT</code> specifies that the image’s
 tiling is defined by a <a href="chap58.html#glossary-drm-format-modifier">Linux DRM format
 modifier</a>.
 The modifier is specified at image creation with
@@ -8371,6 +8503,8 @@ subresource layout mapping that is valid for either of those image layouts.</p>
     <span class="n">VK_IMAGE_LAYOUT_VIDEO_ENCODE_DPB_KHR</span> <span class="o">=</span> <span class="mi">1000299002</span><span class="p">,</span>
   <span class="c1">// Provided by VK_EXT_attachment_feedback_loop_layout</span>
     <span class="n">VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</span> <span class="o">=</span> <span class="mi">1000339000</span><span class="p">,</span>
+  <span class="c1">// Provided by VK_KHR_video_encode_quantization_map</span>
+    <span class="n">VK_IMAGE_LAYOUT_VIDEO_ENCODE_QUANTIZATION_MAP_KHR</span> <span class="o">=</span> <span class="mi">1000553000</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_maintenance2</span>
     <span class="n">VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR</span> <span class="o">=</span> <span class="n">VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL</span><span class="p">,</span>
   <span class="c1">// Provided by VK_KHR_maintenance2</span>
@@ -8422,7 +8556,8 @@ Currently, <code>VK_IMAGE_LAYOUT_PREINITIALIZED</code> is only useful with
 standard layout defined for <code>VK_IMAGE_TILING_OPTIMAL</code> images.</p>
 </li>
 <li>
-<p><code>VK_IMAGE_LAYOUT_GENERAL</code> supports all types of device access.</p>
+<p><code>VK_IMAGE_LAYOUT_GENERAL</code> supports all types of device access,
+unless specified otherwise.</p>
 </li>
 <li>
 <p><code>VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL</code> specifies a layout that <strong class="purple">must</strong>
@@ -8596,6 +8731,15 @@ either <code>VK_IMAGE_USAGE_STORAGE_BIT</code>, or both
 <code>VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT</code> or
 <code>VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT</code>.</p>
 </li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_QUANTIZATION_MAP_KHR</code> <strong class="purple">must</strong> only be
+used as a <a href="chap42.html#encode-quantization-map">quantization map</a> in a
+<a href="chap42.html#video-encode-operations">video encode operation</a>.
+This layout is valid only for image subresources of images created with
+the <code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code> usage bit
+enabled.</p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -8611,6 +8755,69 @@ For use as a framebuffer attachment, this is a member in the substructures
 of the <a href="chap8.html#VkRenderPassCreateInfo">VkRenderPassCreateInfo</a> (see <a href="chap8.html">Render Pass</a>).
 For use in a descriptor set, this is a member in the
 <code>VkDescriptorImageInfo</code> structure (see <a href="chap14.html#descriptorsets-updates">Descriptor Set Updates</a>).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p><code>VK_IMAGE_LAYOUT_GENERAL</code> can be a useful catch-all image layout, but
+there are situations where a dedicated image layout must be used instead.
+Some examples include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VK_IMAGE_LAYOUT_PRESENT_SRC_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_SRC_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_DST_KHR</code></p>
+</li>
+<li>
+<p><code>VK_IMAGE_LAYOUT_VIDEO_ENCODE_DPB_KHR</code></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>While <code>VK_IMAGE_LAYOUT_GENERAL</code> suggests that all types of device access
+is possible, it does not mean that all patterns of memory accesses are safe
+in all situations.
+<a href="chap8.html#common-render-pass-data-races">Common Render Pass Data Races</a> outlines
+some situations where data races are unavoidable.
+For example, when a subresource is used as both an attachment and a sampled
+image (i.e., not an input attachment),
+<code>VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT</code> adds extra
+guarantees which <code>VK_IMAGE_LAYOUT_GENERAL</code> does not.</p>
+</div>
+</td>
+</tr>
+</tbody></table>
 </div>
 </div>
 </div>
@@ -9268,6 +9475,23 @@ If <code>image</code> was created with
 <code>VK_IMAGE_USAGE_VIDEO_ENCODE_DST_BIT_KHR</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageViewCreateInfo-usage-10259" href="chap12.html#VUID-VkImageViewCreateInfo-usage-10259"></a> <span class="vuid">VUID-VkImageViewCreateInfo-usage-10259</span><br>
+
+If <code>usage</code> contains
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code>, then
+the image view’s <a href="chap12.html#resources-image-view-format-features">format
+features</a> <strong class="purple">must</strong> contain
+<code>VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code></p>
+</li>
+<li>
+<p><a id="VUID-VkImageViewCreateInfo-usage-10260" href="chap12.html#VUID-VkImageViewCreateInfo-usage-10260"></a> <span class="vuid">VUID-VkImageViewCreateInfo-usage-10260</span><br>
+
+If <code>usage</code> contains
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, then the image
+view’s <a href="chap12.html#resources-image-view-format-features">format features</a> <strong class="purple">must</strong>
+contain <code>VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageViewCreateInfo-usage-08932" href="chap12.html#VUID-VkImageViewCreateInfo-usage-08932"></a> <span class="vuid">VUID-VkImageViewCreateInfo-usage-08932</span><br>
 
 If <code>usage</code> contains <code>VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT</code>,
@@ -9755,6 +9979,15 @@ If <code>image</code> was created with <code>usage</code> containing
 <code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code></p>
 </li>
 <li>
+<p><a id="VUID-VkImageViewCreateInfo-image-10261" href="chap12.html#VUID-VkImageViewCreateInfo-image-10261"></a> <span class="vuid">VUID-VkImageViewCreateInfo-image-10261</span><br>
+
+If <code>image</code> was created with <code>usage</code> containing
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR</code> or
+<code>VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR</code>, then
+<code>viewType</code> <strong class="purple">must</strong> be <code>VK_IMAGE_VIEW_TYPE_2D</code> or
+<code>VK_IMAGE_VIEW_TYPE_2D_ARRAY</code></p>
+</li>
+<li>
 <p><a id="VUID-VkImageViewCreateInfo-flags-08106" href="chap12.html#VUID-VkImageViewCreateInfo-flags-08106"></a> <span class="vuid">VUID-VkImageViewCreateInfo-flags-08106</span><br>
 
 If <code>flags</code> includes
@@ -10184,7 +10417,7 @@ The image view <strong class="purple">must</strong> reference exactly 1 mip leve
 <p><a id="VUID-VkImageViewSlicedCreateInfoEXT-None-07871" href="chap12.html#VUID-VkImageViewSlicedCreateInfoEXT-None-07871"></a> <span class="vuid">VUID-VkImageViewSlicedCreateInfoEXT-None-07871</span><br>
 
 The <a href="chap46.html#features-imageSlicedViewOf3D">imageSlicedViewOf3D</a> feature <strong class="purple">must</strong>
-be enabled on the device</p>
+be enabled</p>
 </li>
 </ul>
 </div>
@@ -10982,6 +11215,48 @@ created, <code>pAllocator</code> <strong class="purple">must</strong> be <code>N
 <div class="openblock">
 <div class="content">
 <div class="paragraph">
+<p>To get the 64-bit handle for an image view, call:</p>
+</div>
+<div id="vkGetImageViewHandle64NVX" class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="c++"><span class="c1">// Provided by VK_NVX_image_view_handle</span>
+<span class="kt">uint64_t</span> <span class="nf">vkGetImageViewHandle64NVX</span><span class="p">(</span>
+    <span class="n">VkDevice</span>                                    <span class="n">device</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">VkImageViewHandleInfoNVX</span><span class="o">*</span>             <span class="n">pInfo</span><span class="p">);</span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>device</code> is the logical device that owns the image view.</p>
+</li>
+<li>
+<p><code>pInfo</code> describes the image view to query and type of handle.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Valid Usage (Implicit)</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a id="VUID-vkGetImageViewHandle64NVX-device-parameter" href="chap12.html#VUID-vkGetImageViewHandle64NVX-device-parameter"></a> <span class="vuid">VUID-vkGetImageViewHandle64NVX-device-parameter</span><br>
+ <code>device</code> <strong class="purple">must</strong> be a valid <a href="chap5.html#VkDevice">VkDevice</a> handle</p>
+</li>
+<li>
+<p><a id="VUID-vkGetImageViewHandle64NVX-pInfo-parameter" href="chap12.html#VUID-vkGetImageViewHandle64NVX-pInfo-parameter"></a> <span class="vuid">VUID-vkGetImageViewHandle64NVX-pInfo-parameter</span><br>
+ <code>pInfo</code> <strong class="purple">must</strong> be a valid pointer to a valid <a href="chap12.html#VkImageViewHandleInfoNVX">VkImageViewHandleInfoNVX</a> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
 <p>The <code>VkImageViewHandleInfoNVX</code> structure is defined as:</p>
 </div>
 <div id="VkImageViewHandleInfoNVX" class="listingblock">
@@ -11263,14 +11538,13 @@ contain <code>VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT</code>.</p>
 <li>
 <p><code>VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT</code> if the format
 is one of the <a href="chap48.html#formats-without-shader-storage-format">extended storage
-formats</a> and <code>shaderStorageImageReadWithoutFormat</code> is enabled on
-the device.</p>
+formats</a> and the <a href="chap46.html#features-shaderStorageImageReadWithoutFormat"><code>shaderStorageImageReadWithoutFormat</code></a> feature is enabled.</p>
 </li>
 <li>
 <p><code>VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT</code> if the
 format is one of the <a href="chap48.html#formats-without-shader-storage-format">extended
-storage formats</a> and <code>shaderStorageImageWriteWithoutFormat</code> is
-enabled on the device.</p>
+storage formats</a> and the
+<a href="chap46.html#features-shaderStorageImageWriteWithoutFormat"><code>shaderStorageImageWriteWithoutFormat</code></a> feature is enabled.</p>
 </li>
 </ul>
 </div>
@@ -11315,14 +11589,13 @@ contain <code>VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT</code>.</p>
 <li>
 <p><code>VK_FORMAT_FEATURE_2_STORAGE_READ_WITHOUT_FORMAT_BIT</code> if the format
 is one of the <a href="chap48.html#formats-without-shader-storage-format">extended storage
-formats</a> and <code>shaderStorageImageReadWithoutFormat</code> is enabled on
-the device.</p>
+formats</a> and the <a href="chap46.html#features-shaderStorageImageReadWithoutFormat"><code>shaderStorageImageReadWithoutFormat</code></a> is enabled.</p>
 </li>
 <li>
 <p><code>VK_FORMAT_FEATURE_2_STORAGE_WRITE_WITHOUT_FORMAT_BIT</code> if the
 format is one of the <a href="chap48.html#formats-without-shader-storage-format">extended
-storage formats</a> and <code>shaderStorageImageWriteWithoutFormat</code> is
-enabled on the device.</p>
+storage formats</a> and the
+<a href="chap46.html#features-shaderStorageImageWriteWithoutFormat"><code>shaderStorageImageWriteWithoutFormat</code></a> is enabled.</p>
 </li>
 </ul>
 </div>
@@ -12868,7 +13141,7 @@ specifying additional parameters for acceleration structure builds, are:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR</code> indicates
+<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR</code> specifies
     that the specified acceleration structure <strong class="purple">can</strong> be updated with
     a <code>mode</code> of <code>VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR</code> in
     <a href="chap37.html#VkAccelerationStructureBuildGeometryInfoKHR">VkAccelerationStructureBuildGeometryInfoKHR</a>
@@ -12878,7 +13151,7 @@ or
     .</p>
 </li>
 <li>
-<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR</code> indicates
+<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR</code> specifies
 that the specified acceleration structure <strong class="purple">can</strong> act as the source for a
 copy acceleration structure command with <code>mode</code> of
 <code>VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR</code> to produce a
@@ -12886,46 +13159,46 @@ compacted acceleration structure.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR</code>
-indicates that the given acceleration structure build <strong class="purple">should</strong> prioritize
+specifies that the given acceleration structure build <strong class="purple">should</strong> prioritize
 trace performance over build time.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR</code>
-indicates that the given acceleration structure build <strong class="purple">should</strong> prioritize
+specifies that the given acceleration structure build <strong class="purple">should</strong> prioritize
 build time over trace performance.</p>
 </li>
 <li>
-<p><code>VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR</code> indicates that
+<p><code>VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR</code> specifies that
 this acceleration structure <strong class="purple">should</strong> minimize the size of the scratch
 memory and the final result acceleration structure, potentially at the
 expense of build time or trace performance.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT</code>
-indicates that the opacity micromaps associated with the specified
+specifies that the opacity micromaps associated with the specified
 acceleration structure <strong class="purple">may</strong> change with an acceleration structure
 update.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT</code>
-indicates that the data of the opacity micromaps associated with the
+specifies that the data of the opacity micromaps associated with the
 specified acceleration structure <strong class="purple">may</strong> change with an acceleration
 structure update.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT</code>
-indicates that the specified acceleration structure <strong class="purple">may</strong> be referenced
+specifies that the specified acceleration structure <strong class="purple">may</strong> be referenced
 in an instance with
 <code>VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT</code> set.</p>
 </li>
 <li>
-<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR</code> indicates
+<p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR</code> specifies
 that the specified acceleration structure <strong class="purple">can</strong> be used when fetching the
 vertex positions of a hit triangle.</p>
 </li>
 <li>
 <p><code>VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV</code>
-indicates that the displacement micromaps associated with the specified
+specifies that the displacement micromaps associated with the specified
 acceleration structure <strong class="purple">may</strong> change with an acceleration structure
 update.</p>
 </li>
@@ -13157,11 +13430,11 @@ structure builds, are:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_GEOMETRY_OPAQUE_BIT_KHR</code> indicates that this geometry does not
+<p><code>VK_GEOMETRY_OPAQUE_BIT_KHR</code> specifies that this geometry does not
 invoke the any-hit shaders even if present in a hit group.</p>
 </li>
 <li>
-<p><code>VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR</code> indicates that
+<p><code>VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR</code> specifies that
 the implementation <strong class="purple">must</strong> only call the any-hit shader a single time for
 each primitive in this geometry.
 If this bit is absent an implementation <strong class="purple">may</strong> invoke the any-hit shader
@@ -15127,12 +15400,12 @@ specifying additional parameters for micromap builds, are:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT</code> indicates that the
+<p><code>VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT</code> specifies that the
 given micromap build <strong class="purple">should</strong> prioritize trace performance over build
 time.</p>
 </li>
 <li>
-<p><code>VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT</code> indicates that the
+<p><code>VK_BUILD_MICROMAP_PREFER_FAST_BUILD_BIT_EXT</code> specifies that the
 given micromap build <strong class="purple">should</strong> prioritize build time over trace
 performance.</p>
 </li>
